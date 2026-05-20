@@ -9,6 +9,9 @@ import SectionHeader from "@/components/SectionHeader";
 import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
 import SectionItem from "@/components/SectionItem";
 import SectionBody from "@/components/SectionBody";
+import { useContacts } from "@/queries/useContacts";
+import Avatar from "@/components/Avatar";
+import Fuse from "fuse.js";
 
 export const Route = createFileRoute("/_auth/conversations/new")({
   component: NewChat,
@@ -28,7 +31,15 @@ function NewChat() {
     (address) => address.service === "whatsapp",
   );
 
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const { data: contacts } = useContacts();
+  const [search, setSearch] = useState("");
+
+  const filteredContacts = (() => {
+    const withAddress = (contacts ?? []).filter(c => c.addresses?.at(0)?.address);
+    if (!search) return withAddress;
+    const fuse = new Fuse(withAddress, { threshold: 0.4, keys: ["name", "addresses.address"] });
+    return fuse.search(search).map(r => r.item);
+  })();
 
   function sanitizePhoneNumber(phone: string): string {
     // Remove all non-digit characters
@@ -57,13 +68,13 @@ function NewChat() {
           <input
             placeholder={t("Buscar nombre o número de teléfono")}
             className="bg-transparent border-none outline-none w-full h-full text-[15px] mx-[12px] placeholder:text-muted-foreground"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
-          {phoneNumber && (
+          {search && (
             <X
               className="cursor-pointer text-muted-foreground w-[16px] h-[16px] stroke-[3px]"
-              onClick={() => setPhoneNumber("")}
+              onClick={() => setSearch("")}
             />
           )}
         </div>
@@ -97,9 +108,9 @@ function NewChat() {
         )}
 
         {!!whatsappAddresses?.length &&
-          phoneNumber.replace(/\D/g, "").length >= 10 && (
+          search.replace(/\D/g, "").length >= 10 && (
             <SectionItem
-              title={formatPhoneNumber(sanitizePhoneNumber(phoneNumber))}
+              title={formatPhoneNumber(sanitizePhoneNumber(search))}
               aside={
                 <div className="p-[8px] bg-primary/10 rounded-full">
                   <MessageCircle className="w-[24px] h-[24px] text-primary" />
@@ -111,16 +122,41 @@ function NewChat() {
                 const convId = startConversation({
                   organization_id: activeOrgId,
                   organization_address: whatsappAddresses[0].address,
-                  contact_address: sanitizePhoneNumber(phoneNumber),
+                  contact_address: sanitizePhoneNumber(search),
                   service: "whatsapp",
-                  name: formatPhoneNumber(sanitizePhoneNumber(phoneNumber)),
+                  name: formatPhoneNumber(sanitizePhoneNumber(search)),
                 });
 
-                // setActiveConv(convId!);
                 navigate({ to: "/conversations", hash: convId });
               }}
             />
           )}
+
+        {filteredContacts.map((contact) => (
+          <SectionItem
+            key={contact.id}
+            title={contact.name || t("Sin nombre")}
+            description={formatPhoneNumber(contact.addresses!.at(0)!.address)}
+            aside={
+              <Avatar
+                fallback={contact.name?.substring(0, 2).toUpperCase() || "?"}
+                size={40}
+                className="bg-muted text-muted-foreground"
+              />
+            }
+            onClick={() => {
+              if (!activeOrgId || !whatsappAddresses?.length) return;
+              const convId = startConversation({
+                organization_id: activeOrgId,
+                organization_address: whatsappAddresses[0].address,
+                contact_address: contact.addresses!.at(0)!.address,
+                service: "whatsapp",
+                name: contact.name || formatPhoneNumber(contact.addresses!.at(0)!.address),
+              });
+              navigate({ to: "/conversations", hash: convId });
+            }}
+          />
+        ))}
       </SectionBody>
     </div>
   );
