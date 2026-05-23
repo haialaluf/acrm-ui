@@ -358,7 +358,7 @@ const FilePreviewer = () => {
             >
               <svg
                 className={
-                  "mb-[1px] w-[24px] h-[24px] text-primary-foreground transition" +
+                  "send-icon mb-[1px] w-[24px] h-[24px] text-primary-foreground transition" +
                   (sendAsContact ? " -scale-x-100 mr-[4px] " : " ml-[4px] ")
                 }
               >

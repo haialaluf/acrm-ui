@@ -1,4 +1,4 @@
-import { nameInitials, formatPhoneNumber } from "@/utils/FormatUtils";
+import { nameInitials, formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import Avatar from "./Avatar";
 import useBoundStore from "@/stores/useBoundStore";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -56,7 +56,7 @@ export default function Header() {
         <div className="text-[16px] text-foreground truncate">{convName}</div>
         <div className="text-[13px] text-muted-foreground truncate">
           {service === "local" && t("Contacto de prueba")}
-          {service === "whatsapp" && address && formatPhoneNumber(address)}
+          {service === "whatsapp" && address && ltrIsolate(formatPhoneNumber(address))}
         </div>
       </div>
 

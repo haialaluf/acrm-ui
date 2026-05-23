@@ -37,9 +37,15 @@ export type TemplateDraft = {
   headVarValues: string[];
 };
 
-export type Language = "es" | "en" | "pt" | "sw" | "fr";
+export type Language = "es" | "en" | "pt" | "sw" | "fr" | "he";
 
-const SUPPORTED_LANGUAGES: Language[] = ["es", "en", "pt", "sw", "fr"];
+const SUPPORTED_LANGUAGES: Language[] = ["es", "en", "pt", "sw", "fr", "he"];
+
+const RTL_LANGUAGES: Language[] = ["he"];
+
+export function isRtl(lang: Language): boolean {
+  return RTL_LANGUAGES.includes(lang);
+}
 
 export function detectDefaultLanguage(): Language {
   const candidates =

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# sync-translations.sh — Report missing or stale translation keys in en.json, pt.json, sw.json and fr.json.
+# sync-translations.sh — Report missing or stale translation keys in en.json, pt.json, sw.json, fr.json and he.json.
 # Usage: ./scripts/sync-translations.sh
 # Exit code 1 if any drift is found, 0 otherwise.
 
@@ -11,6 +11,7 @@ EN="$ROOT/public/locales/en.json"
 PT="$ROOT/public/locales/pt.json"
 SW="$ROOT/public/locales/sw.json"
 FR="$ROOT/public/locales/fr.json"
+HE="$ROOT/public/locales/he.json"
 
 # ── 1. Extract all t("...") keys from source ────────────────────────────────
 CODE_KEYS=$(grep -roh 't("[^"]*")' "$ROOT/src/" --include='*.tsx' --include='*.ts' \
@@ -36,16 +37,19 @@ EN_KEYS=$(json_keys "$EN")
 PT_KEYS=$(json_keys "$PT")
 SW_KEYS=$(json_keys "$SW")
 FR_KEYS=$(json_keys "$FR")
+HE_KEYS=$(json_keys "$HE")
 
 # ── 4. Compare ───────────────────────────────────────────────────────────────
 MISSING_EN=$(comm -23 <(echo "$FILTERED_KEYS") <(echo "$EN_KEYS"))
 MISSING_PT=$(comm -23 <(echo "$FILTERED_KEYS") <(echo "$PT_KEYS"))
 MISSING_SW=$(comm -23 <(echo "$FILTERED_KEYS") <(echo "$SW_KEYS"))
 MISSING_FR=$(comm -23 <(echo "$FILTERED_KEYS") <(echo "$FR_KEYS"))
+MISSING_HE=$(comm -23 <(echo "$FILTERED_KEYS") <(echo "$HE_KEYS"))
 STALE_EN=$(comm -23 <(echo "$EN_KEYS") <(echo "$FILTERED_KEYS"))
 STALE_PT=$(comm -23 <(echo "$PT_KEYS") <(echo "$FILTERED_KEYS"))
 STALE_SW=$(comm -23 <(echo "$SW_KEYS") <(echo "$FILTERED_KEYS"))
 STALE_FR=$(comm -23 <(echo "$FR_KEYS") <(echo "$FILTERED_KEYS"))
+STALE_HE=$(comm -23 <(echo "$HE_KEYS") <(echo "$FILTERED_KEYS"))
 
 DRIFT=0
 
@@ -73,6 +77,13 @@ fi
 if [[ -n "$MISSING_FR" ]]; then
   echo "❌ Missing from fr.json ($(echo "$MISSING_FR" | wc -l) keys):"
   echo "$MISSING_FR" | sed 's/^/  /'
+  echo
+  DRIFT=1
+fi
+
+if [[ -n "$MISSING_HE" ]]; then
+  echo "❌ Missing from he.json ($(echo "$MISSING_HE" | wc -l) keys):"
+  echo "$MISSING_HE" | sed 's/^/  /'
   echo
   DRIFT=1
 fi
@@ -105,13 +116,21 @@ if [[ -n "$STALE_FR" ]]; then
   DRIFT=1
 fi
 
+if [[ -n "$STALE_HE" ]]; then
+  echo "⚠️  Stale in he.json ($(echo "$STALE_HE" | wc -l) keys):"
+  echo "$STALE_HE" | sed 's/^/  /'
+  echo
+  DRIFT=1
+fi
+
 if [[ "$DRIFT" -eq 0 ]]; then
   EN_COUNT=$(echo "$EN_KEYS" | wc -l)
   PT_COUNT=$(echo "$PT_KEYS" | wc -l)
   SW_COUNT=$(echo "$SW_KEYS" | wc -l)
   FR_COUNT=$(echo "$FR_KEYS" | wc -l)
+  HE_COUNT=$(echo "$HE_KEYS" | wc -l)
   CODE_COUNT=$(echo "$FILTERED_KEYS" | wc -l)
-  echo "✅ All translation keys are in sync ($CODE_COUNT code keys, $EN_COUNT en, $PT_COUNT pt, $SW_COUNT sw, $FR_COUNT fr)"
+  echo "✅ All translation keys are in sync ($CODE_COUNT code keys, $EN_COUNT en, $PT_COUNT pt, $SW_COUNT sw, $FR_COUNT fr, $HE_COUNT he)"
 fi
 
 exit "$DRIFT"

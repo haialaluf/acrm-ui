@@ -7,7 +7,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { WhatsAppOutlined } from "@ant-design/icons";
 import { Link, Plus } from "lucide-react";
 import type { JSX } from "react";
-import { formatPhoneNumber } from "@/utils/FormatUtils";
+import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 
 export const Route = createFileRoute("/_auth/integrations/whatsapp/")({
   component: WhatsAppIndex,
@@ -69,7 +69,7 @@ function WhatsAppIndex() {
                   <WhatsAppOutlined style={{ fontSize: "24px", color: "#25D366" }} />
                 </div>
               }
-              title={formatPhoneNumber((integration.extra as { phone_number?: string })?.phone_number || integration.address)}
+              title={ltrIsolate(formatPhoneNumber((integration.extra as { phone_number?: string })?.phone_number || integration.address))}
               description={statusLabels[integration.status] || integration.status}
               onClick={() => navigate({
                 to: "/integrations/whatsapp/$orgAddressId",

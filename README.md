@@ -98,7 +98,7 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ### i18n (Internationalization)
 
-The UI is written in Spanish (the default language) and supports English, Portuguese, French, and Swahili translations. All user-facing strings use the `t()` function from `src/hooks/useTranslation.tsx`, which returns the Spanish key as-is or looks up a translation from `public/locales/{lang}.json`.
+The UI is written in Spanish (the default language) and supports English, Portuguese, French, Swahili, and Hebrew translations. All user-facing strings use the `t()` function from `src/hooks/useTranslation.tsx`, which returns the Spanish key as-is or looks up a translation from `public/locales/{lang}.json`. Hebrew is right-to-left: when it is active the document direction and Ant Design's `ConfigProvider` switch to RTL (see `src/main.tsx` and `isRtl` in `src/stores/uiSlice.ts`).
 
 **Adding new strings**: wrap any user-facing text with `t("Texto en español")`. The Spanish key is the source of truth — no entry in `en.json`/`pt.json` means the Spanish text is shown.
 

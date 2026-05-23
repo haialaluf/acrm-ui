@@ -147,7 +147,7 @@ export function TextMessage({
               {!!footer && <span className="text-[11px] mx-[4px] invisible">
                 {dayjs(timestamp).format("HH:mm")}
                 {direction === "outgoing" && (
-                  <span className="px-[8px] ml-[3px]"></span>
+                  <span className="px-[8px] ms-[3px]"></span>
                 )}
               </span>}
             </>
@@ -178,15 +178,16 @@ export function TextMessage({
               <span className="text-[11px] mx-[4px] invisible">
                 {dayjs(timestamp).format("HH:mm")}
                 {direction === "outgoing" && !!status && (
-                  <span className="px-[8px] ml-[3px]"></span>
+                  <span className="px-[8px] ms-[3px]"></span>
                 )}
               </span>
             </div>
           )}
         </div>
 
-        {/* Timestamp */}
-        <div className="text-[11px] text-muted-foreground absolute bottom-[0px] right-[7px] flex items-center">
+        {/* Timestamp — positioned at the text's logical end so it sits in the
+            trailing-space gap in both LTR and RTL layouts. */}
+        <div className="text-[11px] text-muted-foreground absolute bottom-[0px] end-[7px] flex items-center">
           {dayjs(timestamp).format("HH:mm")}
           {direction === "outgoing" && !!status && <StatusIcon {...status} />}
         </div>

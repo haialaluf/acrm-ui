@@ -7,7 +7,7 @@ import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import Avatar from "@/components/Avatar";
-import { formatPhoneNumber } from "@/utils/FormatUtils";
+import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import SearchBar from "@/components/SearchBar";
 import Fuse from "fuse.js";
 
@@ -64,7 +64,7 @@ function ListContacts() {
           <SectionItem
             key={contact.id}
             title={contact.name || t("Sin nombre")}
-            description={contact.addresses?.at(0)?.address ? formatPhoneNumber(contact.addresses.at(0)!.address) : t("Sin dirección")}
+            description={contact.addresses?.at(0)?.address ? ltrIsolate(formatPhoneNumber(contact.addresses.at(0)!.address)) : t("Sin dirección")}
             aside={
               <Avatar
                 fallback={contact.name?.substring(0, 2).toUpperCase() || "?"}

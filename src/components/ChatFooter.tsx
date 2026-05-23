@@ -620,7 +620,7 @@ export default function ChatFooter() {
         >
           <svg
             className={
-              "w-[24px] h-[24px] transition" +
+              "send-icon w-[24px] h-[24px] transition" +
               (sendAsContact && !templateDraft ? " -scale-x-100" : "") +
               " text-primary-foreground"
             }

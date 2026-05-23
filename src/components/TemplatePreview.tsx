@@ -200,7 +200,7 @@ export default function TemplatePreview({
           className="p-[8px] absolute right-[16px] top-0"
           onClick={sendHandler}
         >
-          <svg className="w-[24px] h-[24px] text-gray-icon">
+          <svg className="send-icon w-[24px] h-[24px] text-gray-icon">
             <use href="/icons.svg#send" />
           </svg>
         </button>

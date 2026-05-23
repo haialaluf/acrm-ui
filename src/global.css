@@ -424,3 +424,31 @@ input[type="range"]::-moz-range-track {
 .json-null {
   color: var(--muted-foreground);
 }
+
+/* ── RTL (Hebrew) support ──────────────────────────────────────────────── */
+/* Flip horizontal navigation icons (back arrows, drill-in chevrons).
+   Vertical icons such as chevron-down are intentionally left untouched. */
+[dir="rtl"] .lucide-arrow-left,
+[dir="rtl"] .lucide-arrow-right,
+[dir="rtl"] .lucide-chevron-left,
+[dir="rtl"] .lucide-chevron-right {
+  transform: scaleX(-1);
+}
+
+/* The send arrow points toward the outgoing direction, so mirror it in RTL.
+   Tailwind's -scale-x-100 (the "send as contact" toggle) sets the `scale`
+   property, which composes with this `transform` — the two flips cancel, so
+   the combined RTL + send-as-contact state lands the right way (XOR). */
+[dir="rtl"] .send-icon {
+  transform: rotate(180deg);
+}
+
+/* Numeric/identifier inputs read left-to-right even inside an RTL layout,
+   while staying aligned to the field's start (right) side. */
+[dir="rtl"] input[type="tel"],
+[dir="rtl"] input[type="number"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="url"] {
+  direction: ltr;
+  text-align: right;
+}

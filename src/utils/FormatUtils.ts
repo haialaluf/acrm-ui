@@ -45,6 +45,16 @@ export function formatPhoneNumber(phoneNumber: string): string {
   }
 }
 
+/**
+ * Wrap text in Unicode left-to-right isolates (U+2066 … U+2069) so it renders
+ * LTR even inside an RTL layout — e.g. phone numbers, whose "+" and digit
+ * groups otherwise get reordered. Safe in text nodes and title attributes, and
+ * keeps the value a plain string (unlike a dir="ltr" element).
+ */
+export function ltrIsolate(text: string): string {
+  return `\u2066${text}\u2069`;
+}
+
 export function isValidPhoneNumber(phoneNumber: string): boolean {
   if (!phoneNumber?.trim()) { return true; }
 

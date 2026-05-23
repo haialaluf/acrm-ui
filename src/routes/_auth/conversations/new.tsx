@@ -4,7 +4,7 @@ import { Search, X, MessageSquarePlus, MessageCircle } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { startConversation } from "@/utils/ConversationUtils";
 import { useState } from "react";
-import { formatPhoneNumber } from "@/utils/FormatUtils";
+import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import SectionHeader from "@/components/SectionHeader";
 import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
 import SectionItem from "@/components/SectionItem";
@@ -110,7 +110,7 @@ function NewChat() {
         {!!whatsappAddresses?.length &&
           search.replace(/\D/g, "").length >= 10 && (
             <SectionItem
-              title={formatPhoneNumber(sanitizePhoneNumber(search))}
+              title={ltrIsolate(formatPhoneNumber(sanitizePhoneNumber(search)))}
               aside={
                 <div className="p-[8px] bg-primary/10 rounded-full">
                   <MessageCircle className="w-[24px] h-[24px] text-primary" />
@@ -136,7 +136,7 @@ function NewChat() {
           <SectionItem
             key={contact.id}
             title={contact.name || t("Sin nombre")}
-            description={formatPhoneNumber(contact.addresses!.at(0)!.address)}
+            description={ltrIsolate(formatPhoneNumber(contact.addresses!.at(0)!.address))}
             aside={
               <Avatar
                 fallback={contact.name?.substring(0, 2).toUpperCase() || "?"}

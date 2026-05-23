@@ -258,6 +258,7 @@ export default function TemplateEditor({
               { value: "es", label: "Español" },
               { value: "en", label: "English" },
               { value: "pt", label: "Português" },
+              { value: "he", label: "עברית" },
             ]}
           />
 
