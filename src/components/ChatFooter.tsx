@@ -22,9 +22,11 @@ import "dayjs/locale/es";
 import "dayjs/locale/pt";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
+import { useContactByAddress } from "@/queries/useContacts";
 import { moveCursorToEnd } from "@/utils/UtilityFunctions";
 import { htmlToMarkdown } from "@/utils/htmlToMarkdown";
 import TemplatePicker from "./TemplatePicker";
+import DisabledSection from "./DisabledSection";
 
 function TemplateVarInput({
   placeholder,
@@ -110,6 +112,9 @@ export default function ChatFooter() {
 
   const { data: agent } = useCurrentAgent();
   const agentId = agent?.id;
+
+  const { data: contact } = useContactByAddress(conv?.contact_address);
+  const isRemoved = contact?.status === "removed";
 
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout>>();
 
@@ -454,6 +459,10 @@ export default function ChatFooter() {
     conv && (
       <div className="relative mx-[12px] mb-[12px] mt-[4px] lg:mt-[0px] z-10">
         {templatePicker && <TemplatePicker />}
+        <DisabledSection
+          disabled={isRemoved}
+          description={t("Este contacto solicitó ser eliminado")}
+        >
         <div className={"flex items-end text-foreground p-[5px] rounded-[24px] shadow-[0_0_4px_0px_rgba(0,0,0,0.1)]" + (templateDraft ? " bg-incoming-chat-bubble" : !inCSWindow ? " bg-background" : " bg-incoming-chat-bubble")}>
           <div className="shrink-0">
             {templateDraft ? (
@@ -629,6 +638,7 @@ export default function ChatFooter() {
           </svg>
           </button>
         </div>
+        </DisabledSection>
       </div>
     )
   );
