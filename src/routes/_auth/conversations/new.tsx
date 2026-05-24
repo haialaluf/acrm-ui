@@ -46,7 +46,7 @@ function NewChat() {
       });
     }
     if (!search) return withAddress;
-    const fuse = new Fuse(withAddress, { threshold: 0.4, keys: ["name", "addresses.address"] });
+    const fuse = new Fuse(withAddress, { threshold: 0.4, keys: ["name", "addresses.address", "email"] });
     return fuse.search(search).map(r => r.item);
   })();
 
@@ -75,7 +75,7 @@ function NewChat() {
         <div className="flex items-center w-full bg-incoming-chat-bubble h-[40px] rounded-full hover:ring ring-border px-[12px] text-foreground">
           <Search className="text-muted-foreground w-[16px] h-[16px] stroke-[3px] shrink-0" />
           <input
-            placeholder={t("Buscar nombre o número de teléfono")}
+            placeholder={t("Buscar nombre, número o email")}
             className="bg-transparent border-none outline-none w-full h-full text-[15px] mx-[12px] placeholder:text-muted-foreground"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

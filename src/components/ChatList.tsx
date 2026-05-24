@@ -57,6 +57,17 @@ const ChatList = () => {
     return map;
   }, [contacts]);
 
+  const emailByAddress = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const contact of contacts ?? []) {
+      if (!contact.email) continue;
+      for (const addr of contact.addresses ?? []) {
+        if (addr.address) map.set(addr.address, contact.email);
+      }
+    }
+    return map;
+  }, [contacts]);
+
   function getMostRecentMsg(convId: string): MessageRow | undefined {
     return messages.get(convId)?.values().next().value;
   }
@@ -83,9 +94,13 @@ const ChatList = () => {
     );
 
   if (searchPattern) {
-    const fuse = new Fuse(items, {
+    const enriched = items.map((item) => ({
+      ...item,
+      contactEmail: emailByAddress.get(item.conv.contact_address ?? ""),
+    }));
+    const fuse = new Fuse(enriched, {
       threshold: 0.4,
-      keys: ["conv.name", "conv.contact_address"],
+      keys: ["conv.name", "conv.contact_address", "contactEmail"],
     });
     items = fuse.search(searchPattern).map((r) => r.item);
   } else {
