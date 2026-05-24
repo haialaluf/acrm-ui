@@ -2,14 +2,19 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCreateContact } from "@/queries/useContacts";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import SectionBody from "@/components/SectionBody";
 import SectionFooter from "@/components/SectionFooter";
 import Button from "@/components/Button";
+import ContactTagSelect from "@/components/ContactTagSelect";
 import { Plus, X } from "lucide-react";
 import type { ContactWithAddressesInsert } from "@/supabase/client";
 import { isValidPhoneNumber } from "@/utils/FormatUtils";
 import FieldError from "@/components/FieldError";
+
+// `tags` is a contacts column not yet present in the generated db_types.ts;
+// remove this once ContactWithAddressesInsert includes it (see useContactTags).
+type ContactFormValues = ContactWithAddressesInsert & { tags?: string[] };
 
 export const Route = createFileRoute("/_auth/contacts/new")({
   component: ContactNew,
@@ -25,10 +30,11 @@ function ContactNew() {
     handleSubmit,
     control,
     formState: { isValid, isDirty, errors },
-  } = useForm<ContactWithAddressesInsert>({
+  } = useForm<ContactFormValues>({
     mode: 'onTouched',
     defaultValues: {
       addresses: [{ address: "" }],
+      tags: [],
     },
   });
 
@@ -60,6 +66,21 @@ function ContactNew() {
               {...register("name")}
             />
           </label>
+
+          <div>
+            <div className="label">{t("Etiquetas")}</div>
+            <Controller
+              control={control}
+              name="tags"
+              render={({ field }) => (
+                <ContactTagSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                />
+              )}
+            />
+          </div>
 
           {fields.map((field, idx) => (
             <label key={field.id}>

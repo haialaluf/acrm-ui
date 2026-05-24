@@ -6,15 +6,20 @@ import {
   useDeleteContact,
   useUpdateContact,
 } from "@/queries/useContacts";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import SectionBody from "@/components/SectionBody";
 import SectionFooter from "@/components/SectionFooter";
 import Button from "@/components/Button";
+import ContactTagSelect from "@/components/ContactTagSelect";
 import { Plus, X } from "lucide-react";
 import { useMemo } from "react";
 import type { ContactWithAddressesUpdate } from "@/supabase/client";
 import { isValidPhoneNumber, formatPhoneNumber } from "@/utils/FormatUtils";
 import FieldError from "@/components/FieldError";
+
+// `tags` is a contacts column not yet present in the generated db_types.ts;
+// remove this once ContactWithAddressesUpdate includes it (see useContactTags).
+type ContactFormValues = ContactWithAddressesUpdate & { tags?: string[] };
 
 export const Route = createFileRoute("/_auth/contacts/$contactId")({
   component: ContactDetail,
@@ -39,7 +44,7 @@ function ContactDetail() {
     handleSubmit,
     control,
     formState: { isDirty, isValid, errors },
-  } = useForm<ContactWithAddressesUpdate>({
+  } = useForm<ContactFormValues>({
     mode: 'onTouched',
     values: contact
   });
@@ -75,6 +80,21 @@ function ContactDetail() {
               {...register("name")}
             />
           </label>
+
+          <div>
+            <div className="label">{t("Etiquetas")}</div>
+            <Controller
+              control={control}
+              name="tags"
+              render={({ field }) => (
+                <ContactTagSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                />
+              )}
+            />
+          </div>
 
           {fields.map((field, idx) => {
             const isExisting = originalAddresses.has(field.address ?? "");

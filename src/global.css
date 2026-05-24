@@ -336,6 +336,21 @@ input[type="range"]::-moz-range-track {
   appearance: none;
 }
 
+/*
+ Ant Design tags Select (contact form). Colors, font size, the transparent
+ underline, and the dropdown are themed via ConfigProvider tokens in
+ contacts/new.tsx; these rules only pull the chips/placeholder flush-left so
+ the field lines up with the underlined `.text` inputs above and below it.
+ Unlayered (outside @layer) so they win over Ant Design's runtime styles.
+*/
+.text-select.ant-select-multiple {
+  padding-inline-start: 0;
+}
+
+.text-select.ant-select-multiple .ant-select-placeholder {
+  inset-inline-start: 0;
+}
+
 /* Firefox */
 * {
   scrollbar-width: thin;

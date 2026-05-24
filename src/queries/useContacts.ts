@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   supabase,
   type ContactAddressInsert,
+  type ContactInsert,
   type ContactWithAddressesInsert,
   type ContactWithAddressesRow,
   type ContactWithAddressesUpdate,
@@ -97,15 +98,22 @@ export function useCreateContact() {
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
 
   return useMutation({
-    mutationFn: async (data: ContactWithAddressesInsert) => {
+    mutationFn: async (data: ContactWithAddressesInsert & { tags?: string[] | null }) => {
       if (!orgId) throw new Error("No active organization");
 
-      const { addresses, ...contactData } = data;
+      const { addresses, tags, ...contactData } = data;
 
       // Create contact
       const { data: contact } = await supabase
         .from("contacts")
-        .insert({ ...contactData, organization_id: orgId })
+        // `tags` is a contacts column not yet present in the generated
+        // db_types.ts; drop this cast once the types are regenerated in the
+        // API repo (see useContactTags).
+        .insert({
+          ...contactData,
+          ...(tags?.length ? { tags } : {}),
+          organization_id: orgId,
+        } as ContactInsert)
         .select()
         .single()
         .throwOnError();
