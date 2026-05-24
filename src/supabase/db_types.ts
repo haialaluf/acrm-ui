@@ -664,29 +664,35 @@ export type Database = {
       contacts: {
         Row: {
           created_at: string
+          email: string | null
           extra: Json | null
           id: string
           name: string | null
           organization_id: string
           status: string
+          tags: string[] | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          email?: string | null
           extra?: Json | null
           id?: string
           name?: string | null
           organization_id: string
           status?: string
+          tags?: string[] | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          email?: string | null
           extra?: Json | null
           id?: string
           name?: string | null
           organization_id?: string
           status?: string
+          tags?: string[] | null
           updated_at?: string
         }
         Relationships: [
