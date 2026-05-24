@@ -1,8 +1,10 @@
+import { useMemo } from "react";
 import useBoundStore from "@/stores/useBoundStore";
 import ChatListItem from "./ChatListItem";
 import { type ConversationRow, type MessageRow } from "@/supabase/client";
 import { timestampDescending } from "@/stores/chatSlice";
 import { filters, Filters } from "@/stores/uiSlice";
+import { useContacts } from "@/queries/useContacts";
 import Fuse from "fuse.js";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -36,6 +38,24 @@ const ChatList = () => {
   const setFilterName = useBoundStore((state) => state.ui.setFilter);
   const searchPattern = useBoundStore((state) => state.ui.searchPattern);
   const setSearchPattern = useBoundStore((state) => state.ui.setSearchPattern);
+  const tagsFilter = useBoundStore((state) => state.ui.tagsFilter);
+  const setTagsFilter = useBoundStore((state) => state.ui.setTagsFilter);
+  const { data: contacts } = useContacts();
+
+  // Map each contact address to its tags so conversations (which only carry a
+  // `contact_address`) can be matched against the selected tag filter.
+  const tagsByAddress = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const contact of contacts ?? []) {
+      // `tags` isn't in db_types.ts yet — see useContactTags.
+      const contactTags = (contact as { tags?: string[] | null }).tags ?? [];
+      if (!contactTags.length) continue;
+      for (const addr of contact.addresses ?? []) {
+        if (addr.address) map.set(addr.address, contactTags);
+      }
+    }
+    return map;
+  }, [contacts]);
 
   function getMostRecentMsg(convId: string): MessageRow | undefined {
     return messages.get(convId)?.values().next().value;
@@ -55,7 +75,11 @@ const ChatList = () => {
       (a) =>
         a.conv.organization_id === activeOrgId &&
         filters[filterName](a.conv, a.mostRecentMsg) &&
-        !!a.mostRecentMsg
+        !!a.mostRecentMsg &&
+        (tagsFilter.length === 0 ||
+          tagsFilter.some((tag) =>
+            (tagsByAddress.get(a.conv.contact_address ?? "") ?? []).includes(tag)
+          ))
     );
 
   if (searchPattern) {
@@ -85,12 +109,13 @@ const ChatList = () => {
       ) : (
         <div className="h-full flex items-center justify-center flex-col text-foreground text-[15px] mt-[-24px]">
           {t("Nada por aquí")}
-          {(searchPattern || filterName !== Filters.ALL) && (
+          {(searchPattern || filterName !== Filters.ALL || tagsFilter.length > 0) && (
             <button
               className="text-[13px] text-primary"
               onClick={() => {
                 setSearchPattern("");
                 setFilterName(Filters.ALL);
+                setTagsFilter([]);
               }}
             >
               {t("remover filtros...")}

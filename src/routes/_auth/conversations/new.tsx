@@ -11,6 +11,7 @@ import SectionItem from "@/components/SectionItem";
 import SectionBody from "@/components/SectionBody";
 import { useContacts } from "@/queries/useContacts";
 import Avatar from "@/components/Avatar";
+import TagFilter from "@/components/TagFilter";
 import Fuse from "fuse.js";
 
 export const Route = createFileRoute("/_auth/conversations/new")({
@@ -33,9 +34,17 @@ function NewChat() {
 
   const { data: contacts } = useContacts();
   const [search, setSearch] = useState("");
+  const [tagsFilter, setTagsFilter] = useState<string[]>([]);
 
   const filteredContacts = (() => {
-    const withAddress = (contacts ?? []).filter(c => c.addresses?.at(0)?.address);
+    let withAddress = (contacts ?? []).filter(c => c.addresses?.at(0)?.address);
+    if (tagsFilter.length) {
+      withAddress = withAddress.filter(c => {
+        // `tags` isn't in db_types.ts yet — see useContactTags.
+        const tags = (c as { tags?: string[] | null }).tags ?? [];
+        return tagsFilter.some(tag => tags.includes(tag));
+      });
+    }
     if (!search) return withAddress;
     const fuse = new Fuse(withAddress, { threshold: 0.4, keys: ["name", "addresses.address"] });
     return fuse.search(search).map(r => r.item);
@@ -79,6 +88,8 @@ function NewChat() {
           )}
         </div>
       </div>
+
+      <TagFilter value={tagsFilter} onChange={setTagsFilter} />
 
       <SectionBody>
         {localAddress && (

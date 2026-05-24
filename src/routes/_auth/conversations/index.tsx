@@ -3,6 +3,7 @@ import ChatList from "@/components/ChatList";
 import ChatSearch from "@/components/ChatSearch";
 import Header from "@/components/Header";
 import ChatFilter from "@/components/ChatFilter";
+import ChatTagFilter from "@/components/ChatTagFilter";
 import SectionItem from "@/components/SectionItem";
 import Spinner from "@/components/Spinner";
 import { Bell } from "lucide-react";
@@ -48,6 +49,7 @@ function Conversations() {
       <Header /> {/* height: 59 px */}
       <ChatSearch /> {/* height: 49 px */}
       <ChatFilter /> {/* height: 43 px */}
+      <ChatTagFilter /> {/* hidden when no contact tags exist */}
 
       {invitations && invitations.length > 0 && (
         <div className="pt-[10px] pb-[5px] pl-[10px] pr-[20px] flex flex-col gap-[4px]">

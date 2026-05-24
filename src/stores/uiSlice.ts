@@ -70,6 +70,7 @@ export type UIState = {
   sendAsContact: boolean;
   filter: keyof typeof filters;
   searchPattern: string;
+  tagsFilter: string[];
   isLoading: boolean;
   language: Language;
 };
@@ -82,6 +83,7 @@ export type UIActions = {
   setSendAsContact: (sendAsContact: boolean) => void;
   setFilter: (filter: keyof typeof filters) => void;
   setSearchPattern: (searchPattern: string) => void;
+  setTagsFilter: (tagsFilter: string[]) => void;
   setTemplateDraft: (convId: string, draft: TemplateDraft | null) => void;
   setLanguage: (lang: Language) => void;
 };
@@ -106,6 +108,7 @@ export const createUISlice: StateCreator<Partial<AppState>> = (
   sendAsContact: false,
   filter: "todas" as keyof typeof filters,
   searchPattern: "",
+  tagsFilter: [],
   isLoading: false,
   language: detectDefaultLanguage(),
   toggle: (component: keyof UIState, value?: boolean) =>
@@ -155,6 +158,13 @@ export const createUISlice: StateCreator<Partial<AppState>> = (
       ui: {
         ...state.ui,
         searchPattern,
+      },
+    })),
+  setTagsFilter: (tagsFilter: string[]) =>
+    set((state) => ({
+      ui: {
+        ...state.ui,
+        tagsFilter,
       },
     })),
   setTemplateDraft: (convId: string, draft: TemplateDraft | null) =>
