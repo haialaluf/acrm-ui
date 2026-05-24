@@ -14,7 +14,7 @@ import FieldError from "@/components/FieldError";
 
 // `tags` is a contacts column not yet present in the generated db_types.ts;
 // remove this once ContactWithAddressesInsert includes it (see useContactTags).
-type ContactFormValues = ContactWithAddressesInsert & { tags?: string[] };
+type ContactFormValues = ContactWithAddressesInsert & { tags?: string[]; email?: string | null };
 
 export const Route = createFileRoute("/_auth/contacts/new")({
   component: ContactNew,
@@ -64,6 +64,16 @@ function ContactNew() {
               className="text"
               placeholder={t("Nombre del contacto")}
               {...register("name")}
+            />
+          </label>
+
+          <label>
+            <div className="label">{t("Email")}</div>
+            <input
+              type="email"
+              className="text"
+              placeholder={t("correo@ejemplo.com")}
+              {...register("email")}
             />
           </label>
 
