@@ -1,6 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase, type TemplateData } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+
+// Edge functions return errors as JSON `{ error: string }`. For non-2xx
+// responses supabase-js exposes the raw Response on `error.context`, so we read
+// the body to surface the real message (e.g. Meta's rejection reason).
+async function throwFunctionError(error: unknown): Promise<never> {
+  if (error instanceof FunctionsHttpError) {
+    const body = await error.context.json().catch(() => null);
+    throw new Error(body?.error || error.message);
+  }
+  throw error;
+}
 
 export function useTemplates(organizationAddress?: string) {
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
@@ -44,7 +56,7 @@ export function useCreateTemplate() {
         },
       );
 
-      if (error) throw error;
+      if (error) await throwFunctionError(error);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -74,7 +86,7 @@ export function useUpdateTemplate() {
         },
       );
 
-      if (error) throw error;
+      if (error) await throwFunctionError(error);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -104,7 +116,7 @@ export function useDeleteTemplate() {
         },
       );
 
-      if (error) throw error;
+      if (error) await throwFunctionError(error);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

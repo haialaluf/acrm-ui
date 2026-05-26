@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Alert } from "antd";
 import { type TemplateData } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
 import { PlusIcon } from "lucide-react";
@@ -37,6 +38,7 @@ export default function TemplateEditor({
   const createMutation = useCreateTemplate();
   const updateMutation = useUpdateTemplate();
   const isPending = createMutation.isPending || updateMutation.isPending;
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const existingHeader =
     existingTemplate?.components.find((c) => c.type === "HEADER");
@@ -225,10 +227,20 @@ export default function TemplateEditor({
       ],
     };
 
+    setSubmitError(null);
+
     const mutation = existingTemplate ? updateMutation : createMutation;
     mutation.mutate(
       { template, organizationAddress },
-      { onSuccess: () => navigate({ to: "..", hash: (prevHash) => prevHash! }) },
+      {
+        onSuccess: () => navigate({ to: "..", hash: (prevHash) => prevHash! }),
+        onError: (error) =>
+          setSubmitError(
+            error instanceof Error
+              ? error.message
+              : t("No se pudo guardar la plantilla"),
+          ),
+      },
     );
   }
 
@@ -429,6 +441,15 @@ export default function TemplateEditor({
       </SectionBody>
 
       <SectionFooter>
+        {submitError && (
+          <Alert
+            type="error"
+            showIcon
+            closable={{ afterClose: () => setSubmitError(null) }}
+            title={submitError}
+            className="mb-[12px]"
+          />
+        )}
         <Button
           type="submit"
           form="template-form"
