@@ -5,7 +5,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import SearchBar from "@/components/SearchBar";
@@ -51,6 +51,21 @@ function ListContacts() {
           onClick={() =>
             navigate({
               to: "/contacts/new",
+              hash: (prevHash) => prevHash!,
+            })
+          }
+        />
+        <SectionItem
+          title={t("Importar contactos")}
+          description={t("Desde un archivo CSV o Excel")}
+          aside={
+            <div className="p-[8px] bg-primary/10 rounded-full">
+              <Upload className="w-[24px] h-[24px] text-primary" />
+            </div>
+          }
+          onClick={() =>
+            navigate({
+              to: "/contacts/import",
               hash: (prevHash) => prevHash!,
             })
           }

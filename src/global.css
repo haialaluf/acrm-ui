@@ -30,6 +30,9 @@
   
   --chat-out: oklch(91.619% 0.0445 38.665);
   --chat-in: oklch(1 0 0);
+
+  --success: oklch(0.65 0.14 150);
+  --warning: oklch(0.72 0.16 75);
 }
 
 .dark {
@@ -62,6 +65,9 @@
 
   --chat-out: oklch(43.696% 0.08141 40.805);
   --chat-in: oklch(0.31 0 106.6);
+
+  --success: oklch(0.7 0.14 150);
+  --warning: oklch(0.78 0.16 75);
 }
 
 @theme inline {
@@ -94,6 +100,9 @@
 
   --color-incoming-chat-bubble: var(--chat-in);
   --color-outgoing-chat-bubble: var(--chat-out);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
 }
 
 html,
@@ -466,4 +475,138 @@ input[type="range"]::-moz-range-track {
 [dir="rtl"] input[type="url"] {
   direction: ltr;
   text-align: right;
+}
+
+/* ── Import contacts flow ──────────────────────────────────────────────────
+   Component-scoped classes for routes/_auth/contacts/import.tsx. Unlayered so
+   `select.mapping` overrides the layered underlined `select` rule above, and
+   so the token-tinted surfaces win over Tailwind utilities used alongside. */
+
+.dropzone {
+  border: 2px dashed var(--input);
+  border-radius: 16px;
+  background: oklch(from var(--card) l c h / 0.6);
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.dropzone:hover {
+  border-color: var(--primary);
+  background: oklch(from var(--primary) l c h / 0.04);
+}
+.dropzone.dragging {
+  border-color: var(--primary);
+  background: oklch(from var(--primary) l c h / 0.08);
+  transform: scale(1.005);
+}
+
+.file-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.preview-table th {
+  text-align: start;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--sidebar);
+  position: sticky;
+  top: 0;
+}
+.preview-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+}
+.preview-table tr:last-child td {
+  border-bottom: none;
+}
+.preview-table tr.row-error td {
+  background: oklch(from var(--destructive) l c h / 0.06);
+}
+.preview-table tr.row-dupe td {
+  background: oklch(from var(--warning) l c h / 0.08);
+}
+
+.row-tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+.row-tag.err {
+  background: oklch(from var(--destructive) l c h / 0.15);
+  color: var(--destructive);
+}
+.row-tag.dup {
+  background: oklch(from var(--warning) l c h / 0.2);
+  color: oklch(from var(--warning) calc(l - 0.2) c h);
+}
+.row-tag.ok {
+  background: oklch(from var(--success) l c h / 0.15);
+  color: oklch(from var(--success) calc(l - 0.1) c h);
+}
+
+select.mapping {
+  width: 100%;
+  border: 1px solid var(--border);
+  background-color: var(--popover);
+  color: var(--foreground);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239b9b96' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: left 8px center;
+  padding-inline-start: 28px;
+}
+select.mapping:hover {
+  border-color: var(--input);
+}
+select.mapping:focus {
+  border-color: var(--primary);
+}
+
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--muted);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.18s linear;
+  border-radius: 9999px;
+}
+
+@keyframes import-slidein {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.import-animate-in {
+  animation: import-slidein 0.25s ease both;
 }

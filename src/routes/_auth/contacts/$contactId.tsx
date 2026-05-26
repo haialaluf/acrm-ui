@@ -17,9 +17,7 @@ import type { ContactWithAddressesUpdate } from "@/supabase/client";
 import { isValidPhoneNumber, formatPhoneNumber } from "@/utils/FormatUtils";
 import FieldError from "@/components/FieldError";
 
-// `tags` is a contacts column not yet present in the generated db_types.ts;
-// remove this once ContactWithAddressesUpdate includes it (see useContactTags).
-type ContactFormValues = ContactWithAddressesUpdate & { tags?: string[]; email?: string | null };
+type ContactFormValues = ContactWithAddressesUpdate;
 
 export const Route = createFileRoute("/_auth/contacts/$contactId")({
   component: ContactDetail,
