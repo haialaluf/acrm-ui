@@ -23,6 +23,7 @@ import {
 import {
   EmptyFileError,
   parseContactsFile,
+  PREVIEW_ROWS,
   UnsupportedFileError,
   type ParsedFile,
 } from "@/utils/parseContactsFile";
@@ -112,6 +113,16 @@ function ImportContacts() {
       return { status: "ok", name, phone, email };
     });
   }, [file, mapping, existingByPhone]);
+
+  // Rows shown in the preview table: error rows first (wherever they appear in
+  // the file), then the rest in original order, capped at PREVIEW_ROWS.
+  const previewRows = useMemo(() => {
+    if (!file) return [];
+    return file.allRows
+      .map((cells, i) => ({ cells, status: rows[i]?.status ?? "ok" }))
+      .sort((a, b) => (a.status === "err" ? 0 : 1) - (b.status === "err" ? 0 : 1))
+      .slice(0, PREVIEW_ROWS);
+  }, [file, rows]);
 
   const counts = useMemo(() => {
     let ok = 0, err = 0, dup = 0;
@@ -255,7 +266,7 @@ function ImportContacts() {
                 <div className="flex items-baseline justify-between">
                   <div className="label" style={{ margin: 0 }}>{t("Vista previa")}</div>
                   <div className="text-[12px] text-muted-foreground">
-                    {fill("{n} de {m} filas", { n: file.preview.length, m: file.rows })}
+                    {fill("{n} de {m} filas", { n: previewRows.length, m: file.rows })}
                   </div>
                 </div>
                 <div
@@ -277,26 +288,23 @@ function ImportContacts() {
                       </tr>
                     </thead>
                     <tbody>
-                      {file.preview.map((row, ri) => {
-                        const status = rows[ri]?.status ?? "ok";
-                        return (
-                          <tr key={ri} className={status === "err" ? "row-error" : status === "dup" ? "row-dupe" : ""}>
-                            <td>
-                              {status === "err" && <span className="row-tag err">!</span>}
-                              {status === "dup" && <span className="row-tag dup">⎘</span>}
-                              {status === "ok" && <span className="row-tag ok">✓</span>}
+                      {previewRows.map(({ cells, status }, ri) => (
+                        <tr key={ri} className={status === "err" ? "row-error" : status === "dup" ? "row-dupe" : ""}>
+                          <td>
+                            {status === "err" && <span className="row-tag err">!</span>}
+                            {status === "dup" && <span className="row-tag dup">⎘</span>}
+                            {status === "ok" && <span className="row-tag ok">✓</span>}
+                          </td>
+                          {cells.map((cell, ci) => (
+                            <td
+                              key={ci}
+                              style={ci === mapping.phone ? { direction: "ltr", textAlign: "start" } : undefined}
+                            >
+                              {cell || <span className="text-muted-foreground">—</span>}
                             </td>
-                            {row.map((cell, ci) => (
-                              <td
-                                key={ci}
-                                style={ci === mapping.phone ? { direction: "ltr", textAlign: "start" } : undefined}
-                              >
-                                {cell || <span className="text-muted-foreground">—</span>}
-                              </td>
-                            ))}
-                          </tr>
-                        );
-                      })}
+                          ))}
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>

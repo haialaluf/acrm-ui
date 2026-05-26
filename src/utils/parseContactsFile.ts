@@ -19,11 +19,10 @@ export type ParsedFile = {
   headers: string[];
   /** Every data row, each normalized to `headers.length` cells. */
   allRows: string[][];
-  /** First slice of data rows for the preview table. */
-  preview: string[][];
 };
 
-export const PREVIEW_ROWS = 12;
+/** Max rows rendered in the import preview table. */
+export const PREVIEW_ROWS = 32;
 
 export class UnsupportedFileError extends Error {}
 export class EmptyFileError extends Error {}
@@ -158,6 +157,5 @@ export async function parseContactsFile(file: File): Promise<ParsedFile> {
     rows: allRows.length,
     headers,
     allRows,
-    preview: allRows.slice(0, PREVIEW_ROWS),
   };
 }
