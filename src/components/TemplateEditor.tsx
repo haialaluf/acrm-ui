@@ -285,7 +285,9 @@ export default function TemplateEditor({
               {...register("name", {
                 required: t("El nombre es obligatorio"),
                 onChange: (e) => {
-                  e.target.value = e.target.value.replace(/ /g, "_");
+                  e.target.value = e.target.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9_]+/g, "_");
                 },
               })}
             />
