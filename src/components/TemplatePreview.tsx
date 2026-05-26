@@ -7,6 +7,12 @@ import {
 import useBoundStore from "@/stores/useBoundStore";
 import { type TemplateMessage, type TemplateData } from "@/supabase/client";
 import { OutMessage, InMessage, TextMessage } from "./Message/Message";
+import { useTranslation } from "@/hooks/useTranslation";
+import {
+  ButtonKindIcon,
+  buttonDefToPreview,
+  buttonSendComponents,
+} from "./templateButtons";
 
 export default function TemplatePreview({
   template: { name, language, components },
@@ -24,6 +30,7 @@ export default function TemplatePreview({
 }) {
   "use no memo";
   const toggle = useBoundStore((store) => store.ui.toggle);
+  const { translate: t } = useTranslation();
 
   const headMemo = useMemo(
     () => components.find((c) => c.type === "HEADER"),
@@ -59,6 +66,13 @@ export default function TemplatePreview({
   const bodyExamples = editMode ? (body.example?.body_text[0] || []) : bodyExamplesMemo;
 
   const buttons = butt?.buttons;
+
+  // Quick replies render as pills outside the bubble (à la WhatsApp); CTA
+  // buttons (link / call / copy) stack inside it, divided by hairlines.
+  const previewButtons =
+    buttons?.map((b) => buttonDefToPreview(b, t("Copiar código"))) || [];
+  const qrButtons = previewButtons.filter((b) => b.kind === "QR");
+  const ctaButtons = previewButtons.filter((b) => b.kind !== "QR");
 
   const [headValues, setHeadValues] = useState(headExamples);
   const [bodyValues, setBodyValues] = useState(bodyExamples);
@@ -147,21 +161,7 @@ export default function TemplatePreview({
     }
 
     if (buttons) {
-      idx = 0;
-      for (const button of buttons) {
-        components.push({
-          type: "button",
-          sub_type: "quick_reply",
-          index: idx.toString(),
-          parameters: [
-            {
-              type: "payload",
-              payload: button.text.toLowerCase().replaceAll(" ", "_"),
-            },
-          ],
-        });
-        idx++;
-      }
+      components.push(...buttonSendComponents(buttons));
     }
 
     const template = {
@@ -190,11 +190,29 @@ export default function TemplatePreview({
           header={headPlaceholders}
           body={bodyPlaceholders}
           footer={foot?.text}
-          buttons={buttons?.map((b) => b.text)}
+          buttons={ctaButtons}
           direction="outgoing"
           onInput={onInputHandler}
         />
       </Message>
+      {qrButtons.length > 0 && (
+        <div
+          className={
+            "flex flex-wrap gap-[6px] mt-[8px] " +
+            (editMode ? "justify-start" : "justify-end")
+          }
+        >
+          {qrButtons.map((b, i) => (
+            <div
+              key={i}
+              className="inline-flex items-center gap-[6px] bg-popover text-primary rounded-full px-[14px] py-[6px] text-[14px] font-medium shadow-sm"
+            >
+              <ButtonKindIcon kind="QR" className="w-[13px] h-[13px]" />
+              {b.text}
+            </div>
+          ))}
+        </div>
+      )}
       {sendTemplateMessage && (
         <button
           className="p-[8px] absolute right-[16px] top-0"

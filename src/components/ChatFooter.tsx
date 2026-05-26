@@ -27,6 +27,7 @@ import { moveCursorToEnd } from "@/utils/UtilityFunctions";
 import { htmlToMarkdown } from "@/utils/htmlToMarkdown";
 import TemplatePicker from "./TemplatePicker";
 import DisabledSection from "./DisabledSection";
+import { buttonSendComponents } from "./templateButtons";
 
 function TemplateVarInput({
   placeholder,
@@ -310,21 +311,7 @@ export default function ChatFooter() {
     }
 
     if (templateButtons?.buttons) {
-      let idx = 0;
-      for (const button of templateButtons.buttons) {
-        components.push({
-          type: "button",
-          sub_type: "quick_reply",
-          index: idx.toString(),
-          parameters: [
-            {
-              type: "payload",
-              payload: button.text.toLowerCase().replaceAll(" ", "_"),
-            },
-          ],
-        });
-        idx++;
-      }
+      components.push(...buttonSendComponents(templateButtons.buttons));
     }
 
     const template: TemplateMessage["template"] = {

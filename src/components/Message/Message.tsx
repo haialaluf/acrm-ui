@@ -16,6 +16,7 @@ import AvatarComponent from "@/components/Avatar";
 import { useAgent } from "@/queries/useAgents";
 import { AVATAR_BG_COLORS, AVATAR_TEXT_COLORS } from "@/utils/colors";
 import type { Json } from "@/supabase/db_types";
+import { ButtonKindIcon, type PreviewButton } from "@/components/templateButtons";
 
 const md = new Remarkable({
   breaks: true,
@@ -101,7 +102,7 @@ export function TextMessage({
   header?: string;
   body: string | Json;
   footer?: string;
-  buttons?: string[];
+  buttons?: PreviewButton[];
   timestamp?: string;
   status?: OutgoingStatus;
   onInput?: FormEventHandler<HTMLDivElement>;
@@ -193,13 +194,14 @@ export function TextMessage({
         </div>
       </div>
 
-      {/* Actions */}
-      {buttons?.map((text, idx) => (
+      {/* Actions — CTA buttons stacked inside the bubble, divided by hairlines */}
+      {buttons?.map((button, idx) => (
         <div
           key={idx}
-          className="py-3 border-t border-border text-center text-primary"
+          className="py-3 border-t border-border flex items-center justify-center gap-[6px] text-primary"
         >
-          {text}
+          <ButtonKindIcon kind={button.kind} className="w-[15px] h-[15px]" />
+          {button.text}
         </div>
       ))}
     </>

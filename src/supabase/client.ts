@@ -154,13 +154,40 @@ type FooterComponent = {
 
 type ButtonsComponent = {
   type: "BUTTONS";
-  buttons: QuickReply[]; // TODO: call to action buttons - cabra 2024/09/12
+  buttons: TemplateButtonDef[];
 };
 
-type QuickReply = {
+// Buttons attached to a template definition (create/update). These mirror
+// Meta's Cloud API button shapes and are sent through verbatim by the
+// `whatsapp-management/templates` edge function.
+type QuickReplyButton = {
   type: "QUICK_REPLY";
   text: string;
 };
+
+type UrlButton = {
+  type: "URL";
+  text: string;
+  url: string; // may end with {{1}} when dynamic
+  example?: [string]; // sample URL with {{1}} filled in (required by Meta for dynamic URLs)
+};
+
+type PhoneButton = {
+  type: "PHONE_NUMBER";
+  text: string;
+  phone_number: string; // E.164, e.g. +97235550100
+};
+
+type CopyCodeButton = {
+  type: "COPY_CODE";
+  example: string; // sample coupon code; the button label is fixed by WhatsApp
+};
+
+export type TemplateButtonDef =
+  | QuickReplyButton
+  | UrlButton
+  | PhoneButton
+  | CopyCodeButton;
 
 // Template message, used to send a template message
 
@@ -222,7 +249,7 @@ type TemplateBody = {
   parameters?: TemplateParameter[];
 };
 
-type TemplateButton =
+export type TemplateButton =
   & {
     type: "button";
     index: string; // 0-9
@@ -238,8 +265,15 @@ type TemplateButton =
     | {
       sub_type: "url";
       parameters: {
-        type: "url";
+        type: "text"; // value substituted into the URL's {{1}} suffix
         text: string;
+      }[];
+    }
+    | {
+      sub_type: "copy_code";
+      parameters: {
+        type: "coupon_code";
+        coupon_code: string;
       }[];
     }
   );

@@ -4,25 +4,18 @@ import { type TemplateData } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
 import { PlusIcon } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
-import TemplatePreview from "./TemplatePreview";
 import FieldError from "./FieldError";
 import SectionBody from "./SectionBody";
 import SectionFooter from "./SectionFooter";
 import Button from "./Button";
 import SelectField from "./SelectField";
+import TemplateButtonsField from "./TemplateButtonsField";
+import TemplateEditorPreview from "./TemplateEditorPreview";
+import { componentToFormButton, formButtonsToComponent } from "./templateButtons";
+import { getVarNumbers, renumberVars, insertAtPos } from "./templateVars";
+import type { TemplateFormData } from "./templateEditorTypes";
 import { useNavigate } from "@tanstack/react-router";
 import { useCreateTemplate, useUpdateTemplate } from "@/queries/useTemplates";
-
-interface TemplateFormData {
-  name: string;
-  language: string;
-  category: "MARKETING" | "UTILITY";
-  header: string;
-  headerVariable: string;
-  body: string;
-  bodyVariables: { value: string }[];
-  footer: string;
-}
 
 export default function TemplateEditor({
   existingTemplate,
@@ -44,6 +37,8 @@ export default function TemplateEditor({
     existingTemplate?.components.find((c) => c.type === "HEADER");
   const existingBody =
     existingTemplate?.components.find((c) => c.type === "BODY");
+  const existingButtons =
+    existingTemplate?.components.find((c) => c.type === "BUTTONS");
 
   const {
     register,
@@ -67,6 +62,7 @@ export default function TemplateEditor({
       footer:
         existingTemplate?.components.find((c) => c.type === "FOOTER")?.text ||
         "",
+      buttons: (existingButtons?.buttons || []).map(componentToFormButton),
     },
   });
 
@@ -86,48 +82,7 @@ export default function TemplateEditor({
   const languageValue = watch("language");
   const headerVariableValue = watch("headerVariable");
   const bodyVariablesValue = watch("bodyVariables");
-
-  // Get unique variable numbers from text, in order of appearance
-  function getVarNumbers(text: string): number[] {
-    const seen = new Set<number>();
-    const ordered: number[] = [];
-    for (const m of text.matchAll(/\{\{(\d+)\}\}/g)) {
-      const n = parseInt(m[1]);
-      if (!seen.has(n)) { seen.add(n); ordered.push(n); }
-    }
-    return ordered;
-  }
-
-  // Renumber variables in text to contiguous 1..n, returns [newText, reorderMap]
-  function renumberVars(text: string) {
-    const matches = Array.from(text.matchAll(/\{\{(\d+)\}\}/g));
-    const seen = new Set<number>();
-    const ordered: number[] = [];
-    for (const m of matches) {
-      const n = parseInt(m[1]);
-      if (!seen.has(n)) { seen.add(n); ordered.push(n); }
-    }
-    if (ordered.every((n, i) => n === i + 1)) return { text, ordered };
-    const renumber = new Map<number, number>();
-    ordered.forEach((old, i) => renumber.set(old, i + 1));
-    let result = text;
-    for (const [old, _new] of renumber) {
-      result = result.replaceAll(`{{${old}}}`, `__VAR_${_new}__`);
-    }
-    for (let i = 1; i <= renumber.size; i++) {
-      result = result.replaceAll(`__VAR_${i}__`, `{{${i}}}`);
-    }
-    return { text: result, ordered };
-  }
-
-  // Insert text at position with spaces on left/right as needed
-  function insertAtPos(text: string, pos: number, insertion: string) {
-    const before = text.slice(0, pos);
-    const after = text.slice(pos);
-    const needsSpaceBefore = before.length > 0 && !before.endsWith(" ") && !before.endsWith("\n");
-    const needsSpaceAfter = after.length > 0 && !after.startsWith(" ") && !after.startsWith("\n");
-    return before + (needsSpaceBefore ? " " : "") + insertion + (needsSpaceAfter ? " " : "") + after;
-  }
+  const buttonsValue = watch("buttons");
 
   // Track actual variable numbers found in body text
   const bodyVarNumbers = getVarNumbers(bodyText);
@@ -143,47 +98,16 @@ export default function TemplateEditor({
     }
   }, [bodyText]);
 
-  // Build TemplateData from watched form values for preview
-  // Renumber for preview so {{N}} indices match example array positions
-  const { text: previewBody } = renumberVars(bodyText);
-  const previewVars = bodyVarNumbers.map((_, i) => bodyVariablesValue?.[i]?.value || "");
-
-  const previewTemplate: TemplateData = {
-    id: existingTemplate?.id || "",
-    name: nameText,
-    status: existingTemplate?.status || "PENDING",
-    category: categoryValue,
-    sub_category: "CUSTOM",
-    language: languageValue,
-    components: [
-      ...(headerText
-        ? [
-            {
-              type: "HEADER" as const,
-              text: headerText,
-              format: "TEXT" as const,
-              ...(headerText.includes("{{1}}") && headerVariableValue
-                ? { example: { header_text: [headerVariableValue] as [string] } }
-                : {}),
-            },
-          ]
-        : []),
-      {
-        type: "BODY",
-        text: previewBody,
-        ...(previewVars.length
-          ? {
-              example: {
-                body_text: [previewVars],
-              },
-            }
-          : {}),
-      },
-      ...(footerText
-        ? [{ type: "FOOTER" as const, text: footerText }]
-        : []),
-    ],
-  };
+  // Copy-code buttons are MARKETING-only — drop them if the category changes.
+  useEffect(() => {
+    if (categoryValue !== "MARKETING") {
+      const current = watch("buttons") || [];
+      const filtered = current.filter((b) => b.kind !== "COPY");
+      if (filtered.length !== current.length) {
+        setValue("buttons", filtered, { shouldDirty: true });
+      }
+    }
+  }, [categoryValue]);
 
   function onSubmit(data: TemplateFormData) {
     // Renumber variables to contiguous 1..n on submit
@@ -223,6 +147,9 @@ export default function TemplateEditor({
         },
         ...(data.footer
           ? [{ type: "FOOTER" as const, text: data.footer }]
+          : []),
+        ...(formButtonsToComponent(data.buttons)
+          ? [formButtonsToComponent(data.buttons)!]
           : []),
       ],
     };
@@ -432,13 +359,30 @@ export default function TemplateEditor({
             })} />
           </label>
 
+          {/* Buttons */}
+          <TemplateButtonsField
+            control={control}
+            register={register}
+            setValue={setValue}
+            category={categoryValue}
+          />
+
           {/* Preview */}
-          <label>
-            <div className="label">{t("Previsualización")}</div>
-            <div className="py-[12px] bg-chat relative rounded-[7.5px] [&>div>div]:!px-0 [&>div>div>div]:!max-w-[85%]">
-              <TemplatePreview editMode template={previewTemplate} />
-            </div>
-          </label>
+          <TemplateEditorPreview
+            values={{
+              name: nameText,
+              language: languageValue,
+              category: categoryValue,
+              header: headerText,
+              headerVariable: headerVariableValue,
+              body: bodyText,
+              bodyVariables: bodyVariablesValue,
+              footer: footerText,
+              buttons: buttonsValue,
+            }}
+            existingId={existingTemplate?.id}
+            existingStatus={existingTemplate?.status}
+          />
         </form>
       </SectionBody>
 
