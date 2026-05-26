@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   supabase,
@@ -37,6 +38,25 @@ export type ImportContactsResult = {
   updated: number;
 };
 
+/** Live progress, updated each time a batch / update resolves. */
+export type ImportProgress = {
+  /** Rows processed so far (inserted + updated). */
+  processed: number;
+  /** Total rows to process (contacts + updates). */
+  total: number;
+};
+
+/** Insert/update in batches so we never send an unbounded payload. */
+const BATCH_SIZE = 50;
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const batches: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    batches.push(items.slice(i, i + size));
+  }
+  return batches;
+}
+
 /**
  * Bulk-import contacts from a parsed file.
  *
@@ -48,8 +68,12 @@ export type ImportContactsResult = {
 export function useImportContacts() {
   const queryClient = useQueryClient();
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
+  const [progress, setProgress] = useState<ImportProgress>({
+    processed: 0,
+    total: 0,
+  });
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async ({
       contacts,
       updates,
@@ -57,18 +81,21 @@ export function useImportContacts() {
     }: ImportContactsArgs): Promise<ImportContactsResult> => {
       if (!orgId) throw new Error("No active organization");
 
+      setProgress({ processed: 0, total: contacts.length + updates.length });
+
       let added = 0;
 
-      if (contacts.length) {
-        // Insert every new contact in one round-trip. `insert([...]).select()`
-        // returns rows in the same order as the payload, so we can pair each
-        // returned id back to its phone for address linking.
+      // Insert new contacts in batches of BATCH_SIZE so a large file never
+      // sends one unbounded payload. Within each batch, `insert([...]).select()`
+      // returns rows in the same order as the payload, so we can pair each
+      // returned id back to its phone for address linking.
+      for (const batch of chunk(contacts, BATCH_SIZE)) {
         const { data: inserted } = await supabase
           .from("contacts")
           // `tags` / `email` are columns not yet in the generated db_types.ts;
           // drop this cast once the types are regenerated (see useContactTags).
           .insert(
-            contacts.map(
+            batch.map(
               (c) =>
                 ({
                   name: c.name,
@@ -81,7 +108,7 @@ export function useImportContacts() {
           .select()
           .throwOnError();
 
-        added = inserted.length;
+        added += inserted.length;
 
         // Link each contact's phone, deduplicated by normalized address.
         const links = inserted
@@ -91,7 +118,7 @@ export function useImportContacts() {
                 organization_id: orgId,
                 service: "whatsapp" as const,
                 contact_id: contact.id,
-                address: normalizePhoneNumber(contacts[i].phone),
+                address: normalizePhoneNumber(batch[i].phone),
               }) as ContactAddressInsert,
           )
           .filter(
@@ -107,19 +134,35 @@ export function useImportContacts() {
             })
             .throwOnError();
         }
+
+        setProgress((p) => ({ ...p, processed: p.processed + batch.length }));
       }
 
       // Merge the shared tags into existing duplicates (union, no removals).
+      // Contacts that end up with the same merged tag set can share a single
+      // `.in("id", [...])` update, so group by that set and then chunk each
+      // group by BATCH_SIZE to keep payloads bounded (mirrors the insert path).
       let updated = 0;
+      const groups = new Map<string, { merged: string[]; ids: string[] }>();
       for (const u of updates) {
         const merged = [...new Set([...u.existingTags, ...tags])];
-        await supabase
-          .from("contacts")
-          .update({ tags: merged } as ContactInsert)
-          .eq("id", u.contactId)
-          .eq("organization_id", orgId)
-          .throwOnError();
-        updated++;
+        const key = JSON.stringify(merged);
+        const group = groups.get(key) ?? { merged, ids: [] };
+        group.ids.push(u.contactId);
+        groups.set(key, group);
+      }
+
+      for (const { merged, ids } of groups.values()) {
+        for (const batch of chunk(ids, BATCH_SIZE)) {
+          await supabase
+            .from("contacts")
+            .update({ tags: merged } as ContactInsert)
+            .in("id", batch)
+            .eq("organization_id", orgId)
+            .throwOnError();
+          updated += batch.length;
+          setProgress((p) => ({ ...p, processed: p.processed + batch.length }));
+        }
       }
 
       return { added, updated };
@@ -130,4 +173,6 @@ export function useImportContacts() {
       });
     },
   });
+
+  return { ...mutation, progress };
 }

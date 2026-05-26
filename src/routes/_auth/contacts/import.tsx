@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   Check,
@@ -68,14 +68,12 @@ function ImportContacts() {
   const [tags, setTags] = useState<string[]>([]);
   const [skipDupes, setSkipDupes] = useState(true);
   const [updateExisting, setUpdateExisting] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [parseError, setParseError] = useState<string | null>(null);
   const [result, setResult] = useState<ImportContactsResult | null>(null);
 
-  const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
-  useEffect(() => () => {
-    if (progressTimer.current) clearInterval(progressTimer.current);
-  }, []);
+  // Real progress reported by the mutation as each batch / update resolves.
+  const { processed, total } = importContacts.progress;
+  const progress = total ? Math.round((processed / total) * 100) : 0;
 
   /** `{n}`-style interpolation on top of the dictionary lookup. */
   const fill = (key: string, vars: Record<string, string | number>) => {
@@ -140,7 +138,6 @@ function ImportContacts() {
   function resetToPick() {
     setFile(null);
     setTags([]);
-    setProgress(0);
     setResult(null);
     setParseError(null);
     setMapping({ name: null, phone: null, email: null });
@@ -183,11 +180,6 @@ function ImportContacts() {
     }
 
     setState("importing");
-    setProgress(0);
-    // Animate toward 90% while the request is in flight; snap to 100 on success.
-    progressTimer.current = setInterval(() => {
-      setProgress((p) => (p >= 90 ? p : p + Math.random() * 14 + 6));
-    }, 180);
 
     importContacts.mutate(
       {
@@ -204,13 +196,11 @@ function ImportContacts() {
       },
       {
         onSuccess: (res) => {
-          if (progressTimer.current) clearInterval(progressTimer.current);
           setResult(res);
-          setProgress(100);
+          // Let the bar reach 100% before flipping to the done screen.
           setTimeout(() => setState("done"), 350);
         },
         onError: () => {
-          if (progressTimer.current) clearInterval(progressTimer.current);
           setParseError(t("No se pudo leer el archivo"));
           setState("uploaded");
         },
@@ -391,8 +381,8 @@ function ImportContacts() {
                 <div className="text-[18px]">{t("Importando contactos…")}</div>
                 <div className="text-[14px] text-muted-foreground">
                   {fill("{n} de {m}", {
-                    n: Math.min(Math.round((progress / 100) * importableCount), importableCount),
-                    m: importableCount,
+                    n: processed,
+                    m: total || importableCount,
                   })}
                 </div>
               </div>
