@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import useBoundStore from "@/stores/useBoundStore";
 import SearchBar from "@/components/SearchBar";
 import { useTemplates } from "@/queries/useTemplates";
+import { useContactByAddress } from "@/queries/useContacts";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { TemplateData } from "@/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
@@ -13,10 +14,10 @@ export default function TemplatePicker() {
     store.chat.conversations.get(store.ui.activeConvId || ""),
   );
   const toggle = useBoundStore((store) => store.ui.toggle);
-  const setTemplateDraft = useBoundStore((store) => store.ui.setTemplateDraft);
 
   const orgAddress = conv?.organization_address;
   const { data: templates, isLoading } = useTemplates(orgAddress);
+  const { data: contact } = useContactByAddress(conv?.contact_address);
   const approved = templates?.filter((t) => t.status === "APPROVED");
 
   const [search, setSearch] = useState("");
@@ -48,17 +49,18 @@ export default function TemplatePicker() {
   }, [toggle]);
 
   function select(template: TemplateData) {
-    if (!activeConvId) return;
+    if (!activeConvId || !contact?.id) return;
 
-    const bodyExamples = template.components.find((c) => c.type === "BODY")?.example?.body_text[0] || [];
-    const headExamples = template.components.find((c) => c.type === "HEADER")?.example?.header_text || [];
-
-    setTemplateDraft(activeConvId, {
-      template,
-      bodyVarValues: bodyExamples.map(() => ""),
-      headVarValues: headExamples.map(() => ""),
-    });
+    // Hand off to the bulk-send wizard, pre-filled with this contact +
+    // template, jumping straight to the Variables step. Keeps the wizard as
+    // the single surface for filling/sending templates (kept here in the
+    // same left panel, so the drawer placement does not change).
     toggle("templatePicker", false);
+    navigate({
+      to: "/conversations/bulk-send",
+      search: { contactId: contact.id, templateId: template.id },
+      hash: (h) => h!,
+    });
   }
 
   return (

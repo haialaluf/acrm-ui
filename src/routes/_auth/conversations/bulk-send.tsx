@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
@@ -36,8 +36,21 @@ import {
   type VarValue,
 } from "@/components/bulkSend/types";
 
+type BulkSendSearch = {
+  /** Pre-fill a single recipient (used when this wizard is opened from inside
+   *  a conversation by picking a template). */
+  contactId?: string;
+  /** Pre-fill the chosen template; combined with `contactId` it jumps the
+   *  wizard straight to the Variables step. */
+  templateId?: string;
+};
+
 export const Route = createFileRoute("/_auth/conversations/bulk-send")({
   component: BulkSend,
+  validateSearch: (raw: Record<string, unknown>): BulkSendSearch => ({
+    contactId: typeof raw.contactId === "string" ? raw.contactId : undefined,
+    templateId: typeof raw.templateId === "string" ? raw.templateId : undefined,
+  }),
 });
 
 /**
@@ -50,6 +63,8 @@ export const Route = createFileRoute("/_auth/conversations/bulk-send")({
 function BulkSend() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
+  const { contactId: prefillContactId, templateId: prefillTemplateId } =
+    useSearch({ from: "/_auth/conversations/bulk-send" });
   const activeOrgId = useBoundStore((s) => s.ui.activeOrgId);
   const agentId = useBoundStore((s) => s.ui.user?.id);
   const { data: contacts } = useContacts();
@@ -60,6 +75,12 @@ function BulkSend() {
     () => (templates ?? []).filter((tpl) => tpl.status === "APPROVED"),
     [templates],
   );
+
+  // When opened from inside a conversation we land directly on the Variables
+  // step with the contact + template pre-selected; Back closes the wizard
+  // rather than walking back through Recipients/Template, which don't apply
+  // for a single-conversation hand-off.
+  const prefilled = Boolean(prefillContactId && prefillTemplateId);
 
   // wizard state
   const [stage, setStage] = useState<Stage>("recipients");
@@ -72,6 +93,31 @@ function BulkSend() {
   const [scheduledAt, setScheduledAt] = useState("");
   const [progress, setProgress] = useState({ sent: 0, failed: 0 });
 
+  // Prefill once data is loaded. Guarded so we don't re-apply if the user
+  // navigates back inside the wizard.
+  const appliedPrefillRef = useRef(false);
+  useEffect(() => {
+    if (
+      appliedPrefillRef.current ||
+      !prefillContactId ||
+      !prefillTemplateId ||
+      !contacts?.length ||
+      !approved?.length
+    ) {
+      return;
+    }
+    const tpl = approved.find((t) => t.id === prefillTemplateId);
+    const contact = contacts.find((c) => c.id === prefillContactId);
+    if (!tpl || !contact) return;
+    appliedPrefillRef.current = true;
+    setSelectedIds(new Set([contact.id]));
+    setTemplate(tpl);
+    const headN = countVars(tpl.components.find((c) => c.type === "HEADER")?.text);
+    const bodyN = countVars(tpl.components.find((c) => c.type === "BODY")?.text);
+    setVars(initVars(headN, bodyN));
+    setStage("variables");
+  }, [prefillContactId, prefillTemplateId, contacts, approved]);
+
   /* Resolved recipients (contacts with at least one address). */
   const recipients = useMemo<ContactWithAddressesRow[]>(() => {
     return (contacts ?? []).filter(
@@ -80,6 +126,13 @@ function BulkSend() {
   }, [contacts, selectedIds]);
 
   function back() {
+    // In the prefilled (from-conversation) flow, Recipients/Template don't
+    // apply, so Back from Variables closes the wizard instead of walking
+    // back to steps the user can't meaningfully edit.
+    if (prefilled && stage === "variables") {
+      navigate({ to: "/conversations", hash: (h) => h! });
+      return;
+    }
     if (stage === "template") setStage("recipients");
     else if (stage === "variables") setStage("template");
     else if (stage === "review") setStage("variables");
