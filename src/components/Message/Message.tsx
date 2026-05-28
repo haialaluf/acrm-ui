@@ -9,7 +9,12 @@ import ImageMessage from "./ImageMessage";
 import StatusIcon from "./StatusIcon";
 import dayjs from "dayjs";
 import { Remarkable } from "remarkable";
-import { type FormEventHandler, type PropsWithChildren, useState } from "react";
+import {
+  type FormEventHandler,
+  type PropsWithChildren,
+  type ReactNode,
+  useState,
+} from "react";
 import { prettyPrintJson } from "pretty-print-json";
 import { useTranslation } from "@/hooks/useTranslation";
 import AvatarComponent from "@/components/Avatar";
@@ -17,6 +22,7 @@ import { useAgent } from "@/queries/useAgents";
 import { AVATAR_BG_COLORS, AVATAR_TEXT_COLORS } from "@/utils/colors";
 import type { Json } from "@/supabase/db_types";
 import { ButtonKindIcon, type PreviewButton } from "@/components/templateButtons";
+import TemplateMessage from "./TemplateMessage";
 
 const md = new Remarkable({
   breaks: true,
@@ -350,13 +356,138 @@ type UIMessage = {
   internal?: boolean;
 };
 
+/* ─── Content render strategies ───────────────────────────────────────────
+   A message's inner content is rendered by the first strategy whose `matches`
+   predicate accepts its content. Adding a new content kind means adding a leaf
+   component and one entry below — no growing if/else chain. */
+
+type MessageContentProps = {
+  message: MessageRow;
+  header?: string;
+  fixedWidth?: boolean;
+  orgName?: string;
+  convName?: string;
+};
+
+function TextContent({ message, header, fixedWidth }: MessageContentProps) {
+  if (message.content.type !== "text") return null;
+  return (
+    <TextMessage
+      header={header}
+      body={message.content.text}
+      type="markdown"
+      direction={message.direction}
+      timestamp={message.timestamp}
+      status={message.direction === "outgoing" ? message.status : undefined}
+      fixedWidth={fixedWidth}
+    />
+  );
+}
+
+function ButtonReplyContent({ message, header, fixedWidth }: MessageContentProps) {
+  // Incoming reply produced when the contact taps a template quick-reply
+  // button — WhatsApp surfaces it as a plain text message.
+  if (message.content.type !== "data" || message.content.kind !== "button") {
+    return null;
+  }
+  return (
+    <TextMessage
+      header={header}
+      body={message.content.data.text}
+      type="markdown"
+      direction={message.direction}
+      timestamp={message.timestamp}
+      fixedWidth={fixedWidth}
+    />
+  );
+}
+
+function DataTextContent({ message, header, fixedWidth }: MessageContentProps) {
+  if (message.content.type !== "data" || !message.content.text) return null;
+  return (
+    <TextMessage
+      header={header}
+      body={message.content.text}
+      type="markdown"
+      direction={message.direction}
+      timestamp={message.timestamp}
+      status={message.direction === "outgoing" ? message.status : undefined}
+      fixedWidth={fixedWidth}
+    />
+  );
+}
+
+function DataJsonContent({ message, header, fixedWidth }: MessageContentProps) {
+  if (message.content.type !== "data") return null;
+  return (
+    <TextMessage
+      header={header}
+      body={message.content.data}
+      type="json"
+      direction={message.direction}
+      timestamp={message.timestamp}
+      status={message.direction === "outgoing" ? message.status : undefined}
+      fixedWidth={fixedWidth}
+    />
+  );
+}
+
+function FileContent({ message, orgName, convName }: MessageContentProps) {
+  if (message.content.type !== "file") return null;
+  switch (message.content.kind) {
+    case "audio":
+      return (
+        <AudioMessage
+          message={message}
+          orgName={orgName || ""}
+          convName={convName || ""}
+        />
+      );
+    case "image":
+    case "sticker":
+    case "video":
+      return <ImageMessage {...message} />;
+    case "document":
+    default:
+      return <DocumentMessage {...message} />;
+  }
+}
+
+type MessageStrategy = {
+  matches: (content: MessageRow["content"]) => boolean;
+  /** Whether the bubble uses the text-style width treatment. */
+  text: boolean;
+  Component: (props: MessageContentProps) => ReactNode;
+};
+
+// Order matters: more specific data kinds (template, button reply, captioned
+// data) must precede the generic JSON fallback.
+const MESSAGE_STRATEGIES: MessageStrategy[] = [
+  { matches: (c) => c.type === "text", text: true, Component: TextContent },
+  {
+    matches: (c) => c.type === "data" && c.kind === "template",
+    text: true,
+    Component: TemplateMessage,
+  },
+  {
+    matches: (c) => c.type === "data" && c.kind === "button",
+    text: true,
+    Component: ButtonReplyContent,
+  },
+  {
+    matches: (c) => c.type === "data" && !!c.text,
+    text: true,
+    Component: DataTextContent,
+  },
+  { matches: (c) => c.type === "data", text: true, Component: DataJsonContent },
+  { matches: (c) => c.type === "file", text: false, Component: FileContent },
+];
+
 export default function Message(props: UIMessage & { message: MessageRow }) {
   const { translate: t } = useTranslation();
-  let content;
-  let text = false;
-  let fixedWidth = false;
 
   let headerText: string | undefined = undefined;
+  let fixedWidth = false;
 
   if ("tool" in props.message.content && props.message.content.tool) {
     const toolInfo = (props.message.content.tool as ToolInfo["tool"])!;
@@ -375,72 +506,21 @@ export default function Message(props: UIMessage & { message: MessageRow }) {
     fixedWidth = true;
   }
 
-  if (props.message.content.type === "text") {
-    content = (
-      <TextMessage
-        header={headerText}
-        body={props.message.content.text}
-        type="markdown"
-        direction={props.message.direction}
-        timestamp={props.message.timestamp}
-        status={props.message.direction === "outgoing" ? props.message.status : undefined}
-        fixedWidth={fixedWidth}
-      />
-    );
-    text = true;
-  } else if (props.message.content.type === "data" && props.message.content.text) {
-    content = (
-      <TextMessage
-        header={headerText}
-        body={props.message.content.text}
-        type="markdown"
-        direction={props.message.direction}
-        timestamp={props.message.timestamp}
-        status={props.message.direction === "outgoing" ? props.message.status : undefined}
-        fixedWidth={fixedWidth}
-      />
-    );
-    text = true;
-  } else if (props.message.content.type === "data") {
-    content = (
-      <TextMessage
-        header={headerText}
-        body={props.message.content.data}
-        type="json"
-        direction={props.message.direction}
-        timestamp={props.message.timestamp}
-        status={props.message.direction === "outgoing" ? props.message.status : undefined}
-        fixedWidth={fixedWidth}
-      />
-    );
-    text = true;
-  } else if (props.message.content.type === "file") {
-    switch (props.message.content.kind) {
-      case "audio": {
-        content = (
-          <AudioMessage
-            {...{
-              message: props.message,
-              orgName: props.orgName || "",
-              convName: props.convName || "",
-            }}
-          />
-        );
-        break;
-      }
-      case "image":
-      case "sticker":
-      case "video": {
-        content = <ImageMessage {...props.message} />;
-        break;
-      }
-      case "document":
-      default: {
-        content = <DocumentMessage {...props.message} />;
-        break;
-      }
-    }
-  }
+  const strategy = MESSAGE_STRATEGIES.find((s) =>
+    s.matches(props.message.content),
+  );
+
+  const content = strategy ? (
+    <strategy.Component
+      message={props.message}
+      header={headerText}
+      fixedWidth={fixedWidth}
+      orgName={props.orgName}
+      convName={props.convName}
+    />
+  ) : null;
+
+  const text = strategy?.text ?? false;
 
   return (
     <>
