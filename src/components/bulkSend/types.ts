@@ -1,0 +1,72 @@
+import { type ContactWithAddressesRow } from "@/supabase/client";
+
+/* Shared types, constants, and pure helpers for the bulk-send wizard. */
+
+export type Stage =
+  | "recipients"
+  | "template"
+  | "variables"
+  | "review"
+  | "sending"
+  | "done";
+
+export type RecipientMode = "people" | "tags";
+export type Scheduling = "now" | "later";
+
+/** One template variable's substitution rule. */
+export type VarValue =
+  | { mode: "static"; static: string }
+  | { mode: "field"; field: ContactField };
+
+export type ContactField = "name" | "email" | "phone";
+export type Scope = "head" | "body";
+
+export const FIELD_OPTIONS: { id: ContactField; label: string }[] = [
+  { id: "name", label: "Nombre" },
+  { id: "email", label: "Email" },
+  { id: "phone", label: "Teléfono" },
+];
+
+export const TOTAL_STEPS = 4;
+export const STEP_FOR: Partial<Record<Stage, number>> = {
+  recipients: 1,
+  template: 2,
+  variables: 3,
+  review: 4,
+};
+
+export function countVars(text: string | undefined) {
+  return (text?.match(/\{\{\d+\}\}/g) || []).length;
+}
+
+export function initVars(headN: number, bodyN: number): Record<string, VarValue> {
+  const out: Record<string, VarValue> = {};
+  for (let i = 1; i <= headN; i++) out[`head.${i}`] = { mode: "field", field: "name" };
+  for (let i = 1; i <= bodyN; i++) out[`body.${i}`] = { mode: "field", field: "name" };
+  return out;
+}
+
+export function contactField(c: ContactWithAddressesRow, field: ContactField): string {
+  if (field === "name") return c.name || "";
+  if (field === "email") return c.email || "";
+  if (field === "phone") return c.addresses?.[0]?.address || "";
+  return "";
+}
+
+export function resolveVar(v: VarValue, c: ContactWithAddressesRow): string {
+  return v.mode === "static" ? v.static : contactField(c, v.field);
+}
+
+/** Fill {{N}} in `text` using the variable map (scope = head/body). */
+export function fillTemplate(
+  text: string | undefined,
+  scope: Scope,
+  vars: Record<string, VarValue>,
+  c: ContactWithAddressesRow,
+): string {
+  if (!text) return "";
+  return text.replace(/\{\{(\d+)\}\}/g, (_, n) => {
+    const v = vars[`${scope}.${n}`];
+    return v ? resolveVar(v, c) : `{{${n}}}`;
+  });
+}

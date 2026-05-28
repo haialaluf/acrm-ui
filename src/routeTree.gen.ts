@@ -25,6 +25,7 @@ import { Route as AuthStatsUsageRouteImport } from './routes/_auth/stats/usage'
 import { Route as AuthStatsQuotasRouteImport } from './routes/_auth/stats/quotas'
 import { Route as AuthIntegrationsMediaPreprocessingRouteImport } from './routes/_auth/integrations/media-preprocessing'
 import { Route as AuthConversationsNewRouteImport } from './routes/_auth/conversations/new'
+import { Route as AuthConversationsBulkSendRouteImport } from './routes/_auth/conversations/bulk-send'
 import { Route as AuthContactsNewRouteImport } from './routes/_auth/contacts/new'
 import { Route as AuthContactsImportRouteImport } from './routes/_auth/contacts/import'
 import { Route as AuthContactsContactIdRouteImport } from './routes/_auth/contacts/$contactId'
@@ -131,6 +132,12 @@ const AuthConversationsNewRoute = AuthConversationsNewRouteImport.update({
   path: '/conversations/new',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthConversationsBulkSendRoute =
+  AuthConversationsBulkSendRouteImport.update({
+    id: '/conversations/bulk-send',
+    path: '/conversations/bulk-send',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthContactsNewRoute = AuthContactsNewRouteImport.update({
   id: '/contacts/new',
   path: '/contacts/new',
@@ -285,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/contacts/$contactId': typeof AuthContactsContactIdRoute
   '/contacts/import': typeof AuthContactsImportRoute
   '/contacts/new': typeof AuthContactsNewRoute
+  '/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
   '/conversations/new': typeof AuthConversationsNewRoute
   '/integrations/media-preprocessing': typeof AuthIntegrationsMediaPreprocessingRoute
   '/stats/quotas': typeof AuthStatsQuotasRoute
@@ -326,6 +334,7 @@ export interface FileRoutesByTo {
   '/contacts/$contactId': typeof AuthContactsContactIdRoute
   '/contacts/import': typeof AuthContactsImportRoute
   '/contacts/new': typeof AuthContactsNewRoute
+  '/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
   '/conversations/new': typeof AuthConversationsNewRoute
   '/integrations/media-preprocessing': typeof AuthIntegrationsMediaPreprocessingRoute
   '/stats/quotas': typeof AuthStatsQuotasRoute
@@ -370,6 +379,7 @@ export interface FileRoutesById {
   '/_auth/contacts/$contactId': typeof AuthContactsContactIdRoute
   '/_auth/contacts/import': typeof AuthContactsImportRoute
   '/_auth/contacts/new': typeof AuthContactsNewRoute
+  '/_auth/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
   '/_auth/conversations/new': typeof AuthConversationsNewRoute
   '/_auth/integrations/media-preprocessing': typeof AuthIntegrationsMediaPreprocessingRoute
   '/_auth/stats/quotas': typeof AuthStatsQuotasRoute
@@ -414,6 +424,7 @@ export interface FileRouteTypes {
     | '/contacts/$contactId'
     | '/contacts/import'
     | '/contacts/new'
+    | '/conversations/bulk-send'
     | '/conversations/new'
     | '/integrations/media-preprocessing'
     | '/stats/quotas'
@@ -455,6 +466,7 @@ export interface FileRouteTypes {
     | '/contacts/$contactId'
     | '/contacts/import'
     | '/contacts/new'
+    | '/conversations/bulk-send'
     | '/conversations/new'
     | '/integrations/media-preprocessing'
     | '/stats/quotas'
@@ -498,6 +510,7 @@ export interface FileRouteTypes {
     | '/_auth/contacts/$contactId'
     | '/_auth/contacts/import'
     | '/_auth/contacts/new'
+    | '/_auth/conversations/bulk-send'
     | '/_auth/conversations/new'
     | '/_auth/integrations/media-preprocessing'
     | '/_auth/stats/quotas'
@@ -649,6 +662,13 @@ declare module '@tanstack/react-router' {
       path: '/conversations/new'
       fullPath: '/conversations/new'
       preLoaderRoute: typeof AuthConversationsNewRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/conversations/bulk-send': {
+      id: '/_auth/conversations/bulk-send'
+      path: '/conversations/bulk-send'
+      fullPath: '/conversations/bulk-send'
+      preLoaderRoute: typeof AuthConversationsBulkSendRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/contacts/new': {
@@ -853,6 +873,7 @@ interface AuthRouteChildren {
   AuthContactsContactIdRoute: typeof AuthContactsContactIdRoute
   AuthContactsImportRoute: typeof AuthContactsImportRoute
   AuthContactsNewRoute: typeof AuthContactsNewRoute
+  AuthConversationsBulkSendRoute: typeof AuthConversationsBulkSendRoute
   AuthConversationsNewRoute: typeof AuthConversationsNewRoute
   AuthIntegrationsMediaPreprocessingRoute: typeof AuthIntegrationsMediaPreprocessingRoute
   AuthAgentsIndexRoute: typeof AuthAgentsIndexRoute
@@ -890,6 +911,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthContactsContactIdRoute: AuthContactsContactIdRoute,
   AuthContactsImportRoute: AuthContactsImportRoute,
   AuthContactsNewRoute: AuthContactsNewRoute,
+  AuthConversationsBulkSendRoute: AuthConversationsBulkSendRoute,
   AuthConversationsNewRoute: AuthConversationsNewRoute,
   AuthIntegrationsMediaPreprocessingRoute:
     AuthIntegrationsMediaPreprocessingRoute,

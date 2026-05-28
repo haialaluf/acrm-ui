@@ -1,6 +1,6 @@
 import { type TemplateData } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
-import TemplatePreview from "./TemplatePreview";
+import TemplatePreviewBubble from "./TemplatePreviewBubble";
 import { renumberVars, getVarNumbers } from "./templateVars";
 import { formButtonsToComponent, type FormTemplateButton } from "./templateButtons";
 import type { TemplateFormData } from "./templateEditorTypes";
@@ -86,9 +86,7 @@ export default function TemplateEditorPreview({
   return (
     <label>
       <div className="label">{t("Previsualización")}</div>
-      <div className="py-[12px] bg-chat relative rounded-[7.5px] [&>div>div]:!px-0 [&>div>div>div]:!max-w-[85%]">
-        <TemplatePreview editMode template={previewTemplate} />
-      </div>
+      <TemplatePreviewBubble template={previewTemplate} />
     </label>
   );
 }
