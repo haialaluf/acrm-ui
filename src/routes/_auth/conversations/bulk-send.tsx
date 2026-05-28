@@ -1,19 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
+import { useCurrentAgent } from "@/queries/useAgents";
 import { useTemplates } from "@/queries/useTemplates";
 import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
 import { pushMessageToStore } from "@/utils/MessageUtils";
 import { startConversation } from "@/utils/ConversationUtils";
 import useBoundStore from "@/stores/useBoundStore";
 import {
-  supabase,
   type ContactWithAddressesRow,
   type ConversationInsert,
   type ConversationRow,
   type MessageInsert,
+  supabase,
   type TemplateData,
 } from "@/supabase/client";
 import { formatPhoneNumber } from "@/utils/FormatUtils";
@@ -29,9 +34,9 @@ import { buildMessageRecord } from "@/components/bulkSend/buildMessageRecord";
 import {
   countVars,
   initVars,
-  STEP_FOR,
   type Scheduling,
   type Stage,
+  STEP_FOR,
   type VarValue,
 } from "@/components/bulkSend/types";
 
@@ -65,7 +70,8 @@ function BulkSend() {
   const { contactId: prefillContactId, templateId: prefillTemplateId } =
     useSearch({ from: "/_auth/conversations/bulk-send" });
   const activeOrgId = useBoundStore((s) => s.ui.activeOrgId);
-  const agentId = useBoundStore((s) => s.ui.user?.id);
+  const { data: agent } = useCurrentAgent();
+  const agentId = agent?.id;
   const { data: contacts } = useContacts();
   const { data: addresses } = useOrganizationsAddresses();
   const whatsappAddress = addresses?.find((a) => a.service === "whatsapp");
@@ -103,8 +109,12 @@ function BulkSend() {
     appliedPrefillRef.current = true;
     setSelectedIds(new Set([contact.id]));
     setTemplate(tpl);
-    const headN = countVars(tpl.components.find((c) => c.type === "HEADER")?.text);
-    const bodyN = countVars(tpl.components.find((c) => c.type === "BODY")?.text);
+    const headN = countVars(
+      tpl.components.find((c) => c.type === "HEADER")?.text,
+    );
+    const bodyN = countVars(
+      tpl.components.find((c) => c.type === "BODY")?.text,
+    );
     setVars(initVars(headN, bodyN));
     setStage("variables");
   }, [prefillContactId, prefillTemplateId, contacts, approved]);
@@ -145,11 +155,12 @@ function BulkSend() {
         continue;
       }
 
-      let conv: ConversationRow | undefined = Array.from(storeConvs.values()).find(
-        (c) =>
-          c.organization_address === whatsappAddress.address &&
-          c.contact_address === phone,
-      );
+      let conv: ConversationRow | undefined = Array.from(storeConvs.values())
+        .find(
+          (c) =>
+            c.organization_address === whatsappAddress.address &&
+            c.contact_address === phone,
+        );
 
       if (!conv) {
         const id = startConversation({
@@ -169,7 +180,13 @@ function BulkSend() {
         }
       }
 
-      const record = buildMessageRecord({ contact, conv, template, vars, agentId });
+      const record = buildMessageRecord({
+        contact,
+        conv,
+        template,
+        vars,
+        agentId,
+      });
       if (!record) {
         skipped.push(contact);
         continue;
@@ -217,17 +234,49 @@ function BulkSend() {
     const step = STEP_FOR[stage];
     switch (stage) {
       case "recipients":
-        return { title: t("Envío masivo"), subtitle: t("Elige los destinatarios"), step, showProgress: true };
+        return {
+          title: t("Envío masivo"),
+          subtitle: t("Elige los destinatarios"),
+          step,
+          showProgress: true,
+        };
       case "template":
-        return { title: t("Elige una plantilla"), subtitle: `${selectedIds.size} ${t("destinatarios")}`, step, showProgress: true };
+        return {
+          title: t("Elige una plantilla"),
+          subtitle: `${selectedIds.size} ${t("destinatarios")}`,
+          step,
+          showProgress: true,
+        };
       case "variables":
-        return { title: t("Variables"), subtitle: template?.name, step, showProgress: true };
+        return {
+          title: t("Variables"),
+          subtitle: template?.name,
+          step,
+          showProgress: true,
+        };
       case "review":
-        return { title: t("Vista previa y envío"), subtitle: `${recipients.length} ${t("destinatarios")} · ${template?.name}`, step, showProgress: true };
+        return {
+          title: t("Vista previa y envío"),
+          subtitle: `${recipients.length} ${
+            t("destinatarios")
+          } · ${template?.name}`,
+          step,
+          showProgress: true,
+        };
       case "sending":
-        return { title: t("Enviando…"), subtitle: template?.name, step, showProgress: false };
+        return {
+          title: t("Enviando…"),
+          subtitle: template?.name,
+          step,
+          showProgress: false,
+        };
       case "done":
-        return { title: t("Envío completado"), subtitle: template?.name, step, showProgress: false };
+        return {
+          title: t("Envío completado"),
+          subtitle: template?.name,
+          step,
+          showProgress: false,
+        };
     }
   })();
 
@@ -255,8 +304,12 @@ function BulkSend() {
           selectedId={template?.id}
           onPick={(tpl) => {
             setTemplate(tpl);
-            const headN = countVars(tpl.components.find((c) => c.type === "HEADER")?.text);
-            const bodyN = countVars(tpl.components.find((c) => c.type === "BODY")?.text);
+            const headN = countVars(
+              tpl.components.find((c) => c.type === "HEADER")?.text,
+            );
+            const bodyN = countVars(
+              tpl.components.find((c) => c.type === "BODY")?.text,
+            );
             setVars(initVars(headN, bodyN));
             setStage("variables");
           }}
