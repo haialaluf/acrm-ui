@@ -669,6 +669,7 @@ export type Database = {
           id: string
           name: string | null
           organization_id: string
+          source: string
           status: string
           tags: string[] | null
           updated_at: string
@@ -680,6 +681,7 @@ export type Database = {
           id?: string
           name?: string | null
           organization_id: string
+          source?: string
           status?: string
           tags?: string[] | null
           updated_at?: string
@@ -691,6 +693,7 @@ export type Database = {
           id?: string
           name?: string | null
           organization_id?: string
+          source?: string
           status?: string
           tags?: string[] | null
           updated_at?: string

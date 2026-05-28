@@ -89,6 +89,16 @@ function ContactDetail() {
             />
           </label>
 
+          <label>
+            <div className="label">{t("Origen")}</div>
+            <input
+              type="text"
+              className="text"
+              value={contact.source}
+              readOnly
+            />
+          </label>
+
           <div>
             <div className="label">{t("Etiquetas")}</div>
             <Controller
