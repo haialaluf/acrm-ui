@@ -6,6 +6,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useContactTags } from "@/queries/useContactTags";
 import { useContactSources } from "@/queries/useContactSources";
 import type { ContactWithAddressesRow } from "@/supabase/client";
+import { datePickerTokens } from "@/components/antdTokens";
 
 /**
  * Filter shape shared by the contact list and the bulk-send wizard recipients
@@ -88,18 +89,7 @@ const filterTheme = {
       optionSelectedColor: "var(--accent-foreground)",
       borderRadius: 10,
     },
-    DatePicker: {
-      colorBorder: "var(--border)",
-      hoverBorderColor: "var(--input)",
-      activeBorderColor: "var(--primary)",
-      colorBgContainer: "var(--background)",
-      colorText: "var(--foreground)",
-      colorTextPlaceholder: "var(--muted-foreground)",
-      colorBgElevated: "var(--popover)",
-      cellHoverBg: "var(--accent)",
-      cellActiveWithRangeBg: "oklch(from var(--primary) l c h / 0.10)",
-      borderRadius: 10,
-    },
+    DatePicker: datePickerTokens,
     Input: {
       colorBorder: "var(--border)",
       hoverBorderColor: "var(--input)",

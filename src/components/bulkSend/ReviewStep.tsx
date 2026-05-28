@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight, Clock, Send, X } from "lucide-react";
+import { ConfigProvider, DatePicker } from "antd";
+import dayjs, { type Dayjs } from "dayjs";
 
 import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
@@ -14,7 +16,10 @@ import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 
 import NavBtn from "./NavBtn";
 import Radio from "./Radio";
+import { datePickerTokens } from "@/components/antdTokens";
 import { fillTemplate, type Scheduling, type VarValue } from "./types";
+
+const datePickerTheme = { components: { DatePicker: datePickerTokens } };
 
 /** Step 4 — per-contact preview using the real `<TemplatePreviewBubble>`,
  *  recipient chips with remove, and schedule (now / later) selector. */
@@ -192,18 +197,26 @@ export default function ReviewStep({
               <div className="flex-1">
                 <div className="text-[14px]">{t("Programar para más tarde")}</div>
                 {scheduling === "later" ? (
-                  <input
-                    type="datetime-local"
-                    value={scheduledAt}
-                    onChange={(e) => setScheduledAt(e.target.value)}
+                  <div
                     onClick={(e) => e.stopPropagation()}
-                    className="mt-[6px] text-[13px] rounded-[8px] p-[6px] outline-none"
+                    className="mt-[6px]"
                     dir="ltr"
-                    style={{
-                      background: "var(--background)",
-                      border: "1px solid var(--border)",
-                    }}
-                  />
+                  >
+                    <ConfigProvider theme={datePickerTheme}>
+                      <DatePicker
+                        showTime={{ format: "HH:mm" }}
+                        format="YYYY-MM-DD HH:mm"
+                        minuteStep={5}
+                        value={scheduledAt ? dayjs(scheduledAt) : null}
+                        onChange={(d: Dayjs | null) =>
+                          setScheduledAt(d ? d.format("YYYY-MM-DDTHH:mm") : "")
+                        }
+                        disabledDate={(d) => d && d.isBefore(dayjs().startOf("day"))}
+                        placeholder={t("Elige fecha y hora")}
+                        allowClear
+                      />
+                    </ConfigProvider>
+                  </div>
                 ) : (
                   <div className="text-[12px] text-muted-foreground">
                     {t("Elige fecha y hora")}

@@ -135,6 +135,10 @@ function BulkSend() {
 
   async function send() {
     if (!template || !whatsappAddress || !activeOrgId) return;
+    if (scheduling === "later" && !scheduledAt) return;
+    const scheduledIso = scheduling === "later" && scheduledAt
+      ? new Date(scheduledAt).toISOString()
+      : undefined;
     setStage("sending");
     setProgress({ sent: 0, failed: 0 });
 
@@ -186,12 +190,17 @@ function BulkSend() {
         template,
         vars,
         agentId,
+        scheduledAt: scheduledIso,
       });
       if (!record) {
         skipped.push(contact);
         continue;
       }
-      pushMessageToStore(record);
+      // Skip optimistic push for scheduled messages — the chat filters
+      // `timestamp <= updated_at`, so a future-timestamped message would
+      // flicker into the conversation and disappear once the server row
+      // syncs back.
+      if (!scheduledIso) pushMessageToStore(record);
       messageRecords.push(record);
     }
 

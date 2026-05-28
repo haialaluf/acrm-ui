@@ -20,12 +20,14 @@ export function buildMessageRecord({
   template,
   vars,
   agentId,
+  scheduledAt,
 }: {
   contact: ContactWithAddressesRow;
   conv: ConversationRow;
   template: TemplateData;
   vars: Record<string, VarValue>;
   agentId?: string;
+  scheduledAt?: string;
 }): MessageInsert | null {
   const head = template.components.find((c) => c.type === "HEADER");
   const body = template.components.find((c) => c.type === "BODY");
@@ -79,7 +81,7 @@ export function buildMessageRecord({
   renderedParts.push(renderedBody);
   if (foot?.text) renderedParts.push(`_${foot.text}_`);
 
-  return newMessage(
+  const record = newMessage(
     conv,
     "outgoing",
     {
@@ -91,4 +93,6 @@ export function buildMessageRecord({
     },
     agentId,
   );
+  if (scheduledAt) record.timestamp = scheduledAt;
+  return record;
 }
