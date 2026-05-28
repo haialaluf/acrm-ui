@@ -39,7 +39,7 @@ function ListApiKeys() {
           onClick={() =>
             navigate({
               to: "/settings/api-keys/new",
-              hash: (prevHash) => prevHash!,
+              hash: (prevHash: string | undefined) => prevHash!,
             })
           }
           disabled={!isOwner}
@@ -58,7 +58,7 @@ function ListApiKeys() {
             onClick={() =>
               navigate({
                 to: `/settings/api-keys/${apiKey.id}`,
-                hash: (prevHash) => prevHash!,
+                hash: (prevHash: string | undefined) => prevHash!,
               })
             }
           />

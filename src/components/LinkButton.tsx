@@ -13,7 +13,7 @@ export function LinkButton({ to, title, children, isActive, className = "" }: Li
   className = className + (isActive ? " bg-muted" : "");
 
   return (
-    <Link to={to} hash={(prevHash) => prevHash!} title={title}>
+    <Link to={to} hash={(prevHash: string | undefined) => prevHash!} title={title}>
       <div
         className={
           `p-[8px] rounded-full hover:bg-muted ${className}`

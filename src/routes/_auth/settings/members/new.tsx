@@ -59,7 +59,7 @@ function AddMember() {
               onSuccess: (agent) =>
                 navigate({
                   to: `/settings/members/${agent!.id}`,
-                  hash: (prevHash) => prevHash!,
+                  hash: (prevHash: string | undefined) => prevHash!,
                 }),
             }),
           )}

@@ -51,7 +51,7 @@ function ListContacts() {
           onClick={() =>
             navigate({
               to: "/contacts/new",
-              hash: (prevHash) => prevHash!,
+              hash: (prevHash: string | undefined) => prevHash!,
             })
           }
         />
@@ -66,7 +66,7 @@ function ListContacts() {
           onClick={() =>
             navigate({
               to: "/contacts/import",
-              hash: (prevHash) => prevHash!,
+              hash: (prevHash: string | undefined) => prevHash!,
             })
           }
         />
@@ -90,7 +90,7 @@ function ListContacts() {
             onClick={() =>
               navigate({
                 to: `/contacts/${contact.id}`,
-                hash: (prevHash) => prevHash!,
+                hash: (prevHash: string | undefined) => prevHash!,
               })
             }
           />

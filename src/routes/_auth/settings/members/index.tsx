@@ -39,7 +39,7 @@ function ListMembers() {
           onClick={() =>
             navigate({
               to: "/settings/members/new",
-              hash: (prevHash) => prevHash!,
+              hash: (prevHash: string | undefined) => prevHash!,
             })
           }
           disabled={!isOwner}
@@ -67,7 +67,7 @@ function ListMembers() {
               onClick={() =>
                 navigate({
                   to: `/settings/members/${agent.id}`,
-                  hash: (prevHash) => prevHash!,
+                  hash: (prevHash: string | undefined) => prevHash!,
                 })
               }
             />)

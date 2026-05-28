@@ -76,12 +76,6 @@ function BulkSend() {
     [templates],
   );
 
-  // When opened from inside a conversation we land directly on the Variables
-  // step with the contact + template pre-selected; Back closes the wizard
-  // rather than walking back through Recipients/Template, which don't apply
-  // for a single-conversation hand-off.
-  const prefilled = Boolean(prefillContactId && prefillTemplateId);
-
   // wizard state
   const [stage, setStage] = useState<Stage>("recipients");
   const [recipientMode, setRecipientMode] = useState<RecipientMode>("people");
@@ -126,13 +120,6 @@ function BulkSend() {
   }, [contacts, selectedIds]);
 
   function back() {
-    // In the prefilled (from-conversation) flow, Recipients/Template don't
-    // apply, so Back from Variables closes the wizard instead of walking
-    // back to steps the user can't meaningfully edit.
-    if (prefilled && stage === "variables") {
-      navigate({ to: "/conversations", hash: (h) => h! });
-      return;
-    }
     if (stage === "template") setStage("recipients");
     else if (stage === "variables") setStage("template");
     else if (stage === "review") setStage("variables");

@@ -53,7 +53,7 @@ function ContactNew() {
           onSubmit={handleSubmit(data => createContact.mutate(data, {
             onSuccess: (contact) => navigate({
               to: `/contacts/${contact.id}`,
-              hash: (prevHash) => prevHash!,
+              hash: (prevHash: string | undefined) => prevHash!,
             }),
           }))}
         >

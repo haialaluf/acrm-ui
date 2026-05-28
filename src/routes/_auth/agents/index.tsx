@@ -40,7 +40,7 @@ function ListAgents() {
           onClick={() =>
             navigate({
               to: "/agents/new",
-              hash: (prevHash) => prevHash!,
+              hash: (prevHash: string | undefined) => prevHash!,
             })
           }
           disabled={!isAdmin}
@@ -62,7 +62,7 @@ function ListAgents() {
             onClick={() =>
               navigate({
                 to: `/agents/${agent.id}`,
-                hash: (prevHash) => prevHash!,
+                hash: (prevHash: string | undefined) => prevHash!,
               })
             }
           />

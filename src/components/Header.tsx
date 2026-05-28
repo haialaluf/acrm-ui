@@ -1,7 +1,7 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { LinkButton } from "@/components/LinkButton";
 import { useCurrentOrganization } from "@/queries/useOrganizations";
-import { MessageSquarePlus, Send } from "lucide-react";
+import { MessageSquarePlus } from "lucide-react";
 
 export default function Header() {
   const { data: org } = useCurrentOrganization();
@@ -18,13 +18,6 @@ export default function Header() {
       <div className="flex justify-end items-center">
         <LinkButton
           to="/conversations/bulk-send"
-          className="ml-[4px]"
-          title={t("Envío masivo")}
-        >
-          <Send className="w-[22px] h-[22px] text-foreground" />
-        </LinkButton>
-        <LinkButton
-          to="/conversations/new"
           className="ml-[10px]"
           title={t("Nueva conversación")}
         >

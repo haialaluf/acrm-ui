@@ -46,7 +46,7 @@ function AddWebhook() {
                 onSuccess: (webhook) =>
                   navigate({
                     to: `/settings/webhooks/${webhook!.id}`,
-                    hash: (prevHash) => prevHash!,
+                    hash: (prevHash: string | undefined) => prevHash!,
                   }),
               }
             )

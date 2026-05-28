@@ -24,7 +24,6 @@ import { Route as AuthAgentsIndexRouteImport } from './routes/_auth/agents/index
 import { Route as AuthStatsUsageRouteImport } from './routes/_auth/stats/usage'
 import { Route as AuthStatsQuotasRouteImport } from './routes/_auth/stats/quotas'
 import { Route as AuthIntegrationsMediaPreprocessingRouteImport } from './routes/_auth/integrations/media-preprocessing'
-import { Route as AuthConversationsNewRouteImport } from './routes/_auth/conversations/new'
 import { Route as AuthConversationsBulkSendRouteImport } from './routes/_auth/conversations/bulk-send'
 import { Route as AuthContactsNewRouteImport } from './routes/_auth/contacts/new'
 import { Route as AuthContactsImportRouteImport } from './routes/_auth/contacts/import'
@@ -127,11 +126,6 @@ const AuthIntegrationsMediaPreprocessingRoute =
     path: '/integrations/media-preprocessing',
     getParentRoute: () => AuthRoute,
   } as any)
-const AuthConversationsNewRoute = AuthConversationsNewRouteImport.update({
-  id: '/conversations/new',
-  path: '/conversations/new',
-  getParentRoute: () => AuthRoute,
-} as any)
 const AuthConversationsBulkSendRoute =
   AuthConversationsBulkSendRouteImport.update({
     id: '/conversations/bulk-send',
@@ -293,7 +287,6 @@ export interface FileRoutesByFullPath {
   '/contacts/import': typeof AuthContactsImportRoute
   '/contacts/new': typeof AuthContactsNewRoute
   '/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
-  '/conversations/new': typeof AuthConversationsNewRoute
   '/integrations/media-preprocessing': typeof AuthIntegrationsMediaPreprocessingRoute
   '/stats/quotas': typeof AuthStatsQuotasRoute
   '/stats/usage': typeof AuthStatsUsageRoute
@@ -335,7 +328,6 @@ export interface FileRoutesByTo {
   '/contacts/import': typeof AuthContactsImportRoute
   '/contacts/new': typeof AuthContactsNewRoute
   '/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
-  '/conversations/new': typeof AuthConversationsNewRoute
   '/integrations/media-preprocessing': typeof AuthIntegrationsMediaPreprocessingRoute
   '/stats/quotas': typeof AuthStatsQuotasRoute
   '/stats/usage': typeof AuthStatsUsageRoute
@@ -380,7 +372,6 @@ export interface FileRoutesById {
   '/_auth/contacts/import': typeof AuthContactsImportRoute
   '/_auth/contacts/new': typeof AuthContactsNewRoute
   '/_auth/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
-  '/_auth/conversations/new': typeof AuthConversationsNewRoute
   '/_auth/integrations/media-preprocessing': typeof AuthIntegrationsMediaPreprocessingRoute
   '/_auth/stats/quotas': typeof AuthStatsQuotasRoute
   '/_auth/stats/usage': typeof AuthStatsUsageRoute
@@ -425,7 +416,6 @@ export interface FileRouteTypes {
     | '/contacts/import'
     | '/contacts/new'
     | '/conversations/bulk-send'
-    | '/conversations/new'
     | '/integrations/media-preprocessing'
     | '/stats/quotas'
     | '/stats/usage'
@@ -467,7 +457,6 @@ export interface FileRouteTypes {
     | '/contacts/import'
     | '/contacts/new'
     | '/conversations/bulk-send'
-    | '/conversations/new'
     | '/integrations/media-preprocessing'
     | '/stats/quotas'
     | '/stats/usage'
@@ -511,7 +500,6 @@ export interface FileRouteTypes {
     | '/_auth/contacts/import'
     | '/_auth/contacts/new'
     | '/_auth/conversations/bulk-send'
-    | '/_auth/conversations/new'
     | '/_auth/integrations/media-preprocessing'
     | '/_auth/stats/quotas'
     | '/_auth/stats/usage'
@@ -655,13 +643,6 @@ declare module '@tanstack/react-router' {
       path: '/integrations/media-preprocessing'
       fullPath: '/integrations/media-preprocessing'
       preLoaderRoute: typeof AuthIntegrationsMediaPreprocessingRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/conversations/new': {
-      id: '/_auth/conversations/new'
-      path: '/conversations/new'
-      fullPath: '/conversations/new'
-      preLoaderRoute: typeof AuthConversationsNewRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/conversations/bulk-send': {
@@ -874,7 +855,6 @@ interface AuthRouteChildren {
   AuthContactsImportRoute: typeof AuthContactsImportRoute
   AuthContactsNewRoute: typeof AuthContactsNewRoute
   AuthConversationsBulkSendRoute: typeof AuthConversationsBulkSendRoute
-  AuthConversationsNewRoute: typeof AuthConversationsNewRoute
   AuthIntegrationsMediaPreprocessingRoute: typeof AuthIntegrationsMediaPreprocessingRoute
   AuthAgentsIndexRoute: typeof AuthAgentsIndexRoute
   AuthContactsIndexRoute: typeof AuthContactsIndexRoute
@@ -912,7 +892,6 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthContactsImportRoute: AuthContactsImportRoute,
   AuthContactsNewRoute: AuthContactsNewRoute,
   AuthConversationsBulkSendRoute: AuthConversationsBulkSendRoute,
-  AuthConversationsNewRoute: AuthConversationsNewRoute,
   AuthIntegrationsMediaPreprocessingRoute:
     AuthIntegrationsMediaPreprocessingRoute,
   AuthAgentsIndexRoute: AuthAgentsIndexRoute,

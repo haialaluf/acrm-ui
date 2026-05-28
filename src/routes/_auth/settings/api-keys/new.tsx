@@ -52,7 +52,7 @@ function AddApiKey() {
                 onSuccess: (apiKey) =>
                   navigate({
                     to: `/settings/api-keys/${apiKey.id}`,
-                    hash: (prevHash) => prevHash!,
+                    hash: (prevHash: string | undefined) => prevHash!,
                   }),
               }
             )

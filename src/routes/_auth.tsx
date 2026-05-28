@@ -136,7 +136,7 @@ function AppLayout() {
                   <ActionCard
                     icon={<MessageSquarePlus className="w-[24px] h-[24px]" />}
                     title={t("Iniciar conversación")}
-                    to="/conversations/new"
+                    to="/conversations/bulk-send"
                   />
                 )}
                 <ActionCard

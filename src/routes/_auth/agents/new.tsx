@@ -104,7 +104,7 @@ function AddAgent() {
         onSuccess: (agent) =>
           navigate({
             to: `/agents/${agent.id}`,
-            hash: (prevHash) => prevHash!,
+            hash: (prevHash: string | undefined) => prevHash!,
           }),
       }
     );
