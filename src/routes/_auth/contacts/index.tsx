@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import SectionBody from "@/components/SectionBody";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -8,8 +8,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus, Upload } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
-import SearchBar from "@/components/SearchBar";
-import Fuse from "fuse.js";
+import ContactFilter, {
+  applyContactFilter,
+  emptyContactFilter,
+  type ContactFilterValue,
+} from "@/components/ContactFilter";
 
 export const Route = createFileRoute("/_auth/contacts/")({
   component: ListContacts,
@@ -19,25 +22,29 @@ function ListContacts() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { data: contacts } = useContacts();
-  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
 
-  let filtered = contacts ?? [];
-  if (search) {
-    const fuse = new Fuse(filtered, {
-      threshold: 0.4,
-      keys: ["name", "addresses.address"],
-    });
-    filtered = fuse.search(search).map((r) => r.item);
-  }
+  const allContacts = useMemo(() => contacts ?? [], [contacts]);
+  const filtered = useMemo(
+    () => applyContactFilter(allContacts, filter),
+    [allContacts, filter],
+  );
+
+  const hasAnyFilter =
+    filter.search.length > 0 ||
+    filter.tags.length > 0 ||
+    filter.sources.length > 0 ||
+    filter.dateFrom != null ||
+    filter.dateTo != null;
 
   return (
     <>
       <SectionHeader title={t("Contactos")} />
 
-      <SearchBar
-        value={search}
-        onChange={setSearch}
-        placeholder={t("Buscar contactos")}
+      <ContactFilter
+        value={filter}
+        onChange={setFilter}
+        contacts={allContacts}
       />
 
       <SectionBody>
@@ -70,9 +77,9 @@ function ListContacts() {
             })
           }
         />
-        {search && filtered.length === 0 && (
+        {hasAnyFilter && filtered.length === 0 && (
           <div className="py-[32px] text-center text-muted-foreground text-[14px]">
-            {t("Sin resultados para")} "{search}"
+            {t("Sin resultados")}
           </div>
         )}
         {filtered.map((contact) => (

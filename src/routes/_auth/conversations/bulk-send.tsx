@@ -30,7 +30,6 @@ import {
   countVars,
   initVars,
   STEP_FOR,
-  type RecipientMode,
   type Scheduling,
   type Stage,
   type VarValue,
@@ -78,9 +77,7 @@ function BulkSend() {
 
   // wizard state
   const [stage, setStage] = useState<Stage>("recipients");
-  const [recipientMode, setRecipientMode] = useState<RecipientMode>("people");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [vars, setVars] = useState<Record<string, VarValue>>({});
   const [scheduling, setScheduling] = useState<Scheduling>("now");
@@ -208,7 +205,6 @@ function BulkSend() {
   function reset() {
     setStage("recipients");
     setSelectedIds(new Set());
-    setSelectedTags(new Set());
     setTemplate(null);
     setVars({});
     setScheduling("now");
@@ -247,12 +243,8 @@ function BulkSend() {
 
       {stage === "recipients" && (
         <RecipientsStep
-          recipientMode={recipientMode}
-          setRecipientMode={setRecipientMode}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-          selectedTags={selectedTags}
-          setSelectedTags={setSelectedTags}
           onNext={() => setStage("template")}
         />
       )}

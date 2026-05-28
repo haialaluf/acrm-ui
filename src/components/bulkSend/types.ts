@@ -10,7 +10,6 @@ export type Stage =
   | "sending"
   | "done";
 
-export type RecipientMode = "people" | "tags";
 export type Scheduling = "now" | "later";
 
 /** One template variable's substitution rule. */
