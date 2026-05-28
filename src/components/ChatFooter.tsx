@@ -21,7 +21,7 @@ import "dayjs/locale/es";
 import "dayjs/locale/pt";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
-import { useContactByAddress } from "@/queries/useContacts";
+import { useContactAddress, useContactByAddress } from "@/queries/useContacts";
 import { moveCursorToEnd } from "@/utils/UtilityFunctions";
 import { htmlToMarkdown } from "@/utils/htmlToMarkdown";
 import TemplatePicker from "./TemplatePicker";
@@ -59,7 +59,9 @@ export default function ChatFooter() {
   const agentId = agent?.id;
 
   const { data: contact } = useContactByAddress(conv?.contact_address);
-  const isRemoved = contact?.status === "removed";
+  const { data: contactAddress } = useContactAddress(conv?.contact_address);
+  const isRemoved =
+    contact?.status === "removed" || contactAddress?.status === "removed";
 
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout>>();
 

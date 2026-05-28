@@ -1,5 +1,5 @@
-import { Reply, Link, Phone, Copy } from "lucide-react";
-import type { TemplateButtonDef, TemplateButton } from "@/supabase/client";
+import { Copy, Link, Phone, Reply } from "lucide-react";
+import type { TemplateButton, TemplateButtonDef } from "@/supabase/client";
 
 /* Shared model for WhatsApp template buttons, used by the editor
    (TemplateButtonsField), the preview (TemplatePreview / TextMessage) and the
@@ -92,7 +92,9 @@ export function newTemplateButton(kind: ButtonKind): FormTemplateButton {
 }
 
 /* ─── form → Meta template definition (create/update + preview) ─────────── */
-export function formButtonToComponent(b: FormTemplateButton): TemplateButtonDef {
+export function formButtonToComponent(
+  b: FormTemplateButton,
+): TemplateButtonDef {
   switch (b.kind) {
     case "QR":
       return { type: "QUICK_REPLY", text: b.text };
@@ -119,14 +121,19 @@ export function formButtonToComponent(b: FormTemplateButton): TemplateButtonDef 
 
 export function formButtonsToComponent(buttons: FormTemplateButton[]) {
   return buttons.length
-    ? ({ type: "BUTTONS" as const, buttons: buttons.map(formButtonToComponent) })
+    ? ({
+      type: "BUTTONS" as const,
+      buttons: buttons.map(formButtonToComponent),
+    })
     : null;
 }
 
 const KNOWN_DIAL_CODES = ["+972", "+44", "+91", "+55", "+34", "+1"];
 
 /* ─── Meta template definition → editor (form) shape (for editing) ──────── */
-export function componentToFormButton(b: TemplateButtonDef): FormTemplateButton {
+export function componentToFormButton(
+  b: TemplateButtonDef,
+): FormTemplateButton {
   const base = newTemplateButton(buttonDefKind(b));
   switch (b.type) {
     case "QUICK_REPLY":
@@ -229,7 +236,12 @@ export function buttonSendComponents(
         type: "button",
         sub_type: "copy_code",
         index: index.toString(),
-        parameters: [{ type: "coupon_code", coupon_code: button.example }],
+        parameters: [{
+          type: "coupon_code",
+          coupon_code: Array.isArray(button.example)
+            ? button.example[0]
+            : button.example,
+        }],
       });
     }
   });

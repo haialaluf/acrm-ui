@@ -45,6 +45,8 @@ export default function RecipientsStep({
     setSelectedIds(next);
   }
 
+  const removedReason = t("Este contacto solicitó ser eliminado");
+
   return (
     <>
       <div className="grow overflow-y-auto [scrollbar-gutter:stable]">
@@ -63,7 +65,6 @@ export default function RecipientsStep({
               <LinkBtn
                 onClick={() => {
                   const next = new Set(selectedIds);
-                  filtered.forEach((c) => next.add(c.id));
                   setSelectedIds(next);
                 }}
               >
@@ -79,14 +80,21 @@ export default function RecipientsStep({
         </div>
 
         <div className="px-[8px] pb-[12px] flex flex-col gap-[2px]">
-          {filtered.map((c) => (
-            <ContactRow
-              key={c.id}
-              contact={c}
-              checked={selectedIds.has(c.id)}
-              onToggle={() => toggleId(c.id)}
-            />
-          ))}
+          {filtered.map((c) => {
+            const isRemoved =
+              c.status === "removed" ||
+              c.addresses?.[0]?.status === "removed";
+            return (
+              <ContactRow
+                key={c.id}
+                contact={c}
+                checked={selectedIds.has(c.id)}
+                onToggle={() => toggleId(c.id)}
+                disabled={isRemoved}
+                disabledReason={isRemoved ? removedReason : undefined}
+              />
+            );
+          })}
           {filtered.length === 0 && (
             <div className="py-[40px] text-center text-muted-foreground text-[14px]">
               {t("Sin resultados")}

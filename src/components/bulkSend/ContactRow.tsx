@@ -10,22 +10,31 @@ export default function ContactRow({
   checked,
   onToggle,
   dense,
+  disabled,
+  disabledReason,
 }: {
   contact: ContactWithAddressesRow;
   checked: boolean;
   onToggle: () => void;
   dense?: boolean;
+  disabled?: boolean;
+  disabledReason?: string;
 }) {
   const phone = contact.addresses?.[0]?.address;
   return (
     <label
-      className="flex items-center gap-[10px] rounded-[10px] cursor-pointer transition-colors"
+      className={
+        "flex items-center gap-[10px] rounded-[10px] transition-colors " +
+        (disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer")
+      }
       style={{
         padding: dense ? "6px 10px" : "8px 10px",
         background: checked ? "oklch(from var(--primary) l c h / 0.06)" : "transparent",
       }}
+      title={disabled ? disabledReason : undefined}
+      aria-disabled={disabled || undefined}
     >
-      <Checkbox checked={checked} onChange={onToggle} />
+      <Checkbox checked={checked} onChange={disabled ? () => {} : onToggle} />
       <Avatar
         fallback={contact.name?.substring(0, 2).toUpperCase() || "?"}
         size={dense ? 32 : 38}
