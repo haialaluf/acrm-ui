@@ -3,7 +3,7 @@ import SectionHeader from "@/components/SectionHeader";
 import SectionBody from "@/components/SectionBody";
 import SectionFooter from "@/components/SectionFooter";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useAgent, useUpdateAgent, useDeleteAgent, useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
+import { useAgent, useUpdateAgent, useDeleteAgent, useCurrentAgent, useCurrentAgents, useResendInvitation } from "@/queries/useAgents";
 import useBoundStore from "@/stores/useBoundStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -36,6 +36,7 @@ function EditMember() {
 
   const updateAgent = useUpdateAgent();
   const deleteAgent = useDeleteAgent();
+  const resendInvitation = useResendInvitation();
 
   const onDelete = () => {
     deleteAgent.mutate(memberId, {
@@ -84,15 +85,34 @@ function EditMember() {
           onSubmit={handleSubmit(data => updateAgent.mutate(data))}
         >
           {invitation && invitation.status === "pending" && (
-            <SectionItem
-              title={t("Invitación pendiente")}
-              aside={
-                <div className="p-[8px]">
-                  <Bell className="w-[24px] h-[24px] text-primary" />
-                </div>
-              }
-              className="bg-primary/10"
-            />
+            <div className="flex flex-col gap-[8px]">
+              <SectionItem
+                title={t("Invitación pendiente")}
+                description={
+                  resendInvitation.isSuccess
+                    ? t("Invitación reenviada")
+                    : resendInvitation.isError
+                      ? t("No se pudo reenviar la invitación")
+                      : t("El correo de invitación aún no fue aceptado")
+                }
+                aside={
+                  <div className="p-[8px]">
+                    <Bell className="w-[24px] h-[24px] text-primary" />
+                  </div>
+                }
+                className="bg-primary/10"
+              />
+              <Button
+                type="button"
+                onClick={() => resendInvitation.mutate(memberId)}
+                disabled={!isOwner}
+                loading={resendInvitation.isPending}
+                disabledReason={t("Requiere permisos de propietario")}
+                className="self-start px-[16px] py-[8px] rounded-full border border-primary text-primary hover:bg-primary/10 disabled:opacity-50 text-[16px]"
+              >
+                {t("Reenviar invitación")}
+              </Button>
+            </div>
           )}
 
           <label>

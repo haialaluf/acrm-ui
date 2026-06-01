@@ -8,6 +8,7 @@ import {
 } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 import { queryKeys } from "./queryKeys";
+import { throwFunctionError } from "./throwFunctionError";
 
 export function useAgent<T = AgentRow>(id: string) {
   const userId = useBoundStore((state) => state.ui.user?.id);
@@ -143,6 +144,19 @@ export function useUpdateAgent() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (old: any) => old ? { ...old, data } : old,
       );
+    },
+  });
+}
+
+export function useResendInvitation() {
+  return useMutation({
+    mutationFn: async (agentId: string) => {
+      const { error } = await supabase.functions.invoke(
+        "send-invitation-email",
+        { body: { agent_id: agentId } },
+      );
+
+      if (error) await throwFunctionError(error);
     },
   });
 }
