@@ -1,4 +1,4 @@
-<h1 align="center">OpenBSP UI</h1>
+<h1 align="center">Acrm UI</h1>
 <p align="center">
   <strong>Open-source WhatsApp Web interface</strong>
 </p>
@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://web.openbsp.dev"><img src="https://img.shields.io/badge/%F0%9F%9A%80_try_it-web.openbsp.dev-C26A3D" alt="Try it"></a>&nbsp;
+  <a href="https://web.acrm.dev"><img src="https://img.shields.io/badge/%F0%9F%9A%80_try_it-web.acrm.dev-C26A3D" alt="Try it"></a>&nbsp;
   <a href="https://unlicense.org/"><img src="https://img.shields.io/badge/license-Unlicense-blue.svg" alt="License: Unlicense"></a>&nbsp;
   <a href="https://github.com/matiasbattocchia/open-bsp-ui/stargazers"><img src="https://img.shields.io/github/stars/matiasbattocchia/open-bsp-ui" alt="GitHub Stars"></a>&nbsp;
   <a href="https://github.com/matiasbattocchia/open-bsp-ui/commits/main"><img src="https://img.shields.io/github/last-commit/matiasbattocchia/open-bsp-ui" alt="Last Commit"></a>&nbsp;

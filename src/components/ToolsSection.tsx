@@ -21,7 +21,7 @@ type EditorState =
   | { type: "new-selection" }
   | { type: "mcp"; index: number }
   | { type: "google-mcp"; index: number }
-  | { type: "openbsp-mcp"; index: number }
+  | { type: "acrm-mcp"; index: number }
   | { type: "http"; index: number }
   | { type: "sql"; index: number };
 
@@ -52,12 +52,12 @@ export default function ToolsSection<T extends FieldValues>({ control, register,
     (tool as any).type === "mcp" && ["calendar", "sheets"].includes((tool as any).config?.product)
   );
 
-  const openbspTools = allTools.filter((tool): tool is LocalMCPToolConfig & { id: string; _index: number } =>
-    (tool as any).type === "mcp" && (tool as any).config?.product === "openbsp"
+  const acrmTools = allTools.filter((tool): tool is LocalMCPToolConfig & { id: string; _index: number } =>
+    (tool as any).type === "mcp" && (tool as any).config?.product === "acrm"
   );
 
   const mcpTools = allTools.filter((tool): tool is LocalMCPToolConfig & { id: string; _index: number } =>
-    (tool as any).type === "mcp" && !["calendar", "sheets", "openbsp"].includes((tool as any).config?.product)
+    (tool as any).type === "mcp" && !["calendar", "sheets", "acrm"].includes((tool as any).config?.product)
   );
 
   const httpTools = allTools.filter((tool): tool is LocalHTTPToolConfig & { id: string; _index: number } =>
@@ -143,7 +143,7 @@ export default function ToolsSection<T extends FieldValues>({ control, register,
       type: "mcp",
       label: "",
       config: {
-        url: "https://g.mcp.openbsp.dev/mcp",
+        url: "https://g.mcp.acrm.dev/mcp",
         product,
         allowed_tools: defaultTools,
       },
@@ -152,7 +152,7 @@ export default function ToolsSection<T extends FieldValues>({ control, register,
     setEditor({ type: "google-mcp", index: fields.length });
   };
 
-  const handleAddOpenBSP = () => {
+  const handleAddAcrm = () => {
     const defaultTools = [
       "list_conversations", "fetch_conversation", "search_contacts",
       "list_accounts", "send_message", "list_templates", "fetch_template",
@@ -163,12 +163,12 @@ export default function ToolsSection<T extends FieldValues>({ control, register,
       label: "",
       config: {
         url: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mcp`,
-        product: "openbsp",
+        product: "acrm",
         allowed_tools: defaultTools,
       },
     };
     append(newTool as any);
-    setEditor({ type: "openbsp-mcp", index: fields.length });
+    setEditor({ type: "acrm-mcp", index: fields.length });
   };
 
   const handleDeleteTool = (index: number) => {
@@ -247,8 +247,8 @@ export default function ToolsSection<T extends FieldValues>({ control, register,
               />
             ))}
 
-            {/* OpenBSP Tools */}
-            {openbspTools.map((tool) => (
+            {/* Acrm Tools */}
+            {acrmTools.map((tool) => (
               <SectionItem
                 key={tool.id}
                 title={tool.label || t("Sin nombre")}
@@ -258,7 +258,7 @@ export default function ToolsSection<T extends FieldValues>({ control, register,
                     <MessageSquare className="w-[24px] h-[24px] text-muted-foreground" />
                   </div>
                 }
-                onClick={() => setEditor({ type: "openbsp-mcp", index: tool._index })}
+                onClick={() => setEditor({ type: "acrm-mcp", index: tool._index })}
               />
             ))}
 
@@ -349,7 +349,7 @@ export default function ToolsSection<T extends FieldValues>({ control, register,
           onAddHTTP={handleAddHTTP}
           onAddSQL={handleAddSQL}
           onAddGoogle={handleAddGoogle}
-          onAddOpenBSP={handleAddOpenBSP}
+          onAddAcrm={handleAddAcrm}
         />
       )}
 
@@ -369,9 +369,9 @@ export default function ToolsSection<T extends FieldValues>({ control, register,
         />
       )}
 
-      {/* OpenBSP MCP Client Editor */}
-      {isOpen && editor.type === "openbsp-mcp" && (
-        <OpenBSPMCPClientEditor
+      {/* Acrm MCP Client Editor */}
+      {isOpen && editor.type === "acrm-mcp" && (
+        <AcrmMCPClientEditor
           index={editor.index}
           register={register}
           control={control}
@@ -892,9 +892,9 @@ function GoogleMCPClientEditor<T extends FieldValues>({
 
   const handleGetToken = () => {
     // Open popup
-    // https://g.mcp.openbsp.dev/auth/google?products=calendar,sheets&callback=YOUR_CALLBACK_URL
+    // https://g.mcp.acrm.dev/auth/google?products=calendar,sheets&callback=YOUR_CALLBACK_URL
     const callbackUrl = window.location.origin + "/oauth/callback";
-    const authUrl = `https://g.mcp.openbsp.dev/auth/google?products=${product}&callback=${encodeURIComponent(callbackUrl)}`;
+    const authUrl = `https://g.mcp.acrm.dev/auth/google?products=${product}&callback=${encodeURIComponent(callbackUrl)}`;
 
     // Calculate center position
     const width = 600;
@@ -921,7 +921,7 @@ function GoogleMCPClientEditor<T extends FieldValues>({
           type: "mcp",
           label: freshLabel,
           config: {
-            url: event.data.url || "https://g.mcp.openbsp.dev/mcp",
+            url: event.data.url || "https://g.mcp.acrm.dev/mcp",
             product: freshProduct as "calendar" | "sheets",
             allowed_tools: freshAllowedTools,
             email: event.data.email || freshEmail || undefined,
@@ -1059,8 +1059,8 @@ function GoogleMCPClientEditor<T extends FieldValues>({
   );
 }
 
-// OpenBSP MCP Client Editor
-function OpenBSPMCPClientEditor<T extends FieldValues>({
+// Acrm MCP Client Editor
+function AcrmMCPClientEditor<T extends FieldValues>({
   index,
   register,
   control,
@@ -1089,19 +1089,19 @@ function OpenBSPMCPClientEditor<T extends FieldValues>({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const token = (useWatch({ control, name: `extra.tools.${index}.config.headers.authorization` as any }) as string) || "";
 
-  // Auto-auth for owners: find or create an "OpenBSP MCP" API key
+  // Auto-auth for owners: find or create an "Acrm MCP" API key
   const hasToken = token.trim() !== "";
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!isOwner || autoAuthDone || hasToken || !apiKeys) return;
 
-    const existing = apiKeys.find((k) => k.name === "OpenBSP MCP");
+    const existing = apiKeys.find((k) => k.name === "Acrm MCP");
     if (existing) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setValue(`extra.tools.${index}.config.headers.authorization` as any, `Bearer ${existing.key}` as any, { shouldDirty: true });
       setAutoAuthDone(true);
     } else {
-      createApiKey({ name: "OpenBSP MCP", role: "member" }).then((newKey) => {
+      createApiKey({ name: "Acrm MCP", role: "member" }).then((newKey) => {
         if (newKey) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           setValue(`extra.tools.${index}.config.headers.authorization` as any, `Bearer ${newKey.key}` as any, { shouldDirty: true });
@@ -1225,14 +1225,14 @@ function NewToolSelection({
   onAddHTTP,
   onAddSQL,
   onAddGoogle,
-  onAddOpenBSP,
+  onAddAcrm,
 }: {
   onBack: () => void;
   onAddMCP: () => void;
   onAddHTTP: () => void;
   onAddSQL: () => void;
   onAddGoogle: (product: "calendar" | "sheets") => void;
-  onAddOpenBSP: () => void;
+  onAddAcrm: () => void;
 }) {
   const { translate: t } = useTranslation();
 
@@ -1259,7 +1259,7 @@ function NewToolSelection({
               <MessageSquare className="w-[24px] h-[24px] text-muted-foreground" />
             </div>
           }
-          onClick={onAddOpenBSP}
+          onClick={onAddAcrm}
         />
         <SectionItem
           title={t("Cliente MCP")}

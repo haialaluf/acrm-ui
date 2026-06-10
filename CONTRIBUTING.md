@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in contributing to OpenBSP UI!
+Thanks for your interest in contributing to Acrm UI!
 
 ## Local Setup
 
@@ -12,13 +12,13 @@ Thanks for your interest in contributing to OpenBSP UI!
 
 2. Start the API locally (requires Docker):
    ```bash
-   cd open-bsp-api
+   cd acrm-api
    npx supabase start
    ```
 
 3. Install UI dependencies and start the dev server:
    ```bash
-   cd open-bsp-ui
+   cd acrm-ui
    npm install
    npm run dev
    ```
