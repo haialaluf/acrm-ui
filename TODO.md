@@ -57,7 +57,7 @@
 
 - [ ] (bug) Google login redirect does not respect hash identifier. It seems Supabase drops it or replaces it with an access token
 
-https://develop.open-bsp-ui.pages.dev/settings/organization/new#access_token=eyJhbGciOiJFU...tQugBjxzngiNVg&expires_at=1767219571&expires_in=3600&provider_token=ya...nw0293&refresh_token=ktzzl77plo42&token_type=bearer
+https://develop.acrm-ui.pages.dev/settings/organization/new#access_token=eyJhbGciOiJFU...tQugBjxzngiNVg&expires_at=1767219571&expires_in=3600&provider_token=ya...nw0293&refresh_token=ktzzl77plo42&token_type=bearer
 
 If redirected to organizations/new from this URL, the cancel button returns to SSO
 
