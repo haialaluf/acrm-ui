@@ -11,8 +11,13 @@ import ContactFilter, {
   type ContactFilterValue,
 } from "@/components/ContactFilter";
 
+import { type ContactWithAddressesRow } from "@/supabase/client";
+
 import ContactRow from "./ContactRow";
 import LinkBtn from "./LinkBtn";
+
+const isRemoved = (c: ContactWithAddressesRow) =>
+  c.status === "removed" || c.addresses?.[0]?.status === "removed";
 
 /** Step 1 — pick recipients with the unified filter (search + tags + source + date). */
 export default function RecipientsStep({
@@ -45,6 +50,14 @@ export default function RecipientsStep({
     setSelectedIds(next);
   }
 
+  const selectable = useMemo(
+    () => filtered.filter((c) => !isRemoved(c)),
+    [filtered],
+  );
+
+  const allSelected =
+    selectable.length > 0 && selectable.every((c) => selectedIds.has(c.id));
+
   const removedReason = t("Este contacto solicitó ser eliminado");
 
   return (
@@ -62,17 +75,20 @@ export default function RecipientsStep({
               {filtered.length} {t("contactos")}
             </span>
             <div className="flex gap-[12px]">
-              <LinkBtn
-                onClick={() => {
-                  const next = new Set(selectedIds);
-                  setSelectedIds(next);
-                }}
-              >
-                {t("Seleccionar todos")}
-              </LinkBtn>
+              {!allSelected && (
+                <LinkBtn
+                  onClick={() => {
+                    const next = new Set(selectedIds);
+                    for (const c of selectable) next.add(c.id);
+                    setSelectedIds(next);
+                  }}
+                >
+                  {t("Seleccionar todos")}
+                </LinkBtn>
+              )}
               {selectedIds.size > 0 && (
                 <LinkBtn onClick={() => setSelectedIds(new Set())}>
-                  {t("Limpiar")}
+                  {t("Limpiar todo")}
                 </LinkBtn>
               )}
             </div>
@@ -81,17 +97,15 @@ export default function RecipientsStep({
 
         <div className="px-[8px] pb-[12px] flex flex-col gap-[2px]">
           {filtered.map((c) => {
-            const isRemoved =
-              c.status === "removed" ||
-              c.addresses?.[0]?.status === "removed";
+            const removed = isRemoved(c);
             return (
               <ContactRow
                 key={c.id}
                 contact={c}
                 checked={selectedIds.has(c.id)}
                 onToggle={() => toggleId(c.id)}
-                disabled={isRemoved}
-                disabledReason={isRemoved ? removedReason : undefined}
+                disabled={removed}
+                disabledReason={removed ? removedReason : undefined}
               />
             );
           })}
@@ -109,11 +123,6 @@ export default function RecipientsStep({
             <span className="font-semibold">{selectedIds.size}</span>{" "}
             <span className="text-muted-foreground">{t("destinatarios seleccionados")}</span>
           </div>
-          {selectedIds.size > 0 && (
-            <LinkBtn onClick={() => setSelectedIds(new Set())}>
-              {t("Limpiar todo")}
-            </LinkBtn>
-          )}
         </div>
         <Button className="primary" onClick={onNext} invalid={selectedIds.size === 0}>
           <span className="inline-flex items-center justify-center gap-[8px]">

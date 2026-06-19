@@ -163,7 +163,10 @@ export default function ContactFilter({
           onChange={(e) => patch({ search: e.target.value })}
         />
 
-        <div className="grid gap-[8px] mt-[10px]" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+        <div
+          className="grid gap-[8px] mt-[10px]"
+          style={{ gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)" }}
+        >
           <Select
             mode="multiple"
             allowClear

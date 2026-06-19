@@ -79,13 +79,13 @@ export default function ReviewStep({
             </div>
             <div className="flex items-center gap-[8px]">
               <NavBtn onClick={() => setIdx(Math.max(0, safeIdx - 1))}>
-                <ChevronRight className="w-[14px] h-[14px]" />
+                <ChevronLeft className="w-[14px] h-[14px]" />
               </NavBtn>
               <div className="text-[12px] text-muted-foreground">
                 {recipients.length ? safeIdx + 1 : 0}/{recipients.length}
               </div>
               <NavBtn onClick={() => setIdx(Math.min(recipients.length - 1, safeIdx + 1))}>
-                <ChevronLeft className="w-[14px] h-[14px]" />
+                <ChevronRight className="w-[14px] h-[14px]" />
               </NavBtn>
             </div>
           </div>
