@@ -23,7 +23,9 @@ export default function Checkbox({
         border: `1.5px solid ${checked ? "var(--primary)" : "var(--input)"}`,
       }}
     >
-      {checked && <Check className="w-[12px] h-[12px] text-white" strokeWidth={3} />}
+      {checked && (
+        <Check className="w-[12px] h-[12px] text-white" strokeWidth={3} />
+      )}
     </button>
   );
 }

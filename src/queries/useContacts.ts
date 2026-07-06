@@ -120,7 +120,12 @@ export function useCreateContact() {
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
 
   return useMutation({
-    mutationFn: async (data: ContactWithAddressesInsert & { tags?: string[] | null; email?: string | null }) => {
+    mutationFn: async (
+      data: ContactWithAddressesInsert & {
+        tags?: string[] | null;
+        email?: string | null;
+      },
+    ) => {
       if (!orgId) throw new Error("No active organization");
 
       const { addresses, tags, email, ...contactData } = data;
@@ -181,7 +186,9 @@ export function useUpdateContact() {
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
 
   return useMutation({
-    mutationFn: async (data: ContactWithAddressesUpdate & { email?: string | null }) => {
+    mutationFn: async (
+      data: ContactWithAddressesUpdate & { email?: string | null },
+    ) => {
       if (!orgId) throw new Error("No active organization");
       if (!data.id) throw new Error("No contact id");
 

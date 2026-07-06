@@ -121,7 +121,8 @@ export default function ContactFilter({
 
   const tagCounts = useMemo(() => {
     const m: Record<string, number> = {};
-    for (const c of contacts) for (const tg of c.tags ?? []) m[tg] = (m[tg] ?? 0) + 1;
+    for (const c of contacts)
+      for (const tg of c.tags ?? []) m[tg] = (m[tg] ?? 0) + 1;
     return m;
   }, [contacts]);
 
@@ -145,10 +146,22 @@ export default function ContactFilter({
 
   const presets = [
     { label: t("Hoy"), value: [dayjs().startOf("day"), dayjs().endOf("day")] },
-    { label: t("Últimos 7 días"), value: [dayjs().subtract(6, "day").startOf("day"), dayjs().endOf("day")] },
-    { label: t("Últimos 30 días"), value: [dayjs().subtract(29, "day").startOf("day"), dayjs().endOf("day")] },
-    { label: t("Últimos 90 días"), value: [dayjs().subtract(89, "day").startOf("day"), dayjs().endOf("day")] },
-    { label: t("Este año"), value: [dayjs().startOf("year"), dayjs().endOf("day")] },
+    {
+      label: t("Últimos 7 días"),
+      value: [dayjs().subtract(6, "day").startOf("day"), dayjs().endOf("day")],
+    },
+    {
+      label: t("Últimos 30 días"),
+      value: [dayjs().subtract(29, "day").startOf("day"), dayjs().endOf("day")],
+    },
+    {
+      label: t("Últimos 90 días"),
+      value: [dayjs().subtract(89, "day").startOf("day"), dayjs().endOf("day")],
+    },
+    {
+      label: t("Este año"),
+      value: [dayjs().startOf("year"), dayjs().endOf("day")],
+    },
   ] as { label: string; value: [Dayjs, Dayjs] }[];
 
   return (
@@ -157,7 +170,9 @@ export default function ContactFilter({
         <Input
           allowClear
           size="large"
-          prefix={<Search className="text-muted-foreground w-[15px] h-[15px]" />}
+          prefix={
+            <Search className="text-muted-foreground w-[15px] h-[15px]" />
+          }
           placeholder={t("Buscar por nombre, teléfono, email...")}
           value={value.search}
           onChange={(e) => patch({ search: e.target.value })}
@@ -165,7 +180,9 @@ export default function ContactFilter({
 
         <div
           className="grid gap-[8px] mt-[10px]"
-          style={{ gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)" }}
+          style={{
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)",
+          }}
         >
           <Select
             mode="multiple"
@@ -200,7 +217,9 @@ export default function ContactFilter({
             presets={presets}
             disabledDate={(d) => d && d.isAfter(dayjs().endOf("day"))}
             onChange={(range) => {
-              const from = range?.[0] ? range[0].startOf("day").valueOf() : null;
+              const from = range?.[0]
+                ? range[0].startOf("day").valueOf()
+                : null;
               const to = range?.[1] ? range[1].endOf("day").valueOf() : null;
               patch({ dateFrom: from, dateTo: to });
             }}

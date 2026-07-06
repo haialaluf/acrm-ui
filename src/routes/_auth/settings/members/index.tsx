@@ -52,27 +52,28 @@ function ListMembers() {
             const pending = agent.extra?.invitation?.status === "pending";
             const isMe = agent.id === currentAgent?.id;
 
-            return (<SectionItem
-              key={agent.id}
-              title={agent.name + (isMe ? ` (${t("tú")})` : "")}
-              description={role + (pending ? ` (${t("pendiente")})` : "")}
-              aside={
-                <Avatar
-                  src={agent.picture}
-                  fallback={agent.name?.substring(0, 2).toUpperCase()}
-                  size={40}
-                  className="bg-muted text-muted-foreground"
-                />
-              }
-              onClick={() =>
-                navigate({
-                  to: `/settings/members/${agent.id}`,
-                  hash: (prevHash: string | undefined) => prevHash!,
-                })
-              }
-            />)
-          }
-          )}
+            return (
+              <SectionItem
+                key={agent.id}
+                title={agent.name + (isMe ? ` (${t("tú")})` : "")}
+                description={role + (pending ? ` (${t("pendiente")})` : "")}
+                aside={
+                  <Avatar
+                    src={agent.picture}
+                    fallback={agent.name?.substring(0, 2).toUpperCase()}
+                    size={40}
+                    className="bg-muted text-muted-foreground"
+                  />
+                }
+                onClick={() =>
+                  navigate({
+                    to: `/settings/members/${agent.id}`,
+                    hash: (prevHash: string | undefined) => prevHash!,
+                  })
+                }
+              />
+            );
+          })}
       </SectionBody>
     </>
   );

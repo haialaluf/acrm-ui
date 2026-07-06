@@ -23,7 +23,14 @@ export default function SendingStep({
       <div className="flex flex-col items-center mb-[24px]">
         <div className="relative" style={{ width: 128, height: 128 }}>
           <svg width="128" height="128" viewBox="0 0 128 128">
-            <circle cx="64" cy="64" r={radius} stroke="var(--muted)" strokeWidth="8" fill="none" />
+            <circle
+              cx="64"
+              cy="64"
+              r={radius}
+              stroke="var(--muted)"
+              strokeWidth="8"
+              fill="none"
+            />
             <circle
               cx="64"
               cy="64"
@@ -59,18 +66,28 @@ export default function SendingStep({
         >
           {isDone
             ? t("Envío completado")
-            : t("Enviando mensajes… puedes cerrar — continuará en segundo plano.")}
+            : t(
+                "Enviando mensajes… puedes cerrar — continuará en segundo plano.",
+              )}
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-[8px]">
-        <StatTile label={t("Enviados")} value={progress.sent} color="var(--foreground)" />
+        <StatTile
+          label={t("Enviados")}
+          value={progress.sent}
+          color="var(--foreground)"
+        />
         <StatTile
           label={t("Pendientes")}
           value={Math.max(0, total - done)}
           color="oklch(from var(--primary) calc(l - 0.05) c h)"
         />
-        <StatTile label={t("Fallidos")} value={progress.failed} color="var(--destructive)" />
+        <StatTile
+          label={t("Fallidos")}
+          value={progress.failed}
+          color="var(--destructive)"
+        />
       </div>
     </div>
   );

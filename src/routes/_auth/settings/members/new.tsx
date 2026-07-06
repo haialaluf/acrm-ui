@@ -42,26 +42,28 @@ function AddMember() {
       <SectionBody>
         <form
           id="create-member-form"
-          onSubmit={handleSubmit(data => createAgent.mutate(
-            {
-              ...data,
-              ai: false,
-              extra: {
-                role: data.extra!.role!,
-                invitation: {
-                  organization_name: organization?.name || "",
-                  email: data.extra!.invitation!.email!,
-                  status: "pending"
-                }
-              }
-            },
-            {
-              onSuccess: (agent) =>
-                navigate({
-                  to: `/settings/members/${agent!.id}`,
-                  hash: (prevHash: string | undefined) => prevHash!,
-                }),
-            }),
+          onSubmit={handleSubmit((data) =>
+            createAgent.mutate(
+              {
+                ...data,
+                ai: false,
+                extra: {
+                  role: data.extra!.role!,
+                  invitation: {
+                    organization_name: organization?.name || "",
+                    email: data.extra!.invitation!.email!,
+                    status: "pending",
+                  },
+                },
+              },
+              {
+                onSuccess: (agent) =>
+                  navigate({
+                    to: `/settings/members/${agent!.id}`,
+                    hash: (prevHash: string | undefined) => prevHash!,
+                  }),
+              },
+            ),
           )}
         >
           <fieldset disabled={!isOwner} className="contents">

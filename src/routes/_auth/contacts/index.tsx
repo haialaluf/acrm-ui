@@ -86,7 +86,13 @@ function ListContacts() {
           <SectionItem
             key={contact.id}
             title={contact.name || t("Sin nombre")}
-            description={contact.addresses?.at(0)?.address ? ltrIsolate(formatPhoneNumber(contact.addresses.at(0)!.address)) : t("Sin dirección")}
+            description={
+              contact.addresses?.at(0)?.address
+                ? ltrIsolate(
+                    formatPhoneNumber(contact.addresses.at(0)!.address),
+                  )
+                : t("Sin dirección")
+            }
             aside={
               <Avatar
                 fallback={contact.name?.substring(0, 2).toUpperCase() || "?"}

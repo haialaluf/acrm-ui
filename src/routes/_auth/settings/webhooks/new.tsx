@@ -40,16 +40,13 @@ function AddWebhook() {
         <form
           id="create-webhook-form"
           onSubmit={handleSubmit((data) =>
-            createWebhook.mutate(
-              data,
-              {
-                onSuccess: (webhook) =>
-                  navigate({
-                    to: `/settings/webhooks/${webhook!.id}`,
-                    hash: (prevHash: string | undefined) => prevHash!,
-                  }),
-              }
-            )
+            createWebhook.mutate(data, {
+              onSuccess: (webhook) =>
+                navigate({
+                  to: `/settings/webhooks/${webhook!.id}`,
+                  hash: (prevHash: string | undefined) => prevHash!,
+                }),
+            }),
           )}
         >
           <fieldset disabled={!isAdmin} className="contents">

@@ -60,7 +60,6 @@ function Conversations() {
       <ChatSearch /> {/* height: 49 px */}
       <ChatFilter /> {/* height: 43 px */}
       <ChatTagFilter /> {/* hidden when no contact tags exist */}
-
       {invitations && invitations.length > 0 && (
         <div className="pt-[10px] pb-[5px] pl-[10px] pr-[20px] flex flex-col gap-[4px]">
           {invitations.map((invitation) => (

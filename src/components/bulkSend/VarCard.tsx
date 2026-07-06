@@ -1,5 +1,10 @@
 import { useTranslation } from "@/hooks/useTranslation";
-import { FIELD_OPTIONS, type ContactField, type Scope, type VarValue } from "./types";
+import {
+  FIELD_OPTIONS,
+  type ContactField,
+  type Scope,
+  type VarValue,
+} from "./types";
 import SegmentBtn from "./SegmentBtn";
 
 /** Editor for one template variable: code chip + scope label + static/field
@@ -22,7 +27,10 @@ export default function VarCard({
   return (
     <div
       className="rounded-[12px] p-[12px]"
-      style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+      style={{
+        background: "var(--background)",
+        border: "1px solid var(--border)",
+      }}
     >
       <div className="flex items-center justify-between mb-[10px]">
         <div className="flex items-center gap-[8px]">
@@ -36,11 +44,20 @@ export default function VarCard({
             {scope === "head" ? t("en encabezado") : t("en cuerpo")}
           </span>
         </div>
-        <div className="flex rounded-full p-[2px]" style={{ background: "var(--muted)" }}>
-          <SegmentBtn active={!isField} onClick={() => onUpdate({ mode: "static" })}>
+        <div
+          className="flex rounded-full p-[2px]"
+          style={{ background: "var(--muted)" }}
+        >
+          <SegmentBtn
+            active={!isField}
+            onClick={() => onUpdate({ mode: "static" })}
+          >
             {t("Valor fijo")}
           </SegmentBtn>
-          <SegmentBtn active={isField} onClick={() => onUpdate({ mode: "field" })}>
+          <SegmentBtn
+            active={isField}
+            onClick={() => onUpdate({ mode: "field" })}
+          >
             {t("Por destinatario")}
           </SegmentBtn>
         </div>
@@ -49,9 +66,14 @@ export default function VarCard({
         <>
           <select
             className="w-full text-[14px] rounded-[8px] p-[8px] outline-none"
-            style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+            style={{
+              background: "var(--background)",
+              border: "1px solid var(--border)",
+            }}
             value={value.field}
-            onChange={(e) => onUpdate({ field: e.target.value as ContactField })}
+            onChange={(e) =>
+              onUpdate({ field: e.target.value as ContactField })
+            }
           >
             {FIELD_OPTIONS.map((f) => (
               <option key={f.id} value={f.id}>
@@ -67,7 +89,10 @@ export default function VarCard({
         <input
           type="text"
           className="w-full text-[14px] rounded-[8px] p-[8px] outline-none"
-          style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+          style={{
+            background: "var(--background)",
+            border: "1px solid var(--border)",
+          }}
           placeholder={example || t("Valor para todos los destinatarios")}
           value={value.static}
           onChange={(e) => onUpdate({ static: e.target.value })}

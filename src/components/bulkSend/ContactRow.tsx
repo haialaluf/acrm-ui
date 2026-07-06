@@ -29,7 +29,9 @@ export default function ContactRow({
       }
       style={{
         padding: dense ? "6px 10px" : "8px 10px",
-        background: checked ? "oklch(from var(--primary) l c h / 0.06)" : "transparent",
+        background: checked
+          ? "oklch(from var(--primary) l c h / 0.06)"
+          : "transparent",
       }}
       title={disabled ? disabledReason : undefined}
       aria-disabled={disabled || undefined}

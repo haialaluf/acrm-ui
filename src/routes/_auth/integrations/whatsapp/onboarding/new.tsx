@@ -66,7 +66,9 @@ function NewOnboardingToken() {
         >
           <fieldset disabled={!isOwner} className="contents">
             <p className="text-muted-foreground text-[14px]">
-              {t("Generá un enlace para que un tercero conecte su número de WhatsApp a tu organización. No necesita tener cuenta en DelaCRM ni ser miembro de tu organización.")}
+              {t(
+                "Generá un enlace para que un tercero conecte su número de WhatsApp a tu organización. No necesita tener cuenta en DelaCRM ni ser miembro de tu organización.",
+              )}
             </p>
 
             <label>

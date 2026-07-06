@@ -71,13 +71,22 @@ function WhatsAppIndex() {
                   />
                 </div>
               }
-              title={ltrIsolate(formatPhoneNumber((integration.extra as { phone_number?: string })?.phone_number || integration.address))}
-              description={statusLabels[integration.status] || integration.status}
-              onClick={() => navigate({
-                to: "/integrations/whatsapp/$orgAddressId",
-                params: { orgAddressId: integration.address },
-                hash: (prevHash) => prevHash!
-              })}
+              title={ltrIsolate(
+                formatPhoneNumber(
+                  (integration.extra as { phone_number?: string })
+                    ?.phone_number || integration.address,
+                ),
+              )}
+              description={
+                statusLabels[integration.status] || integration.status
+              }
+              onClick={() =>
+                navigate({
+                  to: "/integrations/whatsapp/$orgAddressId",
+                  params: { orgAddressId: integration.address },
+                  hash: (prevHash) => prevHash!,
+                })
+              }
             />
           ))}
         </div>

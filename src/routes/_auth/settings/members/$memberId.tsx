@@ -3,7 +3,14 @@ import SectionHeader from "@/components/SectionHeader";
 import SectionBody from "@/components/SectionBody";
 import SectionFooter from "@/components/SectionFooter";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useAgent, useUpdateAgent, useDeleteAgent, useCurrentAgent, useCurrentAgents, useResendInvitation } from "@/queries/useAgents";
+import {
+  useAgent,
+  useUpdateAgent,
+  useDeleteAgent,
+  useCurrentAgent,
+  useCurrentAgents,
+  useResendInvitation,
+} from "@/queries/useAgents";
 import useBoundStore from "@/stores/useBoundStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";

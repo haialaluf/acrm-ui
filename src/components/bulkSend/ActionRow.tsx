@@ -37,7 +37,9 @@ export default function ActionRow({
         <div className="text-[13px]">{title}</div>
         <div className="text-[11px] text-muted-foreground">{subtitle}</div>
       </div>
-      {!disabled && <ChevronLeft className="w-[16px] h-[16px] text-muted-foreground" />}
+      {!disabled && (
+        <ChevronLeft className="w-[16px] h-[16px] text-muted-foreground" />
+      )}
     </button>
   );
 }

@@ -7,7 +7,12 @@ import { type TemplateData } from "@/supabase/client";
 
 import VarCard from "./VarCard";
 import VarChip from "./VarChip";
-import { countVars, type ContactField, type Scope, type VarValue } from "./types";
+import {
+  countVars,
+  type ContactField,
+  type Scope,
+  type VarValue,
+} from "./types";
 
 /** Step 3 — for each `{{N}}`, choose a static value or a per-recipient field.
  *  A live preview card at the top renders the template text with chips in
@@ -36,7 +41,8 @@ export default function VariablesStep({
   function update(key: string, patch: Partial<VarValue>) {
     const current = vars[key];
     const next: VarValue =
-      patch.mode === "static" || (patch.mode === undefined && current.mode === "static")
+      patch.mode === "static" ||
+      (patch.mode === undefined && current.mode === "static")
         ? {
             mode: "static",
             static:
@@ -53,10 +59,15 @@ export default function VariablesStep({
   }
 
   const allFilled = Object.values(vars).every(
-    (v) => v.mode === "field" || (v.mode === "static" && v.static.trim() !== ""),
+    (v) =>
+      v.mode === "field" || (v.mode === "static" && v.static.trim() !== ""),
   );
 
-  function renderWithChips(text: string | undefined, scope: Scope, examples: string[]) {
+  function renderWithChips(
+    text: string | undefined,
+    scope: Scope,
+    examples: string[],
+  ) {
     if (!text) return null;
     const parts = text.split(/(\{\{\d+\}\})/);
     return parts.map((p, i) => {
@@ -65,7 +76,11 @@ export default function VariablesStep({
         const n = Number(m[1]);
         const v = vars[`${scope}.${n}`];
         return (
-          <VarChip key={i} value={v} placeholder={examples[n - 1] || `{{${n}}}`} />
+          <VarChip
+            key={i}
+            value={v}
+            placeholder={examples[n - 1] || `{{${n}}}`}
+          />
         );
       }
       return <span key={i}>{p}</span>;
@@ -78,7 +93,9 @@ export default function VariablesStep({
         <div className="px-[16px] pt-[14px] pb-[8px]">
           {hasVars && (
             <div className="text-[12px] mb-[12px] text-muted-foreground">
-              {t("Para cada variable, elige un valor fijo o un campo del contacto que se sustituirá por destinatario.")}
+              {t(
+                "Para cada variable, elige un valor fijo o un campo del contacto que se sustituirá por destinatario.",
+              )}
             </div>
           )}
           <div
@@ -135,7 +152,10 @@ export default function VariablesStep({
           {!hasVars && (
             <div
               className="rounded-[12px] p-[16px] text-[13px] text-center text-muted-foreground"
-              style={{ background: "var(--background)", border: "1px dashed var(--border)" }}
+              style={{
+                background: "var(--background)",
+                border: "1px dashed var(--border)",
+              }}
             >
               {t("Esta plantilla no tiene variables — puedes continuar")}
             </div>

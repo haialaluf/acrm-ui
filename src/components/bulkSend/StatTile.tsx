@@ -11,7 +11,10 @@ export default function StatTile({
   return (
     <div
       className="rounded-[12px] p-[12px] text-center"
-      style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+      style={{
+        background: "var(--background)",
+        border: "1px solid var(--border)",
+      }}
     >
       <div className="text-[22px] font-semibold" style={{ color }}>
         {value}

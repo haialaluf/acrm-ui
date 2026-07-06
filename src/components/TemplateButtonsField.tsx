@@ -5,12 +5,7 @@ import {
   type Control,
   type UseFormRegister,
 } from "react-hook-form";
-import {
-  Plus,
-  ChevronUp,
-  ChevronDown,
-  Trash2,
-} from "lucide-react";
+import { Plus, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
   BUTTON_KINDS,
@@ -54,7 +49,8 @@ function AddButtonMenu({
   useEffect(() => {
     if (!open) return;
     const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
@@ -69,7 +65,8 @@ function AddButtonMenu({
   function disabledReason(kind: ButtonKind): string | null {
     if (total >= BTN_TOTAL_MAX) return `${t("Límite total")}: ${BTN_TOTAL_MAX}`;
     const cap = BTN_LIMITS[kind].max;
-    if ((counts[kind] || 0) >= cap) return `${t("Máximo")} ${cap} ${t("de este tipo")}`;
+    if ((counts[kind] || 0) >= cap)
+      return `${t("Máximo")} ${cap} ${t("de este tipo")}`;
     if (BTN_LIMITS[kind].marketingOnly && category !== "MARKETING")
       return t("Solo disponible para la categoría Promoción");
     return null;
@@ -206,7 +203,9 @@ function ButtonCard({
       <div className={"flex flex-col" + (kind === "QR" ? "" : " mb-[10px]")}>
         <div className="flex items-baseline justify-between">
           <span className="text-[11px] text-muted-foreground mb-[2px]">
-            {kind === "COPY" ? t("Texto del botón (fijo)") : t("Texto del botón")}
+            {kind === "COPY"
+              ? t("Texto del botón (fijo)")
+              : t("Texto del botón")}
           </span>
           {kind !== "COPY" && (
             <span className="text-[11px] text-muted-foreground">
@@ -271,7 +270,11 @@ function ButtonCard({
               </button>
             </div>
           </div>
-          <div className={"flex flex-col" + (urlMode === "DYNAMIC" ? " mb-[10px]" : "")}>
+          <div
+            className={
+              "flex flex-col" + (urlMode === "DYNAMIC" ? " mb-[10px]" : "")
+            }
+          >
             <span className="text-[11px] text-muted-foreground mb-[2px]">
               {t("Dirección URL")}
               {urlMode === "DYNAMIC" ? " " + t("(con {{1}} al final)") : ""}
@@ -390,7 +393,10 @@ export default function TemplateButtonsField({
 }: {
   control: Control<TemplateFormData>;
   register: UseFormRegister<TemplateFormData>;
-  setValue: (name: `buttons.${number}.urlMode`, value: "STATIC" | "DYNAMIC") => void;
+  setValue: (
+    name: `buttons.${number}.urlMode`,
+    value: "STATIC" | "DYNAMIC",
+  ) => void;
   category: TemplateFormData["category"];
 }) {
   const { translate: t } = useTranslation();

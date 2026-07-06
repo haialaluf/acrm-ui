@@ -41,7 +41,11 @@ interface ContactTagSelectProps {
  * and is themed to match the underlined `.text` inputs. Controlled — wire it up
  * with react-hook-form's <Controller>.
  */
-export default function ContactTagSelect({ value, onChange, onBlur }: ContactTagSelectProps) {
+export default function ContactTagSelect({
+  value,
+  onChange,
+  onBlur,
+}: ContactTagSelectProps) {
   const { translate: t } = useTranslation();
   const { data: allTags } = useContactTags();
 

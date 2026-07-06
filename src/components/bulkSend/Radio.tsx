@@ -13,7 +13,14 @@ export default function Radio({ checked }: { checked: boolean }) {
       }}
     >
       {checked && (
-        <span style={{ width: 8, height: 8, borderRadius: 999, background: "var(--primary)" }} />
+        <span
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: 999,
+            background: "var(--primary)",
+          }}
+        />
       )}
     </span>
   );

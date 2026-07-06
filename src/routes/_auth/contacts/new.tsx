@@ -14,7 +14,10 @@ import FieldError from "@/components/FieldError";
 
 // `tags` is a contacts column not yet present in the generated db_types.ts;
 // remove this once ContactWithAddressesInsert includes it (see useContactTags).
-type ContactFormValues = ContactWithAddressesInsert & { tags?: string[]; email?: string | null };
+type ContactFormValues = ContactWithAddressesInsert & {
+  tags?: string[];
+  email?: string | null;
+};
 
 export const Route = createFileRoute("/_auth/contacts/new")({
   component: ContactNew,
@@ -31,7 +34,7 @@ function ContactNew() {
     control,
     formState: { isValid, isDirty, errors },
   } = useForm<ContactFormValues>({
-    mode: 'onTouched',
+    mode: "onTouched",
     defaultValues: {
       addresses: [{ address: "" }],
       tags: [],
@@ -50,12 +53,15 @@ function ContactNew() {
       <SectionBody>
         <form
           id="contact-form"
-          onSubmit={handleSubmit(data => createContact.mutate(data, {
-            onSuccess: (contact) => navigate({
-              to: `/contacts/${contact.id}`,
-              hash: (prevHash: string | undefined) => prevHash!,
+          onSubmit={handleSubmit((data) =>
+            createContact.mutate(data, {
+              onSuccess: (contact) =>
+                navigate({
+                  to: `/contacts/${contact.id}`,
+                  hash: (prevHash: string | undefined) => prevHash!,
+                }),
             }),
-          }))}
+          )}
         >
           <label>
             <div className="label">{t("Nombre")}</div>
@@ -94,14 +100,19 @@ function ContactNew() {
 
           {fields.map((field, idx) => (
             <label key={field.id}>
-              <div className="label">{t("Teléfono")} {idx + 1}</div>
+              <div className="label">
+                {t("Teléfono")} {idx + 1}
+              </div>
               <div className="flex items-center gap-2">
                 <input
                   type="tel"
                   className={`text ${errors.addresses?.[idx]?.address ? "border-destructive" : ""}`}
                   placeholder={t("+54 9 11 1234 5678")}
                   {...register(`addresses.${idx}.address`, {
-                    validate: (value) => !value || isValidPhoneNumber(value) || t("Número inválido")
+                    validate: (value) =>
+                      !value ||
+                      isValidPhoneNumber(value) ||
+                      t("Número inválido"),
                   })}
                 />
                 <button

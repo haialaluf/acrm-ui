@@ -101,10 +101,12 @@ function isCsv(file: File): boolean {
 }
 
 function isExcel(file: File): boolean {
-  return /\.xlsx?$/i.test(file.name) ||
+  return (
+    /\.xlsx?$/i.test(file.name) ||
     file.type === "application/vnd.ms-excel" ||
     file.type ===
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
 }
 
 /** Read the first sheet of an Excel workbook into a string matrix. */
@@ -155,7 +157,8 @@ export async function parseContactsFile(file: File): Promise<ParsedFile> {
   const allRows = matrix.slice(1).map((r) => {
     const cells = r.map((c) => c.trim());
     // Pad / trim every row to the header width so the table stays rectangular.
-    if (cells.length < width) cells.push(...Array(width - cells.length).fill(""));
+    if (cells.length < width)
+      cells.push(...Array(width - cells.length).fill(""));
     return cells.slice(0, width);
   });
 

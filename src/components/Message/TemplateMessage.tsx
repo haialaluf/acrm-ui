@@ -2,7 +2,10 @@ import { type MessageRow, type Template } from "@/supabase/client";
 import { TextMessage } from "./Message";
 import { useTemplates } from "@/queries/useTemplates";
 import { useTranslation } from "@/hooks/useTranslation";
-import { buttonDefToPreview, type PreviewButton } from "@/components/templateButtons";
+import {
+  buttonDefToPreview,
+  type PreviewButton,
+} from "@/components/templateButtons";
 
 /* Derive preview buttons straight from the send payload. The payload only
    carries runtime values (quick-reply payload, resolved URL, coupon code) and
@@ -19,10 +22,16 @@ function buttonsFromPayload(
 
     switch (component.sub_type) {
       case "quick_reply":
-        buttons.push({ kind: "QR", text: component.parameters[0]?.payload || "" });
+        buttons.push({
+          kind: "QR",
+          text: component.parameters[0]?.payload || "",
+        });
         break;
       case "url":
-        buttons.push({ kind: "URL", text: component.parameters[0]?.text || "" });
+        buttons.push({
+          kind: "URL",
+          text: component.parameters[0]?.text || "",
+        });
         break;
       case "copy_code":
         buttons.push({ kind: "COPY", text: copyLabel });

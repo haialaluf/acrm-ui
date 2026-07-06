@@ -6,15 +6,9 @@ import {
   pushMessageToDb,
 } from "@/utils/MessageUtils";
 import useBoundStore from "@/stores/useBoundStore";
-import {
-  pushConversationToDb,
-  saveDraft,
-} from "@/utils/ConversationUtils";
+import { pushConversationToDb, saveDraft } from "@/utils/ConversationUtils";
 import { type FileDraft } from "@/stores/chatSlice";
-import {
-  type Draft,
-  type MessageRow,
-} from "@/supabase/client";
+import { type Draft, type MessageRow } from "@/supabase/client";
 import { TickContext } from "@/contexts/useTick";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -109,7 +103,10 @@ export default function ChatFooter() {
     editableDiv.current.textContent = message || "";
 
     // do not steal the focus from the file previewer
-    if (!fileDrafts?.length && window.matchMedia("(min-width: 768px)").matches) {
+    if (
+      !fileDrafts?.length &&
+      window.matchMedia("(min-width: 768px)").matches
+    ) {
       moveCursorToEnd(editableDiv.current);
     }
 
@@ -160,13 +157,11 @@ export default function ChatFooter() {
     clearTimeout(timer);
 
     // If the conv has the `updated_at` unset, it means it has not been pushed to the DB yet.
-    !conv.updated_at && await pushConversationToDb(conv);
+    !conv.updated_at && (await pushConversationToDb(conv));
 
     const record = newMessage(
       conv,
-      sendAsContact
-        ? "incoming"
-        : "outgoing",
+      sendAsContact ? "incoming" : "outgoing",
       {
         version: "1",
         type: "text",
@@ -202,163 +197,171 @@ export default function ChatFooter() {
           disabled={isRemoved}
           description={t("Este contacto solicitó ser eliminado")}
         >
-        <div className={"flex items-end text-foreground p-[5px] rounded-[24px] shadow-[0_0_4px_0px_rgba(0,0,0,0.1)]" + (!inCSWindow ? " bg-background" : " bg-incoming-chat-bubble")}>
-          <div className="shrink-0">
-            <button
+          <div
+            className={
+              "flex items-end text-foreground p-[5px] rounded-[24px] shadow-[0_0_4px_0px_rgba(0,0,0,0.1)]" +
+              (!inCSWindow ? " bg-background" : " bg-incoming-chat-bubble")
+            }
+          >
+            <div className="shrink-0">
+              <button
+                disabled={!inCSWindow}
+                className={
+                  "p-[8px] rounded-full" +
+                  (!inCSWindow ? "" : " cursor-pointer hover:bg-accent")
+                }
+                onClick={() => fileInput.current?.click()}
+                title={t("Adjuntar")}
+              >
+                <Plus className="w-[24px] h-[24px]" />
+              </button>
+            </div>
+
+            <input
               disabled={!inCSWindow}
-              className={"p-[8px] rounded-full" + (!inCSWindow ? "" : " cursor-pointer hover:bg-accent")}
-              onClick={() => fileInput.current?.click()}
-              title={t("Adjuntar")}
-            >
-              <Plus className="w-[24px] h-[24px]" />
-            </button>
-          </div>
-
-          <input
-            disabled={!inCSWindow}
-            ref={fileInput}
-            type="file"
-            multiple={true}
-            className="hidden"
-            accept="*/*"
-            onChange={(event) => {
-              if (!event.target.files?.length) {
-                return;
-              }
-
-              const drafts = Array.from(event.target.files).map<FileDraft>(
-                (file) => ({
-                  file,
-                }),
-              );
-
-              drafts[0].caption = message;
-
-              setFileDrafts(drafts);
-            }}
-          />
-
-          {/* Text input. Sending a template now goes through the bulk-send
-              wizard (opened via the template picker), so there is no inline
-              template-editing mode here anymore. */}
-          <div className="relative grow">
-            <div
-              ref={editableDiv}
-              contentEditable={inCSWindow}
-              className={`${!inCSWindow ? "cursor-pointer" : ""} outline-none mx-[5px] py-[10px] min-h-[40px] max-h-40 overflow-y-auto text-[15px] leading-[20px] break-words`}
-              onInput={(event) => {
-                if (!(event.target instanceof Element)) {
+              ref={fileInput}
+              type="file"
+              multiple={true}
+              className="hidden"
+              accept="*/*"
+              onChange={(event) => {
+                if (!event.target.files?.length) {
                   return;
                 }
 
-                // Use secure utility to sanitize and convert HTML to Markdown
-                const message = htmlToMarkdown(event.currentTarget.innerHTML);
+                const drafts = Array.from(event.target.files).map<FileDraft>(
+                  (file) => ({
+                    file,
+                  }),
+                );
 
-                setMessage(message);
+                drafts[0].caption = message;
 
-                if (conv.created_at !== conv.updated_at) {
-                  // no drafts for new convs, sorry!
-                  debounce(() => saveDraft(conv, message, sendAsContact), 3000); // milliseconds
-                }
+                setFileDrafts(drafts);
               }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && event.ctrlKey) {
-                  // toggle("sendAsContact") is handled at window level, nonetheless this
-                  // no-op block prevents from sending the message when pressing ctrl+enter
-                } else if (
-                  event.key === "Enter" &&
-                  !event.shiftKey &&
-                  window.matchMedia("(min-width: 768px)").matches
-                ) {
-                  event.preventDefault();
-                  sendTextMessage();
-                }
-              }}
-              onClick={() => !inCSWindow && toggle("templatePicker")}
-              title={
-                inCSWindow
-                  ? undefined
-                  : (t(
-                    "WhatsApp cierra la conversación a las 24 horas del último mensaje recibido. Para abrir la conversación debes utilizar una plantilla.",
-                  ))
-              }
             />
-            {!message && (
+
+            {/* Text input. Sending a template now goes through the bulk-send
+              wizard (opened via the template picker), so there is no inline
+              template-editing mode here anymore. */}
+            <div className="relative grow">
               <div
-                className={
-                  "absolute bottom-[1px] py-[10px] mx-[5px] max-h-[40px] text-[15px] text-muted-foreground" +
-                  (inCSWindow ? "" : " cursor-pointer")
-                }
-                onClick={() =>
+                ref={editableDiv}
+                contentEditable={inCSWindow}
+                className={`${!inCSWindow ? "cursor-pointer" : ""} outline-none mx-[5px] py-[10px] min-h-[40px] max-h-40 overflow-y-auto text-[15px] leading-[20px] break-words`}
+                onInput={(event) => {
+                  if (!(event.target instanceof Element)) {
+                    return;
+                  }
+
+                  // Use secure utility to sanitize and convert HTML to Markdown
+                  const message = htmlToMarkdown(event.currentTarget.innerHTML);
+
+                  setMessage(message);
+
+                  if (conv.created_at !== conv.updated_at) {
+                    // no drafts for new convs, sorry!
+                    debounce(
+                      () => saveDraft(conv, message, sendAsContact),
+                      3000,
+                    ); // milliseconds
+                  }
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && event.ctrlKey) {
+                    // toggle("sendAsContact") is handled at window level, nonetheless this
+                    // no-op block prevents from sending the message when pressing ctrl+enter
+                  } else if (
+                    event.key === "Enter" &&
+                    !event.shiftKey &&
+                    window.matchMedia("(min-width: 768px)").matches
+                  ) {
+                    event.preventDefault();
+                    sendTextMessage();
+                  }
+                }}
+                onClick={() => !inCSWindow && toggle("templatePicker")}
+                title={
                   inCSWindow
-                    ? editableDiv.current?.focus()
-                    : toggle("templatePicker")
+                    ? undefined
+                    : t(
+                        "WhatsApp cierra la conversación a las 24 horas del último mensaje recibido. Para abrir la conversación debes utilizar una plantilla.",
+                      )
+                }
+              />
+              {!message && (
+                <div
+                  className={
+                    "absolute bottom-[1px] py-[10px] mx-[5px] max-h-[40px] text-[15px] text-muted-foreground" +
+                    (inCSWindow ? "" : " cursor-pointer")
+                  }
+                  onClick={() =>
+                    inCSWindow
+                      ? editableDiv.current?.focus()
+                      : toggle("templatePicker")
+                  }
+                >
+                  {!inCSWindow ? (
+                    <>
+                      <span className="lg:hidden">
+                        {t("Conversación cerrada")}
+                      </span>
+                      <span className="hidden lg:inline">
+                        {t(
+                          "Conversación cerrada, abre la conversación con una plantilla",
+                        )}
+                      </span>
+                    </>
+                  ) : sendAsContact ? (
+                    <>
+                      <span className="lg:hidden">{t("Mensaje entrante")}</span>
+                      <span className="hidden lg:inline">
+                        {t("Simula un mensaje entrante")}
+                      </span>
+                    </>
+                  ) : conv.service === "whatsapp" ? (
+                    <>
+                      <span className="lg:hidden">{t("Cerrará en")}</span>
+                      <span className="hidden lg:inline">
+                        {t("La conversación cerrará en")}
+                      </span>
+                      <span> {remaining}</span>
+                    </>
+                  ) : (
+                    <span>{t("Escribe un mensaje")}</span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Send button */}
+            <button
+              disabled={!inCSWindow}
+              className={
+                "p-[8px] rounded-full bg-primary disabled:opacity-50" +
+                (!inCSWindow ? "" : " cursor-pointer")
+              }
+              onClick={() => {
+                if (message) {
+                  sendTextMessage();
+                } else if (conv.service === "local") {
+                  // Only the internal service can simulate incoming messages
+                  toggle("sendAsContact");
+                }
+              }}
+              title={sendAsContact ? t("Recibir mensaje") : t("Enviar mensaje")}
+            >
+              <svg
+                className={
+                  "send-icon w-[24px] h-[24px] transition" +
+                  (sendAsContact ? " -scale-x-100" : "") +
+                  " text-primary-foreground"
                 }
               >
-                {!inCSWindow ? (
-                  <>
-                    <span className="lg:hidden">
-                      {t("Conversación cerrada")}
-                    </span>
-                    <span className="hidden lg:inline">
-                      {t("Conversación cerrada, abre la conversación con una plantilla")}
-                    </span>
-                  </>
-                ) : sendAsContact ? (
-                  <>
-                    <span className="lg:hidden">
-                      {t("Mensaje entrante")}
-                    </span>
-                    <span className="hidden lg:inline">
-                      {t("Simula un mensaje entrante")}
-                    </span>
-                  </>
-                ) : conv.service === "whatsapp" ? (
-                  <>
-                    <span className="lg:hidden">
-                      {t("Cerrará en")}
-                    </span>
-                    <span className="hidden lg:inline">
-                      {t("La conversación cerrará en")}
-                    </span>
-                    <span> {remaining}</span>
-                  </>
-                ) : (
-                  <span>{t("Escribe un mensaje")}</span>
-                )}
-              </div>
-            )}
+                <use href="/icons.svg#send" />
+              </svg>
+            </button>
           </div>
-
-          {/* Send button */}
-          <button
-            disabled={!inCSWindow}
-            className={"p-[8px] rounded-full bg-primary disabled:opacity-50" + (!inCSWindow ? "" : " cursor-pointer")}
-            onClick={() => {
-              if (message) {
-                sendTextMessage();
-              } else if (conv.service === "local") {
-                // Only the internal service can simulate incoming messages
-                toggle("sendAsContact");
-              }
-            }}
-            title={
-              sendAsContact
-                ? t("Recibir mensaje")
-                : t("Enviar mensaje")
-            }
-          >
-            <svg
-              className={
-                "send-icon w-[24px] h-[24px] transition" +
-                (sendAsContact ? " -scale-x-100" : "") +
-                " text-primary-foreground"
-              }
-            >
-              <use href="/icons.svg#send" />
-            </svg>
-          </button>
-        </div>
         </DisabledSection>
       </div>
     )

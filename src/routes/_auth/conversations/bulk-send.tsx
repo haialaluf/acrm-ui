@@ -136,9 +136,10 @@ function BulkSend() {
   async function send() {
     if (!template || !whatsappAddress || !activeOrgId) return;
     if (scheduling === "later" && !scheduledAt) return;
-    const scheduledIso = scheduling === "later" && scheduledAt
-      ? new Date(scheduledAt).toISOString()
-      : undefined;
+    const scheduledIso =
+      scheduling === "later" && scheduledAt
+        ? new Date(scheduledAt).toISOString()
+        : undefined;
     setStage("sending");
     setProgress({ sent: 0, failed: 0 });
 
@@ -159,12 +160,13 @@ function BulkSend() {
         continue;
       }
 
-      let conv: ConversationRow | undefined = Array.from(storeConvs.values())
-        .find(
-          (c) =>
-            c.organization_address === whatsappAddress.address &&
-            c.contact_address === phone,
-        );
+      let conv: ConversationRow | undefined = Array.from(
+        storeConvs.values(),
+      ).find(
+        (c) =>
+          c.organization_address === whatsappAddress.address &&
+          c.contact_address === phone,
+      );
 
       if (!conv) {
         const id = startConversation({
@@ -266,9 +268,9 @@ function BulkSend() {
       case "review":
         return {
           title: t("Vista previa y envío"),
-          subtitle: `${recipients.length} ${
-            t("destinatarios")
-          } · ${template?.name}`,
+          subtitle: `${recipients.length} ${t(
+            "destinatarios",
+          )} · ${template?.name}`,
           step,
           showProgress: true,
         };

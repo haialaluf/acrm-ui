@@ -1,11 +1,11 @@
-import parseNumber, { parsePhoneNumberWithError } from 'libphonenumber-js';
+import parseNumber, { parsePhoneNumberWithError } from "libphonenumber-js";
 
 /**
  * Country assumed when a number is written in local format (no country code),
  * e.g. "0501234567". Parsing tries international form first and only falls
  * back to this country.
  */
-const DEFAULT_COUNTRY = 'IL' as const;
+const DEFAULT_COUNTRY = "IL" as const;
 
 export function removeAccents(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -21,8 +21,8 @@ export function removeAccents(str: string): string {
 export function isIncludedIn(searchCriteria: string, term: string) {
   return searchCriteria.length
     ? removeAccents(term)
-      .toLowerCase()
-      .includes(removeAccents(searchCriteria).toLowerCase())
+        .toLowerCase()
+        .includes(removeAccents(searchCriteria).toLowerCase())
     : true;
 }
 
@@ -45,7 +45,9 @@ export function nameInitials(name: string): string {
 
 export function formatPhoneNumber(phoneNumber: string): string {
   try {
-    const parsed = parsePhoneNumberWithError("+" + phoneNumber, { extract: false });
+    const parsed = parsePhoneNumberWithError("+" + phoneNumber, {
+      extract: false,
+    });
     return parsed.formatInternational();
   } catch (error) {
     return phoneNumber;
@@ -72,9 +74,9 @@ const hasInvalidCharacters = (phoneNumber: string): boolean => {
 // Strip formatting characters, keeping only digits and a single leading plus.
 // "+1 (847) 529-8119" → "+18475298119"; "050-123-4567" → "0501234567".
 const stripFormatting = (phoneNumber: string): string => {
-  const cleaned = phoneNumber.replace(/[^\d+]/g, '');
-  const hasLeadingPlus = cleaned.startsWith('+');
-  const digits = cleaned.replace(/\+/g, '');
+  const cleaned = phoneNumber.replace(/[^\d+]/g, "");
+  const hasLeadingPlus = cleaned.startsWith("+");
+  const digits = cleaned.replace(/\+/g, "");
   return hasLeadingPlus ? `+${digits}` : digits;
 };
 
@@ -87,12 +89,12 @@ const stripFormatting = (phoneNumber: string): string => {
  */
 export function parsePhoneNumber(phoneNumber: string) {
   if (hasInvalidCharacters(phoneNumber)) {
-    throw new Error('Invalid phone number');
+    throw new Error("Invalid phone number");
   }
 
   const normalized = stripFormatting(phoneNumber);
   if (!normalized) {
-    throw new Error('Invalid phone number');
+    throw new Error("Invalid phone number");
   }
 
   const international = parseNumber(normalized);
@@ -101,7 +103,7 @@ export function parsePhoneNumber(phoneNumber: string) {
   const local = parseNumber(normalized, DEFAULT_COUNTRY);
   if (local?.isValid()) return local;
 
-  throw new Error('Invalid phone number');
+  throw new Error("Invalid phone number");
 }
 
 export function isValidPhoneNumber(phoneNumber: string): boolean {
@@ -129,9 +131,9 @@ export function normalizePhoneNumber(phoneNumber: string): string {
       number = number.replace("54", "549");
     }
 
-    return number
+    return number;
   } catch {
     // Return cleaned version (digits only) if parsing fails
-    return phoneNumber.replace(/\D/g, '');
+    return phoneNumber.replace(/\D/g, "");
   }
 }

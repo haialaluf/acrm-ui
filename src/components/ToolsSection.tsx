@@ -84,12 +84,15 @@ export default function ToolsSection<T extends FieldValues>({
       ["calendar", "sheets"].includes((tool as any).config?.product),
   );
 
-  const acrmTools = allTools.filter((tool): tool is LocalMCPToolConfig & { id: string; _index: number } =>
-    (tool as any).type === "mcp" && (tool as any).config?.product === "acrm"
+  const acrmTools = allTools.filter(
+    (tool): tool is LocalMCPToolConfig & { id: string; _index: number } =>
+      (tool as any).type === "mcp" && (tool as any).config?.product === "acrm",
   );
 
-  const mcpTools = allTools.filter((tool): tool is LocalMCPToolConfig & { id: string; _index: number } =>
-    (tool as any).type === "mcp" && !["calendar", "sheets", "acrm"].includes((tool as any).config?.product)
+  const mcpTools = allTools.filter(
+    (tool): tool is LocalMCPToolConfig & { id: string; _index: number } =>
+      (tool as any).type === "mcp" &&
+      !["calendar", "sheets", "acrm"].includes((tool as any).config?.product),
   );
 
   const httpTools = allTools.filter(
@@ -322,7 +325,9 @@ export default function ToolsSection<T extends FieldValues>({
                     <MessageSquare className="w-[24px] h-[24px] text-muted-foreground" />
                   </div>
                 }
-                onClick={() => setEditor({ type: "acrm-mcp", index: tool._index })}
+                onClick={() =>
+                  setEditor({ type: "acrm-mcp", index: tool._index })
+                }
               />
             ))}
 

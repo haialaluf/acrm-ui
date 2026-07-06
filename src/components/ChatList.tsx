@@ -89,8 +89,10 @@ const ChatList = () => {
         !!a.mostRecentMsg &&
         (tagsFilter.length === 0 ||
           tagsFilter.some((tag) =>
-            (tagsByAddress.get(a.conv.contact_address ?? "") ?? []).includes(tag)
-          ))
+            (tagsByAddress.get(a.conv.contact_address ?? "") ?? []).includes(
+              tag,
+            ),
+          )),
     );
 
   if (searchPattern) {
@@ -124,7 +126,9 @@ const ChatList = () => {
       ) : (
         <div className="h-full flex items-center justify-center flex-col text-foreground text-[15px] mt-[-24px]">
           {t("Nada por aquí")}
-          {(searchPattern || filterName !== Filters.ALL || tagsFilter.length > 0) && (
+          {(searchPattern ||
+            filterName !== Filters.ALL ||
+            tagsFilter.length > 0) && (
             <button
               className="text-[13px] text-primary"
               onClick={() => {

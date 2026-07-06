@@ -46,16 +46,13 @@ function AddApiKey() {
         <form
           id="create-apikey-form"
           onSubmit={handleSubmit((data) =>
-            createApiKey.mutate(
-              data,
-              {
-                onSuccess: (apiKey) =>
-                  navigate({
-                    to: `/settings/api-keys/${apiKey.id}`,
-                    hash: (prevHash: string | undefined) => prevHash!,
-                  }),
-              }
-            )
+            createApiKey.mutate(data, {
+              onSuccess: (apiKey) =>
+                navigate({
+                  to: `/settings/api-keys/${apiKey.id}`,
+                  hash: (prevHash: string | undefined) => prevHash!,
+                }),
+            }),
           )}
         >
           <fieldset disabled={!isOwner} className="contents">

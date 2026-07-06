@@ -337,7 +337,9 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
           <div className="info flex flex-col justify-center grow min-w-0 pr-[15px]">
             {/* Upper row */}
             <div className="flex justify-between items-baseline">
-              <div dir="auto" className="truncate text-foreground text-[16px]">{displayName}</div>
+              <div dir="auto" className="truncate text-foreground text-[16px]">
+                {displayName}
+              </div>
               <div
                 className={
                   "text-[12px] ml-[6px] capitalize" +

@@ -13,18 +13,20 @@ Requires Node (the repo pins the version in `mise.toml`).
    ```
 
 2. Start the API locally (requires Docker):
+
    ```bash
    cd acrm-api
    npx supabase start
    ```
 
 3. Install UI dependencies and start the dev server:
+
    ```bash
    cd acrm-ui
    npm install
    ```
 
-3. Configure the environment (point it at a Supabase backend — see
+4. Configure the environment (point it at a Supabase backend — see
    [open-bsp-api](https://github.com/matiasbattocchia/open-bsp-api)):
 
    ```bash
@@ -34,7 +36,7 @@ Requires Node (the repo pins the version in `mise.toml`).
    Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. `VITE_META_APP_ID` and
    `VITE_FB_LOGIN_CONFIG_ID` are only needed for the WhatsApp connect flow.
 
-4. Run the dev server:
+5. Run the dev server:
 
    ```bash
    npm run dev

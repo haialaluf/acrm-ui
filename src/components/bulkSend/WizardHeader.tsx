@@ -33,7 +33,9 @@ export default function WizardHeader({
         <div className="flex-1 min-w-0">
           <div className="text-[16px] truncate">{title}</div>
           {subtitle && (
-            <div className="text-[12px] text-muted-foreground truncate">{subtitle}</div>
+            <div className="text-[12px] text-muted-foreground truncate">
+              {subtitle}
+            </div>
           )}
         </div>
         {showProgress && step && (

@@ -23,7 +23,10 @@ import AvatarComponent from "@/components/Avatar";
 import { useAgent } from "@/queries/useAgents";
 import { AVATAR_BG_COLORS, AVATAR_TEXT_COLORS } from "@/utils/colors";
 import type { Json } from "@/supabase/db_types";
-import { ButtonKindIcon, type PreviewButton } from "@/components/templateButtons";
+import {
+  ButtonKindIcon,
+  type PreviewButton,
+} from "@/components/templateButtons";
 import TemplateMessage from "./TemplateMessage";
 
 const md = new Remarkable({
@@ -43,25 +46,29 @@ md.renderer.rules.link_open = function (tokens, idx) {
 function whatsappToMarkdown(text: string): string {
   const parts = text.split(/(`{3}[\s\S]*?`{3})/);
 
-  return parts.map((part) => {
-    if (part.startsWith("```")) return part;
+  return parts
+    .map((part) => {
+      if (part.startsWith("```")) return part;
 
-    const subParts = part.split(/(`[^`]+`)/);
+      const subParts = part.split(/(`[^`]+`)/);
 
-    return subParts.map((subPart) => {
-      if (subPart.startsWith("`")) return subPart;
+      return subParts
+        .map((subPart) => {
+          if (subPart.startsWith("`")) return subPart;
 
-      let processed = subPart;
-      // Bold: *text* -> **text**
-      processed = processed.replace(/\*([^*]+?)\*/g, "**$1**");
-      // Italic: _text_ -> *text*
-      processed = processed.replace(/_([^_]+?)_/g, "*$1*");
-      // Strikethrough: ~text~ -> ~~text~~
-      processed = processed.replace(/~([^~]+?)~/g, "~~$1~~");
+          let processed = subPart;
+          // Bold: *text* -> **text**
+          processed = processed.replace(/\*([^*]+?)\*/g, "**$1**");
+          // Italic: _text_ -> *text*
+          processed = processed.replace(/_([^_]+?)_/g, "*$1*");
+          // Strikethrough: ~text~ -> ~~text~~
+          processed = processed.replace(/~([^~]+?)~/g, "~~$1~~");
 
-      return processed;
-    }).join("");
-  }).join("");
+          return processed;
+        })
+        .join("");
+    })
+    .join("");
 }
 
 export function Markdown({
@@ -123,13 +130,21 @@ export function TextMessage({
   const MAX_LENGTH = 500;
 
   // Calculate if content is "too long"
-  const isTooLong = type === "json" ? JSON.stringify(body).length > MAX_LENGTH : (body as string).length > MAX_LENGTH;
+  const isTooLong =
+    type === "json"
+      ? JSON.stringify(body).length > MAX_LENGTH
+      : (body as string).length > MAX_LENGTH;
 
   return (
     <>
       <div className="relative">
         {/* Content */}
-        <div className={"pl-[6px] pt-[6px] pb-[5px] pr-[4px]" + (fixedWidth ? " w-[320px]" : "")}>
+        <div
+          className={
+            "pl-[6px] pt-[6px] pb-[5px] pr-[4px]" +
+            (fixedWidth ? " w-[320px]" : "")
+          }
+        >
           {/* Header */}
           {header && (
             <div
@@ -142,7 +157,14 @@ export function TextMessage({
           {/* Body */}
           {type === "json" ? (
             <>
-              <div className={"scrollbar-hide overflow-x-auto " + (isTooLong && !expanded ? "max-h-[150px] overflow-y-hidden" : "")}>
+              <div
+                className={
+                  "scrollbar-hide overflow-x-auto " +
+                  (isTooLong && !expanded
+                    ? "max-h-[150px] overflow-y-hidden"
+                    : "")
+                }
+              >
                 <pre
                   dangerouslySetInnerHTML={{
                     __html: prettyPrintJson.toHtml(body as Json, {
@@ -153,15 +175,24 @@ export function TextMessage({
               </div>
 
               {/* This invisible inline element does not play well with Markdown block elements. */}
-              {!!footer && <span className="text-[11px] mx-[4px] invisible">
-                {dayjs(timestamp).format("HH:mm")}
-                {direction === "outgoing" && (
-                  <span className="px-[8px] ms-[3px]"></span>
-                )}
-              </span>}
+              {!!footer && (
+                <span className="text-[11px] mx-[4px] invisible">
+                  {dayjs(timestamp).format("HH:mm")}
+                  {direction === "outgoing" && (
+                    <span className="px-[8px] ms-[3px]"></span>
+                  )}
+                </span>
+              )}
             </>
           ) : (
-            <div className={"scrollbar-hide overflow-x-auto " + (isTooLong && !expanded ? "max-h-[150px] overflow-y-hidden" : "")}>
+            <div
+              className={
+                "scrollbar-hide overflow-x-auto " +
+                (isTooLong && !expanded
+                  ? "max-h-[150px] overflow-y-hidden"
+                  : "")
+              }
+            >
               <Markdown
                 content={body as string}
                 direction={direction}
@@ -290,7 +321,11 @@ export function InMessage({
         {first && (
           <>
             {avatar && <Avatar {...avatar} display="picture-left" />}
-            <svg className={msgTailClasses + " text-incoming-chat-bubble -left-[8px]"}>
+            <svg
+              className={
+                msgTailClasses + " text-incoming-chat-bubble -left-[8px]"
+              }
+            >
               <use href="/icons.svg#tail-in" />
             </svg>
           </>
@@ -308,7 +343,7 @@ export function OutMessage({
   last,
   children,
   avatar,
-  internal
+  internal,
 }: PropsWithChildren<UIMessage>) {
   return (
     <div
@@ -331,11 +366,14 @@ export function OutMessage({
         {first && (
           <>
             {!!avatar && <Avatar {...avatar} display="picture-right" />}
-            <svg className={
-              msgTailClasses +
-              " -right-[8px]" +
-              (internal ? " text-incoming-chat-bubble" : " text-outgoing-chat-bubble")
-            }
+            <svg
+              className={
+                msgTailClasses +
+                " -right-[8px]" +
+                (internal
+                  ? " text-incoming-chat-bubble"
+                  : " text-outgoing-chat-bubble")
+              }
             >
               <use href="/icons.svg#tail-out" />
             </svg>
@@ -386,7 +424,11 @@ function TextContent({ message, header, fixedWidth }: MessageContentProps) {
   );
 }
 
-function ButtonReplyContent({ message, header, fixedWidth }: MessageContentProps) {
+function ButtonReplyContent({
+  message,
+  header,
+  fixedWidth,
+}: MessageContentProps) {
   // Incoming reply produced when the contact taps a template quick-reply
   // button — WhatsApp surfaces it as a plain text message.
   if (message.content.type !== "data" || message.content.kind !== "button") {
@@ -528,8 +570,10 @@ export default function Message(props: UIMessage & { message: MessageRow }) {
 
     const toolName = [
       "label" in toolInfo && toolInfo.label,
-      "name" in toolInfo && toolInfo.name
-    ].filter(Boolean).join("__");
+      "name" in toolInfo && toolInfo.name,
+    ]
+      .filter(Boolean)
+      .join("__");
 
     if (toolInfo.event === "use") {
       headerText = `${t("Uso")}: ${toolName}`;
@@ -561,8 +605,18 @@ export default function Message(props: UIMessage & { message: MessageRow }) {
       {props.message.direction === "incoming" && (
         <InMessage {...{ ...props, text, fixedWidth }}>{content}</InMessage>
       )}
-      {(props.message.direction === "outgoing" || props.message.direction === "internal") && (
-        <OutMessage {...{ ...props, text, internal: props.message.direction === "internal", fixedWidth }}>{content}</OutMessage>
+      {(props.message.direction === "outgoing" ||
+        props.message.direction === "internal") && (
+        <OutMessage
+          {...{
+            ...props,
+            text,
+            internal: props.message.direction === "internal",
+            fixedWidth,
+          }}
+        >
+          {content}
+        </OutMessage>
       )}
     </>
   );

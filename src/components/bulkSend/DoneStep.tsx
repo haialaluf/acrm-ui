@@ -47,20 +47,33 @@ export default function DoneStep({
         </div>
 
         <div className="grid grid-cols-3 gap-[8px] mb-[16px]">
-          <StatTile label={t("Enviados")} value={progress.sent} color="var(--foreground)" />
+          <StatTile
+            label={t("Enviados")}
+            value={progress.sent}
+            color="var(--foreground)"
+          />
           <StatTile
             label={t("Total")}
             value={total}
             color="oklch(from var(--success) calc(l - 0.1) c h)"
           />
-          <StatTile label={t("Fallidos")} value={progress.failed} color="var(--destructive)" />
+          <StatTile
+            label={t("Fallidos")}
+            value={progress.failed}
+            color="var(--destructive)"
+          />
         </div>
 
         <div
           className="rounded-[12px] p-[14px]"
-          style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+          style={{
+            background: "var(--background)",
+            border: "1px solid var(--border)",
+          }}
         >
-          <div className="text-[14px] mb-[10px] font-medium">{t("Siguientes pasos")}</div>
+          <div className="text-[14px] mb-[10px] font-medium">
+            {t("Siguientes pasos")}
+          </div>
           <ActionRow
             icon={<MessageSquare className="w-[14px] h-[14px] text-primary" />}
             title={t("Abrir las conversaciones creadas")}

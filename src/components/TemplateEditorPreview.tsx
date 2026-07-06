@@ -2,7 +2,10 @@ import { type TemplateData } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
 import TemplatePreviewBubble from "./TemplatePreviewBubble";
 import { renumberVars, getVarNumbers } from "./templateVars";
-import { formButtonsToComponent, type FormTemplateButton } from "./templateButtons";
+import {
+  formButtonsToComponent,
+  type FormTemplateButton,
+} from "./templateButtons";
 import type { TemplateFormData } from "./templateEditorTypes";
 
 // Builds a live TemplateData from the editor's form values and renders the
@@ -76,7 +79,9 @@ export default function TemplateEditorPreview({
       {
         type: "BODY",
         text: previewBody,
-        ...(previewVars.length ? { example: { body_text: [previewVars] } } : {}),
+        ...(previewVars.length
+          ? { example: { body_text: [previewVars] } }
+          : {}),
       },
       ...(footer ? [{ type: "FOOTER" as const, text: footer }] : []),
       ...(buttonsComponent ? [buttonsComponent] : []),

@@ -121,10 +121,16 @@ export default function RecipientsStep({
         <div className="flex items-center justify-between mb-[2px] text-[13px]">
           <div>
             <span className="font-semibold">{selectedIds.size}</span>{" "}
-            <span className="text-muted-foreground">{t("destinatarios seleccionados")}</span>
+            <span className="text-muted-foreground">
+              {t("destinatarios seleccionados")}
+            </span>
           </div>
         </div>
-        <Button className="primary" onClick={onNext} invalid={selectedIds.size === 0}>
+        <Button
+          className="primary"
+          onClick={onNext}
+          invalid={selectedIds.size === 0}
+        >
           <span className="inline-flex items-center justify-center gap-[8px]">
             {t("Elegir plantilla")}
             <ArrowLeft className="w-[16px] h-[16px] rotate-180" />

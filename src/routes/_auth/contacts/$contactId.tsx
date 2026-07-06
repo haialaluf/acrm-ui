@@ -33,8 +33,8 @@ function ContactDetail() {
 
   // Track original addresses (these will be readonly)
   const originalAddresses = useMemo(
-    () => new Set(contact?.addresses.map(a => a.address) ?? []),
-    [contact]
+    () => new Set(contact?.addresses.map((a) => a.address) ?? []),
+    [contact],
   );
 
   const {
@@ -43,8 +43,8 @@ function ContactDetail() {
     control,
     formState: { isDirty, isValid, errors },
   } = useForm<ContactFormValues>({
-    mode: 'onTouched',
-    values: contact
+    mode: "onTouched",
+    values: contact,
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -52,128 +52,143 @@ function ContactDetail() {
     name: "addresses",
   });
 
-  return contact && (
-    <>
-      <SectionHeader
-        title={contact.name || t("Sin nombre")}
-        onDelete={() => {
-          deleteContact.mutate(contactId, {
-            onSuccess: () => navigate({ to: "..", hash: (prevHash) => prevHash! })
-          });
-        }}
-        deleteLoading={deleteContact.isPending}
-      />
+  return (
+    contact && (
+      <>
+        <SectionHeader
+          title={contact.name || t("Sin nombre")}
+          onDelete={() => {
+            deleteContact.mutate(contactId, {
+              onSuccess: () =>
+                navigate({ to: "..", hash: (prevHash) => prevHash! }),
+            });
+          }}
+          deleteLoading={deleteContact.isPending}
+        />
 
-      <SectionBody>
-        <form
-          id="contact-form"
-          onSubmit={handleSubmit(data => updateContact.mutate(data))}
-        >
-          <label>
-            <div className="label">{t("Nombre")}</div>
-            <input
-              type="text"
-              className="text"
-              placeholder={t("Nombre del contacto")}
-              {...register("name")}
-            />
-          </label>
-
-          <label>
-            <div className="label">{t("Email")}</div>
-            <input
-              type="email"
-              className="text"
-              placeholder={t("correo@ejemplo.com")}
-              {...register("email")}
-            />
-          </label>
-
-          <label>
-            <div className="label">{t("Origen")}</div>
-            <input
-              type="text"
-              className="text"
-              value={contact.source}
-              readOnly
-            />
-          </label>
-
-          <div>
-            <div className="label">{t("Etiquetas")}</div>
-            <Controller
-              control={control}
-              name="tags"
-              render={({ field }) => (
-                <ContactTagSelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                />
-              )}
-            />
-          </div>
-
-          {fields.map((field, idx) => {
-            const isExisting = originalAddresses.has(field.address ?? "");
-            return (
-              <label key={field.id}>
-                <div className="label">{t("Teléfono")} {idx + 1} {(field.extra as { synced?: { action?: string } } | undefined)?.synced?.action === 'add' ? "(" + t("Sincronizado") + ")" : ""}</div>
-                <div className="flex items-center gap-2">
-                  {isExisting ? (
-                    <input
-                      type="tel"
-                      className="text"
-                      value={formatPhoneNumber(field.address || "")}
-                      readOnly
-                    />
-                  ) : (
-                    <input
-                      type="tel"
-                      className={`text ${errors.addresses?.[idx]?.address ? "border-destructive" : ""}`}
-                      placeholder={t("+54 9 11 1234 5678")}
-                      {...register(`addresses.${idx}.address`, {
-                        validate: (value) => !value || isValidPhoneNumber(value) || t("Número inválido")
-                      })}
-                    />
-                  )}
-                  <button
-                    type="button"
-                    className="p-[8px] rounded-full hover:bg-muted transition-colors"
-                    onClick={() => remove(idx)}
-                    title={t("Eliminar")}
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-                <FieldError error={errors.addresses?.[idx]?.address} />
-              </label>
-            );
-          })}
-
-          {/* Add phone number button */}
-          <button
-            type="button"
-            className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-full font-medium transition-colors w-fit text-[14px] flex items-center gap-2"
-            onClick={() => append({ address: "" })}
+        <SectionBody>
+          <form
+            id="contact-form"
+            onSubmit={handleSubmit((data) => updateContact.mutate(data))}
           >
-            <Plus className="w-4 h-4" />
-            {t("Agregar teléfono")}
-          </button>
-        </form>
-      </SectionBody>
+            <label>
+              <div className="label">{t("Nombre")}</div>
+              <input
+                type="text"
+                className="text"
+                placeholder={t("Nombre del contacto")}
+                {...register("name")}
+              />
+            </label>
 
-      <SectionFooter>
-        <Button
-          form="contact-form"
-          type="submit"
-          invalid={!isValid || !isDirty}
-          loading={updateContact.isPending}
-          className="primary"
-        >
-          {t("Actualizar")}
-        </Button>
-      </SectionFooter>
-    </>
+            <label>
+              <div className="label">{t("Email")}</div>
+              <input
+                type="email"
+                className="text"
+                placeholder={t("correo@ejemplo.com")}
+                {...register("email")}
+              />
+            </label>
+
+            <label>
+              <div className="label">{t("Origen")}</div>
+              <input
+                type="text"
+                className="text"
+                value={contact.source}
+                readOnly
+              />
+            </label>
+
+            <div>
+              <div className="label">{t("Etiquetas")}</div>
+              <Controller
+                control={control}
+                name="tags"
+                render={({ field }) => (
+                  <ContactTagSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                )}
+              />
+            </div>
+
+            {fields.map((field, idx) => {
+              const isExisting = originalAddresses.has(field.address ?? "");
+              return (
+                <label key={field.id}>
+                  <div className="label">
+                    {t("Teléfono")} {idx + 1}{" "}
+                    {(
+                      field.extra as
+                        | { synced?: { action?: string } }
+                        | undefined
+                    )?.synced?.action === "add"
+                      ? "(" + t("Sincronizado") + ")"
+                      : ""}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {isExisting ? (
+                      <input
+                        type="tel"
+                        className="text"
+                        value={formatPhoneNumber(field.address || "")}
+                        readOnly
+                      />
+                    ) : (
+                      <input
+                        type="tel"
+                        className={`text ${errors.addresses?.[idx]?.address ? "border-destructive" : ""}`}
+                        placeholder={t("+54 9 11 1234 5678")}
+                        {...register(`addresses.${idx}.address`, {
+                          validate: (value) =>
+                            !value ||
+                            isValidPhoneNumber(value) ||
+                            t("Número inválido"),
+                        })}
+                      />
+                    )}
+                    <button
+                      type="button"
+                      className="p-[8px] rounded-full hover:bg-muted transition-colors"
+                      onClick={() => remove(idx)}
+                      title={t("Eliminar")}
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <FieldError error={errors.addresses?.[idx]?.address} />
+                </label>
+              );
+            })}
+
+            {/* Add phone number button */}
+            <button
+              type="button"
+              className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-full font-medium transition-colors w-fit text-[14px] flex items-center gap-2"
+              onClick={() => append({ address: "" })}
+            >
+              <Plus className="w-4 h-4" />
+              {t("Agregar teléfono")}
+            </button>
+          </form>
+        </SectionBody>
+
+        <SectionFooter>
+          <Button
+            form="contact-form"
+            type="submit"
+            invalid={!isValid || !isDirty}
+            loading={updateContact.isPending}
+            className="primary"
+          >
+            {t("Actualizar")}
+          </Button>
+        </SectionFooter>
+      </>
+    )
   );
 }

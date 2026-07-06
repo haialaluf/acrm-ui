@@ -17,7 +17,10 @@ export function getVarNumbers(text: string): number[] {
 
 // Renumber variables to a contiguous 1..n sequence. Returns the rewritten text
 // and the original variable numbers in their new order.
-export function renumberVars(text: string): { text: string; ordered: number[] } {
+export function renumberVars(text: string): {
+  text: string;
+  ordered: number[];
+} {
   const matches = Array.from(text.matchAll(/\{\{(\d+)\}\}/g));
   const seen = new Set<number>();
   const ordered: number[] = [];
@@ -42,7 +45,11 @@ export function renumberVars(text: string): { text: string; ordered: number[] } 
 }
 
 // Insert text at a position, adding spaces on either side when needed.
-export function insertAtPos(text: string, pos: number, insertion: string): string {
+export function insertAtPos(
+  text: string,
+  pos: number,
+  insertion: string,
+): string {
   const before = text.slice(0, pos);
   const after = text.slice(pos);
   const needsSpaceBefore =

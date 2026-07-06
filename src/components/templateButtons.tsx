@@ -121,10 +121,10 @@ export function formButtonToComponent(
 
 export function formButtonsToComponent(buttons: FormTemplateButton[]) {
   return buttons.length
-    ? ({
-      type: "BUTTONS" as const,
-      buttons: buttons.map(formButtonToComponent),
-    })
+    ? {
+        type: "BUTTONS" as const,
+        buttons: buttons.map(formButtonToComponent),
+      }
     : null;
 }
 
@@ -236,12 +236,14 @@ export function buttonSendComponents(
         type: "button",
         sub_type: "copy_code",
         index: index.toString(),
-        parameters: [{
-          type: "coupon_code",
-          coupon_code: Array.isArray(button.example)
-            ? button.example[0]
-            : button.example,
-        }],
+        parameters: [
+          {
+            type: "coupon_code",
+            coupon_code: Array.isArray(button.example)
+              ? button.example[0]
+              : button.example,
+          },
+        ],
       });
     }
   });

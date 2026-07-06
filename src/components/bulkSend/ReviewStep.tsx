@@ -1,5 +1,12 @@
 import { useMemo, useState } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Clock, Send, X } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Send,
+  X,
+} from "lucide-react";
 import { ConfigProvider, DatePicker } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 
@@ -67,7 +74,8 @@ export default function ReviewStep({
     };
   }, [template, vars, current]);
 
-  const canSend = recipients.length > 0 && (scheduling === "now" || !!scheduledAt);
+  const canSend =
+    recipients.length > 0 && (scheduling === "now" || !!scheduledAt);
 
   return (
     <>
@@ -84,7 +92,11 @@ export default function ReviewStep({
               <div className="text-[12px] text-muted-foreground">
                 {recipients.length ? safeIdx + 1 : 0}/{recipients.length}
               </div>
-              <NavBtn onClick={() => setIdx(Math.min(recipients.length - 1, safeIdx + 1))}>
+              <NavBtn
+                onClick={() =>
+                  setIdx(Math.min(recipients.length - 1, safeIdx + 1))
+                }
+              >
                 <ChevronRight className="w-[14px] h-[14px]" />
               </NavBtn>
             </div>
@@ -92,7 +104,10 @@ export default function ReviewStep({
 
           <div
             className="rounded-[14px] overflow-hidden"
-            style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+            style={{
+              background: "var(--background)",
+              border: "1px solid var(--border)",
+            }}
           >
             <div
               className="flex items-center gap-[10px] px-[12px] py-[10px]"
@@ -104,18 +119,24 @@ export default function ReviewStep({
                 className="bg-muted text-muted-foreground"
               />
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] truncate">{current?.name || "—"}</div>
+                <div className="text-[13px] truncate">
+                  {current?.name || "—"}
+                </div>
                 {current?.addresses?.[0]?.address && (
                   <div
                     className="text-[11px] truncate text-muted-foreground"
                     style={{ direction: "ltr", textAlign: "start" }}
                   >
-                    {ltrIsolate(formatPhoneNumber(current.addresses[0].address))}
+                    {ltrIsolate(
+                      formatPhoneNumber(current.addresses[0].address),
+                    )}
                   </div>
                 )}
               </div>
             </div>
-            {previewTemplate && <TemplatePreviewBubble template={previewTemplate} />}
+            {previewTemplate && (
+              <TemplatePreviewBubble template={previewTemplate} />
+            )}
           </div>
         </div>
 
@@ -125,7 +146,10 @@ export default function ReviewStep({
           </div>
           <div
             className="flex flex-wrap gap-[5px] max-h-[110px] overflow-y-auto rounded-[12px] p-[8px]"
-            style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+            style={{
+              background: "var(--background)",
+              border: "1px solid var(--border)",
+            }}
           >
             {recipients.slice(0, 60).map((c) => (
               <span
@@ -161,7 +185,10 @@ export default function ReviewStep({
           </div>
           <div
             className="rounded-[12px] overflow-hidden"
-            style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+            style={{
+              background: "var(--background)",
+              border: "1px solid var(--border)",
+            }}
           >
             <button
               type="button"
@@ -169,7 +196,9 @@ export default function ReviewStep({
               className="w-full flex items-center gap-[10px] p-[12px] text-start border-none cursor-pointer"
               style={{
                 background:
-                  scheduling === "now" ? "oklch(from var(--primary) l c h / 0.04)" : "transparent",
+                  scheduling === "now"
+                    ? "oklch(from var(--primary) l c h / 0.04)"
+                    : "transparent",
               }}
             >
               <Radio checked={scheduling === "now"} />
@@ -188,14 +217,18 @@ export default function ReviewStep({
               className="w-full flex items-start gap-[10px] p-[12px] text-start border-none cursor-pointer"
               style={{
                 background:
-                  scheduling === "later" ? "oklch(from var(--primary) l c h / 0.04)" : "transparent",
+                  scheduling === "later"
+                    ? "oklch(from var(--primary) l c h / 0.04)"
+                    : "transparent",
               }}
             >
               <div className="mt-[2px]">
                 <Radio checked={scheduling === "later"} />
               </div>
               <div className="flex-1">
-                <div className="text-[14px]">{t("Programar para más tarde")}</div>
+                <div className="text-[14px]">
+                  {t("Programar para más tarde")}
+                </div>
                 {scheduling === "later" ? (
                   <div
                     onClick={(e) => e.stopPropagation()}
@@ -211,7 +244,9 @@ export default function ReviewStep({
                         onChange={(d: Dayjs | null) =>
                           setScheduledAt(d ? d.format("YYYY-MM-DDTHH:mm") : "")
                         }
-                        disabledDate={(d) => d && d.isBefore(dayjs().startOf("day"))}
+                        disabledDate={(d) =>
+                          d && d.isBefore(dayjs().startOf("day"))
+                        }
                         placeholder={t("Elige fecha y hora")}
                         allowClear
                       />

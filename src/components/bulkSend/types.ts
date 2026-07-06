@@ -38,14 +38,22 @@ export function countVars(text: string | undefined) {
   return (text?.match(/\{\{\d+\}\}/g) || []).length;
 }
 
-export function initVars(headN: number, bodyN: number): Record<string, VarValue> {
+export function initVars(
+  headN: number,
+  bodyN: number,
+): Record<string, VarValue> {
   const out: Record<string, VarValue> = {};
-  for (let i = 1; i <= headN; i++) out[`head.${i}`] = { mode: "field", field: "name" };
-  for (let i = 1; i <= bodyN; i++) out[`body.${i}`] = { mode: "field", field: "name" };
+  for (let i = 1; i <= headN; i++)
+    out[`head.${i}`] = { mode: "field", field: "name" };
+  for (let i = 1; i <= bodyN; i++)
+    out[`body.${i}`] = { mode: "field", field: "name" };
   return out;
 }
 
-export function contactField(c: ContactWithAddressesRow, field: ContactField): string {
+export function contactField(
+  c: ContactWithAddressesRow,
+  field: ContactField,
+): string {
   if (field === "name") return c.name || "";
   if (field === "email") return c.email || "";
   if (field === "phone") return c.addresses?.[0]?.address || "";
