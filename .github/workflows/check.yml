@@ -1,22 +1,20 @@
-name: CI
+name: Check
 
 on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main, develop]
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 25
+          node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run build
-        env:
-          VITE_SUPABASE_URL: https://placeholder.supabase.co
-          VITE_SUPABASE_ANON_KEY: placeholder
+      - run: npx prettier --check .
+      - run: npm run lint
+      - run: npx tsc -b

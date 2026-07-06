@@ -7,6 +7,10 @@ import { GoogleOutlined, GithubOutlined } from "@ant-design/icons";
 type OAuthProvider = "google" | "github";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search): { redirect?: string; email?: string } => ({
+    redirect: (search.redirect as string) || undefined,
+    email: (search.email as string) || undefined,
+  }),
   component: Login,
 });
 
@@ -14,7 +18,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const { redirect } = Route.useSearch();
+  const { redirect, email: showEmail } = Route.useSearch();
 
   const { translate: t } = useTranslation();
 
@@ -66,9 +70,14 @@ function Login() {
           <GithubOutlined /> {t("Continuar con GitHub")}
         </button>
 
-        <div className={`border-b border-border w-full ${import.meta.env.DEV ? "" : "hidden"}`} />
+        <div
+          className={`border-b border-border w-full ${showEmail ? "" : "hidden"}`}
+        />
 
-        <form onSubmit={handleLogInWithEmail} className={`login-form ${import.meta.env.DEV ? "" : "hidden"}`}>
+        <form
+          onSubmit={handleLogInWithEmail}
+          className={`login-form ${showEmail ? "" : "hidden"}`}
+        >
           <label>
             <div className="label">{t("Correo electrónico")}</div>
             <input
@@ -92,13 +101,12 @@ function Login() {
           </label>
 
           {message && (
-            <div className="self-center text-destructive text-md">{message}</div>
+            <div className="self-center text-destructive text-md">
+              {message}
+            </div>
           )}
 
-          <button
-            type="submit"
-            className="primary w-full mt-[16px]"
-          >
+          <button type="submit" className="primary w-full mt-[16px]">
             {t("Entrar")}
           </button>
         </form>

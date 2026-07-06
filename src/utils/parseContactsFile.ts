@@ -124,7 +124,15 @@ async function parseExcel(file: File): Promise<string[][]> {
   });
 
   return matrix
-    .map((row) => row.map((cell) => (cell == null ? "" : String(cell))))
+    .map((row) =>
+      row.map((cell) =>
+        cell == null
+          ? ""
+          : typeof cell === "object"
+            ? JSON.stringify(cell)
+            : String(cell as string | number | boolean),
+      ),
+    )
     .filter((row) => row.some((cell) => cell.trim() !== ""));
 }
 

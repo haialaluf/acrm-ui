@@ -60,7 +60,9 @@ function AddApiKey() {
         >
           <fieldset disabled={!isOwner} className="contents">
             <p className="text-muted-foreground text-[14px]">
-              {t("Esto generará una nueva clave API que podrás usar para autenticarte.")}
+              {t(
+                "Esto generará una nueva clave API que podrás usar para autenticarte.",
+              )}
             </p>
 
             <label>

@@ -1,12 +1,27 @@
 import type { ConversationRow, MessageRow } from "@/supabase/client";
 import type { AppState } from "./useBoundStore";
 import type { StateCreator } from "zustand";
-// @ts-ignore
+// @ts-expect-error no type declarations for the core-js-pure submodule
 import groupBy from "core-js-pure/actual/object/group-by";
 import { type MessageRowV0, toV1 } from "@/supabase/messages-v0";
 
 export function timestampDescending(a?: MessageRow, b?: MessageRow) {
-  return +new Date(a?.timestamp || 0) > +new Date(b?.timestamp || 0) ? -1 : 1;
+  // Valid comparator: returns a signed number and 0 on ties. The previous
+  // version returned only -1/1 (never 0), which is non-antisymmetric for equal
+  // timestamps and makes V8's sort produce engine-dependent, unstable order.
+  const ta = +new Date(a?.timestamp || 0);
+  const tb = +new Date(b?.timestamp || 0);
+  if (ta !== tb) return tb - ta;
+
+  // Ties are common: WhatsApp delivers whole-second timestamps, and echoed
+  // outgoing messages get their ms-disambiguated timestamp overwritten by
+  // Meta's second-resolution one. created_at preserves the true insertion
+  // order in those cases; id is the final, fully deterministic fallback.
+  const ca = +new Date(a?.created_at || 0);
+  const cb = +new Date(b?.created_at || 0);
+  if (ca !== cb) return cb - ca;
+
+  return (b?.id || "").localeCompare(a?.id || "");
 }
 
 export type FileDraft = {
@@ -45,14 +60,14 @@ export type ChatActions = {
 
 export type ChatSlice = ChatState & ChatActions;
 
-// @ts-expect-error
+// @ts-expect-error partializing the slice creator's state type
 export const createChatSlice: StateCreator<Partial<AppState>> = (
   set: (
     partial:
       | AppState
       | Partial<AppState>
       | ((state: AppState) => AppState | Partial<AppState>),
-    replace?: boolean | undefined,
+    replace?: boolean,
   ) => void,
 ) => ({
   conversations: new Map(),
@@ -89,7 +104,7 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
     set((state) => {
       const msgs = msgsMixedVersions
         .map((m) =>
-          m.content.version === "1" ? m : toV1(m as unknown as MessageRowV0)
+          m.content.version === "1" ? m : toV1(m as unknown as MessageRowV0),
         )
         .filter(Boolean) as MessageRow[];
 
@@ -185,8 +200,8 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
     set((state) => {
       const fileDrafts = new Map(state.chat.fileDrafts);
 
-      const draft = fileDrafts.get(convId) &&
-        fileDrafts.get(convId)![draftIndex];
+      const draft =
+        fileDrafts.get(convId) && fileDrafts.get(convId)![draftIndex];
 
       if (!draft) {
         return {};

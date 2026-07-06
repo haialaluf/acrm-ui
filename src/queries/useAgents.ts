@@ -108,7 +108,7 @@ export function useCreateAgent() {
       queryClient.setQueryData(
         queryKeys.agents.detail(orgId, data.id),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (old: any) => old ? { ...old, data } : { data, error: null },
+        (old: any) => (old ? { ...old, data } : { data, error: null }),
       );
     },
   });
@@ -142,7 +142,7 @@ export function useUpdateAgent() {
       queryClient.setQueryData(
         queryKeys.agents.detail(data.organization_id, variables.id),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (old: any) => old ? { ...old, data } : old,
+        (old: any) => (old ? { ...old, data } : old),
       );
     },
   });

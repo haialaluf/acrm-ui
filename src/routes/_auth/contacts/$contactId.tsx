@@ -118,7 +118,7 @@ function ContactDetail() {
             const isExisting = originalAddresses.has(field.address ?? "");
             return (
               <label key={field.id}>
-                <div className="label">{t("Teléfono")} {idx + 1} {field.extra?.synced?.action === 'add' ? "(" + t("Sincronizado") + ")" : ""}</div>
+                <div className="label">{t("Teléfono")} {idx + 1} {(field.extra as { synced?: { action?: string } } | undefined)?.synced?.action === 'add' ? "(" + t("Sincronizado") + ")" : ""}</div>
                 <div className="flex items-center gap-2">
                   {isExisting ? (
                     <input

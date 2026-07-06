@@ -91,14 +91,17 @@ export default function TemplatePicker() {
             </div>
           ) : (
             filtered.map((tpl) => {
-              const body = tpl.components.find((c) => c.type === "BODY")?.text || "";
+              const body =
+                tpl.components.find((c) => c.type === "BODY")?.text || "";
               return (
                 <button
                   key={tpl.id}
                   className="w-full text-left px-[10px] py-[8px] rounded-xl hover:bg-accent cursor-pointer"
                   onClick={() => select(tpl)}
                 >
-                  <div className="font-medium text-[14px] truncate">{tpl.name}</div>
+                  <div className="font-medium text-[14px] truncate">
+                    {tpl.name}
+                  </div>
                   <div className="text-[13px] text-muted-foreground truncate">
                     {body}
                   </div>

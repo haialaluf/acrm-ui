@@ -36,13 +36,15 @@ function NewOrganization() {
             createOrg.mutate(data, {
               onSuccess: (org) => {
                 setActiveOrg(org.id);
-                navigate({ to: "..", hash: (prevHash) => prevHash! });
+                navigate({ to: "/conversations" });
               },
-            })
+            }),
           )}
         >
           <p>
-            {t("Tu organización es el espacio de trabajo donde colaboras con tu equipo.")}
+            {t(
+              "Tu organización es el espacio de trabajo donde colaboras con tu equipo.",
+            )}
           </p>
 
           <label>

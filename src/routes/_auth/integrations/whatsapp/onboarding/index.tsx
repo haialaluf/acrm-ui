@@ -8,20 +8,26 @@ import { useCurrentAgent } from "@/queries/useAgents";
 import { Link, Plus } from "lucide-react";
 import type { JSX } from "react";
 
-export const Route = createFileRoute("/_auth/integrations/whatsapp/onboarding/")({
+export const Route = createFileRoute(
+  "/_auth/integrations/whatsapp/onboarding/",
+)({
   component: OnboardingIndex,
 });
 
 function OnboardingIndex() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const { data: tokens } = useOnboardingTokens();
+  const { data: tokens } = useOnboardingTokens("whatsapp");
   const { data: currentAgent } = useCurrentAgent();
   const isOwner = currentAgent?.extra?.role === "owner";
 
-  function getStatus(token: { status: string; expires_at: string }): string | JSX.Element {
+  function getStatus(token: {
+    status: string;
+    expires_at: string;
+  }): string | JSX.Element {
     if (token.status === "used") return t("Usado");
-    if (token.status === "expired" || new Date(token.expires_at) < new Date()) return t("Expirado");
+    if (token.status === "expired" || new Date(token.expires_at) < new Date())
+      return t("Expirado");
     return <span className="text-primary">{t("Activo")}</span>;
   }
 

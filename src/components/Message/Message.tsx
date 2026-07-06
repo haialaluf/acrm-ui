@@ -6,6 +6,8 @@ import {
 import AudioMessage from "./AudioMessage";
 import DocumentMessage from "./DocumentMessage";
 import ImageMessage from "./ImageMessage";
+import VideoMessage from "./VideoMessage";
+import { mediaCategory } from "./media";
 import StatusIcon from "./StatusIcon";
 import dayjs from "dayjs";
 import { Remarkable } from "remarkable";
@@ -51,7 +53,7 @@ function whatsappToMarkdown(text: string): string {
 
       let processed = subPart;
       // Bold: *text* -> **text**
-      processed = processed.replace(/\*([^\*]+?)\*/g, "**$1**");
+      processed = processed.replace(/\*([^*]+?)\*/g, "**$1**");
       // Italic: _text_ -> *text*
       processed = processed.replace(/_([^_]+?)_/g, "*$1*");
       // Strikethrough: ~text~ -> ~~text~~
@@ -311,7 +313,7 @@ export function OutMessage({
   return (
     <div
       className={
-        (!!avatar ? avatarMsgRowClasses : msgRowClasses) +
+        (avatar ? avatarMsgRowClasses : msgRowClasses) +
         " justify-end" +
         (last ? " mb-[12px]" : " mb-[2px]")
       }
@@ -434,7 +436,15 @@ function DataJsonContent({ message, header, fixedWidth }: MessageContentProps) {
 
 function FileContent({ message, orgName, convName }: MessageContentProps) {
   if (message.content.type !== "file") return null;
-  switch (message.content.kind) {
+  // Resolve the renderer by kind first, falling back to MIME (see
+  // mediaCategory). This keeps the Instagram "native" kinds — a shared reel
+  // (ig_reel/reel) is a video, a post/story is decided by MIME — rendering
+  // correctly even when the stored MIME is wrong.
+  const category = mediaCategory(
+    message.content.kind,
+    message.content.file.mime_type || "",
+  );
+  switch (category) {
     case "audio":
       return (
         <AudioMessage
@@ -443,14 +453,33 @@ function FileContent({ message, orgName, convName }: MessageContentProps) {
           convName={convName || ""}
         />
       );
-    case "image":
-    case "sticker":
     case "video":
+      return <VideoMessage {...message} />;
+    case "image":
       return <ImageMessage {...message} />;
-    case "document":
     default:
       return <DocumentMessage {...message} />;
   }
+}
+
+function MediaPlaceholderContent({
+  message,
+  header,
+  fixedWidth,
+}: MessageContentProps) {
+  const { translate: t } = useTranslation();
+  if (message.content.type !== "data") return null;
+  return (
+    <TextMessage
+      header={header}
+      body={`_${t("Contenido multimedia no disponible")}_`}
+      type="markdown"
+      direction={message.direction}
+      timestamp={message.timestamp}
+      status={message.direction === "outgoing" ? message.status : undefined}
+      fixedWidth={fixedWidth}
+    />
+  );
 }
 
 type MessageStrategy = {
@@ -473,6 +502,11 @@ const MESSAGE_STRATEGIES: MessageStrategy[] = [
     matches: (c) => c.type === "data" && c.kind === "button",
     text: true,
     Component: ButtonReplyContent,
+  },
+  {
+    matches: (c) => c.type === "data" && c.kind === "media_placeholder",
+    text: true,
+    Component: MediaPlaceholderContent,
   },
   {
     matches: (c) => c.type === "data" && !!c.text,

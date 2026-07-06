@@ -173,7 +173,7 @@ button:disabled {
   input.text:read-only {
     @apply hover:border-transparent focus-visible:border-transparent cursor-default;
   }
-  
+
   textarea.text {
     @apply w-full focus-visible:outline-none text-[16px] text-foreground placeholder:text-muted-foreground bg-transparent focus-visible:border-primary;
   }
@@ -229,7 +229,9 @@ button:disabled {
     background-image: url("/bg-chat-tile-dark.png");
     background-repeat: repeat;
     opacity: 0.06; /* Subtle pattern for light mode */
-    filter: invert(1); /* Invert to make dark pattern on light background if original is light-on-dark */
+    filter: invert(
+      1
+    ); /* Invert to make dark pattern on light background if original is light-on-dark */
     z-index: -1;
     pointer-events: none;
   }
@@ -283,7 +285,7 @@ button:disabled {
   }
 
   /* Responsive breakpoints */
-  
+
   /* 
    Tailwind CSS v4 default breakpoints:
 
@@ -440,7 +442,7 @@ input[type="range"]::-moz-range-track {
   color: var(--ring);
 }
 
-.json-number, 
+.json-number,
 .json-boolean {
   color: var(--primary);
 }
@@ -609,4 +611,11 @@ select.mapping:focus {
 }
 .import-animate-in {
   animation: import-slidein 0.25s ease both;
+}
+
+/* Message video: hide Chrome's native central overlay play button. It dims on
+   hover and its internal hover state cannot be restyled, so VideoMessage hides
+   it and renders its own static central play button instead. */
+.message-video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
 }

@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useContactByAddress } from "@/queries/useContacts";
 import { useContactAddress } from "@/queries/useContactsAddresses";
+import type { InstagramContactAddressExtra } from "@/supabase/client";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -13,19 +14,42 @@ export default function Header() {
   const activeConvId = useBoundStore((state) => state.ui.activeConvId);
 
   const conversation = useBoundStore((state) =>
-    state.chat.conversations.get(state.ui.activeConvId || "")
+    state.chat.conversations.get(state.ui.activeConvId || ""),
   );
 
   const { data: contact } = useContactByAddress(conversation?.contact_address);
-  const { data: contactAddress } = useContactAddress(conversation?.contact_address);
-
-  // Name fallback order: conversation.name → contact.name → contactAddress.extra?.name → "?"
-  const convName = conversation?.name || contact?.name || contactAddress?.extra?.name || "?";
+  const { data: contactAddress } = useContactAddress(
+    conversation?.contact_address,
+  );
 
   const service = conversation?.service;
+
+  const igExtra =
+    service === "instagram"
+      ? (contactAddress?.extra as InstagramContactAddressExtra | null)
+      : null;
+
+  // Name fallback order: conversation.name → contact.name →
+  // contactAddress.extra?.name → @username (Instagram) → "?"
+  const convName =
+    conversation?.name ||
+    contact?.name ||
+    contactAddress?.extra?.name ||
+    (igExtra?.username ? `@${igExtra.username}` : undefined);
+
   const address = conversation?.contact_address;
 
-  const convInitials = nameInitials(convName);
+  // When there is no name, show the (formatted) contact address instead of "?".
+  // WhatsApp addresses are phone numbers; Instagram addresses need no formatting.
+  const displayName =
+    convName ||
+    (address
+      ? service === "whatsapp"
+        ? formatPhoneNumber(address)
+        : address
+      : "?");
+
+  const convInitials = nameInitials(convName || "?");
 
   const { translate: t } = useTranslation();
 
@@ -47,16 +71,22 @@ export default function Header() {
       {/* Contact info */}
       <div className="profile-picture pr-[15px]">
         <Avatar
+          src={igExtra?.profile_picture_url}
           fallback={convInitials}
           size={40}
           className="bg-accent text-accent-foreground border border-border text-[16px]"
         />
       </div>
       <div className="info flex flex-col justify-center mr-[12px] truncate">
-        <div className="text-[16px] text-foreground truncate">{convName}</div>
+        <div className="text-[16px] text-foreground truncate">
+          {displayName}
+        </div>
         <div className="text-[13px] text-muted-foreground truncate">
           {service === "local" && t("Contacto de prueba")}
           {service === "whatsapp" && address && ltrIsolate(formatPhoneNumber(address))}
+          {service === "instagram" &&
+            igExtra?.username &&
+            `@${igExtra.username}`}
         </div>
       </div>
 
@@ -68,6 +98,6 @@ export default function Header() {
           </svg>
         </button>
       </div>
-    </div >
+    </div>
   );
 }

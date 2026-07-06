@@ -830,6 +830,7 @@ export type Database = {
           metadata: Json | null
           organization_address: string | null
           organization_id: string
+          service: Database["public"]["Enums"]["service"] | null
         }
         Insert: {
           category: string
@@ -840,6 +841,7 @@ export type Database = {
           metadata?: Json | null
           organization_address?: string | null
           organization_id: string
+          service?: Database["public"]["Enums"]["service"] | null
         }
         Update: {
           category?: string
@@ -850,6 +852,7 @@ export type Database = {
           metadata?: Json | null
           organization_address?: string | null
           organization_id?: string
+          service?: Database["public"]["Enums"]["service"] | null
         }
         Relationships: [
           {
@@ -883,6 +886,7 @@ export type Database = {
           organization_id: string
           service: Database["public"]["Enums"]["service"]
           status: Json
+          thread_id: string | null
           timestamp: string
           updated_at: string
         }
@@ -900,6 +904,7 @@ export type Database = {
           organization_id: string
           service: Database["public"]["Enums"]["service"]
           status?: Json
+          thread_id?: string | null
           timestamp?: string
           updated_at?: string
         }
@@ -917,6 +922,7 @@ export type Database = {
           organization_id?: string
           service?: Database["public"]["Enums"]["service"]
           status?: Json
+          thread_id?: string | null
           timestamp?: string
           updated_at?: string
         }
@@ -946,34 +952,40 @@ export type Database = {
       }
       onboarding_tokens: {
         Row: {
+          callback_url: string | null
           created_at: string
-          created_by: string
           expires_at: string
           id: string
           name: string
           organization_id: string
+          service: Database["public"]["Enums"]["service"]
           status: string
           used_at: string | null
+          verify_token: string | null
         }
         Insert: {
+          callback_url?: string | null
           created_at?: string
-          created_by: string
           expires_at: string
           id?: string
           name: string
           organization_id: string
+          service: Database["public"]["Enums"]["service"]
           status?: string
           used_at?: string | null
+          verify_token?: string | null
         }
         Update: {
+          callback_url?: string | null
           created_at?: string
-          created_by?: string
           expires_at?: string
           id?: string
           name?: string
           organization_id?: string
+          service?: Database["public"]["Enums"]["service"]
           status?: string
           used_at?: string | null
+          verify_token?: string | null
         }
         Relationships: [
           {
@@ -1138,14 +1150,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      change_contact_address: {
-        Args: {
-          new_address: string
-          old_address: string
-          p_organization_id: string
-        }
-        Returns: undefined
-      }
       contact_address_update_rules: {
         Args: {
           p_address: string
@@ -1193,9 +1197,21 @@ export type Database = {
       direction: "incoming" | "outgoing" | "internal"
       log_level: "info" | "warning" | "error"
       role: "owner" | "admin" | "member"
-      service: "whatsapp" | "instagram" | "local"
+      service:
+        | "whatsapp"
+        | "instagram"
+        | "local"
+        | "slack"
+        | "discord"
+        | "teams"
       webhook_operation: "insert" | "update"
-      webhook_table: "messages" | "conversations"
+      webhook_table:
+        | "messages"
+        | "conversations"
+        | "organizations_addresses"
+        | "contacts"
+        | "contacts_addresses"
+        | "logs"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1472,6 +1488,7 @@ export type Database = {
           id: string
           in_progress_size: number
           key: string
+          metadata: Json | null
           owner_id: string | null
           upload_signature: string
           user_metadata: Json | null
@@ -1483,6 +1500,7 @@ export type Database = {
           id: string
           in_progress_size?: number
           key: string
+          metadata?: Json | null
           owner_id?: string | null
           upload_signature: string
           user_metadata?: Json | null
@@ -1494,6 +1512,7 @@ export type Database = {
           id?: string
           in_progress_size?: number
           key?: string
+          metadata?: Json | null
           owner_id?: string | null
           upload_signature?: string
           user_metadata?: Json | null
@@ -1612,6 +1631,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      allow_any_operation: {
+        Args: { expected_operations: string[] }
+        Returns: boolean
+      }
+      allow_only_operation: {
+        Args: { expected_operation: string }
+        Returns: boolean
+      }
       can_insert_object: {
         Args: { bucketid: string; metadata: Json; name: string; owner: string }
         Returns: undefined
@@ -1863,9 +1890,16 @@ export const Constants = {
       direction: ["incoming", "outgoing", "internal"],
       log_level: ["info", "warning", "error"],
       role: ["owner", "admin", "member"],
-      service: ["whatsapp", "instagram", "local"],
+      service: ["whatsapp", "instagram", "local", "slack", "discord", "teams"],
       webhook_operation: ["insert", "update"],
-      webhook_table: ["messages", "conversations"],
+      webhook_table: [
+        "messages",
+        "conversations",
+        "organizations_addresses",
+        "contacts",
+        "contacts_addresses",
+        "logs",
+      ],
     },
   },
   storage: {

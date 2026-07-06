@@ -139,8 +139,7 @@ const ChatList = () => {
         </div>
       )}
     </div>
-  )
+  );
 };
 
 export default ChatList;
-

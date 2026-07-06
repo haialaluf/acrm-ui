@@ -23,25 +23,35 @@ function Conversations() {
   const updateAgent = useUpdateAgent();
 
   const roles: Record<string, string> = {
-    "owner": t("Propietario"),
-    "admin": t("Administrador"),
-    "member": t("Miembro"),
+    owner: t("Propietario"),
+    admin: t("Administrador"),
+    member: t("Miembro"),
   };
 
-  const handleInvitationAction = (agentId: string, status: "accepted" | "rejected") => {
-    updateAgent.mutate({
-      id: agentId,
-      extra: {
-        invitation: {
-          status,
+  const handleInvitationAction = (
+    agentId: string,
+    status: "accepted" | "rejected",
+  ) => {
+    updateAgent.mutate(
+      {
+        id: agentId,
+        extra: {
+          invitation: {
+            status,
+          },
         },
       },
-    }, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.agents.invitations() })
-        queryClient.invalidateQueries({ queryKey: queryKeys.organizations.all() })
-      }
-    });
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.agents.invitations(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.organizations.all(),
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -60,20 +70,27 @@ function Conversations() {
                 title={t("Invitación pendiente")}
                 description={
                   <div className="flex flex-col gap-[6px] w-full">
-                    <p>{invitation.extra!.invitation!.organization_name} ({roles[invitation.extra!.role || "member"]})</p>
+                    <p>
+                      {invitation.extra!.invitation!.organization_name} (
+                      {roles[invitation.extra!.role || "member"]})
+                    </p>
                     <div className="flex gap-[16px] justify-end">
                       {updateAgent.isPending ? (
                         <Spinner size={16} />
                       ) : (
                         <>
                           <button
-                            onClick={() => handleInvitationAction(invitation.id, "accepted")}
+                            onClick={() =>
+                              handleInvitationAction(invitation.id, "accepted")
+                            }
                             className="font-bold text-primary/90 hover:text-primary cursor-pointer"
                           >
                             {t("Aceptar")}
                           </button>
                           <button
-                            onClick={() => handleInvitationAction(invitation.id, "rejected")}
+                            onClick={() =>
+                              handleInvitationAction(invitation.id, "rejected")
+                            }
                             className="font-bold text-muted-foreground/90 hover:text-muted-foreground cursor-pointer"
                           >
                             {t("Rechazar")}
@@ -93,8 +110,6 @@ function Conversations() {
           ))}
         </div>
       )}
-
-
       <ChatList />
     </>
   );

@@ -66,7 +66,9 @@ function WhatsAppIndex() {
               key={integration.address}
               aside={
                 <div className="p-[8px]">
-                  <WhatsAppOutlined style={{ fontSize: "24px", color: "#25D366" }} />
+                  <WhatsAppOutlined
+                    style={{ fontSize: "24px", color: "#25D366" }}
+                  />
                 </div>
               }
               title={ltrIsolate(formatPhoneNumber((integration.extra as { phone_number?: string })?.phone_number || integration.address))}
@@ -77,8 +79,7 @@ function WhatsAppIndex() {
                 hash: (prevHash) => prevHash!
               })}
             />
-          ))
-          }
+          ))}
         </div>
       </SectionBody>
     </>

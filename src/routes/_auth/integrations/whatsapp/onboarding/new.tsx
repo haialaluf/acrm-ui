@@ -9,19 +9,23 @@ import { useCreateOnboardingToken } from "@/queries/useOnboardingTokens";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useForm } from "react-hook-form";
 
-export const Route = createFileRoute("/_auth/integrations/whatsapp/onboarding/new")({
+export const Route = createFileRoute(
+  "/_auth/integrations/whatsapp/onboarding/new",
+)({
   component: NewOnboardingToken,
 });
 
 type FormValues = {
   name: string;
   expires_in_days: string;
+  callback_url: string;
+  verify_token: string;
 };
 
 function NewOnboardingToken() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const createToken = useCreateOnboardingToken();
+  const createToken = useCreateOnboardingToken("whatsapp");
   const { data: currentAgent } = useCurrentAgent();
   const isOwner = currentAgent?.extra?.role === "owner";
 
@@ -29,6 +33,8 @@ function NewOnboardingToken() {
     defaultValues: {
       name: "",
       expires_in_days: "7",
+      callback_url: "",
+      verify_token: "",
     },
   });
 
@@ -40,14 +46,22 @@ function NewOnboardingToken() {
         <form
           id="create-onboarding-token-form"
           onSubmit={handleSubmit((data) =>
-            createToken.mutate({ name: data.name, expiresInDays: Number(data.expires_in_days) }, {
-              onSuccess: (token) =>
-                navigate({
-                  to: "/integrations/whatsapp/onboarding/$tokenId",
-                  params: { tokenId: token.id },
-                  hash: (prevHash) => prevHash!,
-                }),
-            })
+            createToken.mutate(
+              {
+                name: data.name,
+                expiresInDays: Number(data.expires_in_days),
+                callbackUrl: data.callback_url,
+                verifyToken: data.verify_token,
+              },
+              {
+                onSuccess: (token) =>
+                  navigate({
+                    to: "/integrations/whatsapp/onboarding/$tokenId",
+                    params: { tokenId: token.id },
+                    hash: (prevHash) => prevHash!,
+                  }),
+              },
+            ),
           )}
         >
           <fieldset disabled={!isOwner} className="contents">
@@ -77,6 +91,31 @@ function NewOnboardingToken() {
               ]}
               required
             />
+
+            <label>
+              <div className="label">{t("URL de webhook (opcional)")}</div>
+              <input
+                type="url"
+                className="text"
+                placeholder="https://example.com/webhook"
+                {...register("callback_url")}
+              />
+              <div className="text-muted-foreground text-[12px] mt-[4px]">
+                {t(
+                  "Si la configurás, los webhooks de mensajes de esta cuenta se envían directo a tu app en vez de a DelaCRM.",
+                )}
+              </div>
+            </label>
+
+            <label>
+              <div className="label">{t("Token de verificación")}</div>
+              <input
+                type="text"
+                className="text"
+                placeholder={t("Secreto para validar el webhook")}
+                {...register("verify_token")}
+              />
+            </label>
           </fieldset>
         </form>
       </SectionBody>

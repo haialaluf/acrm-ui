@@ -15,6 +15,7 @@ import {
 import styles from "./ImageMessagePreviewer.module.css";
 import { type MessageRow, type OutgoingStatus } from "@/supabase/client";
 import { Markdown } from "./Message";
+import { mediaCategory } from "./media";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const PORTRAIT_WIDTH = 240;
@@ -31,13 +32,9 @@ export default function ImageMessage(message: MessageRow) {
 
   if (
     content.type !== "file" ||
-    (content.kind !== "image" &&
-      content.kind !== "sticker" &&
-      content.kind !== "video")
+    mediaCategory(content.kind, content.file.mime_type || "") !== "image"
   ) {
-    throw new Error(
-      `Message with id ${message.id} is not an image/sticker/video message.`,
-    );
+    throw new Error(`Message with id ${message.id} is not an image message.`);
   }
 
   const media = content.file;
@@ -59,7 +56,6 @@ export default function ImageMessage(message: MessageRow) {
     if (
       load.type === "download" &&
       load.status === "pending" &&
-      content.kind !== "video" &&
       dayjs(message.timestamp).isAfter(dayjs().subtract(1, "day"))
     ) {
       startLoad();
@@ -217,7 +213,10 @@ export default function ImageMessage(message: MessageRow) {
       {/* Caption */}
       {content.text && (
         <div className="pl-[6px] pt-[6px] pb-[5px] pr-[4px]" style={{ width }}>
-          <Markdown content={content.text || ""} direction={message.direction} />
+          <Markdown
+            content={content.text || ""}
+            direction={message.direction}
+          />
         </div>
       )}
 
@@ -262,8 +261,8 @@ export default function ImageMessage(message: MessageRow) {
         className={
           "z-[2] text-[11px] absolute bottom-[0px] right-[7px] flex items-center" +
           (content.text ||
-            (content.artifacts && content.artifacts.length > 0) ||
-            !load.blob
+          (content.artifacts && content.artifacts.length > 0) ||
+          !load.blob
             ? " text-muted-foreground"
             : " text-white bottom-[3px]")
         }
