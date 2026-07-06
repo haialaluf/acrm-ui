@@ -82,7 +82,7 @@ export default function ChatFooter() {
 
   // Wether or not the user is allowed to send messages to the client
   const inCSWindow =
-    conv?.service !== "whatsapp" ||
+    (conv?.service !== "whatsapp" && conv?.service !== "instagram") ||
     tick.isBefore(dayjs(mostRecentIncoming?.timestamp || 0).add(1, "day"));
 
   // WhatsApp customer service window lasts 24 hours since the last contact's message
@@ -280,13 +280,21 @@ export default function ChatFooter() {
                     sendTextMessage();
                   }
                 }}
-                onClick={() => !inCSWindow && toggle("templatePicker")}
+                onClick={() =>
+                  !inCSWindow &&
+                  conv.service === "whatsapp" &&
+                  toggle("templatePicker")
+                }
                 title={
                   inCSWindow
                     ? undefined
-                    : t(
-                        "WhatsApp cierra la conversación a las 24 horas del último mensaje recibido. Para abrir la conversación debes utilizar una plantilla.",
-                      )
+                    : conv.service === "whatsapp"
+                      ? t(
+                          "WhatsApp cierra la conversación a las 24 horas del último mensaje recibido. Para abrir la conversación debes utilizar una plantilla.",
+                        )
+                      : t(
+                          "La conversación se cerró 24 horas después del último mensaje del contacto. Esperá a que te escriba de nuevo para responder.",
+                        )
                 }
               />
               {!message && (
@@ -298,20 +306,26 @@ export default function ChatFooter() {
                   onClick={() =>
                     inCSWindow
                       ? editableDiv.current?.focus()
-                      : toggle("templatePicker")
+                      : conv.service === "whatsapp"
+                        ? toggle("templatePicker")
+                        : undefined
                   }
                 >
                   {!inCSWindow ? (
-                    <>
-                      <span className="lg:hidden">
-                        {t("Conversación cerrada")}
-                      </span>
-                      <span className="hidden lg:inline">
-                        {t(
-                          "Conversación cerrada, abre la conversación con una plantilla",
-                        )}
-                      </span>
-                    </>
+                    conv.service === "whatsapp" ? (
+                      <>
+                        <span className="lg:hidden">
+                          {t("Conversación cerrada")}
+                        </span>
+                        <span className="hidden lg:inline">
+                          {t(
+                            "Conversación cerrada, abre la conversación con una plantilla",
+                          )}
+                        </span>
+                      </>
+                    ) : (
+                      <span>{t("Conversación cerrada")}</span>
+                    )
                   ) : sendAsContact ? (
                     <>
                       <span className="lg:hidden">{t("Mensaje entrante")}</span>
@@ -319,7 +333,8 @@ export default function ChatFooter() {
                         {t("Simula un mensaje entrante")}
                       </span>
                     </>
-                  ) : conv.service === "whatsapp" ? (
+                  ) : conv.service === "whatsapp" ||
+                    conv.service === "instagram" ? (
                     <>
                       <span className="lg:hidden">{t("Cerrará en")}</span>
                       <span className="hidden lg:inline">
