@@ -13,8 +13,16 @@ import Button from "@/components/Button";
 import ContactTagSelect from "@/components/ContactTagSelect";
 import { Plus, X } from "lucide-react";
 import { useMemo } from "react";
-import type { ContactWithAddressesUpdate } from "@/supabase/client";
-import { isValidPhoneNumber, formatPhoneNumber } from "@/utils/FormatUtils";
+import type {
+  ContactWithAddressesUpdate,
+  InstagramContactAddressExtra,
+} from "@/supabase/client";
+import {
+  isValidPhoneNumber,
+  formatPhoneNumber,
+  nameInitials,
+} from "@/utils/FormatUtils";
+import Avatar from "@/components/Avatar";
 import FieldError from "@/components/FieldError";
 
 type ContactFormValues = ContactWithAddressesUpdate;
@@ -36,6 +44,12 @@ function ContactDetail() {
     () => new Set(contact?.addresses.map((a) => a.address) ?? []),
     [contact],
   );
+
+  // Instagram profile details (avatar, @username) are read live from the
+  // linked address, which the webhook keeps fresh — they are not copied onto
+  // the contact record.
+  const igExtra = contact?.addresses.find((a) => a.service === "instagram")
+    ?.extra as InstagramContactAddressExtra | null | undefined;
 
   const {
     register,
@@ -67,6 +81,24 @@ function ContactDetail() {
         />
 
         <SectionBody>
+          {igExtra && (igExtra.profile_picture_url || igExtra.username) && (
+            <div className="flex flex-col items-center gap-2 mb-6">
+              <Avatar
+                src={igExtra.profile_picture_url}
+                fallback={nameInitials(
+                  contact.name || igExtra.username || "?",
+                )}
+                size={72}
+                className="bg-accent text-accent-foreground border border-border text-[24px]"
+              />
+              {igExtra.username && (
+                <div className="text-[14px] text-muted-foreground">
+                  @{igExtra.username}
+                </div>
+              )}
+            </div>
+          )}
+
           <form
             id="contact-form"
             onSubmit={handleSubmit((data) => updateContact.mutate(data))}
@@ -118,17 +150,41 @@ function ContactDetail() {
 
             {fields.map((field, idx) => {
               const isExisting = originalAddresses.has(field.address ?? "");
+              const extra = field.extra as
+                | { synced?: { action?: string }; username?: string }
+                | undefined;
+              const syncedSuffix =
+                extra?.synced?.action === "add"
+                  ? " (" + t("Sincronizado") + ")"
+                  : "";
+
+              // Instagram addresses are internal IG-scoped ids (igsid), not
+              // phone numbers. Show the @username (or the raw id) read-only
+              // instead of running the id through the phone formatter, which
+              // made it show up as a bogus "+1 05158…" phone number.
+              if (field.service === "instagram") {
+                return (
+                  <label key={field.id}>
+                    <div className="label">Instagram{syncedSuffix}</div>
+                    <input
+                      type="text"
+                      className="text"
+                      value={
+                        extra?.username
+                          ? `@${extra.username}`
+                          : (field.address ?? "")
+                      }
+                      readOnly
+                    />
+                  </label>
+                );
+              }
+
               return (
                 <label key={field.id}>
                   <div className="label">
-                    {t("Teléfono")} {idx + 1}{" "}
-                    {(
-                      field.extra as
-                        | { synced?: { action?: string } }
-                        | undefined
-                    )?.synced?.action === "add"
-                      ? "(" + t("Sincronizado") + ")"
-                      : ""}
+                    {t("Teléfono")} {idx + 1}
+                    {syncedSuffix}
                   </div>
                   <div className="flex items-center gap-2">
                     {isExisting ? (

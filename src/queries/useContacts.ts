@@ -209,9 +209,13 @@ export function useUpdateContact() {
 
       const oldAddressesString = oldAddresses.map((a) => a.address) ?? [];
 
+      // Only phone-based (whatsapp) addresses get normalized. Instagram
+      // addresses are igsids, not phone numbers — normalizing them would
+      // corrupt the routing key, so pass them through untouched.
       const newAddresses = rawNewAddresses.map((a) => ({
         ...a,
-        address: normalizePhoneNumber(a.address!),
+        address:
+          a.service === "instagram" ? a.address! : normalizePhoneNumber(a.address!),
       }));
 
       const newAddressesString = [
@@ -230,7 +234,9 @@ export function useUpdateContact() {
           return {
             ...addressObject,
             organization_id: orgId,
-            service: "whatsapp" as const,
+            // Preserve the address's own service (e.g. instagram); only
+            // default to whatsapp for phone numbers the user typed in.
+            service: addressObject?.service ?? ("whatsapp" as const),
             contact_id: data.id,
           } as ContactAddressInsert;
         });
