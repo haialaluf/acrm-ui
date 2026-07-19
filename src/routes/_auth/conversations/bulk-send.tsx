@@ -370,6 +370,16 @@ function BulkSend() {
         <TemplateStep
           templates={approved}
           selectedId={template?.id}
+          onManage={
+            whatsappAddress
+              ? () =>
+                  navigate({
+                    to: "/integrations/whatsapp/$orgAddressId/templates",
+                    params: { orgAddressId: whatsappAddress.address },
+                    hash: (h) => h!,
+                  })
+              : undefined
+          }
           onPick={(tpl) => {
             setTemplate(tpl);
             const headN = countVars(

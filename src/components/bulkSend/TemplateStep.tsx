@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Wrench } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { type TemplateData } from "@/supabase/client";
 
@@ -11,10 +12,13 @@ export default function TemplateStep({
   templates,
   selectedId,
   onPick,
+  onManage,
 }: {
   templates: TemplateData[];
   selectedId?: string;
   onPick: (tpl: TemplateData) => void;
+  /** Jump to the templates management page (create/edit templates). */
+  onManage?: () => void;
 }) {
   const { translate: t } = useTranslation();
   const [search, setSearch] = useState("");
@@ -109,6 +113,15 @@ export default function TemplateStep({
             );
           })}
         </div>
+        {onManage && (
+          <button
+            onClick={onManage}
+            className="mt-[8px] w-full flex items-center justify-center gap-[6px] rounded-[14px] py-[12px] text-[13px] font-medium text-muted-foreground border border-dashed border-border hover:bg-accent transition-colors"
+          >
+            <Wrench className="w-[14px] h-[14px]" />
+            {t("Gestionar plantillas")}
+          </button>
+        )}
       </div>
     </>
   );
