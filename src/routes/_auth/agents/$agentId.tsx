@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useMemo } from "react";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
@@ -8,25 +8,19 @@ import {
   useUpdateAgent,
   useCurrentAgent,
 } from "@/queries/useAgents";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import SectionBody from "@/components/SectionBody";
 import useBoundStore from "@/stores/useBoundStore";
 import { type AIAgentRow, type AIAgentUpdate } from "@/supabase/client";
 import { startConversation } from "@/utils/ConversationUtils";
 import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
 import SectionFooter from "@/components/SectionFooter";
-import {
-  protocols,
-  protocolLabels,
-  defaultModels,
-  creditModels,
-  apiKeyInstructions,
-} from "./new";
 import Button from "@/components/Button";
 import SelectField from "@/components/SelectField";
 import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
-import ToolsSection from "@/components/ToolsSection";
+import PersonaSection from "@/components/PersonaSection";
+import SkillsSection from "@/components/SkillsSection";
 
 export const Route = createFileRoute("/_auth/agents/$agentId")({
   component: AgentDetail,
@@ -42,27 +36,19 @@ function AgentDetail() {
   const deleteAgent = useDeleteAgent();
   const updateAgent = useUpdateAgent();
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
-  const [provider, setProvider] = useState<keyof typeof protocols>("openai");
 
   const localAddress = useOrganizationsAddresses().data?.find(
     (address) => address.service === "local",
   );
 
-  useEffect(() => {
-    if (!agent) return;
-    const apiUrl = agent.extra?.api_url || "";
-    const isKnown = ["openai", "anthropic", "groq", "google"].includes(apiUrl);
-    setProvider(isKnown ? apiUrl : "custom");
-  }, [agent]);
-
-  // Normalize agent data to ensure tools is always an array
+  // Normalize agent data so the skills field array always has an array.
   const normalizedAgent = useMemo(() => {
     if (!agent) return undefined;
     return {
       ...agent,
       extra: {
         ...agent.extra,
-        tools: agent.extra?.tools ?? [],
+        skills: agent.extra?.skills ?? [],
       },
     };
   }, [agent]);
@@ -74,8 +60,6 @@ function AgentDetail() {
     control,
     formState: { isDirty, isValid },
   } = useForm<AIAgentUpdate>({ values: normalizedAgent });
-
-  const model = useWatch({ control, name: "extra.model" });
 
   const handleChat = () => {
     if (!activeOrgId || !localAddress) return;
@@ -112,214 +96,64 @@ function AgentDetail() {
             id="agent-form"
             onSubmit={handleSubmit((data) => updateAgent.mutate(data))}
           >
-            {/* Root view fields */}
-            <label>
-              <div className="label">{t("Nombre")}</div>
-              <input
-                type="text"
-                className="text"
-                placeholder={t("Nombre del agente")}
-                {...register("name", { required: true })}
-              />
-            </label>
+            <fieldset disabled={!isAdmin} className="contents">
+              <label>
+                <div className="label">{t("Nombre")}</div>
+                <input
+                  type="text"
+                  className="text"
+                  placeholder={t("Nombre del agente")}
+                  {...register("name", { required: true })}
+                />
+              </label>
 
-            <SelectField
-              name="extra.mode"
-              control={control}
-              label={t("Estado")}
-              options={[
-                { value: "active", label: t("Activo") },
-                { value: "draft", label: t("Borrador") },
-                { value: "inactive", label: t("Inactivo") },
-              ]}
-            />
-
-            <div className="border-t border-border" />
-
-            <TextAreaField
-              name="extra.instructions"
-              control={control}
-              label={t("Instrucciones")}
-              placeholder={t("Eres un asistente útil...")}
-            />
-
-            {/* Tools Section */}
-            <ToolsSection
-              control={control}
-              register={register}
-              setValue={setValue}
-            />
-
-            {/* AI Section */}
-            <SectionField
-              label={t("Modelo de IA")}
-              description={model || t("Ninguno")}
-            >
               <SelectField
-                value={provider}
-                modalClassName="bottom-0"
-                onChange={(val) => {
-                  setProvider(val);
-                  setValue("extra.model", defaultModels[val] || "");
-
-                  const availableProtocols =
-                    protocols[val as keyof typeof protocols];
-                  setValue("extra.protocol", availableProtocols[0]);
-
-                  if (val !== "custom") {
-                    setValue("extra.api_url", val, { shouldDirty: true });
-                  } else {
-                    setValue("extra.api_url", "", { shouldDirty: true });
-                  }
-                }}
-                label={t("Proveedor")}
+                name="extra.mode"
+                control={control}
+                label={t("Estado")}
                 options={[
-                  { value: "openai", label: "OpenAI" },
-                  { value: "anthropic", label: "Anthropic" },
-                  { value: "groq", label: "Groq" },
-                  { value: "google", label: "Google" },
-                  { value: "custom", label: t("Personalizado") },
+                  { value: "active", label: t("Activo") },
+                  { value: "draft", label: t("Borrador") },
+                  { value: "inactive", label: t("Inactivo") },
                 ]}
               />
 
-              <SelectField
-                name="extra.protocol"
+              <div className="border-t border-border" />
+
+              <PersonaSection
                 control={control}
-                modalClassName="bottom-0"
-                label={t("Protocolo")}
-                options={(
-                  protocols[provider as keyof typeof protocols] || []
-                ).map((p) => ({
-                  value: p,
-                  label: protocolLabels[p] || p,
-                }))}
+                register={register}
+                disabled={!isAdmin}
               />
 
-              {provider === "custom" && (
-                <label>
-                  <div className="label">{t("API URL")}</div>
-                  <input
-                    type="text"
-                    className="text"
-                    placeholder="https://api.example.com/v1"
-                    {...register("extra.api_url")}
-                  />
-                </label>
-              )}
+              <SkillsSection
+                control={control}
+                register={register}
+                setValue={setValue}
+                disabled={!isAdmin}
+              />
 
-              <label>
-                <div className="label">{t("Clave API")}</div>
-                <input
-                  type="text"
-                  className="text"
-                  placeholder={t("Clave API del proveedor")}
-                  {...register("extra.api_key")}
+              <p className="text-muted-foreground text-[14px]">
+                {t("Los datos del negocio se configuran en")}{" "}
+                <Link
+                  to="/settings/organization"
+                  className="underline"
+                  hash={(prevHash) => prevHash!}
+                >
+                  {t("los ajustes de la organización")}
+                </Link>
+                .
+              </p>
+
+              <SectionField label={t("Avanzado")}>
+                <TextAreaField
+                  name="extra.instructions"
+                  control={control}
+                  label={t("Instrucciones adicionales")}
+                  placeholder={t("Eres un asistente útil...")}
                 />
-              </label>
-
-              {provider !== "custom" && apiKeyInstructions[provider] && (
-                <div className="instructions">
-                  <p>
-                    {t(
-                      "Usar una clave API propia no consume créditos locales y permite usar cualquier modelo.",
-                    )}
-                  </p>
-                  <p>
-                    <a
-                      href={apiKeyInstructions[provider].url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline"
-                    >
-                      {apiKeyInstructions[provider].label}
-                    </a>
-                    {" > "}
-                    {apiKeyInstructions[provider].steps}
-                    {apiKeyInstructions[provider].free &&
-                      ` — ${t("Gratuito.")}`}
-                  </p>
-                </div>
-              )}
-
-              <label>
-                <div className="label">{t("Modelo")}</div>
-                <input
-                  type="text"
-                  className="text"
-                  placeholder={t("Nombre del modelo")}
-                  {...register("extra.model")}
-                />
-              </label>
-
-              {provider !== "custom" && creditModels[provider] && (
-                <div className="instructions">
-                  <p>
-                    {t("Los siguientes modelos funcionan con créditos de IA:")}
-                  </p>
-                  <ul>
-                    {creditModels[provider].map((m) => (
-                      <li key={m}>
-                        <code>{m}</code>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <label>
-                <div className="label">{t("Mensajes máximos")}</div>
-                <input
-                  type="number"
-                  className="text"
-                  min={1}
-                  placeholder="50"
-                  {...register("extra.max_messages", { valueAsNumber: true })}
-                />
-              </label>
-
-              <label>
-                <div className="label">{t("Temperatura")}</div>
-                <input
-                  type="number"
-                  className="text"
-                  min={0}
-                  max={2}
-                  step={0.1}
-                  placeholder="1.0"
-                  {...register("extra.temperature", { valueAsNumber: true })}
-                />
-              </label>
-
-              {provider === "custom" && (
-                <div className="instructions">
-                  <p>
-                    {t(
-                      "Se envían los siguientes encabezados HTTP con cada solicitud:",
-                    )}
-                  </p>
-                  <ul>
-                    <li>
-                      <code>organization-id</code>
-                    </li>
-                    <li>
-                      <code>organization-address</code>
-                    </li>
-                    <li>
-                      <code>conversation-id</code>
-                    </li>
-                    <li>
-                      <code>agent-id</code>
-                    </li>
-                    <li>
-                      <code>contact-id</code>
-                    </li>
-                    <li>
-                      <code>contact-address</code>
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </SectionField>
+              </SectionField>
+            </fieldset>
           </form>
         </SectionBody>
 

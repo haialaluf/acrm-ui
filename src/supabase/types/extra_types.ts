@@ -6,9 +6,8 @@
 // Pure UI-only additions (no API counterpart) live in ./ui_types.ts.
 //===================================
 
-// @ui-divergence: import Json instead of the API's DatabaseGenerated +
-// SQLToolConfig (server-only deps the UI does not vendor).
-import type { Json } from "../db_types";
+// @ui-divergence: no imports — the API imports DatabaseGenerated for the
+// HumanAgentExtra role enum, which the UI inlines instead.
 
 export type Memory = {
   [key: string]: string | undefined | Memory;
@@ -22,6 +21,16 @@ export type PreprocessingConfig = {
   extra_prompt?: string;
 };
 
+// Company-wide facts, entered ONCE per organization, shared by all its agents.
+export type BusinessProfile = {
+  business_name?: string; // defaults from organization.name in the UI
+  description?: string;
+  services?: string; // freeform multiline ("Corte 30min $20 …")
+  working_hours?: string;
+  language?: string;
+  notes?: string;
+};
+
 export type OrganizationExtra = {
   response_delay_seconds?: number;
   welcome_message?: string;
@@ -29,6 +38,7 @@ export type OrganizationExtra = {
   default_agent_id?: string;
   media_preprocessing?: PreprocessingConfig;
   error_messages_direction?: "internal" | "outgoing";
+  business_profile?: BusinessProfile;
 };
 
 export type WhatsAppOrganizationAddressExtra = {
@@ -132,7 +142,6 @@ export type LocalMCPToolConfig = {
   label: string; // server label
   config: {
     url: string;
-    // @ui-divergence: `product` includes "acrm" (API: "calendar" | "sheets").
     product?: "calendar" | "sheets" | "acrm";
     headers?: Record<string, string>;
     allowed_tools?: string[];
@@ -141,31 +150,33 @@ export type LocalMCPToolConfig = {
   };
 };
 
-export type LocalSQLToolConfig = {
-  provider: "local";
-  type: "sql";
-  label: string; // database label
-  // @ui-divergence: `config` is Json (API: SQLToolConfig, not vendored UI-side).
-  config: Json;
-};
-
-export type LocalHTTPToolConfig = {
-  provider: "local";
-  type: "http";
-  label: string; // client label
-  config: {
-    headers?: Record<string, string>;
-    url?: string;
-    methods?: string[];
-  };
-};
-
-export type LocalSpecialToolConfig = LocalSQLToolConfig | LocalHTTPToolConfig;
-
 export type ToolConfig =
   | LocalSimpleToolConfig
-  | LocalSpecialToolConfig
   | LocalMCPToolConfig;
+
+//===================================
+// Skills
+//===================================
+
+export type SkillConfigValue = string | number | boolean | string[];
+
+// Auth material from a guided flow. Open-keyed so a future CalDAV connection
+// (server url + username + password) fits without a type migration.
+export type SkillConnection = { [key: string]: string | undefined };
+// today: { token, email, url } for google_oauth / { token } for acrm_api_key
+
+export type SkillInstance = {
+  id: string; // registry id, e.g. "meeting_scheduling"
+  config?: Record<string, SkillConfigValue>;
+  connections?: Record<string, SkillConnection>; // keyed by configSpec field key
+};
+
+// Per-agent identity — what makes the leads agent differ from the support agent.
+export type AgentPersona = {
+  goal?: string; // "Contactar nuevos leads y calificarlos…"
+  tone?: string;
+  escalation_policy?: string;
+};
 
 export type HumanAgentExtra = {
   // @ui-divergence: role enum inlined (API: DatabaseGenerated[...]["Enums"]["role"]).
@@ -194,4 +205,6 @@ export type AIAgentExtra = {
   instructions?: string;
   send_inline_files_up_to_size_mb?: number;
   tools?: ToolConfig[];
+  persona?: AgentPersona;
+  skills?: SkillInstance[];
 };

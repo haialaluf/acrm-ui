@@ -12,7 +12,7 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
     ref,
   ) => {
     return (
-      <div className={`relative inline-flex items-center ${className || ""}`}>
+      <label className={`relative inline-flex items-center ${className || ""}`}>
         <input
           type="checkbox"
           className="peer sr-only"
@@ -47,7 +47,7 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
             ${disabled ? "opacity-50 cursor-not-allowed" : ""}
           `}
         ></div>
-      </div>
+      </label>
     );
   },
 );

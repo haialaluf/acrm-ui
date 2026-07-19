@@ -18,13 +18,13 @@ type ToolEventInfo =
 
 type LocalSimpleToolInfo = {
   provider: "local";
-  type: "function" | "custom";
+  type: "function" | "custom" | "agent";
   name: string;
 };
 
 type LocalSpecialToolInfo = {
   provider: "local";
-  type: "mcp" | "sql" | "http";
+  type: "mcp";
   label: string;
   name: string;
 };
