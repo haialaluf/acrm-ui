@@ -573,5 +573,22 @@
   "ID del calendario": "Calendar ID",
   "Duración de la cita (minutos)": "Appointment duration (minutes)",
   "Margen entre citas (minutos)": "Buffer between appointments (minutes)",
-  "Conexión al CRM": "CRM connection"
+  "Conexión al CRM": "CRM connection",
+  "Dividir en": "Split into",
+  "Enviar": "Send",
+  "Enviar todo ahora": "Send all now",
+  "Excede el límite — los mensajes por encima de": "Exceeds the limit — messages above",
+  "Límite diario": "Daily limit",
+  "Mañana": "Tomorrow",
+  "Recomendado": "Recommended",
+  "Se divide": "Split",
+  "Seleccionaste más que el límite diario — cómo enviar": "You selected more than the daily limit — how to send",
+  "días": "days",
+  "el resto los días siguientes": "the rest on the following days",
+  "hoy y programar el resto": "today and schedule the rest",
+  "mensajes": "messages",
+  "podrían ser bloqueados": "could be blocked",
+  "por día": "per day",
+  "programados": "scheduled",
+  "programados para los próximos días": "scheduled for the coming days"
 }

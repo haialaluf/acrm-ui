@@ -9,6 +9,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useTemplates } from "@/queries/useTemplates";
+import { useMessagingLimit } from "@/queries/useMessagingLimit";
 import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
 import { pushMessageToStore } from "@/utils/MessageUtils";
 import { startConversation } from "@/utils/ConversationUtils";
@@ -32,7 +33,9 @@ import SendingStep from "@/components/bulkSend/SendingStep";
 import DoneStep from "@/components/bulkSend/DoneStep";
 import { buildMessageRecord } from "@/components/bulkSend/buildMessageRecord";
 import {
+  computeBatches,
   countVars,
+  effectiveScheduling,
   initVars,
   type Scheduling,
   type Stage,
@@ -76,6 +79,8 @@ function BulkSend() {
   const { data: addresses } = useOrganizationsAddresses();
   const whatsappAddress = addresses?.find((a) => a.service === "whatsapp");
   const { data: templates } = useTemplates(whatsappAddress?.address);
+  const { data: messagingLimit } = useMessagingLimit(whatsappAddress?.address);
+  const dailyLimit = messagingLimit?.dailyLimit ?? null;
   const approved = useMemo(
     () => (templates ?? []).filter((tpl) => tpl.status === "APPROVED"),
     [templates],
@@ -89,6 +94,9 @@ function BulkSend() {
   const [scheduling, setScheduling] = useState<Scheduling>("now");
   const [scheduledAt, setScheduledAt] = useState("");
   const [progress, setProgress] = useState({ sent: 0, failed: 0 });
+  // How many messages were scheduled for later days (split sends). Surfaced on
+  // the sending/done screens as "X sent today · Y scheduled".
+  const [scheduled, setScheduled] = useState(0);
 
   // Prefill once data is loaded. Guarded so we don't re-apply if the user
   // navigates back inside the wizard.
@@ -126,6 +134,19 @@ function BulkSend() {
     );
   }, [contacts, selectedIds]);
 
+  /* Daily-limit batching: split the broadcast into one batch per day when it
+   * exceeds the WhatsApp messaging limit fetched from Meta. */
+  const overLimit = dailyLimit != null && recipients.length > dailyLimit;
+  const batches = useMemo(
+    () => computeBatches(recipients, dailyLimit),
+    [recipients, dailyLimit],
+  );
+  // Recipients that go out today (the rest of a split send are scheduled).
+  const sendToday =
+    effectiveScheduling(scheduling, overLimit) === "split"
+      ? (batches[0]?.list.length ?? 0)
+      : recipients.length;
+
   function back() {
     if (stage === "template") setStage("recipients");
     else if (stage === "variables") setStage("template");
@@ -135,13 +156,39 @@ function BulkSend() {
 
   async function send() {
     if (!template || !whatsappAddress || !activeOrgId) return;
-    if (scheduling === "later" && !scheduledAt) return;
-    const scheduledIso =
-      scheduling === "later" && scheduledAt
-        ? new Date(scheduledAt).toISOString()
-        : undefined;
+    const effective = effectiveScheduling(scheduling, overLimit);
+    if (effective === "later" && !scheduledAt) return;
+
+    // Resolve each recipient's send time. "now" → all immediate; "later" → all
+    // at the chosen datetime; "split" → batch 0 now, each later batch scheduled
+    // to the start of a following day. The existing per-record path already
+    // skips the optimistic store push for future-timestamped rows.
+    const items: { contact: ContactWithAddressesRow; scheduledIso?: string }[] =
+      [];
+    if (effective === "split") {
+      for (const batch of batches) {
+        let iso: string | undefined;
+        if (batch.dayOffset > 0) {
+          const day = new Date();
+          day.setHours(0, 0, 0, 0);
+          day.setDate(day.getDate() + batch.dayOffset);
+          iso = day.toISOString();
+        }
+        for (const contact of batch.list)
+          items.push({ contact, scheduledIso: iso });
+      }
+    } else {
+      const iso =
+        effective === "later" && scheduledAt
+          ? new Date(scheduledAt).toISOString()
+          : undefined;
+      for (const contact of recipients)
+        items.push({ contact, scheduledIso: iso });
+    }
+
     setStage("sending");
     setProgress({ sent: 0, failed: 0 });
+    setScheduled(0);
 
     // Build all records locally so we can ship them in two bulk inserts
     // (conversations + messages) instead of 2N round-trips. Existing
@@ -150,10 +197,12 @@ function BulkSend() {
     const conversationsToInsert: ConversationInsert[] = [];
     const messageRecords: MessageInsert[] = [];
     const skipped: ContactWithAddressesRow[] = [];
+    // Count records sent today vs scheduled for a later day (split sends).
+    let todayCount = 0;
 
     const storeConvs = useBoundStore.getState().chat.conversations;
 
-    for (const contact of recipients) {
+    for (const { contact, scheduledIso } of items) {
       const phone = contact.addresses?.[0]?.address;
       if (!phone) {
         skipped.push(contact);
@@ -202,7 +251,10 @@ function BulkSend() {
       // `timestamp <= updated_at`, so a future-timestamped message would
       // flicker into the conversation and disappear once the server row
       // syncs back.
-      if (!scheduledIso) pushMessageToStore(record);
+      if (!scheduledIso) {
+        pushMessageToStore(record);
+        todayCount++;
+      }
       messageRecords.push(record);
     }
 
@@ -220,11 +272,13 @@ function BulkSend() {
           .upsert(messageRecords, { ignoreDuplicates: true });
         if (error) throw error;
       }
-      setProgress({ sent: messageRecords.length, failed });
+      setProgress({ sent: todayCount, failed });
+      setScheduled(messageRecords.length - todayCount);
     } catch (e) {
       console.error("bulk-send failed", e);
       failed += messageRecords.length;
       setProgress({ sent: 0, failed });
+      setScheduled(0);
     }
 
     setStage("done");
@@ -238,6 +292,7 @@ function BulkSend() {
     setScheduling("now");
     setScheduledAt("");
     setProgress({ sent: 0, failed: 0 });
+    setScheduled(0);
   }
 
   // Header content varies by stage.
@@ -306,6 +361,8 @@ function BulkSend() {
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
           onNext={() => setStage("template")}
+          dailyLimit={dailyLimit}
+          tier={messagingLimit?.tier}
         />
       )}
 
@@ -351,17 +408,25 @@ function BulkSend() {
           scheduledAt={scheduledAt}
           setScheduledAt={setScheduledAt}
           onSend={send}
+          dailyLimit={dailyLimit}
+          tier={messagingLimit?.tier}
+          batches={batches}
         />
       )}
 
       {stage === "sending" && (
-        <SendingStep total={recipients.length} progress={progress} />
+        <SendingStep
+          total={sendToday}
+          progress={progress}
+          scheduled={scheduled}
+        />
       )}
 
       {stage === "done" && (
         <DoneStep
           progress={progress}
-          total={recipients.length}
+          total={sendToday}
+          scheduled={scheduled}
           onReset={reset}
           onClose={() => navigate({ to: "/conversations", hash: (h) => h! })}
         />

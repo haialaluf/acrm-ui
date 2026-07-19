@@ -215,7 +215,9 @@ export function useUpdateContact() {
       const newAddresses = rawNewAddresses.map((a) => ({
         ...a,
         address:
-          a.service === "instagram" ? a.address! : normalizePhoneNumber(a.address!),
+          a.service === "instagram"
+            ? a.address!
+            : normalizePhoneNumber(a.address!),
       }));
 
       const newAddressesString = [

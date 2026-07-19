@@ -10,7 +10,45 @@ export type Stage =
   | "sending"
   | "done";
 
-export type Scheduling = "now" | "later";
+export type Scheduling = "now" | "later" | "split";
+
+/** One day's slice of a broadcast that exceeds the daily messaging limit. */
+export type Batch<T> = { dayOffset: number; list: T[] };
+
+/**
+ * Split `recipients` into one batch per day of at most `dailyLimit` each. A
+ * `null`/`0` limit (unlimited) yields a single batch. Always returns at least
+ * one (possibly empty) batch so callers can index `batches[0]` safely.
+ */
+export function computeBatches<T>(
+  recipients: T[],
+  dailyLimit: number | null,
+): Batch<T>[] {
+  if (dailyLimit == null || dailyLimit <= 0) {
+    return [{ dayOffset: 0, list: recipients }];
+  }
+  const out: Batch<T>[] = [];
+  for (let i = 0; i < recipients.length; i += dailyLimit) {
+    out.push({
+      dayOffset: out.length,
+      list: recipients.slice(i, i + dailyLimit),
+    });
+  }
+  return out.length ? out : [{ dayOffset: 0, list: [] }];
+}
+
+/**
+ * Resolve the effective schedule. When over the limit the default is to split
+ * across days unless the user explicitly picked "send all now". Within the
+ * limit, splitting never applies — behave as plain now/later.
+ */
+export function effectiveScheduling(
+  scheduling: Scheduling,
+  overLimit: boolean,
+): Scheduling {
+  if (overLimit) return scheduling === "now" ? "now" : "split";
+  return scheduling === "later" ? "later" : "now";
+}
 
 /** One template variable's substitution rule. */
 export type VarValue =

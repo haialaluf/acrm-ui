@@ -537,5 +537,22 @@
   "ID del calendario": "Kitambulisho cha kalenda",
   "Duración de la cita (minutos)": "Muda wa miadi (dakika)",
   "Margen entre citas (minutos)": "Nafasi kati ya miadi (dakika)",
-  "Conexión al CRM": "Muunganisho wa CRM"
+  "Conexión al CRM": "Muunganisho wa CRM",
+  "Dividir en": "Gawa katika",
+  "Enviar": "Tuma",
+  "Enviar todo ahora": "Tuma zote sasa",
+  "Excede el límite — los mensajes por encima de": "Inazidi kikomo — ujumbe zaidi ya",
+  "Límite diario": "Kikomo cha kila siku",
+  "Mañana": "Kesho",
+  "Recomendado": "Inapendekezwa",
+  "Se divide": "Imegawanywa",
+  "Seleccionaste más que el límite diario — cómo enviar": "Umechagua zaidi ya kikomo cha kila siku — jinsi ya kutuma",
+  "días": "siku",
+  "el resto los días siguientes": "zingine siku zinazofuata",
+  "hoy y programar el resto": "leo na kupanga zingine",
+  "mensajes": "ujumbe",
+  "podrían ser bloqueados": "zinaweza kuzuiwa",
+  "por día": "kwa siku",
+  "programados": "zimepangwa",
+  "programados para los próximos días": "zimepangwa kwa siku zijazo"
 }

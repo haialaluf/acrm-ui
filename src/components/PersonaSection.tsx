@@ -1,4 +1,9 @@
-import type { Control, FieldValues, Path, UseFormRegister } from "react-hook-form";
+import type {
+  Control,
+  FieldValues,
+  Path,
+  UseFormRegister,
+} from "react-hook-form";
 import { useTranslation } from "@/hooks/useTranslation";
 import SectionField from "@/components/SectionField";
 import TextAreaField from "@/components/TextAreaField";

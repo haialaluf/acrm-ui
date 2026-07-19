@@ -15,6 +15,7 @@ import { type ContactWithAddressesRow } from "@/supabase/client";
 
 import ContactRow from "./ContactRow";
 import LinkBtn from "./LinkBtn";
+import QuotaMeter from "./QuotaMeter";
 
 const isRemoved = (c: ContactWithAddressesRow) =>
   c.status === "removed" || c.addresses?.[0]?.status === "removed";
@@ -24,10 +25,14 @@ export default function RecipientsStep({
   selectedIds,
   setSelectedIds,
   onNext,
+  dailyLimit,
+  tier,
 }: {
   selectedIds: Set<string>;
   setSelectedIds: (s: Set<string>) => void;
   onNext: () => void;
+  dailyLimit: number | null;
+  tier?: string | null;
 }) {
   const { translate: t } = useTranslation();
   const { data: contacts } = useContacts();
@@ -118,6 +123,13 @@ export default function RecipientsStep({
       </div>
 
       <SectionFooter className="gap-[10px]">
+        {dailyLimit != null && (
+          <QuotaMeter
+            selected={selectedIds.size}
+            dailyLimit={dailyLimit}
+            tier={tier}
+          />
+        )}
         <div className="flex items-center justify-between mb-[2px] text-[13px]">
           <div>
             <span className="font-semibold">{selectedIds.size}</span>{" "}

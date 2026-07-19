@@ -85,9 +85,7 @@ function ContactDetail() {
             <div className="flex flex-col items-center gap-2 mb-6">
               <Avatar
                 src={igExtra.profile_picture_url}
-                fallback={nameInitials(
-                  contact.name || igExtra.username || "?",
-                )}
+                fallback={nameInitials(contact.name || igExtra.username || "?")}
                 size={72}
                 className="bg-accent text-accent-foreground border border-border text-[24px]"
               />

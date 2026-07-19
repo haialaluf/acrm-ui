@@ -1,10 +1,12 @@
 import { useMemo, useState } from "react";
 import {
   Calendar,
+  CalendarClock,
   ChevronLeft,
   ChevronRight,
   Clock,
   Send,
+  TriangleAlert,
   X,
 } from "lucide-react";
 import { ConfigProvider, DatePicker } from "antd";
@@ -23,8 +25,16 @@ import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 
 import NavBtn from "./NavBtn";
 import Radio from "./Radio";
+import QuotaMeter from "./QuotaMeter";
+import BatchTimeline from "./BatchTimeline";
 import { datePickerTokens } from "@/components/antdTokens";
-import { fillTemplate, type Scheduling, type VarValue } from "./types";
+import {
+  type Batch,
+  effectiveScheduling,
+  fillTemplate,
+  type Scheduling,
+  type VarValue,
+} from "./types";
 
 const datePickerTheme = { components: { DatePicker: datePickerTokens } };
 
@@ -40,6 +50,9 @@ export default function ReviewStep({
   scheduledAt,
   setScheduledAt,
   onSend,
+  dailyLimit,
+  tier,
+  batches,
 }: {
   template: TemplateData;
   vars: Record<string, VarValue>;
@@ -50,9 +63,18 @@ export default function ReviewStep({
   scheduledAt: string;
   setScheduledAt: (s: string) => void;
   onSend: () => void;
+  dailyLimit: number | null;
+  tier?: string | null;
+  batches: Batch<ContactWithAddressesRow>[];
 }) {
   const { translate: t } = useTranslation();
   const [idx, setIdx] = useState(0);
+
+  const overLimit = dailyLimit != null && recipients.length > dailyLimit;
+  const effective = effectiveScheduling(scheduling, overLimit);
+  const todayCount =
+    effective === "split" ? (batches[0]?.list.length ?? 0) : recipients.length;
+  const remaining = recipients.length - todayCount;
   const safeIdx = Math.min(idx, Math.max(0, recipients.length - 1));
   const current = recipients[safeIdx];
 
@@ -75,7 +97,7 @@ export default function ReviewStep({
   }, [template, vars, current]);
 
   const canSend =
-    recipients.length > 0 && (scheduling === "now" || !!scheduledAt);
+    recipients.length > 0 && (effective !== "later" || !!scheduledAt);
 
   return (
     <>
@@ -180,97 +202,217 @@ export default function ReviewStep({
         </div>
 
         <div className="px-[16px] mt-[16px] pb-[16px]">
-          <div className="text-[12px] text-muted-foreground mb-[8px]">
-            {t("Cuándo enviar")}
-          </div>
-          <div
-            className="rounded-[12px] overflow-hidden"
-            style={{
-              background: "var(--background)",
-              border: "1px solid var(--border)",
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => setScheduling("now")}
-              className="w-full flex items-center gap-[10px] p-[12px] text-start border-none cursor-pointer"
-              style={{
-                background:
-                  scheduling === "now"
-                    ? "oklch(from var(--primary) l c h / 0.04)"
-                    : "transparent",
-              }}
-            >
-              <Radio checked={scheduling === "now"} />
-              <div className="flex-1">
-                <div className="text-[14px]">{t("Enviar ahora")}</div>
-                <div className="text-[12px] text-muted-foreground">
-                  {t("Se enviará en un único lote")}
-                </div>
+          {dailyLimit != null && (
+            <div className="mb-[10px]">
+              <QuotaMeter
+                selected={recipients.length}
+                dailyLimit={dailyLimit}
+                tier={tier}
+              />
+            </div>
+          )}
+
+          {overLimit ? (
+            <>
+              <div className="text-[12px] text-muted-foreground mb-[8px]">
+                {t("Seleccionaste más que el límite diario — cómo enviar")}
               </div>
-              <Clock className="w-[16px] h-[16px] text-muted-foreground" />
-            </button>
-            <div style={{ height: 1, background: "var(--border)" }} />
-            <button
-              type="button"
-              onClick={() => setScheduling("later")}
-              className="w-full flex items-start gap-[10px] p-[12px] text-start border-none cursor-pointer"
-              style={{
-                background:
-                  scheduling === "later"
-                    ? "oklch(from var(--primary) l c h / 0.04)"
-                    : "transparent",
-              }}
-            >
-              <div className="mt-[2px]">
-                <Radio checked={scheduling === "later"} />
-              </div>
-              <div className="flex-1">
-                <div className="text-[14px]">
-                  {t("Programar para más tarde")}
-                </div>
-                {scheduling === "later" ? (
-                  <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="mt-[6px]"
-                    dir="ltr"
-                  >
-                    <ConfigProvider theme={datePickerTheme}>
-                      <DatePicker
-                        showTime={{ format: "HH:mm" }}
-                        format="YYYY-MM-DD HH:mm"
-                        minuteStep={5}
-                        value={scheduledAt ? dayjs(scheduledAt) : null}
-                        onChange={(d: Dayjs | null) =>
-                          setScheduledAt(d ? d.format("YYYY-MM-DDTHH:mm") : "")
-                        }
-                        disabledDate={(d) =>
-                          d && d.isBefore(dayjs().startOf("day"))
-                        }
-                        placeholder={t("Elige fecha y hora")}
-                        allowClear
-                      />
-                    </ConfigProvider>
+              <div
+                className="rounded-[12px] overflow-hidden"
+                style={{
+                  background: "var(--background)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setScheduling("split")}
+                  className="w-full flex items-start gap-[10px] p-[12px] text-start border-none cursor-pointer"
+                  style={{
+                    background:
+                      effective === "split"
+                        ? "oklch(from var(--primary) l c h / 0.05)"
+                        : "transparent",
+                  }}
+                >
+                  <div className="mt-[2px]">
+                    <Radio checked={effective === "split"} />
                   </div>
-                ) : (
-                  <div className="text-[12px] text-muted-foreground">
-                    {t("Elige fecha y hora")}
+                  <div className="flex-1">
+                    <div className="text-[14px] flex items-center gap-[6px]">
+                      {t("Dividir en")} {batches.length} {t("días")}
+                      <span
+                        className="text-[10px] rounded-full px-[6px] py-[1px]"
+                        style={{
+                          background: "oklch(from var(--primary) l c h / 0.12)",
+                          color: "var(--primary)",
+                        }}
+                      >
+                        {t("Recomendado")}
+                      </span>
+                    </div>
+                    <div className="text-[12px] text-muted-foreground">
+                      {t("Hasta")} {dailyLimit} {t("por día")} —{" "}
+                      {batches[0]?.list.length ?? 0} {t("hoy")},{" "}
+                      {t("el resto los días siguientes")}
+                    </div>
+                  </div>
+                  <CalendarClock className="w-[18px] h-[18px] text-muted-foreground" />
+                </button>
+                {effective === "split" && (
+                  <div
+                    style={{
+                      paddingInlineStart: 42,
+                      paddingInlineEnd: 12,
+                      paddingBottom: 12,
+                    }}
+                  >
+                    <BatchTimeline batches={batches} />
                   </div>
                 )}
+                <div style={{ height: 1, background: "var(--border)" }} />
+                <button
+                  type="button"
+                  onClick={() => setScheduling("now")}
+                  className="w-full flex items-start gap-[10px] p-[12px] text-start border-none cursor-pointer"
+                  style={{
+                    background:
+                      effective === "now"
+                        ? "oklch(from var(--warning) l c h / 0.06)"
+                        : "transparent",
+                  }}
+                >
+                  <div className="mt-[2px]">
+                    <Radio checked={effective === "now"} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[14px]">{t("Enviar todo ahora")}</div>
+                    <div
+                      className="text-[12px]"
+                      style={{
+                        color: "oklch(from var(--warning) calc(l - 0.15) c h)",
+                      }}
+                    >
+                      {t("Excede el límite — los mensajes por encima de")}{" "}
+                      {dailyLimit} {t("podrían ser bloqueados")}
+                    </div>
+                  </div>
+                  <TriangleAlert
+                    className="w-[18px] h-[18px]"
+                    style={{
+                      color: "oklch(from var(--warning) calc(l - 0.1) c h)",
+                    }}
+                  />
+                </button>
               </div>
-              <Calendar className="w-[16px] h-[16px] text-muted-foreground" />
-            </button>
-          </div>
+            </>
+          ) : (
+            <>
+              <div className="text-[12px] text-muted-foreground mb-[8px]">
+                {t("Cuándo enviar")}
+              </div>
+              <div
+                className="rounded-[12px] overflow-hidden"
+                style={{
+                  background: "var(--background)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setScheduling("now")}
+                  className="w-full flex items-center gap-[10px] p-[12px] text-start border-none cursor-pointer"
+                  style={{
+                    background:
+                      scheduling === "now"
+                        ? "oklch(from var(--primary) l c h / 0.04)"
+                        : "transparent",
+                  }}
+                >
+                  <Radio checked={scheduling === "now"} />
+                  <div className="flex-1">
+                    <div className="text-[14px]">{t("Enviar ahora")}</div>
+                    <div className="text-[12px] text-muted-foreground">
+                      {t("Se enviará en un único lote")}
+                    </div>
+                  </div>
+                  <Clock className="w-[16px] h-[16px] text-muted-foreground" />
+                </button>
+                <div style={{ height: 1, background: "var(--border)" }} />
+                <button
+                  type="button"
+                  onClick={() => setScheduling("later")}
+                  className="w-full flex items-start gap-[10px] p-[12px] text-start border-none cursor-pointer"
+                  style={{
+                    background:
+                      scheduling === "later"
+                        ? "oklch(from var(--primary) l c h / 0.04)"
+                        : "transparent",
+                  }}
+                >
+                  <div className="mt-[2px]">
+                    <Radio checked={scheduling === "later"} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[14px]">
+                      {t("Programar para más tarde")}
+                    </div>
+                    {scheduling === "later" ? (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-[6px]"
+                        dir="ltr"
+                      >
+                        <ConfigProvider theme={datePickerTheme}>
+                          <DatePicker
+                            showTime={{ format: "HH:mm" }}
+                            format="YYYY-MM-DD HH:mm"
+                            minuteStep={5}
+                            value={scheduledAt ? dayjs(scheduledAt) : null}
+                            onChange={(d: Dayjs | null) =>
+                              setScheduledAt(
+                                d ? d.format("YYYY-MM-DDTHH:mm") : "",
+                              )
+                            }
+                            disabledDate={(d) =>
+                              d && d.isBefore(dayjs().startOf("day"))
+                            }
+                            placeholder={t("Elige fecha y hora")}
+                            allowClear
+                          />
+                        </ConfigProvider>
+                      </div>
+                    ) : (
+                      <div className="text-[12px] text-muted-foreground">
+                        {t("Elige fecha y hora")}
+                      </div>
+                    )}
+                  </div>
+                  <Calendar className="w-[16px] h-[16px] text-muted-foreground" />
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       <SectionFooter className="gap-[8px]">
+        {effective === "split" && (
+          <div className="flex items-center justify-between mb-[2px] text-[12px]">
+            <span className="text-muted-foreground">{t("Se divide")}</span>
+            <span>
+              <b>{todayCount}</b> {t("hoy")} · {remaining} {t("programados")}
+            </span>
+          </div>
+        )}
         <Button className="primary" onClick={onSend} invalid={!canSend}>
           <span className="inline-flex items-center justify-center gap-[8px]">
             <Send className="w-[16px] h-[16px]" />
-            {scheduling === "now"
-              ? `${t("Enviar a")} ${recipients.length} ${t("destinatarios")}`
-              : t("Programar envío")}
+            {effective === "split"
+              ? `${t("Enviar")} ${todayCount} ${t("hoy y programar el resto")}`
+              : effective === "now"
+                ? `${t("Enviar a")} ${recipients.length} ${t("destinatarios")}`
+                : t("Programar envío")}
           </span>
         </Button>
       </SectionFooter>

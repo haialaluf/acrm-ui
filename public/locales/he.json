@@ -541,5 +541,22 @@
   "ID del calendario": "מזהה היומן",
   "Duración de la cita (minutos)": "משך הפגישה (דקות)",
   "Margen entre citas (minutos)": "מרווח בין פגישות (דקות)",
-  "Conexión al CRM": "חיבור ל-CRM"
+  "Conexión al CRM": "חיבור ל-CRM",
+  "Dividir en": "פיצול ל־",
+  "Enviar": "שלח",
+  "Enviar todo ahora": "שלח הכל עכשיו",
+  "Excede el límite — los mensajes por encima de": "חורג מהמגבלה — הודעות מעל",
+  "Límite diario": "מגבלה יומית",
+  "Mañana": "מחר",
+  "Recomendado": "מומלץ",
+  "Se divide": "מחולק",
+  "Seleccionaste más que el límite diario — cómo enviar": "בחרת יותר מהמגבלה היומית — כיצד לשלוח",
+  "días": "ימים",
+  "el resto los días siguientes": "והשאר בימים הבאים",
+  "hoy y programar el resto": "היום ותזמן את השאר",
+  "mensajes": "הודעות",
+  "podrían ser bloqueados": "עלולות להיחסם",
+  "por día": "ליום",
+  "programados": "מתוזמנות",
+  "programados para los próximos días": "מתוזמנות לימים הקרובים"
 }

@@ -150,9 +150,7 @@ export type LocalMCPToolConfig = {
   };
 };
 
-export type ToolConfig =
-  | LocalSimpleToolConfig
-  | LocalMCPToolConfig;
+export type ToolConfig = LocalSimpleToolConfig | LocalMCPToolConfig;
 
 //===================================
 // Skills

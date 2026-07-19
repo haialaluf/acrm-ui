@@ -573,5 +573,22 @@
   "ID del calendario": "ID do calendário",
   "Duración de la cita (minutos)": "Duração do compromisso (minutos)",
   "Margen entre citas (minutos)": "Intervalo entre compromissos (minutos)",
-  "Conexión al CRM": "Conexão ao CRM"
+  "Conexión al CRM": "Conexão ao CRM",
+  "Dividir en": "Dividir em",
+  "Enviar": "Enviar",
+  "Enviar todo ahora": "Enviar tudo agora",
+  "Excede el límite — los mensajes por encima de": "Excede o limite — as mensagens acima de",
+  "Límite diario": "Limite diário",
+  "Mañana": "Amanhã",
+  "Recomendado": "Recomendado",
+  "Se divide": "Dividido",
+  "Seleccionaste más que el límite diario — cómo enviar": "Você selecionou mais que o limite diário — como enviar",
+  "días": "dias",
+  "el resto los días siguientes": "o restante nos dias seguintes",
+  "hoy y programar el resto": "hoje e agendar o restante",
+  "mensajes": "mensagens",
+  "podrían ser bloqueados": "podem ser bloqueadas",
+  "por día": "por dia",
+  "programados": "agendados",
+  "programados para los próximos días": "agendados para os próximos dias"
 }

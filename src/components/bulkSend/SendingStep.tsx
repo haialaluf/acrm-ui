@@ -5,9 +5,12 @@ import StatTile from "./StatTile";
 export default function SendingStep({
   total,
   progress,
+  scheduled = 0,
 }: {
   total: number;
   progress: { sent: number; failed: number };
+  /** Messages queued for later days (split sends). */
+  scheduled?: number;
 }) {
   const { translate: t } = useTranslation();
   const done = progress.sent + progress.failed;
@@ -70,6 +73,17 @@ export default function SendingStep({
                 "Enviando mensajes… puedes cerrar — continuará en segundo plano.",
               )}
         </div>
+        {scheduled > 0 && (
+          <div
+            className="text-[12px] mt-[10px] rounded-full px-[14px] py-[6px]"
+            style={{
+              color: "var(--primary)",
+              background: "oklch(from var(--primary) l c h / 0.08)",
+            }}
+          >
+            {scheduled} {t("programados para los próximos días")}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-[8px]">

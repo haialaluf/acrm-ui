@@ -537,5 +537,22 @@
   "ID del calendario": "ID du calendrier",
   "Duración de la cita (minutos)": "Durée du rendez-vous (minutes)",
   "Margen entre citas (minutos)": "Marge entre les rendez-vous (minutes)",
-  "Conexión al CRM": "Connexion au CRM"
+  "Conexión al CRM": "Connexion au CRM",
+  "Dividir en": "Diviser en",
+  "Enviar": "Envoyer",
+  "Enviar todo ahora": "Tout envoyer maintenant",
+  "Excede el límite — los mensajes por encima de": "Dépasse la limite — les messages au-delà de",
+  "Límite diario": "Limite quotidienne",
+  "Mañana": "Demain",
+  "Recomendado": "Recommandé",
+  "Se divide": "Réparti",
+  "Seleccionaste más que el límite diario — cómo enviar": "Vous avez sélectionné plus que la limite quotidienne — comment envoyer",
+  "días": "jours",
+  "el resto los días siguientes": "le reste les jours suivants",
+  "hoy y programar el resto": "aujourd'hui et programmer le reste",
+  "mensajes": "messages",
+  "podrían ser bloqueados": "pourraient être bloqués",
+  "por día": "par jour",
+  "programados": "programmés",
+  "programados para los próximos días": "programmés pour les prochains jours"
 }
