@@ -1,4 +1,7 @@
-import { type ContactWithAddressesRow } from "@/supabase/client";
+import {
+  type ContactWithAddressesRow,
+  type TemplateData,
+} from "@/supabase/client";
 
 /* Shared types, constants, and pure helpers for the bulk-send wizard. */
 
@@ -57,6 +60,38 @@ export type VarValue =
 
 export type ContactField = "name" | "email" | "phone";
 export type Scope = "head" | "body";
+
+/** Media header formats. A template whose HEADER is one of these requires a
+ *  mandatory media file (an image/video/document link) supplied at send time —
+ *  the header is fixed content, not a per-recipient text variable. */
+export type HeaderMediaFormat = "IMAGE" | "VIDEO" | "DOCUMENT";
+
+/** The template's header media format, or `null` for a text/no header. */
+export function headerMediaFormat(
+  template: TemplateData,
+): HeaderMediaFormat | null {
+  const head = template.components.find((c) => c.type === "HEADER");
+  if (head && head.format !== "TEXT") {
+    return head.format as HeaderMediaFormat;
+  }
+  return null;
+}
+
+/** The sample media URL Meta returns with an approved media-header template,
+ *  used to prefill the input so the user can send the template's own sample. */
+export function headerMediaExample(template: TemplateData): string | undefined {
+  const head = template.components.find((c) => c.type === "HEADER");
+  return head?.example?.header_handle?.[0];
+}
+
+/** WhatsApp fetches header media from a public URL (`link`), so only http(s)
+ *  URLs are accepted. The dispatcher forwards template payloads to Meta
+ *  verbatim — it does not upload header media — so a private/internal URI would
+ *  fail to deliver. */
+export function isValidMediaUrl(url: string): boolean {
+  const u = url.trim();
+  return /^https?:\/\/\S+$/i.test(u);
+}
 
 export const FIELD_OPTIONS: { id: ContactField; label: string }[] = [
   { id: "name", label: "Nombre" },

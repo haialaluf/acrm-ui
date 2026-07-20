@@ -32,6 +32,8 @@ import {
   type Batch,
   effectiveScheduling,
   fillTemplate,
+  headerMediaFormat,
+  isValidMediaUrl,
   type Scheduling,
   type VarValue,
 } from "./types";
@@ -43,6 +45,7 @@ const datePickerTheme = { components: { DatePicker: datePickerTokens } };
 export default function ReviewStep({
   template,
   vars,
+  headerMedia,
   recipients,
   onRemove,
   scheduling,
@@ -56,6 +59,7 @@ export default function ReviewStep({
 }: {
   template: TemplateData;
   vars: Record<string, VarValue>;
+  headerMedia: string;
   recipients: ContactWithAddressesRow[];
   onRemove: (id: string) => void;
   scheduling: Scheduling;
@@ -156,6 +160,15 @@ export default function ReviewStep({
                 )}
               </div>
             </div>
+            {headerMediaFormat(template) === "IMAGE" &&
+              isValidMediaUrl(headerMedia) && (
+                <img
+                  src={headerMedia.trim()}
+                  alt={t("Vista previa")}
+                  className="w-full max-h-[200px] object-cover block"
+                  style={{ borderBottom: "1px solid var(--border)" }}
+                />
+              )}
             {previewTemplate && (
               <TemplatePreviewBubble template={previewTemplate} />
             )}

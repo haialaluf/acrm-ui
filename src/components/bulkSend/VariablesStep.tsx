@@ -7,8 +7,12 @@ import { type TemplateData } from "@/supabase/client";
 
 import VarCard from "./VarCard";
 import VarChip from "./VarChip";
+import HeaderMediaCard from "./HeaderMediaCard";
 import {
   countVars,
+  headerMediaExample,
+  headerMediaFormat,
+  isValidMediaUrl,
   type ContactField,
   type Scope,
   type VarValue,
@@ -21,11 +25,15 @@ export default function VariablesStep({
   template,
   vars,
   setVars,
+  headerMedia,
+  setHeaderMedia,
   onNext,
 }: {
   template: TemplateData;
   vars: Record<string, VarValue>;
   setVars: (v: Record<string, VarValue>) => void;
+  headerMedia: string;
+  setHeaderMedia: (url: string) => void;
   onNext: () => void;
 }) {
   const { translate: t } = useTranslation();
@@ -35,8 +43,14 @@ export default function VariablesStep({
   const headExamples = head?.example?.header_text || [];
   const bodyExamples = body?.example?.body_text?.[0] || [];
 
+  const mediaFormat = headerMediaFormat(template);
+  const mediaExample = headerMediaExample(template);
+  // A media header requires a valid public URL before the user can continue.
+  const mediaOk = !mediaFormat || isValidMediaUrl(headerMedia);
+
   const keys = Object.keys(vars);
   const hasVars = keys.length > 0;
+  const hasInputs = hasVars || !!mediaFormat;
 
   function update(key: string, patch: Partial<VarValue>) {
     const current = vars[key];
@@ -58,10 +72,12 @@ export default function VariablesStep({
     setVars({ ...vars, [key]: next });
   }
 
-  const allFilled = Object.values(vars).every(
-    (v) =>
-      v.mode === "field" || (v.mode === "static" && v.static.trim() !== ""),
-  );
+  const allFilled =
+    mediaOk &&
+    Object.values(vars).every(
+      (v) =>
+        v.mode === "field" || (v.mode === "static" && v.static.trim() !== ""),
+    );
 
   function renderWithChips(
     text: string | undefined,
@@ -91,11 +107,15 @@ export default function VariablesStep({
     <>
       <div className="grow overflow-y-auto">
         <div className="px-[16px] pt-[14px] pb-[8px]">
-          {hasVars && (
+          {hasInputs && (
             <div className="text-[12px] mb-[12px] text-muted-foreground">
-              {t(
-                "Para cada variable, elige un valor fijo o un campo del contacto que se sustituirá por destinatario.",
-              )}
+              {mediaFormat && !hasVars
+                ? t(
+                    "Esta plantilla requiere un archivo en el encabezado — es obligatorio para enviarla.",
+                  )
+                : t(
+                    "Para cada variable, elige un valor fijo o un campo del contacto que se sustituirá por destinatario.",
+                  )}
             </div>
           )}
           <div
@@ -106,6 +126,13 @@ export default function VariablesStep({
               whiteSpace: "pre-wrap",
             }}
           >
+            {mediaFormat === "IMAGE" && isValidMediaUrl(headerMedia) && (
+              <img
+                src={headerMedia.trim()}
+                alt={t("Vista previa")}
+                className="w-full max-h-[160px] object-cover rounded-[8px] mb-[10px] block"
+              />
+            )}
             {head?.text && (
               <div className="font-semibold mb-[8px]">
                 {countVars(head.text) > 0
@@ -132,6 +159,14 @@ export default function VariablesStep({
         </div>
 
         <div className="px-[16px] pb-[16px] flex flex-col gap-[8px] mt-[8px]">
+          {mediaFormat && (
+            <HeaderMediaCard
+              format={mediaFormat}
+              value={headerMedia}
+              example={mediaExample}
+              onChange={setHeaderMedia}
+            />
+          )}
           {keys.map((key) => {
             const [scope, n] = key.split(".");
             const example =
@@ -149,7 +184,7 @@ export default function VariablesStep({
               />
             );
           })}
-          {!hasVars && (
+          {!hasInputs && (
             <div
               className="rounded-[12px] p-[16px] text-[13px] text-center text-muted-foreground"
               style={{

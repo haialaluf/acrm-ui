@@ -91,6 +91,9 @@ function BulkSend() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [vars, setVars] = useState<Record<string, VarValue>>({});
+  // Public URL for a template's mandatory media header (image/video/document).
+  // Empty when the chosen template has a text/no header.
+  const [headerMedia, setHeaderMedia] = useState("");
   const [scheduling, setScheduling] = useState<Scheduling>("now");
   const [scheduledAt, setScheduledAt] = useState("");
   const [progress, setProgress] = useState({ sent: 0, failed: 0 });
@@ -240,6 +243,7 @@ function BulkSend() {
         conv,
         template,
         vars,
+        headerMedia,
         agentId,
         scheduledAt: scheduledIso,
       });
@@ -289,6 +293,7 @@ function BulkSend() {
     setSelectedIds(new Set());
     setTemplate(null);
     setVars({});
+    setHeaderMedia("");
     setScheduling("now");
     setScheduledAt("");
     setProgress({ sent: 0, failed: 0 });
@@ -389,6 +394,7 @@ function BulkSend() {
               tpl.components.find((c) => c.type === "BODY")?.text,
             );
             setVars(initVars(headN, bodyN));
+            setHeaderMedia("");
             setStage("variables");
           }}
         />
@@ -399,6 +405,8 @@ function BulkSend() {
           template={template}
           vars={vars}
           setVars={setVars}
+          headerMedia={headerMedia}
+          setHeaderMedia={setHeaderMedia}
           onNext={() => setStage("review")}
         />
       )}
@@ -407,6 +415,7 @@ function BulkSend() {
         <ReviewStep
           template={template}
           vars={vars}
+          headerMedia={headerMedia}
           recipients={recipients}
           onRemove={(id) => {
             const next = new Set(selectedIds);

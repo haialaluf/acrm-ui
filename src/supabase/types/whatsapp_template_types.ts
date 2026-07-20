@@ -40,10 +40,15 @@ export type TemplateData = {
 
 type HeaderComponent = {
   type: "HEADER";
-  text: string;
-  format: "TEXT"; // TODO: other formats such as image - cabra 2024/09/12
+  // @ui-divergence: optional — media headers (IMAGE/VIDEO/DOCUMENT) carry no
+  // text (API: always present, TEXT-only headers).
+  text?: string;
+  // @ui-divergence: media header formats read from Meta (API: "TEXT" only).
+  format: "TEXT" | "IMAGE" | "VIDEO" | "DOCUMENT";
   example?: {
-    header_text: [string];
+    header_text?: [string];
+    // @ui-divergence: sample media handle/URL Meta returns for media headers.
+    header_handle?: string[];
   };
 };
 

@@ -7,7 +7,13 @@ import {
 } from "@/supabase/client";
 import { newMessage } from "@/utils/MessageUtils";
 import { buttonSendComponents } from "@/components/templateButtons";
-import { countVars, resolveVar, type VarValue } from "./types";
+import {
+  countVars,
+  headerMediaFormat,
+  isValidMediaUrl,
+  resolveVar,
+  type VarValue,
+} from "./types";
 
 /**
  * Build a MessageInsert for one contact without touching the network. The
@@ -19,6 +25,7 @@ export function buildMessageRecord({
   conv,
   template,
   vars,
+  headerMedia,
   agentId,
   scheduledAt,
 }: {
@@ -26,6 +33,8 @@ export function buildMessageRecord({
   conv: ConversationRow;
   template: TemplateData;
   vars: Record<string, VarValue>;
+  /** Public URL for a media header (image/video/document), when required. */
+  headerMedia?: string;
   agentId?: string;
   scheduledAt?: string;
 }): MessageInsert | null {
@@ -53,8 +62,24 @@ export function buildMessageRecord({
     renderedBody = renderedBody.replaceAll(`{{${i}}}`, val);
   }
 
+  // A media header (image/video/document) is mutually exclusive with a text
+  // header: the file is fixed for the broadcast and sent as a public link that
+  // Meta fetches on delivery. WhatsApp requires it, so skip the whole record if
+  // the template demands one but no valid URL was provided.
+  const mediaFormat = headerMediaFormat(template);
+  const mediaLink = headerMedia?.trim() ?? "";
+  if (mediaFormat && !isValidMediaUrl(mediaLink)) return null;
+
   const components: TemplateMessage["template"]["components"] = [];
-  if (headParams.length) {
+  if (mediaFormat) {
+    const param =
+      mediaFormat === "IMAGE"
+        ? { type: "image" as const, image: { link: mediaLink } }
+        : mediaFormat === "VIDEO"
+          ? { type: "video" as const, video: { link: mediaLink } }
+          : { type: "document" as const, document: { link: mediaLink } };
+    components.push({ type: "header", parameters: [param] });
+  } else if (headParams.length) {
     components.push({
       type: "header",
       parameters: headParams.map((text) => ({ type: "text" as const, text })),
