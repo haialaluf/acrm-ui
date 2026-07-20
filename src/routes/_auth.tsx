@@ -14,6 +14,7 @@ import { Bot, Building2, MessageSquarePlus, Settings } from "lucide-react";
 import { useResizable } from "@/hooks/useResizable";
 import { useCurrentAgents } from "@/queries/useAgents";
 import StatsCenter from "@/components/stats/StatsCenter";
+import LiveMessagePreview from "@/components/messagePreview/LiveMessagePreview";
 
 export const Route = createFileRoute("/_auth")({
   component: AppLayout,
@@ -41,6 +42,10 @@ function AppLayout() {
   const location = useLocation();
   const pathname = location.pathname;
   const isStatsRoute = pathname.startsWith("/stats");
+  // Create/edit template routes (.../templates/new or .../templates/$id, but
+  // not the list at .../templates). The live phone preview fills the otherwise
+  // empty center panel on desktop; on mobile it stacks inside the form panel.
+  const isTemplateEditorRoute = /\/templates\/[^/]+$/.test(pathname);
 
   const [isHoveringFiles, setIsHoveringFiles] = useState(false);
 
@@ -64,7 +69,8 @@ function AppLayout() {
   console.log("active org ", activeOrgId);
   console.log("active conv", activeConvId);
 
-  const showCenterPanel = activeConvId || isStatsRoute;
+  const showCenterPanel =
+    (activeConvId || isStatsRoute) && !isTemplateEditorRoute;
 
   return (
     <div
@@ -96,16 +102,22 @@ function AppLayout() {
       <div
         className={
           "flex-col min-w-0 relative overflow-hidden col-span-full md:col-span-1" +
-          (isStatsRoute
-            ? " flex bg-muted"
-            : activeConvId
-              ? " flex bg-chat"
-              : " hidden md:flex bg-muted")
+          (isTemplateEditorRoute
+            ? " hidden md:flex bg-muted"
+            : isStatsRoute
+              ? " flex bg-muted"
+              : activeConvId
+                ? " flex bg-chat"
+                : " hidden md:flex bg-muted")
         }
         onDragEnter={() => setIsHoveringFiles(true)}
         onDrop={() => setIsHoveringFiles(false)}
       >
-        {isStatsRoute ? (
+        {isTemplateEditorRoute ? (
+          <div className="flex items-center justify-center h-full overflow-auto">
+            <LiveMessagePreview variant="phone" />
+          </div>
+        ) : isStatsRoute ? (
           <div className="overflow-y-auto h-full">
             <StatsCenter />
           </div>

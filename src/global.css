@@ -619,3 +619,748 @@ select.mapping:focus {
 .message-video::-webkit-media-controls-overlay-play-button {
   display: none !important;
 }
+
+/* ── WhatsApp message preview (components/messagePreview/*) ─────────────────
+   Authentic WhatsApp colors are kept literal (with dark variants); only the
+   surrounding editor chrome uses the app's design tokens. */
+.wa-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.wa-stage-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+.stage-cap {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  max-width: 320px;
+  text-align: center;
+  line-height: 1.5;
+}
+.wa-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  padding: 5px 12px;
+}
+.wa-theme-toggle:hover {
+  color: var(--foreground);
+}
+
+.device {
+  width: min(372px, 100%);
+  aspect-ratio: 372 / 760;
+  max-height: calc(100dvh - 120px);
+  background: #0a0a0a;
+  border-radius: 46px;
+  padding: 11px;
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.4),
+    0 0 0 2px rgba(255, 255, 255, 0.06) inset;
+  flex-shrink: 0;
+}
+.screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 36px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #efeae2;
+  position: relative;
+}
+
+.wa-status {
+  height: 34px;
+  background: #008069;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px 0 26px;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.wa-status-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.wa-header {
+  height: 58px;
+  background: #008069;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+.wa-header .wa-back {
+  flex-shrink: 0;
+}
+.wa-ava {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.wa-peer {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.15;
+}
+.wa-name {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wa-presence {
+  font-size: 12px;
+  opacity: 0.85;
+}
+.wa-hicons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-inline-end: 4px;
+}
+
+.wa-chat {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 8px 8px;
+  background: #efeae2;
+  position: relative;
+}
+.wa-chat::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/bg-chat-tile-dark.png");
+  background-repeat: repeat;
+  background-size: 360px;
+  opacity: 0.05;
+  pointer-events: none;
+}
+.wa-chat.dark {
+  background: #0b141a;
+}
+.wa-chat.dark::before {
+  opacity: 0.06;
+}
+.wa-daypill {
+  width: max-content;
+  margin: 0 auto 12px;
+  background: #fff;
+  color: #54656f;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 1;
+}
+.wa-chat.dark .wa-daypill {
+  background: #182229;
+  color: #8696a0;
+}
+.wa-empty {
+  text-align: center;
+  color: #54656f;
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 40px;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+.wa-chat.dark .wa-empty {
+  color: #8696a0;
+}
+.wa-msg {
+  position: relative;
+  z-index: 1;
+  display: flex;
+}
+.wa-bubble {
+  position: relative;
+  max-width: 85%;
+  background: #fff;
+  border-radius: 0 8px 8px 8px;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+  overflow: hidden;
+  margin-inline-start: 8px;
+}
+[dir="rtl"] .wa-bubble {
+  border-radius: 8px 0 8px 8px;
+}
+.wa-chat.dark .wa-bubble {
+  background: #202c33;
+}
+.wa-tail {
+  position: absolute;
+  top: 0;
+  inset-inline-start: -8px;
+  width: 9px;
+  height: 13px;
+  background: #fff;
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+}
+[dir="rtl"] .wa-tail {
+  inset-inline-start: auto;
+  inset-inline-end: -8px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.wa-chat.dark .wa-tail {
+  background: #202c33;
+}
+.wa-bubble-pad {
+  padding: 6px 9px 8px;
+}
+.wa-bubble.has-media .wa-bubble-pad {
+  padding-top: 6px;
+}
+.wa-htext {
+  font-weight: 600;
+  font-size: 15.5px;
+  color: #111b21;
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+.wa-chat.dark .wa-htext {
+  color: #e9edef;
+}
+
+.wa-media {
+  width: 100%;
+  background: #d9d3ca;
+  position: relative;
+  aspect-ratio: 1.7 / 1;
+  overflow: hidden;
+}
+.wa-media img,
+.wa-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.wa-media-ph {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    #d5cec3,
+    #d5cec3 10px,
+    #cfc7bb 10px,
+    #cfc7bb 20px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wa-media-ph .mono {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px;
+  color: #6b6357;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.wa-video .wa-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wa-doc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 6px 0;
+  padding: 10px;
+  background: rgba(11, 20, 26, 0.06);
+  border-radius: 8px;
+}
+.wa-chat.dark .wa-doc {
+  background: rgba(255, 255, 255, 0.06);
+}
+.wa-doc-ic {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.wa-doc-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111b21;
+}
+.wa-chat.dark .wa-doc-name {
+  color: #e9edef;
+}
+.wa-doc-sub {
+  font-size: 11px;
+  color: #667781;
+  margin-top: 1px;
+}
+
+.wa-textwrap {
+  position: relative;
+}
+.wa-body {
+  font-size: 14.5px;
+  line-height: 20px;
+  color: #111b21;
+  overflow: hidden;
+  word-break: break-word;
+  white-space: normal;
+}
+.wa-chat.dark .wa-body {
+  color: #e9edef;
+}
+.wa-line {
+  min-height: 2px;
+}
+.wa-line.empty {
+  height: 12px;
+}
+.wa-body strong {
+  font-weight: 700;
+}
+.wa-body em {
+  font-style: italic;
+}
+.wa-body s {
+  text-decoration: line-through;
+}
+.wa-mono,
+.wa-code {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  padding: 0 3px;
+}
+.wa-chat.dark .wa-mono,
+.wa-chat.dark .wa-code {
+  background: rgba(255, 255, 255, 0.08);
+}
+.wa-ul,
+.wa-ol {
+  margin: 2px 0;
+  padding-inline-start: 20px;
+}
+.wa-ul {
+  list-style: disc;
+}
+.wa-ol {
+  list-style: decimal;
+}
+.wa-ul li,
+.wa-ol li {
+  margin: 1px 0;
+}
+.wa-quote {
+  border-inline-start: 4px solid #06cf9c;
+  padding-inline-start: 8px;
+  margin: 3px 0;
+  color: #3b4a54;
+}
+.wa-chat.dark .wa-quote {
+  color: #aebac1;
+}
+.wa-var {
+  background: oklch(0.62 0.16 152 / 0.13);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.wa-var.empty {
+  color: oklch(0.5 0.15 60);
+  background: oklch(0.72 0.16 75 / 0.22);
+}
+.wa-readmore {
+  display: block;
+  margin-top: 2px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #027eb5;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.wa-chat.dark .wa-readmore {
+  color: #53bdeb;
+}
+.wa-footer {
+  font-size: 13px;
+  color: #667781;
+  margin-top: 5px;
+  line-height: 1.35;
+}
+.wa-chat.dark .wa-footer {
+  color: #8696a0;
+}
+.wa-time {
+  font-size: 11px;
+  color: #667781;
+  text-align: end;
+  margin-top: 3px;
+  direction: ltr;
+}
+.wa-chat.dark .wa-time {
+  color: #8696a0;
+}
+
+.wa-actions {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+.wa-chat.dark .wa-actions {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+.wa-act {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  font-size: 14.5px;
+  color: #027eb5;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+.wa-act:first-child {
+  border-top: none;
+}
+.wa-chat.dark .wa-act {
+  color: #53bdeb;
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.wa-composer {
+  height: 52px;
+  background: #f0f2f5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  flex-shrink: 0;
+}
+.device.dark .wa-composer {
+  background: #1e2a31;
+}
+.wa-input {
+  flex: 1;
+  height: 38px;
+  background: #fff;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  color: #8696a0;
+  font-size: 14px;
+}
+.device.dark .wa-input {
+  background: #2a3942;
+}
+.wa-mic {
+  width: 38px;
+  height: 38px;
+  border-radius: 9999px;
+  background: #008069;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Template editor (components/templateEditor/*) ─────────────────────────── */
+.hint {
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.wa-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: wrap;
+  padding: 5px;
+  margin-bottom: 8px;
+  background: var(--muted);
+  border-radius: 10px;
+}
+.fmt-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.fmt-btn {
+  min-width: 30px;
+  height: 28px;
+  padding: 0 7px;
+  border: none;
+  background: transparent;
+  border-radius: 7px;
+  color: var(--secondary-foreground);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 13px;
+}
+.fmt-btn:hover {
+  background: var(--background);
+  color: var(--foreground);
+}
+.fmt-btn.wide {
+  color: var(--primary);
+  font-weight: 500;
+}
+.fmt-btn.wide:hover {
+  background: oklch(from var(--primary) l c h / 0.1);
+}
+.fmt-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  margin: 0 3px;
+}
+
+.body-area {
+  width: 100%;
+  min-height: 132px;
+  field-sizing: fixed;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+  background: var(--card);
+  color: var(--foreground);
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+}
+.body-area:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px oklch(from var(--primary) l c h / 0.1);
+}
+.body-area::placeholder {
+  color: var(--muted-foreground);
+}
+.header-text-area {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0 0 4px;
+  background: transparent;
+  outline: none;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 16px;
+}
+.header-text-area:hover {
+  border-bottom-color: var(--input);
+}
+.header-text-area:focus {
+  border-bottom-color: var(--primary);
+}
+.header-text-area::placeholder {
+  color: var(--muted-foreground);
+}
+
+.len-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.len-chip .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  margin-inline-end: 6px;
+}
+.len-chip.good {
+  background: oklch(0.65 0.14 150 / 0.14);
+  color: oklch(0.42 0.12 150);
+}
+.len-chip.warn {
+  background: oklch(0.72 0.16 75 / 0.18);
+  color: oklch(0.48 0.14 65);
+}
+.len-chip.over {
+  background: oklch(0.55 0.2 27 / 0.14);
+  color: oklch(0.48 0.19 27);
+}
+
+.var-panel {
+  background: oklch(from var(--primary) l c h / 0.04);
+  border: 1px solid oklch(from var(--primary) l c h / 0.15);
+  border-radius: 12px;
+  padding: 12px;
+}
+.var-map {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.var-map + .var-map {
+  border-top: 1px solid var(--border);
+}
+.var-token {
+  display: inline-block;
+  background: oklch(from var(--primary) l c h / 0.12);
+  color: var(--primary);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12.5px;
+  flex-shrink: 0;
+}
+.var-arrow {
+  flex-shrink: 0;
+}
+.var-field {
+  width: 150px;
+  flex-shrink: 0;
+}
+.var-sample {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-size: 13px;
+  background: var(--card);
+  color: var(--foreground);
+  outline: none;
+}
+.var-sample:focus {
+  border-color: var(--primary);
+}
+
+.media-picked {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+}
+.media-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.media-thumb img,
+.media-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-doc-ic {
+  color: var(--destructive);
+}
+.media-picked-meta {
+  flex: 1;
+  min-width: 0;
+}
+.media-picked-name {
+  font-size: 13.5px;
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.media-picked-sub {
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+  margin-top: 2px;
+}
+.media-drop-ic {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  margin: 0 auto 8px;
+  background: oklch(from var(--primary) l c h / 0.12);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.media-drop-t {
+  font-size: 13.5px;
+  color: var(--foreground);
+}
+.media-drop-s {
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+  margin-top: 4px;
+}
+
+/* antd Upload.Dragger (media dropzone) themed to tokens. Unlayered so it wins
+   over antd's runtime styles. */
+.media-dragger .ant-upload-drag {
+  background: oklch(from var(--card) l c h / 0.5);
+  border: 1.5px dashed var(--input);
+  border-radius: 12px;
+}
+.media-dragger .ant-upload-drag:hover {
+  border-color: var(--primary);
+}
+
+/* emoji picker popover: drop antd's inner padding around the picker. */
+.emoji-popover .ant-popover-inner {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 12px;
+}

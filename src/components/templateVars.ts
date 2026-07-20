@@ -1,5 +1,5 @@
 // Helpers for working with {{N}} variables inside template header/body text.
-// Shared by TemplateEditor (insert + submit) and TemplateEditorPreview.
+// Shared by TemplateEditor (insert + submit) and the message preview.
 
 // Unique variable numbers found in text, in order of appearance.
 export function getVarNumbers(text: string): number[] {

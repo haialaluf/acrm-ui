@@ -21,6 +21,7 @@
     "antd": "^6.0.0",
     "core-js-pure": "^3.46.0",
     "dayjs": "^1.11.19",
+    "emoji-picker-react": "^4.19.1",
     "fuse.js": "^7.1.0",
     "he": "^1.2.0",
     "idb-keyval": "^6.2.2",

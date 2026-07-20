@@ -7,7 +7,6 @@ import TemplatePreview from "./TemplatePreview";
  * conversation surface.
  *
  * Used by:
- *  - TemplateEditorPreview (create/edit template)
  *  - bulk-send wizard (recipient-aware preview)
  *
  * The descendant selectors strip the default horizontal padding from

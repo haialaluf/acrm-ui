@@ -1,24 +1,33 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert } from "antd";
 import { type TemplateData } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
-import { PlusIcon } from "lucide-react";
-import { useForm, useFieldArray } from "react-hook-form";
-import FieldError from "./FieldError";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "@tanstack/react-router";
 import SectionBody from "./SectionBody";
 import SectionFooter from "./SectionFooter";
 import Button from "./Button";
 import SelectField from "./SelectField";
+import FieldError from "./FieldError";
 import TemplateButtonsField from "./TemplateButtonsField";
-import TemplateEditorPreview from "./TemplateEditorPreview";
+import HeaderTypeField from "./templateEditor/HeaderTypeField";
+import BodyField from "./templateEditor/BodyField";
+import VariableMapper from "./templateEditor/VariableMapper";
+import LiveMessagePreview from "./messagePreview/LiveMessagePreview";
+import { detectRtl } from "./messagePreview/rtl";
+import type { MessagePreviewData } from "./messagePreview/types";
 import {
   componentToFormButton,
+  formButtonToComponent,
   formButtonsToComponent,
+  buttonDefToPreview,
+  type PreviewButton,
 } from "./templateButtons";
-import { getVarNumbers, renumberVars, insertAtPos } from "./templateVars";
-import type { TemplateFormData } from "./templateEditorTypes";
-import { useNavigate } from "@tanstack/react-router";
+import { getVarNumbers, renumberVars } from "./templateVars";
+import type { HeaderType, TemplateFormData } from "./templateEditorTypes";
 import { useCreateTemplate, useUpdateTemplate } from "@/queries/useTemplates";
+import { useSetMessagePreview } from "@/hooks/useMessagePreview";
+import { isRtl, type Language } from "@/stores/uiSlice";
 
 export default function TemplateEditor({
   existingTemplate,
@@ -30,6 +39,7 @@ export default function TemplateEditor({
   "use no memo";
   const { translate: t, currentLanguage } = useTranslation();
   const navigate = useNavigate();
+  const setPreview = useSetMessagePreview();
 
   const createMutation = useCreateTemplate();
   const updateMutation = useUpdateTemplate();
@@ -45,85 +55,144 @@ export default function TemplateEditor({
   const existingButtons = existingTemplate?.components.find(
     (c) => c.type === "BUTTONS",
   );
+  const defaultHeaderType: HeaderType = existingHeader
+    ? (existingHeader.format ?? "TEXT")
+    : "NONE";
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    setValue,
-    formState: { isDirty, isValid, errors },
-  } = useForm<TemplateFormData>({
-    mode: "onTouched",
-    defaultValues: {
-      name: existingTemplate?.name || "",
-      language: existingTemplate?.language || currentLanguage || "es",
-      category: existingTemplate?.category || "MARKETING",
-      header: existingHeader?.text || "",
-      headerVariable: existingHeader?.example?.header_text?.[0] || "",
-      body: existingBody?.text || "",
-      bodyVariables: (existingBody?.example?.body_text[0] || []).map(
-        (v: string) => ({ value: v }),
-      ),
-      footer:
-        existingTemplate?.components.find((c) => c.type === "FOOTER")?.text ||
-        "",
-      buttons: (existingButtons?.buttons || []).map(componentToFormButton),
-    },
-  });
+  const { register, handleSubmit, control, watch, setValue, formState } =
+    useForm<TemplateFormData>({
+      mode: "onTouched",
+      defaultValues: {
+        name: existingTemplate?.name || "",
+        language: existingTemplate?.language || currentLanguage || "es",
+        category: existingTemplate?.category || "MARKETING",
+        headerType: defaultHeaderType,
+        header:
+          existingHeader?.format === "TEXT" ? (existingHeader.text ?? "") : "",
+        headerVariable: existingHeader?.example?.header_text?.[0] || "",
+        mediaUrl: "",
+        mediaName: "",
+        body: existingBody?.text || "",
+        bodyVariables: (existingBody?.example?.body_text[0] || []).map(
+          (v: string) => ({ value: v }),
+        ),
+        footer:
+          existingTemplate?.components.find((c) => c.type === "FOOTER")?.text ||
+          "",
+        buttons: (existingButtons?.buttons || []).map(componentToFormButton),
+      },
+    });
+  const { isDirty, isValid, errors } = formState;
 
-  const { fields, replace } = useFieldArray({
-    control,
-    name: "bodyVariables",
-  });
-
-  const bodyRef = useRef<HTMLTextAreaElement | null>(null);
-  const headerRef = useRef<HTMLInputElement | null>(null);
-
-  const bodyText = watch("body");
+  const headerType = watch("headerType");
   const headerText = watch("header");
-  const footerText = watch("footer");
-  const nameText = watch("name");
-  const categoryValue = watch("category");
-  const languageValue = watch("language");
-  const headerVariableValue = watch("headerVariable");
-  const bodyVariablesValue = watch("bodyVariables");
-  const buttonsValue = watch("buttons");
+  const headerVariable = watch("headerVariable");
+  const mediaUrl = watch("mediaUrl");
+  const mediaName = watch("mediaName");
+  const body = watch("body");
+  const footer = watch("footer");
+  const category = watch("category");
+  const language = watch("language");
+  const bodyVariables = watch("bodyVariables");
+  const buttons = watch("buttons");
 
-  // Track actual variable numbers found in body text
-  const bodyVarNumbers = getVarNumbers(bodyText);
+  const bodyVarNumbers = getVarNumbers(body);
+  const appDark =
+    typeof document !== "undefined" &&
+    document.documentElement.classList.contains("dark");
 
-  // Sync bodyVariables field count with unique variables in body text
+  // Keep the bodyVariables rows in sync with the {{n}} found in the body.
   useEffect(() => {
-    const currentVars = bodyVariablesValue || [];
-    if (bodyVarNumbers.length !== currentVars.length) {
-      const newFields = Array.from(
-        { length: bodyVarNumbers.length },
-        (_, i) => ({
-          value: currentVars[i]?.value || "",
-        }),
+    const current = bodyVariables || [];
+    if (bodyVarNumbers.length !== current.length) {
+      setValue(
+        "bodyVariables",
+        Array.from({ length: bodyVarNumbers.length }, (_, i) => ({
+          value: current[i]?.value || "",
+          field: current[i]?.field,
+        })),
       );
-      replace(newFields);
     }
-  }, [bodyText]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [body]);
 
   // Copy-code buttons are MARKETING-only — drop them if the category changes.
   useEffect(() => {
-    if (categoryValue !== "MARKETING") {
+    if (category !== "MARKETING") {
       const current = watch("buttons") || [];
       const filtered = current.filter((b) => b.kind !== "COPY");
       if (filtered.length !== current.length) {
         setValue("buttons", filtered, { shouldDirty: true });
       }
     }
-  }, [categoryValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category]);
+
+  // Live preview: build the normalized payload and publish it to the shared
+  // React Query cache (read by the phone preview in the center panel / mobile).
+  const headerVars =
+    headerType === "TEXT" && headerText.includes("{{1}}")
+      ? [headerVariable]
+      : [];
+  const previewButtons: PreviewButton[] = (buttons || []).map((b) =>
+    buttonDefToPreview(formButtonToComponent(b), t("Copiar código")),
+  );
+  const previewData: MessagePreviewData = {
+    headerType,
+    headerText: headerType === "TEXT" ? headerText : "",
+    headerVars,
+    mediaUrl,
+    mediaName,
+    body,
+    bodyVars: bodyVarNumbers.map((_, i) => bodyVariables?.[i]?.value || ""),
+    footer,
+    buttons: previewButtons,
+    rtl:
+      detectRtl(body, headerType === "TEXT" ? headerText : "", footer) ||
+      isRtl(language as Language),
+  };
+  const serializedPreview = JSON.stringify(previewData);
+  useEffect(() => {
+    setPreview(previewData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serializedPreview]);
+  useEffect(() => () => void setPreview(null), [setPreview]);
+
+  // Sample values are required by Meta for every variable — gate submit on them.
+  const bodyVarsComplete = bodyVarNumbers.every(
+    (_, i) => !!bodyVariables?.[i]?.value?.trim(),
+  );
+  const headerVarComplete =
+    !(headerType === "TEXT" && headerText.includes("{{1}}")) ||
+    !!headerVariable.trim();
+  // Media headers are preview-only (real file sent per message) — never gated.
+
+  function buildHeaderComponent(data: TemplateFormData) {
+    if (data.headerType === "NONE") return null;
+    if (data.headerType === "TEXT") {
+      if (!data.header) return null;
+      return {
+        type: "HEADER" as const,
+        format: "TEXT" as const,
+        text: data.header,
+        ...(data.header.includes("{{1}}") && data.headerVariable
+          ? { example: { header_text: [data.headerVariable] as [string] } }
+          : {}),
+      };
+    }
+    // IMAGE / VIDEO / DOCUMENT: declare the format only. WhatsApp templates
+    // carry no fixed media — the real file is attached per message at send
+    // time (see bulk-send) — so nothing is uploaded here.
+    return { type: "HEADER" as const, format: data.headerType };
+  }
 
   function onSubmit(data: TemplateFormData) {
-    // Renumber variables to contiguous 1..n on submit
     const { text: renumberedBody, ordered } = renumberVars(data.body);
     const reorderedVars = ordered.map(
       (_, i) => data.bodyVariables[i]?.value || "",
     );
+    const headerComponent = buildHeaderComponent(data);
+    const buttonsComponent = formButtonsToComponent(data.buttons);
 
     const template: TemplateData = {
       id: existingTemplate?.id || "",
@@ -133,44 +202,22 @@ export default function TemplateEditor({
       sub_category: "CUSTOM",
       language: data.language,
       components: [
-        ...(data.header
-          ? [
-              {
-                type: "HEADER" as const,
-                text: data.header,
-                format: "TEXT" as const,
-                ...(data.header.includes("{{1}}") && data.headerVariable
-                  ? {
-                      example: {
-                        header_text: [data.headerVariable] as [string],
-                      },
-                    }
-                  : {}),
-              },
-            ]
-          : []),
+        ...(headerComponent ? [headerComponent] : []),
         {
           type: "BODY",
           text: renumberedBody,
           ...(reorderedVars.length
-            ? {
-                example: {
-                  body_text: [reorderedVars],
-                },
-              }
+            ? { example: { body_text: [reorderedVars] } }
             : {}),
         },
         ...(data.footer
           ? [{ type: "FOOTER" as const, text: data.footer }]
           : []),
-        ...(formButtonsToComponent(data.buttons)
-          ? [formButtonsToComponent(data.buttons)!]
-          : []),
+        ...(buttonsComponent ? [buttonsComponent] : []),
       ],
     };
 
     setSubmitError(null);
-
     const mutation = existingTemplate ? updateMutation : createMutation;
     mutation.mutate(
       { template, organizationAddress },
@@ -186,11 +233,22 @@ export default function TemplateEditor({
     );
   }
 
+  const varRows = bodyVarNumbers.map((n, i) => ({
+    n,
+    field: bodyVariables?.[i]?.field,
+    sample: bodyVariables?.[i]?.value || "",
+  }));
+
   return (
     <>
       <SectionBody>
+        {/* Mobile: the live preview stacks above the form (on desktop it lives
+            in the center panel — see _auth.tsx). */}
+        <div className="md:hidden mb-[12px] h-[320px] rounded-[16px] overflow-hidden border border-border flex flex-col">
+          <LiveMessagePreview variant="bubble" />
+        </div>
+
         <form id="template-form" onSubmit={handleSubmit(onSubmit)}>
-          {/* Category */}
           <SelectField<TemplateFormData>
             name="category"
             control={control}
@@ -202,7 +260,6 @@ export default function TemplateEditor({
             ]}
           />
 
-          {/* Language */}
           <SelectField<TemplateFormData>
             name="language"
             control={control}
@@ -216,7 +273,6 @@ export default function TemplateEditor({
             ]}
           />
 
-          {/* Name */}
           <label>
             <div className="label">{t("Nombre")}</div>
             <input
@@ -226,7 +282,7 @@ export default function TemplateEditor({
               disabled={!!existingTemplate}
               {...register("name", {
                 required: t("El nombre es obligatorio"),
-                onChange: (e) => {
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
                   e.target.value = e.target.value
                     .toLowerCase()
                     .replace(/[^a-z0-9_]+/g, "_");
@@ -236,153 +292,51 @@ export default function TemplateEditor({
             <FieldError error={errors.name} />
           </label>
 
-          {/* Header */}
-          <div className="flex flex-col">
-            <label>
-              <div className="label">
-                {t("Encabezado")} ({t("opcional")})
-              </div>
-              <input
-                type="text"
-                className="text"
-                placeholder={t("Oferta para {{1}}")}
-                maxLength={60}
-                {...register("header", {
-                  maxLength: { value: 60, message: t("Máximo 60 caracteres") },
-                })}
-                ref={(e) => {
-                  register("header").ref(e);
-                  headerRef.current = e;
-                }}
-              />
-              <FieldError error={errors.header} />
-            </label>
+          <HeaderTypeField
+            headerType={headerType}
+            onHeaderType={(v) =>
+              setValue("headerType", v, { shouldDirty: true })
+            }
+            headerText={headerText}
+            onHeaderText={(v) => setValue("header", v, { shouldDirty: true })}
+            headerVariable={headerVariable}
+            onHeaderVariable={(v) =>
+              setValue("headerVariable", v, { shouldDirty: true })
+            }
+            mediaUrl={mediaUrl}
+            mediaName={mediaName}
+            onMedia={(url, name) => {
+              setValue("mediaUrl", url, { shouldDirty: true });
+              setValue("mediaName", name);
+            }}
+            onClearMedia={() => {
+              setValue("mediaUrl", "");
+              setValue("mediaName", "");
+            }}
+            dark={appDark}
+          />
 
-            {!headerText?.includes("{{1}}") && (
-              <button
-                type="button"
-                className="self-end flex items-center gap-[3px] text-primary text-[14px] mt-[6px]"
-                onClick={() => {
-                  const el = headerRef.current;
-                  const current = watch("header");
-                  const pos = el?.selectionStart ?? current.length;
-                  const newHeader = insertAtPos(current, pos, "{{1}}");
-                  setValue("header", newHeader, { shouldDirty: true });
-                  const cursorPos =
-                    newHeader.indexOf("{{1}}", pos > 0 ? pos - 1 : 0) +
-                    "{{1}}".length;
-                  requestAnimationFrame(() => {
-                    el?.focus();
-                    el?.setSelectionRange(cursorPos, cursorPos);
-                  });
-                }}
-              >
-                <PlusIcon className="w-[16px] h-[16px]" />
-                {t("Agregar variable")}
-              </button>
-            )}
-          </div>
+          <BodyField
+            register={register}
+            setValue={setValue}
+            value={body}
+            error={errors.body}
+            dark={appDark}
+          />
 
-          {headerText?.includes("{{1}}") && (
-            <label>
-              <div className="label">
-                {t("Variable de encabezado")} {"{{1}}"}
-              </div>
-              <input
-                type="text"
-                className="text"
-                placeholder={t("Ejemplo: Juan, #1234...")}
-                {...register("headerVariable", {
-                  validate: (value) =>
-                    headerText?.includes("{{1}}") && !value
-                      ? t("Ingresá un ejemplo para la variable")
-                      : true,
-                })}
-              />
-              <FieldError error={errors.headerVariable} />
-            </label>
-          )}
+          <VariableMapper
+            vars={varRows}
+            onChange={(i, patch) => {
+              const next = [...(bodyVariables || [])];
+              const cur = next[i] || { value: "" };
+              next[i] = {
+                value: patch.sample !== undefined ? patch.sample : cur.value,
+                field: patch.field !== undefined ? patch.field : cur.field,
+              };
+              setValue("bodyVariables", next, { shouldDirty: true });
+            }}
+          />
 
-          {/* Body */}
-          <div className="flex flex-col">
-            <label>
-              <div className="label">{t("Cuerpo")}</div>
-              <textarea
-                className="text"
-                rows={4}
-                maxLength={1024}
-                placeholder={t("Hola {{1}}, tu pedido está listo.")}
-                {...register("body", {
-                  required: t("El cuerpo es obligatorio"),
-                  maxLength: {
-                    value: 1024,
-                    message: t("Máximo 1024 caracteres"),
-                  },
-                  validate: (value) => {
-                    const trimmed = value.trim();
-                    if (/^\{\{\d+\}\}/.test(trimmed))
-                      return t("El cuerpo no puede empezar con una variable");
-                    if (/\{\{\d+\}\}$/.test(trimmed))
-                      return t("El cuerpo no puede terminar con una variable");
-                    return true;
-                  },
-                })}
-                ref={(e) => {
-                  register("body").ref(e);
-                  bodyRef.current = e;
-                }}
-              />
-            </label>
-
-            <FieldError error={errors.body} />
-
-            <button
-              type="button"
-              className="self-end flex items-center gap-[3px] text-primary text-[14px] mt-[6px]"
-              onClick={() => {
-                const el = bodyRef.current;
-                const current = watch("body");
-                const nums = getVarNumbers(current);
-                const next = nums.length > 0 ? Math.max(...nums) + 1 : 1;
-                const pos = el?.selectionStart ?? current.length;
-                const newBody = insertAtPos(current, pos, `{{${next}}}`);
-                setValue("body", newBody, {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                });
-                // Restore cursor after the inserted variable
-                const cursorPos =
-                  newBody.indexOf(`{{${next}}}`, pos > 0 ? pos - 1 : 0) +
-                  `{{${next}}}`.length;
-                requestAnimationFrame(() => {
-                  el?.focus();
-                  el?.setSelectionRange(cursorPos, cursorPos);
-                });
-              }}
-            >
-              <PlusIcon className="w-[16px] h-[16px]" />
-              {t("Agregar variable")}
-            </button>
-          </div>
-
-          {/* Body variables */}
-          {fields.map((field, idx) => (
-            <label key={field.id}>
-              <div className="label">{`{{${bodyVarNumbers[idx] ?? idx + 1}}}`}</div>
-              <input
-                type="text"
-                className="text"
-                placeholder={t("Ejemplo: Juan, #1234...")}
-                {...register(`bodyVariables.${idx}.value`, {
-                  validate: (value) =>
-                    !value ? t("Ingresá un ejemplo para la variable") : true,
-                })}
-              />
-              <FieldError error={errors.bodyVariables?.[idx]?.value} />
-            </label>
-          ))}
-
-          {/* Footer */}
           <label>
             <div className="label">
               {t("Pie")} ({t("opcional")})
@@ -398,29 +352,11 @@ export default function TemplateEditor({
             />
           </label>
 
-          {/* Buttons */}
           <TemplateButtonsField
             control={control}
             register={register}
             setValue={setValue}
-            category={categoryValue}
-          />
-
-          {/* Preview */}
-          <TemplateEditorPreview
-            values={{
-              name: nameText,
-              language: languageValue,
-              category: categoryValue,
-              header: headerText,
-              headerVariable: headerVariableValue,
-              body: bodyText,
-              bodyVariables: bodyVariablesValue,
-              footer: footerText,
-              buttons: buttonsValue,
-            }}
-            existingId={existingTemplate?.id}
-            existingStatus={existingTemplate?.status}
+            category={category}
           />
         </form>
       </SectionBody>
@@ -438,7 +374,9 @@ export default function TemplateEditor({
         <Button
           type="submit"
           form="template-form"
-          invalid={!isValid || !isDirty}
+          invalid={
+            !isValid || !isDirty || !bodyVarsComplete || !headerVarComplete
+          }
           loading={isPending}
           className="primary"
         >
