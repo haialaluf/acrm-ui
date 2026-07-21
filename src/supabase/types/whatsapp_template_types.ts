@@ -40,14 +40,13 @@ export type TemplateData = {
 
 type HeaderComponent = {
   type: "HEADER";
-  // @ui-divergence: optional — media headers (IMAGE/VIDEO/DOCUMENT) carry no
-  // text (API: always present, TEXT-only headers).
+  // Media headers (IMAGE/VIDEO/DOCUMENT) carry no text.
   text?: string;
-  // @ui-divergence: media header formats read from Meta (API: "TEXT" only).
   format: "TEXT" | "IMAGE" | "VIDEO" | "DOCUMENT";
   example?: {
     header_text?: [string];
-    // @ui-divergence: sample media handle/URL Meta returns for media headers.
+    // Sample media handle (Resumable Upload API) for media headers; the UI
+    // submits a storage URL here which we swap for a Meta asset handle.
     header_handle?: string[];
   };
 };

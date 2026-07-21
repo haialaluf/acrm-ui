@@ -39,6 +39,7 @@ export default function HeaderTypeField({
   onHeaderVariable,
   mediaUrl,
   mediaName,
+  orgId,
   onMedia,
   onClearMedia,
   dark,
@@ -51,6 +52,7 @@ export default function HeaderTypeField({
   onHeaderVariable: (v: string) => void;
   mediaUrl: string;
   mediaName: string;
+  orgId?: string;
   onMedia: (url: string, name: string) => void;
   onClearMedia: () => void;
   dark?: boolean;
@@ -161,6 +163,7 @@ export default function HeaderTypeField({
             type={headerType}
             url={mediaUrl}
             name={mediaName}
+            orgId={orgId}
             onFile={onMedia}
             onClear={onClearMedia}
           />

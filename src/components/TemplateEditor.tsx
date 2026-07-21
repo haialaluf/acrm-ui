@@ -28,6 +28,7 @@ import type { HeaderType, TemplateFormData } from "./templateEditorTypes";
 import { useCreateTemplate, useUpdateTemplate } from "@/queries/useTemplates";
 import { useSetMessagePreview } from "@/hooks/useMessagePreview";
 import { isRtl, type Language } from "@/stores/uiSlice";
+import useBoundStore from "@/stores/useBoundStore";
 
 export default function TemplateEditor({
   existingTemplate,
@@ -41,6 +42,7 @@ export default function TemplateEditor({
   const navigate = useNavigate();
   const setPreview = useSetMessagePreview();
 
+  const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
   const createMutation = useCreateTemplate();
   const updateMutation = useUpdateTemplate();
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -70,8 +72,17 @@ export default function TemplateEditor({
         header:
           existingHeader?.format === "TEXT" ? (existingHeader.text ?? "") : "",
         headerVariable: existingHeader?.example?.header_text?.[0] || "",
-        mediaUrl: "",
-        mediaName: "",
+        // For a media header, prefill the preview from the reviewed sample Meta
+        // returns (a scontent handle). It is left untouched on save unless the
+        // user picks a new file — see buildHeaderComponent / the edge function.
+        mediaUrl:
+          existingHeader && existingHeader.format !== "TEXT"
+            ? existingHeader.example?.header_handle?.[0] || ""
+            : "",
+        mediaName:
+          existingHeader && existingHeader.format !== "TEXT"
+            ? t("Muestra actual")
+            : "",
         body: existingBody?.text || "",
         bodyVariables: (existingBody?.example?.body_text[0] || []).map(
           (v: string) => ({ value: v }),
@@ -165,7 +176,12 @@ export default function TemplateEditor({
   const headerVarComplete =
     !(headerType === "TEXT" && headerText.includes("{{1}}")) ||
     !!headerVariable.trim();
-  // Media headers are preview-only (real file sent per message) — never gated.
+  // Media headers need a sample asset for Meta's review — gate submit on it.
+  const isMediaHeader =
+    headerType === "IMAGE" ||
+    headerType === "VIDEO" ||
+    headerType === "DOCUMENT";
+  const mediaHeaderComplete = !isMediaHeader || !!mediaUrl;
 
   function buildHeaderComponent(data: TemplateFormData) {
     if (data.headerType === "NONE") return null;
@@ -180,10 +196,16 @@ export default function TemplateEditor({
           : {}),
       };
     }
-    // IMAGE / VIDEO / DOCUMENT: declare the format only. WhatsApp templates
-    // carry no fixed media — the real file is attached per message at send
-    // time (see bulk-send) — so nothing is uploaded here.
-    return { type: "HEADER" as const, format: data.headerType };
+    // IMAGE / VIDEO / DOCUMENT: Meta requires a sample asset to review the
+    // template. We submit the uploaded sample's signed URL as header_handle; the
+    // edge function swaps it for a real Meta asset handle (Resumable Upload API)
+    // before creating. An unchanged existing handle (edit) passes through as-is.
+    // The real per-message file is still attached at send time (see bulk-send).
+    return {
+      type: "HEADER" as const,
+      format: data.headerType,
+      ...(data.mediaUrl ? { example: { header_handle: [data.mediaUrl] } } : {}),
+    };
   }
 
   function onSubmit(data: TemplateFormData) {
@@ -305,6 +327,7 @@ export default function TemplateEditor({
             }
             mediaUrl={mediaUrl}
             mediaName={mediaName}
+            orgId={activeOrgId ?? undefined}
             onMedia={(url, name) => {
               setValue("mediaUrl", url, { shouldDirty: true });
               setValue("mediaName", name);
@@ -375,7 +398,11 @@ export default function TemplateEditor({
           type="submit"
           form="template-form"
           invalid={
-            !isValid || !isDirty || !bodyVarsComplete || !headerVarComplete
+            !isValid ||
+            !isDirty ||
+            !bodyVarsComplete ||
+            !headerVarComplete ||
+            !mediaHeaderComplete
           }
           loading={isPending}
           className="primary"

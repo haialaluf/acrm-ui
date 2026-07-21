@@ -9,9 +9,11 @@ export interface TemplateFormData {
   headerType: HeaderType;
   header: string;
   headerVariable: string;
-  // Preview-only: a local sample media file (blob URL). WhatsApp templates
-  // carry no fixed media — the real file is provided at send time — so these
-  // are used solely to make the live preview realistic and are never submitted.
+  // Sample media for a media header: after upload, `mediaUrl` is a signed URL
+  // in our `media` bucket, submitted as the template's example (Meta requires a
+  // sample asset to review it; the edge function turns the URL into a Meta asset
+  // handle). Also drives the live preview. The real per-message file is still
+  // provided at send time. `mediaName` is the display label only.
   mediaUrl: string;
   mediaName: string;
   body: string;
