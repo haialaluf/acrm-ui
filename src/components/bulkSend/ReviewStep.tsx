@@ -33,15 +33,18 @@ import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import NavBtn from "./NavBtn";
 import Radio from "./Radio";
 import QuotaMeter from "./QuotaMeter";
-import BatchTimeline from "./BatchTimeline";
+import ScheduleEditor from "./ScheduleEditor";
 import { datePickerTokens } from "@/components/antdTokens";
 import {
   type Batch,
+  type BatchSchedule,
   effectiveScheduling,
   fillTemplate,
   headerMediaFormat,
+  immediateCount,
   isValidMediaUrl,
   type Scheduling,
+  type ScheduleMode,
   type VarValue,
 } from "./types";
 
@@ -63,6 +66,10 @@ export default function ReviewStep({
   dailyLimit,
   tier,
   batches,
+  batchSchedule,
+  setBatchSchedule,
+  scheduleMode,
+  setScheduleMode,
 }: {
   template: TemplateData;
   vars: Record<string, VarValue>;
@@ -77,14 +84,22 @@ export default function ReviewStep({
   dailyLimit: number | null;
   tier?: string | null;
   batches: Batch<ContactWithAddressesRow>[];
+  batchSchedule: BatchSchedule;
+  setBatchSchedule: (s: BatchSchedule) => void;
+  scheduleMode: ScheduleMode;
+  setScheduleMode: (m: ScheduleMode) => void;
 }) {
   const { translate: t } = useTranslation();
   const [idx, setIdx] = useState(0);
 
   const overLimit = dailyLimit != null && recipients.length > dailyLimit;
   const effective = effectiveScheduling(scheduling, overLimit);
+  // Recipients going out immediately. In a custom split any batch (including
+  // batch 0) may be scheduled for later, so count the ones with no send time.
   const todayCount =
-    effective === "split" ? (batches[0]?.list.length ?? 0) : recipients.length;
+    effective === "split"
+      ? immediateCount(batches, batchSchedule)
+      : recipients.length;
   const remaining = recipients.length - todayCount;
   const safeIdx = Math.min(idx, Math.max(0, recipients.length - 1));
   const current = recipients[safeIdx];
@@ -301,7 +316,13 @@ export default function ReviewStep({
                       paddingBottom: 12,
                     }}
                   >
-                    <BatchTimeline batches={batches} />
+                    <ScheduleEditor
+                      batches={batches}
+                      schedule={batchSchedule}
+                      setSchedule={setBatchSchedule}
+                      mode={scheduleMode}
+                      setMode={setScheduleMode}
+                    />
                   </div>
                 )}
                 <div style={{ height: 1, background: "var(--border)" }} />

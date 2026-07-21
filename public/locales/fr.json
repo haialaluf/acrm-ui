@@ -622,5 +622,10 @@
   "Usar el archivo de ejemplo de la plantilla": "Utiliser le fichier d'exemple du modèle",
   "seleccionados": "sélectionnés",
   "Cancelar": "Annuler",
-  "¿Eliminar los contactos seleccionados?": "Supprimer les contacts sélectionnés ?"
+  "¿Eliminar los contactos seleccionados?": "Supprimer les contacts sélectionnés ?",
+  "Calendario de envío": "Calendrier d'envoi",
+  "Elegir fechas y horas": "Choisir dates et heures",
+  "Terminar edición": "Terminer l'édition",
+  "Cada lote se enviará en la fecha y hora elegidas. Puedes cambiarlo hasta el momento del envío.": "Chaque lot sera envoyé à la date et l'heure choisies. Vous pouvez le modifier jusqu'à l'envoi.",
+  "ahora": "maintenant"
 }

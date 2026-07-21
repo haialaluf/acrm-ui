@@ -33,10 +33,15 @@ import SendingStep from "@/components/bulkSend/SendingStep";
 import DoneStep from "@/components/bulkSend/DoneStep";
 import { buildMessageRecord } from "@/components/bulkSend/buildMessageRecord";
 import {
+  type BatchSchedule,
+  batchScheduledIso,
   computeBatches,
   countVars,
+  defaultScheduledAt,
   effectiveScheduling,
+  immediateCount,
   initVars,
+  type ScheduleMode,
   type Scheduling,
   type Stage,
   STEP_FOR,
@@ -96,8 +101,14 @@ function BulkSend() {
   // Public URL for a template's mandatory media header (image/video/document).
   // Empty when the chosen template has a text/no header.
   const [headerMedia, setHeaderMedia] = useState("");
-  const [scheduling, setScheduling] = useState<Scheduling>("now");
-  const [scheduledAt, setScheduledAt] = useState("");
+  // Default to scheduling for later, pre-filled with the next 9am (local).
+  const [scheduling, setScheduling] = useState<Scheduling>("later");
+  const [scheduledAt, setScheduledAt] = useState(defaultScheduledAt);
+  // Per-batch scheduling for split sends. `scheduleMode` toggles the review
+  // step's picker UI; `batchSchedule` holds any date/time overrides the user
+  // picked, keyed by absolute batch index.
+  const [scheduleMode, setScheduleMode] = useState<ScheduleMode>("auto");
+  const [batchSchedule, setBatchSchedule] = useState<BatchSchedule>({});
   const [progress, setProgress] = useState({ sent: 0, failed: 0 });
   // How many messages were scheduled for later days (split sends). Surfaced on
   // the sending/done screens as "X sent today · Y scheduled".
@@ -146,10 +157,12 @@ function BulkSend() {
     () => computeBatches(recipients, dailyLimit),
     [recipients, dailyLimit],
   );
-  // Recipients that go out today (the rest of a split send are scheduled).
+  // Recipients that go out immediately (the rest of a split send are
+  // scheduled). Any batch — including batch 0 — can be pushed to a later
+  // date/time via the review step's per-batch scheduler.
   const sendToday =
     effectiveScheduling(scheduling, overLimit) === "split"
-      ? (batches[0]?.list.length ?? 0)
+      ? immediateCount(batches, batchSchedule)
       : recipients.length;
 
   function back() {
@@ -172,13 +185,9 @@ function BulkSend() {
       [];
     if (effective === "split") {
       for (const batch of batches) {
-        let iso: string | undefined;
-        if (batch.dayOffset > 0) {
-          const day = new Date();
-          day.setHours(0, 0, 0, 0);
-          day.setDate(day.getDate() + batch.dayOffset);
-          iso = day.toISOString();
-        }
+        // Resolve the batch's send time from the user's per-batch schedule.
+        // `undefined` means it goes out now (batch 0 with no chosen time).
+        const iso = batchScheduledIso(batchSchedule, batch.dayOffset);
         for (const contact of batch.list)
           items.push({ contact, scheduledIso: iso });
       }
@@ -296,8 +305,10 @@ function BulkSend() {
     setTemplate(null);
     setVars({});
     setHeaderMedia("");
-    setScheduling("now");
-    setScheduledAt("");
+    setScheduling("later");
+    setScheduledAt(defaultScheduledAt());
+    setScheduleMode("auto");
+    setBatchSchedule({});
     setProgress({ sent: 0, failed: 0 });
     setScheduled(0);
   }
@@ -432,6 +443,10 @@ function BulkSend() {
           dailyLimit={dailyLimit}
           tier={messagingLimit?.tier}
           batches={batches}
+          batchSchedule={batchSchedule}
+          setBatchSchedule={setBatchSchedule}
+          scheduleMode={scheduleMode}
+          setScheduleMode={setScheduleMode}
         />
       )}
 

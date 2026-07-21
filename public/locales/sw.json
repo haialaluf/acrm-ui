@@ -622,5 +622,10 @@
   "Usar el archivo de ejemplo de la plantilla": "Tumia faili la mfano la kiolezo",
   "seleccionados": "zilizochaguliwa",
   "Cancelar": "Ghairi",
-  "¿Eliminar los contactos seleccionados?": "Futa anwani zilizochaguliwa?"
+  "¿Eliminar los contactos seleccionados?": "Futa anwani zilizochaguliwa?",
+  "Calendario de envío": "Ratiba ya kutuma",
+  "Elegir fechas y horas": "Chagua tarehe na saa",
+  "Terminar edición": "Maliza kuhariri",
+  "Cada lote se enviará en la fecha y hora elegidas. Puedes cambiarlo hasta el momento del envío.": "Kila kundi litatumwa kwa tarehe na saa iliyochaguliwa. Unaweza kubadilisha wakati wowote kabla ya kutuma.",
+  "ahora": "sasa"
 }

@@ -623,5 +623,10 @@
   "Usar el archivo de ejemplo de la plantilla": "השתמשו בקובץ הדוגמה של התבנית",
   "seleccionados": "נבחרו",
   "Cancelar": "ביטול",
-  "¿Eliminar los contactos seleccionados?": "למחוק את אנשי הקשר שנבחרו?"
+  "¿Eliminar los contactos seleccionados?": "למחוק את אנשי הקשר שנבחרו?",
+  "Calendario de envío": "לוח שליחה",
+  "Elegir fechas y horas": "בחירת תאריכים ושעות",
+  "Terminar edición": "סיום עריכה",
+  "Cada lote se enviará en la fecha y hora elegidas. Puedes cambiarlo hasta el momento del envío.": "כל מנה תישלח בתאריך ובשעה שנבחרו. ניתן לשנות עד לרגע השליחה.",
+  "ahora": "עכשיו"
 }

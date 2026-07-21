@@ -53,6 +53,98 @@ export function effectiveScheduling(
   return scheduling === "later" ? "later" : "now";
 }
 
+/* ── per-batch scheduling ─────────────────────────────────────────────────
+   A split broadcast defaults to one batch per consecutive day (batch 0 now,
+   the rest at DEFAULT_SEND_TIME). The user can override any batch's date and
+   time in the review step. Overrides live in a `BatchSchedule` keyed by
+   absolute batch index; `resolveBatchSchedule` merges an override over the
+   default. `scheduleMode` only toggles the editing UI — overrides always
+   apply once set. */
+
+/** Whether the split schedule shows read-only rows or per-batch pickers. */
+export type ScheduleMode = "auto" | "custom";
+
+/** A user override for one batch's send date (YYYY-MM-DD) and/or time (HH:mm).
+ *  Absent fields fall back to the default schedule. */
+export type BatchOverride = { date?: string; time?: string };
+
+/** Per-batch overrides keyed by absolute batch index. */
+export type BatchSchedule = Record<number, BatchOverride>;
+
+/** Default clock time for a scheduled batch when the user hasn't picked one. */
+export const DEFAULT_SEND_TIME = "09:00";
+
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+/** Local ISO date (YYYY-MM-DD) for today + `offset` days. */
+export function offsetToISO(offset: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+/**
+ * Resolve one batch's send date/time, layering any override on top of the
+ * default: batch N goes out today + N days; batch 0 sends "now" (empty time),
+ * the rest at DEFAULT_SEND_TIME.
+ */
+export function resolveBatchSchedule(
+  schedule: BatchSchedule,
+  index: number,
+): { isoDate: string; time: string } {
+  const ov = schedule[index] ?? {};
+  const isoDate = ov.date || offsetToISO(index);
+  const time =
+    ov.time !== undefined ? ov.time : index === 0 ? "" : DEFAULT_SEND_TIME;
+  return { isoDate, time };
+}
+
+/**
+ * The absolute send instant for a batch as a UTC ISO string, or `undefined`
+ * when it goes out immediately (batch 0 with no chosen time). The resolved
+ * `date`+`time` are the user's local wall clock: a `YYYY-MM-DDTHH:mm` string
+ * (no offset) parses as local time, so `.toISOString()` yields the UTC instant
+ * that corresponds to that local moment.
+ */
+export function batchScheduledIso(
+  schedule: BatchSchedule,
+  index: number,
+): string | undefined {
+  const { isoDate, time } = resolveBatchSchedule(schedule, index);
+  if (index === 0 && !time) return undefined;
+  return new Date(`${isoDate}T${time || DEFAULT_SEND_TIME}`).toISOString();
+}
+
+/**
+ * Local `YYYY-MM-DDTHH:mm` for the next DEFAULT_SEND_TIME — today if that time
+ * is still ahead, otherwise tomorrow. Used to pre-fill the "schedule for later"
+ * picker so a sensible date/time (9am local) is set before the user opens it.
+ */
+export function defaultScheduledAt(): string {
+  const [h, m] = DEFAULT_SEND_TIME.split(":").map(Number);
+  const d = new Date();
+  if (d.getHours() > h || (d.getHours() === h && d.getMinutes() >= m)) {
+    d.setDate(d.getDate() + 1);
+  }
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(h)}:${pad2(m)}`;
+}
+
+/** Count recipients across `batches` that go out immediately (no schedule). */
+export function immediateCount<T>(
+  batches: Batch<T>[],
+  schedule: BatchSchedule,
+): number {
+  return batches.reduce(
+    (n, b) =>
+      batchScheduledIso(schedule, b.dayOffset) === undefined
+        ? n + b.list.length
+        : n,
+    0,
+  );
+}
+
 /** One template variable's substitution rule. */
 export type VarValue =
   | { mode: "static"; static: string }
