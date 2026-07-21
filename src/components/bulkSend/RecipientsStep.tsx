@@ -5,6 +5,7 @@ import Button from "@/components/Button";
 import SectionFooter from "@/components/SectionFooter";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
+import { useContactMessageActivity } from "@/queries/useContactMessageActivity";
 import ContactFilter, {
   applyContactFilter,
   emptyContactFilter,
@@ -36,6 +37,7 @@ export default function RecipientsStep({
 }) {
   const { translate: t } = useTranslation();
   const { data: contacts } = useContacts();
+  const { data: activity } = useContactMessageActivity();
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
 
   const withAddress = useMemo(
@@ -44,8 +46,8 @@ export default function RecipientsStep({
   );
 
   const filtered = useMemo(
-    () => applyContactFilter(withAddress, filter),
-    [withAddress, filter],
+    () => applyContactFilter(withAddress, filter, activity),
+    [withAddress, filter, activity],
   );
 
   function toggleId(id: string) {

@@ -11,10 +11,12 @@ import Checkbox from "@/components/bulkSend/Checkbox";
 import Button from "@/components/Button";
 import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import ContactFilter, {
+  activeFilterCount,
   applyContactFilter,
   emptyContactFilter,
   type ContactFilterValue,
 } from "@/components/ContactFilter";
+import { useContactMessageActivity } from "@/queries/useContactMessageActivity";
 
 export const Route = createFileRoute("/_auth/contacts/")({
   component: ListContacts,
@@ -24,6 +26,7 @@ function ListContacts() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { data: contacts } = useContacts();
+  const { data: activity } = useContactMessageActivity();
   const deleteContacts = useDeleteContacts();
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
 
@@ -33,16 +36,12 @@ function ListContacts() {
 
   const allContacts = useMemo(() => contacts ?? [], [contacts]);
   const filtered = useMemo(
-    () => applyContactFilter(allContacts, filter),
-    [allContacts, filter],
+    () => applyContactFilter(allContacts, filter, activity),
+    [allContacts, filter, activity],
   );
 
   const hasAnyFilter =
-    filter.search.length > 0 ||
-    filter.tags.length > 0 ||
-    filter.sources.length > 0 ||
-    filter.dateFrom != null ||
-    filter.dateTo != null;
+    filter.search.length > 0 || activeFilterCount(filter) > 0;
 
   const allSelected =
     filtered.length > 0 && filtered.every((c) => selected.has(c.id));

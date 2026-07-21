@@ -59,7 +59,7 @@ type ResolvedRow = {
 const NAME_RE = /^(name|nombre|first ?name|nombres?|שם)/i;
 const SURNAME_RE = /surname|apellidos?|last ?name|family ?name|משפחה/i;
 const PHONE_RE = /phone|mobile|tel|tel[eé]fono|טלפון|נייד/i;
-const EMAIL_RE = /mail|correo|email|אימייל/i;
+const EMAIL_RE = /mail|correo|email|אימייל|דואר אלקטרוני/i;
 const TAGS_RE = /tags?|etiquetas?|labels?|categor|תגית|תגיות|תווית/i;
 
 function detect(headers: string[], re: RegExp): number | null {

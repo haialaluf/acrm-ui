@@ -23,6 +23,8 @@ export const queryKeys = {
       [orgId, "contacts", contactId, "addresses"] as const,
     addressDetail: (orgId: NullableId, address: NullableId) =>
       [orgId, "contacts_addresses", address] as const,
+    messageActivity: (orgId: NullableId) =>
+      [orgId, "contacts", "message_activity"] as const,
   },
   organizations: {
     all: () => ["organizations"] as const,

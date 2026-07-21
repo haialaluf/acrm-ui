@@ -1163,6 +1163,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      contact_message_activity: {
+        Args: { p_organization_id: string }
+        Returns: {
+          contact_address: string
+          last_received_at: string | null
+          last_sent_at: string | null
+        }[]
+      }
       get_authorized_orgs: {
         Args: { role?: Database["public"]["Enums"]["role"] }
         Returns: string[]
