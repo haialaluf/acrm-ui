@@ -58,7 +58,7 @@ export type VarValue =
   | { mode: "static"; static: string }
   | { mode: "field"; field: ContactField };
 
-export type ContactField = "name" | "email" | "phone";
+export type ContactField = "name" | "surname" | "email" | "phone";
 export type Scope = "head" | "body";
 
 /** Media header formats. A template whose HEADER is one of these requires a
@@ -95,6 +95,7 @@ export function isValidMediaUrl(url: string): boolean {
 
 export const FIELD_OPTIONS: { id: ContactField; label: string }[] = [
   { id: "name", label: "Nombre" },
+  { id: "surname", label: "Apellido" },
   { id: "email", label: "Email" },
   { id: "phone", label: "Teléfono" },
 ];
@@ -128,6 +129,7 @@ export function contactField(
   field: ContactField,
 ): string {
   if (field === "name") return c.name || "";
+  if (field === "surname") return c.surname || "";
   if (field === "email") return c.email || "";
   if (field === "phone") return c.addresses?.[0]?.address || "";
   return "";

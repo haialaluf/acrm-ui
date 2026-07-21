@@ -620,5 +620,8 @@
   "Introduce una URL pública que empiece por http:// o https://": "הזינו כתובת URL ציבורית שמתחילה ב-http:// או ב-https://",
   "No se pudo cargar la imagen desde esa URL": "לא ניתן היה לטעון את התמונה מכתובת ה-URL הזו",
   "Se enviará la misma imagen a todos los destinatarios. WhatsApp la descargará desde esta URL pública.": "אותה תמונה תישלח לכל הנמענים. WhatsApp יוריד אותה מכתובת ה-URL הציבורית הזו.",
-  "Usar el archivo de ejemplo de la plantilla": "השתמשו בקובץ הדוגמה של התבנית"
+  "Usar el archivo de ejemplo de la plantilla": "השתמשו בקובץ הדוגמה של התבנית",
+  "seleccionados": "נבחרו",
+  "Cancelar": "ביטול",
+  "¿Eliminar los contactos seleccionados?": "למחוק את אנשי הקשר שנבחרו?"
 }

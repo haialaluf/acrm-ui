@@ -37,27 +37,42 @@ type ImportState = "pick" | "uploaded" | "importing" | "done";
 type RowStatus = "ok" | "err" | "dup";
 type Mapping = {
   name: number | null;
+  surname: number | null;
   phone: number | null;
   email: number | null;
+  tags: number | null;
 };
 
 /** A parsed row resolved against the chosen column mapping. */
 type ResolvedRow = {
   status: RowStatus;
   name: string;
+  surname: string;
   phone: string;
   email: string;
+  /** Per-contact tags parsed from the mapped column (merged with global tags). */
+  tags: string[];
   /** Existing contact this row duplicates, when status === "dup". */
   existing?: { id: string; tags: string[] };
 };
 
-const NAME_RE = /name|nombre|שם/i;
+const NAME_RE = /^(name|nombre|first ?name|nombres?|שם)/i;
+const SURNAME_RE = /surname|apellidos?|last ?name|family ?name|משפחה/i;
 const PHONE_RE = /phone|mobile|tel|tel[eé]fono|טלפון|נייד/i;
 const EMAIL_RE = /mail|correo|email|אימייל/i;
+const TAGS_RE = /tags?|etiquetas?|labels?|categor|תגית|תגיות|תווית/i;
 
 function detect(headers: string[], re: RegExp): number | null {
   const i = headers.findIndex((h) => re.test(h));
   return i === -1 ? null : i;
+}
+
+/** Split a mapped tags cell (comma / semicolon / newline separated) into tags. */
+function parseTags(cell: string): string[] {
+  return cell
+    .split(/[,;\n]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 function ImportContacts() {
@@ -70,8 +85,10 @@ function ImportContacts() {
   const [file, setFile] = useState<ParsedFile | null>(null);
   const [mapping, setMapping] = useState<Mapping>({
     name: null,
+    surname: null,
     phone: null,
     email: null,
+    tags: null,
   });
   const [tags, setTags] = useState<string[]>([]);
   const [skipDupes, setSkipDupes] = useState(true);
@@ -110,10 +127,14 @@ function ImportContacts() {
     if (!file) return [];
     return file.allRows.map((row) => {
       const name = mapping.name != null ? (row[mapping.name] ?? "").trim() : "";
+      const surname =
+        mapping.surname != null ? (row[mapping.surname] ?? "").trim() : "";
       const phone =
         mapping.phone != null ? (row[mapping.phone] ?? "").trim() : "";
       const email =
         mapping.email != null ? (row[mapping.email] ?? "").trim() : "";
+      const tags =
+        mapping.tags != null ? parseTags(row[mapping.tags] ?? "") : [];
 
       if (
         mapping.name == null ||
@@ -122,11 +143,12 @@ function ImportContacts() {
         !phone ||
         !isValidPhoneNumber(phone)
       ) {
-        return { status: "err", name, phone, email };
+        return { status: "err", name, surname, phone, email, tags };
       }
       const existing = existingByPhone.get(normalizePhoneNumber(phone));
-      if (existing) return { status: "dup", name, phone, email, existing };
-      return { status: "ok", name, phone, email };
+      if (existing)
+        return { status: "dup", name, surname, phone, email, tags, existing };
+      return { status: "ok", name, surname, phone, email, tags };
     });
   }, [file, mapping, existingByPhone]);
 
@@ -162,7 +184,13 @@ function ImportContacts() {
     setTags([]);
     setResult(null);
     setParseError(null);
-    setMapping({ name: null, phone: null, email: null });
+    setMapping({
+      name: null,
+      surname: null,
+      phone: null,
+      email: null,
+      tags: null,
+    });
     setState("pick");
   }
 
@@ -173,8 +201,10 @@ function ImportContacts() {
       const parsed = await parseContactsFile(picked);
       setMapping({
         name: detect(parsed.headers, NAME_RE),
+        surname: detect(parsed.headers, SURNAME_RE),
         phone: detect(parsed.headers, PHONE_RE),
         email: detect(parsed.headers, EMAIL_RE),
+        tags: detect(parsed.headers, TAGS_RE),
       });
       setFile(parsed);
       setState("uploaded");
@@ -207,12 +237,15 @@ function ImportContacts() {
       {
         contacts: toInsert.map((r) => ({
           name: r.name || null,
+          surname: r.surname || null,
           phone: r.phone,
           email: r.email || null,
+          tags: r.tags,
         })),
         updates: toUpdate.map((r) => ({
           contactId: r.existing!.id,
           existingTags: r.existing!.tags,
+          rowTags: r.tags,
         })),
         tags,
       },
@@ -378,8 +411,10 @@ function ImportContacts() {
                   {(
                     [
                       { key: "name", label: t("Nombre"), required: true },
+                      { key: "surname", label: t("Apellido"), required: false },
                       { key: "phone", label: t("Teléfono"), required: true },
                       { key: "email", label: t("Email"), required: false },
+                      { key: "tags", label: t("Etiquetas"), required: false },
                     ] as const
                   ).map((f) => (
                     <FieldMapRow
@@ -810,12 +845,18 @@ function FieldRoleChip({
   if (mapping.name === idx) {
     role = t("Nombre");
     color = "var(--primary)";
+  } else if (mapping.surname === idx) {
+    role = t("Apellido");
+    color = "oklch(0.55 0.14 300)";
   } else if (mapping.phone === idx) {
     role = t("Teléfono");
     color = "oklch(0.55 0.14 220)";
   } else if (mapping.email === idx) {
     role = t("Email");
     color = "oklch(0.6 0.14 150)";
+  } else if (mapping.tags === idx) {
+    role = t("Etiquetas");
+    color = "oklch(0.6 0.13 50)";
   }
   if (!role) return null;
   return (

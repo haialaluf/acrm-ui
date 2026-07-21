@@ -652,5 +652,8 @@
   "Introduce una URL pública que empiece por http:// o https://": "Insira uma URL pública que comece com http:// ou https://",
   "No se pudo cargar la imagen desde esa URL": "Não foi possível carregar a imagem dessa URL",
   "Se enviará la misma imagen a todos los destinatarios. WhatsApp la descargará desde esta URL pública.": "A mesma imagem será enviada a todos os destinatários. O WhatsApp irá baixá-la desta URL pública.",
-  "Usar el archivo de ejemplo de la plantilla": "Usar o arquivo de exemplo do modelo"
+  "Usar el archivo de ejemplo de la plantilla": "Usar o arquivo de exemplo do modelo",
+  "seleccionados": "selecionados",
+  "Cancelar": "Cancelar",
+  "¿Eliminar los contactos seleccionados?": "Excluir os contatos selecionados?"
 }

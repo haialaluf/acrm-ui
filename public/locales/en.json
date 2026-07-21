@@ -652,5 +652,8 @@
   "Introduce una URL pública que empiece por http:// o https://": "Enter a public URL that starts with http:// or https://",
   "No se pudo cargar la imagen desde esa URL": "Couldn't load the image from that URL",
   "Se enviará la misma imagen a todos los destinatarios. WhatsApp la descargará desde esta URL pública.": "The same image will be sent to all recipients. WhatsApp will download it from this public URL.",
-  "Usar el archivo de ejemplo de la plantilla": "Use the template's sample file"
+  "Usar el archivo de ejemplo de la plantilla": "Use the template's sample file",
+  "seleccionados": "selected",
+  "Cancelar": "Cancel",
+  "¿Eliminar los contactos seleccionados?": "Delete the selected contacts?"
 }

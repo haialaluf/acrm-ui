@@ -12,9 +12,12 @@ import { queryKeys } from "./queryKeys";
 /** A single row already resolved against the chosen column mapping. */
 export type ImportContactInput = {
   name: string | null;
+  surname: string | null;
   /** Raw phone string from the file; normalized to E.164 on insert. */
   phone: string;
   email: string | null;
+  /** Per-contact tags from the mapped column; unioned with the global tags. */
+  tags: string[];
 };
 
 /** An existing contact whose tags should be merged (the "update" path). */
@@ -22,6 +25,8 @@ export type ImportContactUpdate = {
   contactId: string;
   /** The contact's current tags, so we can union without losing any. */
   existingTags: string[];
+  /** Per-contact tags from the mapped column; unioned with the global tags. */
+  rowTags: string[];
 };
 
 export type ImportContactsArgs = {
@@ -95,15 +100,17 @@ export function useImportContacts() {
           // `tags` / `email` are columns not yet in the generated db_types.ts;
           // drop this cast once the types are regenerated (see useContactTags).
           .insert(
-            batch.map(
-              (c) =>
-                ({
-                  name: c.name,
-                  organization_id: orgId,
-                  ...(tags.length ? { tags } : {}),
-                  ...(c.email ? { email: c.email } : {}),
-                }) as ContactInsert,
-            ),
+            batch.map((c) => {
+              // Union the global tags with this row's mapped-column tags.
+              const contactTags = [...new Set([...tags, ...c.tags])];
+              return {
+                name: c.name,
+                organization_id: orgId,
+                ...(c.surname ? { surname: c.surname } : {}),
+                ...(contactTags.length ? { tags: contactTags } : {}),
+                ...(c.email ? { email: c.email } : {}),
+              } as ContactInsert;
+            }),
           )
           .select()
           .throwOnError();
@@ -145,7 +152,7 @@ export function useImportContacts() {
       let updated = 0;
       const groups = new Map<string, { merged: string[]; ids: string[] }>();
       for (const u of updates) {
-        const merged = [...new Set([...u.existingTags, ...tags])];
+        const merged = [...new Set([...u.existingTags, ...tags, ...u.rowTags])];
         const key = JSON.stringify(merged);
         const group = groups.get(key) ?? { merged, ids: [] };
         group.ids.push(u.contactId);

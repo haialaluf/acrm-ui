@@ -321,3 +321,28 @@ export function useDeleteContact() {
     },
   });
 }
+
+export function useDeleteContacts() {
+  const queryClient = useQueryClient();
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      if (!orgId) throw new Error("No active organization");
+      if (!ids.length) return;
+
+      // Delete in chunks to keep the `in(...)` filter within request-size
+      // limits when removing large selections.
+      const CHUNK_SIZE = 200;
+      for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
+        const chunk = ids.slice(i, i + CHUNK_SIZE);
+        await supabase.from("contacts").delete().in("id", chunk).throwOnError();
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.contacts.all(orgId),
+      });
+    },
+  });
+}

@@ -671,6 +671,7 @@ export type Database = {
           organization_id: string
           source: string
           status: string
+          surname: string | null
           tags: string[] | null
           updated_at: string
         }
@@ -683,6 +684,7 @@ export type Database = {
           organization_id: string
           source?: string
           status?: string
+          surname?: string | null
           tags?: string[] | null
           updated_at?: string
         }
@@ -695,6 +697,7 @@ export type Database = {
           organization_id?: string
           source?: string
           status?: string
+          surname?: string | null
           tags?: string[] | null
           updated_at?: string
         }

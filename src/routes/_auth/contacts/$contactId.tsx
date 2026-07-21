@@ -112,6 +112,16 @@ function ContactDetail() {
             </label>
 
             <label>
+              <div className="label">{t("Apellido")}</div>
+              <input
+                type="text"
+                className="text"
+                placeholder={t("Apellido del contacto")}
+                {...register("surname")}
+              />
+            </label>
+
+            <label>
               <div className="label">{t("Email")}</div>
               <input
                 type="email"

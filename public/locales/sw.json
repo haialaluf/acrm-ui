@@ -619,5 +619,8 @@
   "Introduce una URL pública que empiece por http:// o https://": "Weka URL ya umma inayoanza na http:// au https://",
   "No se pudo cargar la imagen desde esa URL": "Imeshindwa kupakia picha kutoka kwa URL hiyo",
   "Se enviará la misma imagen a todos los destinatarios. WhatsApp la descargará desde esta URL pública.": "Picha ile ile itatumwa kwa wapokeaji wote. WhatsApp itaipakua kutoka kwa URL hii ya umma.",
-  "Usar el archivo de ejemplo de la plantilla": "Tumia faili la mfano la kiolezo"
+  "Usar el archivo de ejemplo de la plantilla": "Tumia faili la mfano la kiolezo",
+  "seleccionados": "zilizochaguliwa",
+  "Cancelar": "Ghairi",
+  "¿Eliminar los contactos seleccionados?": "Futa anwani zilizochaguliwa?"
 }
