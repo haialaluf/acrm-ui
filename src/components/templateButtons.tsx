@@ -2,8 +2,8 @@ import { Copy, Link, Phone, Reply } from "lucide-react";
 import type { TemplateButton, TemplateButtonDef } from "@/supabase/client";
 
 /* Shared model for WhatsApp template buttons, used by the editor
-   (TemplateButtonsField), the preview (TemplatePreview / TextMessage) and the
-   send paths (TemplatePreview, ChatFooter).
+   (TemplateButtonsField), the preview (WhatsAppPreview / TextMessage) and the
+   send paths (ChatFooter).
 
    WhatsApp Business API allows up to 10 buttons per template, with these
    per-type caps (Meta / Cloud API, late-2025 spec):

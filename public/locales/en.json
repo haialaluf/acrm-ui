@@ -337,6 +337,7 @@
   "Organización": "Organization",
   "Otro envío": "Another send",
   "Para cada variable, elige un valor fijo o un campo del contacto que se sustituirá por destinatario.": "For each variable, choose a fixed value or a contact field that will be substituted per recipient.",
+  "Esta plantilla requiere un archivo en el encabezado — es obligatorio para enviarla.": "This template requires a file in the header — it is mandatory to send it.",
   "Para conectar WhatsApp a la plataforma, iniciá sesión en tu cuenta de Meta y seguí el proceso de registro.": "To connect WhatsApp to the platform, sign in to your Meta account and follow the registration process.",
   "Pausar asistente": "Pause assistant",
   "Pegatina": "Sticker",
@@ -643,5 +644,13 @@
   "Código": "Code",
   "Variables — se reemplazan por los datos de cada contacto al enviar": "Variables — replaced with each contact's details when you send",
   "Valor de ejemplo": "Sample value",
-  "No se pudo guardar la plantilla": "Couldn't save the template"
+  "No se pudo guardar la plantilla": "Couldn't save the template",
+  "Imagen del encabezado": "Header image",
+  "Video del encabezado": "Header video",
+  "Documento del encabezado": "Header document",
+  "Obligatorio": "Required",
+  "Introduce una URL pública que empiece por http:// o https://": "Enter a public URL that starts with http:// or https://",
+  "No se pudo cargar la imagen desde esa URL": "Couldn't load the image from that URL",
+  "Se enviará la misma imagen a todos los destinatarios. WhatsApp la descargará desde esta URL pública.": "The same image will be sent to all recipients. WhatsApp will download it from this public URL.",
+  "Usar el archivo de ejemplo de la plantilla": "Use the template's sample file"
 }

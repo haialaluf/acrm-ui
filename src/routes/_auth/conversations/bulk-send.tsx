@@ -77,7 +77,9 @@ function BulkSend() {
   const agentId = agent?.id;
   const { data: contacts } = useContacts();
   const { data: addresses } = useOrganizationsAddresses();
-  const whatsappAddress = addresses?.find((a) => a.service === "whatsapp");
+  const whatsappAddress = addresses?.find(
+    (a) => a.service === "whatsapp" && a.status === "connected",
+  );
   const { data: templates } = useTemplates(whatsappAddress?.address);
   const { data: messagingLimit } = useMessagingLimit(whatsappAddress?.address);
   const dailyLimit = messagingLimit?.dailyLimit ?? null;

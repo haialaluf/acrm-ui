@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { FileText, Image as ImageIcon, Video } from "lucide-react";
+import { FileText, Image as ImageIcon, Loader2, Video } from "lucide-react";
 
 import { useTranslation } from "@/hooks/useTranslation";
+import useBoundStore from "@/stores/useBoundStore";
 import { type HeaderMediaFormat, isValidMediaUrl } from "./types";
+import { rehostTemplateExample } from "./rehostMedia";
 
 const FORMAT_META: Record<
   HeaderMediaFormat,
@@ -43,9 +45,33 @@ export default function HeaderMediaCard({
   const meta = FORMAT_META[format];
   const Icon = meta.icon;
   const [imgError, setImgError] = useState(false);
+  const [rehosting, setRehosting] = useState(false);
+  const [rehostError, setRehostError] = useState<string | null>(null);
+
+  const activeOrgId = useBoundStore((s) => s.ui.activeOrgId);
 
   const trimmed = value.trim();
   const valid = isValidMediaUrl(trimmed);
+
+  // The template's example is a Meta `header_handle` URL that Meta itself
+  // refuses to fetch at send time (403 → error 131053). Copy its bytes into our
+  // own storage and use the resulting signed URL instead of the raw handle.
+  const useExample = async () => {
+    if (!example || !activeOrgId || rehosting) return;
+    setRehosting(true);
+    setRehostError(null);
+    setImgError(false);
+    try {
+      const url = await rehostTemplateExample(example, activeOrgId);
+      onChange(url);
+    } catch (err) {
+      setRehostError(
+        err instanceof Error ? err.message : "Failed to use example media",
+      );
+    } finally {
+      setRehosting(false);
+    }
+  };
 
   return (
     <div
@@ -128,15 +154,25 @@ export default function HeaderMediaCard({
       {example && example !== trimmed && (
         <button
           type="button"
-          onClick={() => {
-            setImgError(false);
-            onChange(example);
-          }}
-          className="text-[11px] mt-[8px] bg-transparent border-none p-0 cursor-pointer"
+          onClick={useExample}
+          disabled={rehosting || !activeOrgId}
+          className="flex items-center gap-[6px] text-[11px] mt-[8px] bg-transparent border-none p-0 cursor-pointer disabled:opacity-60 disabled:cursor-default"
           style={{ color: "var(--primary)" }}
         >
-          {t("Usar el archivo de ejemplo de la plantilla")}
+          {rehosting && <Loader2 className="w-[12px] h-[12px] animate-spin" />}
+          {rehosting
+            ? t("Preparando el archivo de ejemplo…")
+            : t("Usar el archivo de ejemplo de la plantilla")}
         </button>
+      )}
+
+      {rehostError && (
+        <div
+          className="text-[11px] mt-[6px]"
+          style={{ color: "var(--destructive)" }}
+        >
+          {t("No se pudo preparar el archivo de ejemplo. Inténtalo de nuevo.")}
+        </div>
       )}
     </div>
   );

@@ -310,6 +310,7 @@
   "Organización": "Shirika",
   "Otro envío": "Utumaji mwingine",
   "Para cada variable, elige un valor fijo o un campo del contacto que se sustituirá por destinatario.": "Kwa kila kigeu, chagua thamani isiyobadilika au sehemu ya anwani itakayobadilishwa kwa kila mpokeaji.",
+  "Esta plantilla requiere un archivo en el encabezado — es obligatorio para enviarla.": "Kiolezo hiki kinahitaji faili kwenye kichwa — ni lazima ili kukituma.",
   "Para conectar WhatsApp a la plataforma, iniciá sesión en tu cuenta de Meta y seguí el proceso de registro.": "Ili kuunganisha WhatsApp kwa jukwaa, ingia kwenye akaunti yako ya Meta na fuata mchakato wa usajili.",
   "Pausar asistente": "Simamisha msaidizi",
   "Pegatina": "Stika",
@@ -610,5 +611,13 @@
   "Código": "Msimbo",
   "Variables — se reemplazan por los datos de cada contacto al enviar": "Vigezo — hubadilishwa na maelezo ya kila mtu unapotuma",
   "Valor de ejemplo": "Thamani ya mfano",
-  "No se pudo guardar la plantilla": "Imeshindwa kuhifadhi kiolezo"
+  "No se pudo guardar la plantilla": "Imeshindwa kuhifadhi kiolezo",
+  "Imagen del encabezado": "Picha ya kichwa",
+  "Video del encabezado": "Video ya kichwa",
+  "Documento del encabezado": "Hati ya kichwa",
+  "Obligatorio": "Lazima",
+  "Introduce una URL pública que empiece por http:// o https://": "Weka URL ya umma inayoanza na http:// au https://",
+  "No se pudo cargar la imagen desde esa URL": "Imeshindwa kupakia picha kutoka kwa URL hiyo",
+  "Se enviará la misma imagen a todos los destinatarios. WhatsApp la descargará desde esta URL pública.": "Picha ile ile itatumwa kwa wapokeaji wote. WhatsApp itaipakua kutoka kwa URL hii ya umma.",
+  "Usar el archivo de ejemplo de la plantilla": "Tumia faili la mfano la kiolezo"
 }

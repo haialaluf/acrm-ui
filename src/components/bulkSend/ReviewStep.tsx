@@ -15,8 +15,15 @@ import dayjs, { type Dayjs } from "dayjs";
 import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
 import SectionFooter from "@/components/SectionFooter";
-import TemplatePreviewBubble from "@/components/TemplatePreviewBubble";
+import WhatsAppPreview from "@/components/messagePreview/WhatsAppPreview";
+import { detectRtl } from "@/components/messagePreview/rtl";
+import type { MessagePreviewData } from "@/components/messagePreview/types";
+import {
+  buttonDefToPreview,
+  type PreviewButton,
+} from "@/components/templateButtons";
 import { useTranslation } from "@/hooks/useTranslation";
+import { isRtl, type Language } from "@/stores/uiSlice";
 import {
   type ContactWithAddressesRow,
   type TemplateData,
@@ -40,7 +47,7 @@ import {
 
 const datePickerTheme = { components: { DatePicker: datePickerTokens } };
 
-/** Step 4 — per-contact preview using the real `<TemplatePreviewBubble>`,
+/** Step 4 — per-contact preview using the shared `<WhatsAppPreview>`,
  *  recipient chips with remove, and schedule (now / later) selector. */
 export default function ReviewStep({
   template,
@@ -82,23 +89,46 @@ export default function ReviewStep({
   const safeIdx = Math.min(idx, Math.max(0, recipients.length - 1));
   const current = recipients[safeIdx];
 
-  // Build a transient TemplateData with header/body text already substituted
-  // for the currently-previewed contact so the bubble renders verbatim.
-  const previewTemplate = useMemo<TemplateData | null>(() => {
+  // Build the normalized preview payload for the currently-previewed contact,
+  // with header/body variables already substituted, so the shared WhatsApp
+  // preview renders the exact message this recipient receives.
+  const previewData = useMemo<MessagePreviewData | null>(() => {
     if (!current) return null;
+    const head = template.components.find((c) => c.type === "HEADER");
+    const body = template.components.find((c) => c.type === "BODY");
+    const foot = template.components.find((c) => c.type === "FOOTER");
+    const butt = template.components.find((c) => c.type === "BUTTONS");
+
+    const mediaFmt = headerMediaFormat(template);
+    const headerText =
+      head && head.format === "TEXT"
+        ? fillTemplate(head.text, "head", vars, current)
+        : "";
+    const bodyText = fillTemplate(body?.text, "body", vars, current);
+    const footer = foot?.text ?? "";
+    const buttons: PreviewButton[] =
+      butt?.buttons?.map((b) => buttonDefToPreview(b, t("Copiar código"))) ??
+      [];
+
+    const hasMedia = mediaFmt != null && isValidMediaUrl(headerMedia);
     return {
-      ...template,
-      components: template.components.map((c) => {
-        if (c.type === "HEADER") {
-          return { ...c, text: fillTemplate(c.text, "head", vars, current) };
-        }
-        if (c.type === "BODY") {
-          return { ...c, text: fillTemplate(c.text, "body", vars, current) };
-        }
-        return c;
-      }),
+      headerType: mediaFmt ?? (headerText ? "TEXT" : "NONE"),
+      headerText,
+      headerVars: [],
+      mediaUrl: hasMedia ? headerMedia.trim() : "",
+      mediaName:
+        mediaFmt === "DOCUMENT"
+          ? (headerMedia.trim().split("/").pop() ?? "")
+          : "",
+      body: bodyText,
+      bodyVars: [],
+      footer,
+      buttons,
+      rtl:
+        detectRtl(bodyText, headerText, footer) ||
+        isRtl(template.language as Language),
     };
-  }, [template, vars, current]);
+  }, [template, vars, current, headerMedia, t]);
 
   const canSend =
     recipients.length > 0 && (effective !== "later" || !!scheduledAt);
@@ -160,17 +190,8 @@ export default function ReviewStep({
                 )}
               </div>
             </div>
-            {headerMediaFormat(template) === "IMAGE" &&
-              isValidMediaUrl(headerMedia) && (
-                <img
-                  src={headerMedia.trim()}
-                  alt={t("Vista previa")}
-                  className="w-full max-h-[200px] object-cover block"
-                  style={{ borderBottom: "1px solid var(--border)" }}
-                />
-              )}
-            {previewTemplate && (
-              <TemplatePreviewBubble template={previewTemplate} />
+            {previewData && (
+              <WhatsAppPreview data={previewData} variant="bubble" />
             )}
           </div>
         </div>

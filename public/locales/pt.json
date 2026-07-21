@@ -337,6 +337,7 @@
   "Organización": "Organização",
   "Otro envío": "Outro envio",
   "Para cada variable, elige un valor fijo o un campo del contacto que se sustituirá por destinatario.": "Para cada variável, escolha um valor fixo ou um campo do contato que será substituído por destinatário.",
+  "Esta plantilla requiere un archivo en el encabezado — es obligatorio para enviarla.": "Este modelo requer um arquivo no cabeçalho — é obrigatório para enviá-lo.",
   "Para conectar WhatsApp a la plataforma, iniciá sesión en tu cuenta de Meta y seguí el proceso de registro.": "Para conectar o WhatsApp à plataforma, faça login na sua conta Meta e siga o processo de registro.",
   "Pausar asistente": "Pausar assistente",
   "Pegatina": "Figurinha",
@@ -643,5 +644,13 @@
   "Código": "Código",
   "Variables — se reemplazan por los datos de cada contacto al enviar": "Variáveis — substituídas pelos dados de cada contato ao enviar",
   "Valor de ejemplo": "Valor de exemplo",
-  "No se pudo guardar la plantilla": "Não foi possível salvar o modelo"
+  "No se pudo guardar la plantilla": "Não foi possível salvar o modelo",
+  "Imagen del encabezado": "Imagem do cabeçalho",
+  "Video del encabezado": "Vídeo do cabeçalho",
+  "Documento del encabezado": "Documento do cabeçalho",
+  "Obligatorio": "Obrigatório",
+  "Introduce una URL pública que empiece por http:// o https://": "Insira uma URL pública que comece com http:// ou https://",
+  "No se pudo cargar la imagen desde esa URL": "Não foi possível carregar a imagem dessa URL",
+  "Se enviará la misma imagen a todos los destinatarios. WhatsApp la descargará desde esta URL pública.": "A mesma imagem será enviada a todos os destinatários. O WhatsApp irá baixá-la desta URL pública.",
+  "Usar el archivo de ejemplo de la plantilla": "Usar o arquivo de exemplo do modelo"
 }
