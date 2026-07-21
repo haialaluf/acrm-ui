@@ -1,4 +1,5 @@
 import { ArrowLeft, Trash2, X } from "lucide-react";
+import type { ReactNode } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocation, useRouter } from "@tanstack/react-router";
 import { LinkButton } from "./LinkButton";
@@ -11,6 +12,7 @@ export default function SectionHeader({
   deleteDisabled,
   deleteDisabledReason,
   deleteLoading,
+  action,
 }: {
   title: string;
   closeButton?: boolean;
@@ -18,6 +20,7 @@ export default function SectionHeader({
   deleteDisabled?: boolean;
   deleteDisabledReason?: string;
   deleteLoading?: boolean;
+  action?: ReactNode;
 }) {
   const { translate: t } = useTranslation();
   const location = useLocation();
@@ -52,6 +55,8 @@ export default function SectionHeader({
       <div className={showBackButton ? "text-[16px]" : "text-[22px]"}>
         {t(title)}
       </div>
+
+      {action && !onDelete && <div className="ms-auto">{action}</div>}
 
       {onDelete && (
         <button

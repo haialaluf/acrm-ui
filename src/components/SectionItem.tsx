@@ -8,6 +8,7 @@ export default function SectionItem({
   className,
   disabled,
   disabledReason,
+  selected,
 }: {
   title: ReactNode;
   description?: ReactNode;
@@ -16,8 +17,10 @@ export default function SectionItem({
   className?: string;
   disabled?: boolean;
   disabledReason?: string;
+  selected?: boolean;
 }) {
   const isDisabled = disabled;
+  const interactive = onClick && !isDisabled;
   const tooltip =
     typeof title === "string"
       ? title + (isDisabled ? " - " + disabledReason : "")
@@ -28,7 +31,12 @@ export default function SectionItem({
       title={tooltip}
       className={
         `h-[72px] flex rounded-xl group ${className || ""} ` +
-        (onClick && !isDisabled ? " cursor-pointer hover:bg-accent" : "") +
+        (interactive ? " cursor-pointer" : "") +
+        (selected
+          ? " bg-primary/8 hover:bg-primary/8"
+          : interactive
+            ? " hover:bg-accent"
+            : "") +
         (isDisabled ? " opacity-50 grayscale" : "")
       }
       onClick={isDisabled ? undefined : onClick}

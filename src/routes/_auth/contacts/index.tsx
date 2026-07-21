@@ -78,7 +78,19 @@ function ListContacts() {
 
   return (
     <>
-      <SectionHeader title={t("Contactos")} />
+      <SectionHeader
+        title={t("Contactos")}
+        action={
+          allContacts.length > 0 && !selectionMode ? (
+            <button
+              className="text-[14px] text-primary"
+              onClick={() => setSelectionMode(true)}
+            >
+              {t("Seleccionar")}
+            </button>
+          ) : undefined
+        }
+      />
 
       <ContactFilter
         value={filter}
@@ -86,70 +98,67 @@ function ListContacts() {
         contacts={allContacts}
       />
 
-      {allContacts.length > 0 && (
-        <div className="px-[20px] pb-[12px] flex items-center gap-[8px] min-h-[40px]">
-          {!selectionMode ? (
-            <button
-              className="ml-auto text-[14px] text-primary font-medium hover:underline"
-              onClick={() => setSelectionMode(true)}
-            >
-              {t("Seleccionar")}
-            </button>
-          ) : (
-            <>
-              <label className="flex items-center gap-[8px] cursor-pointer text-[14px]">
-                <Checkbox checked={allSelected} onChange={toggleSelectAll} />
-                <span>
-                  {selected.size > 0
-                    ? `${selected.size} ${t("seleccionados")}`
-                    : t("Seleccionar todos")}
-                </span>
-              </label>
-
-              <div className="ml-auto flex items-center gap-[8px]">
-                <button
-                  className="text-[14px] text-muted-foreground hover:underline"
-                  onClick={exitSelection}
-                >
-                  {t("Cancelar")}
-                </button>
-                <Button
-                  className="text-destructive hover:text-destructive/90 px-4 py-2 rounded-full font-medium text-[14px]"
-                  invalid={selected.size === 0}
-                  loading={deleteContacts.isPending}
-                  onClick={() => setConfirming(true)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                  {t("Eliminar")}
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {confirming && (
+      {selectionMode && (
         <div className="px-[20px] pb-[12px]">
-          <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-[16px] flex flex-col gap-[12px]">
-            <div className="text-[14px]">
-              {t("¿Eliminar los contactos seleccionados?")} ({selected.size})
-            </div>
-            <div className="flex items-center gap-[8px]">
-              <Button
-                className="bg-destructive text-white hover:bg-destructive/90 px-4 py-2 rounded-full font-medium text-[14px]"
-                loading={deleteContacts.isPending}
-                onClick={handleDelete}
-              >
-                {t("Eliminar")}
-              </Button>
+          <div className="flex items-center justify-between min-h-[36px]">
+            {/* Select-all + count */}
+            <label className="flex items-center gap-[10px] cursor-pointer">
+              <Checkbox checked={allSelected} onChange={toggleSelectAll} />
+              <span className="text-[14px]">
+                {selected.size > 0
+                  ? `${selected.size} ${t("seleccionados")}`
+                  : t("Seleccionar todos")}
+              </span>
+            </label>
+
+            {/* Actions */}
+            <div className="flex items-center gap-[14px]">
               <button
-                className="text-[14px] text-muted-foreground hover:underline px-4 py-2"
-                onClick={() => setConfirming(false)}
+                className="flex items-center gap-[6px] text-[14px] text-destructive disabled:text-muted-foreground disabled:opacity-50"
+                disabled={selected.size === 0 || deleteContacts.isPending}
+                onClick={() => setConfirming(true)}
+              >
+                <Trash2 className="w-4 h-4" />
+                {t("Eliminar")}
+              </button>
+              <button
+                className="text-[14px] text-muted-foreground"
+                onClick={exitSelection}
               >
                 {t("Cancelar")}
               </button>
             </div>
           </div>
+
+          {confirming && (
+            <div
+              className="mt-[10px] rounded-[14px] p-[14px] border"
+              style={{
+                background: "oklch(from var(--destructive) l c h / 0.06)",
+                borderColor: "oklch(from var(--destructive) l c h / 0.25)",
+              }}
+            >
+              <div className="text-[14px] leading-[1.5]">
+                {t("¿Eliminar los contactos seleccionados?")} ({selected.size}){" "}
+                {t("Esta acción no se puede deshacer.")}
+              </div>
+              <div className="flex items-center gap-[10px] mt-[12px]">
+                <Button
+                  className="bg-destructive text-white hover:bg-destructive/90 rounded-full font-semibold text-[14px] px-[22px] py-[9px]"
+                  loading={deleteContacts.isPending}
+                  onClick={handleDelete}
+                >
+                  {t("Eliminar")}
+                </Button>
+                <button
+                  className="text-[14px] text-muted-foreground px-[6px] py-[9px]"
+                  onClick={() => setConfirming(false)}
+                >
+                  {t("Cancelar")}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -195,6 +204,7 @@ function ListContacts() {
         {filtered.map((contact) => (
           <SectionItem
             key={contact.id}
+            selected={selectionMode && selected.has(contact.id)}
             title={contact.name || t("Sin nombre")}
             description={
               contact.addresses?.at(0)?.address

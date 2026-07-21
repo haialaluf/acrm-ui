@@ -656,6 +656,7 @@
   "seleccionados": "selected",
   "Cancelar": "Cancel",
   "¿Eliminar los contactos seleccionados?": "Delete the selected contacts?",
+  "Esta acción no se puede deshacer.": "This action cannot be undone.",
   "Calendario de envío": "Send schedule",
   "Elegir fechas y horas": "Choose dates & times",
   "Terminar edición": "Done editing",
