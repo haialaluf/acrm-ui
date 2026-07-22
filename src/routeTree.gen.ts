@@ -21,6 +21,7 @@ import { Route as AuthSettingsIndexRouteImport } from './routes/_auth/settings/i
 import { Route as AuthIntegrationsIndexRouteImport } from './routes/_auth/integrations/index'
 import { Route as AuthConversationsIndexRouteImport } from './routes/_auth/conversations/index'
 import { Route as AuthContactsIndexRouteImport } from './routes/_auth/contacts/index'
+import { Route as AuthCalendarsIndexRouteImport } from './routes/_auth/calendars/index'
 import { Route as AuthAgentsIndexRouteImport } from './routes/_auth/agents/index'
 import { Route as OnboardWhatsappTokenRouteImport } from './routes/onboard.whatsapp.$token'
 import { Route as OnboardInstagramCallbackRouteImport } from './routes/onboard.instagram.callback'
@@ -32,6 +33,8 @@ import { Route as AuthConversationsBulkSendRouteImport } from './routes/_auth/co
 import { Route as AuthContactsNewRouteImport } from './routes/_auth/contacts/new'
 import { Route as AuthContactsImportRouteImport } from './routes/_auth/contacts/import'
 import { Route as AuthContactsContactIdRouteImport } from './routes/_auth/contacts/$contactId'
+import { Route as AuthCalendarsNewRouteImport } from './routes/_auth/calendars/new'
+import { Route as AuthCalendarsCalendarIdRouteImport } from './routes/_auth/calendars/$calendarId'
 import { Route as AuthAgentsNewRouteImport } from './routes/_auth/agents/new'
 import { Route as AuthAgentsAgentIdRouteImport } from './routes/_auth/agents/$agentId'
 import { Route as AuthSettingsWebhooksIndexRouteImport } from './routes/_auth/settings/webhooks/index'
@@ -49,6 +52,7 @@ import { Route as AuthSettingsApiKeysNewRouteImport } from './routes/_auth/setti
 import { Route as AuthSettingsApiKeysApiKeyIdRouteImport } from './routes/_auth/settings/api-keys/$apiKeyId'
 import { Route as AuthIntegrationsWhatsappNewRouteImport } from './routes/_auth/integrations/whatsapp/new'
 import { Route as AuthIntegrationsInstagramNewRouteImport } from './routes/_auth/integrations/instagram/new'
+import { Route as AuthCalendarsEditCalendarIdRouteImport } from './routes/_auth/calendars/edit/$calendarId'
 import { Route as AuthIntegrationsWhatsappOnboardingIndexRouteImport } from './routes/_auth/integrations/whatsapp/onboarding/index'
 import { Route as AuthIntegrationsWhatsappOrgAddressIdIndexRouteImport } from './routes/_auth/integrations/whatsapp/$orgAddressId/index'
 import { Route as AuthIntegrationsInstagramOnboardingIndexRouteImport } from './routes/_auth/integrations/instagram/onboarding/index'
@@ -120,6 +124,11 @@ const AuthContactsIndexRoute = AuthContactsIndexRouteImport.update({
   path: '/contacts/',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthCalendarsIndexRoute = AuthCalendarsIndexRouteImport.update({
+  id: '/calendars/',
+  path: '/calendars/',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthAgentsIndexRoute = AuthAgentsIndexRouteImport.update({
   id: '/agents/',
   path: '/agents/',
@@ -176,6 +185,16 @@ const AuthContactsImportRoute = AuthContactsImportRouteImport.update({
 const AuthContactsContactIdRoute = AuthContactsContactIdRouteImport.update({
   id: '/contacts/$contactId',
   path: '/contacts/$contactId',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCalendarsNewRoute = AuthCalendarsNewRouteImport.update({
+  id: '/calendars/new',
+  path: '/calendars/new',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCalendarsCalendarIdRoute = AuthCalendarsCalendarIdRouteImport.update({
+  id: '/calendars/$calendarId',
+  path: '/calendars/$calendarId',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthAgentsNewRoute = AuthAgentsNewRouteImport.update({
@@ -275,6 +294,12 @@ const AuthIntegrationsInstagramNewRoute =
     path: '/integrations/instagram/new',
     getParentRoute: () => AuthRoute,
   } as any)
+const AuthCalendarsEditCalendarIdRoute =
+  AuthCalendarsEditCalendarIdRouteImport.update({
+    id: '/calendars/edit/$calendarId',
+    path: '/calendars/edit/$calendarId',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthIntegrationsWhatsappOnboardingIndexRoute =
   AuthIntegrationsWhatsappOnboardingIndexRouteImport.update({
     id: '/integrations/whatsapp/onboarding/',
@@ -351,6 +376,8 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
   '/agents/$agentId': typeof AuthAgentsAgentIdRoute
   '/agents/new': typeof AuthAgentsNewRoute
+  '/calendars/$calendarId': typeof AuthCalendarsCalendarIdRoute
+  '/calendars/new': typeof AuthCalendarsNewRoute
   '/contacts/$contactId': typeof AuthContactsContactIdRoute
   '/contacts/import': typeof AuthContactsImportRoute
   '/contacts/new': typeof AuthContactsNewRoute
@@ -362,11 +389,13 @@ export interface FileRoutesByFullPath {
   '/onboard/instagram/callback': typeof OnboardInstagramCallbackRoute
   '/onboard/whatsapp/$token': typeof OnboardWhatsappTokenRoute
   '/agents': typeof AuthAgentsIndexRoute
+  '/calendars': typeof AuthCalendarsIndexRoute
   '/contacts': typeof AuthContactsIndexRoute
   '/conversations': typeof AuthConversationsIndexRoute
   '/integrations': typeof AuthIntegrationsIndexRoute
   '/settings': typeof AuthSettingsIndexRoute
   '/stats/': typeof AuthStatsIndexRoute
+  '/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
   '/integrations/instagram/new': typeof AuthIntegrationsInstagramNewRoute
   '/integrations/whatsapp/new': typeof AuthIntegrationsWhatsappNewRoute
   '/settings/api-keys/$apiKeyId': typeof AuthSettingsApiKeysApiKeyIdRoute
@@ -402,6 +431,8 @@ export interface FileRoutesByTo {
   '/': typeof AuthIndexRoute
   '/agents/$agentId': typeof AuthAgentsAgentIdRoute
   '/agents/new': typeof AuthAgentsNewRoute
+  '/calendars/$calendarId': typeof AuthCalendarsCalendarIdRoute
+  '/calendars/new': typeof AuthCalendarsNewRoute
   '/contacts/$contactId': typeof AuthContactsContactIdRoute
   '/contacts/import': typeof AuthContactsImportRoute
   '/contacts/new': typeof AuthContactsNewRoute
@@ -413,11 +444,13 @@ export interface FileRoutesByTo {
   '/onboard/instagram/callback': typeof OnboardInstagramCallbackRoute
   '/onboard/whatsapp/$token': typeof OnboardWhatsappTokenRoute
   '/agents': typeof AuthAgentsIndexRoute
+  '/calendars': typeof AuthCalendarsIndexRoute
   '/contacts': typeof AuthContactsIndexRoute
   '/conversations': typeof AuthConversationsIndexRoute
   '/integrations': typeof AuthIntegrationsIndexRoute
   '/settings': typeof AuthSettingsIndexRoute
   '/stats': typeof AuthStatsIndexRoute
+  '/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
   '/integrations/instagram/new': typeof AuthIntegrationsInstagramNewRoute
   '/integrations/whatsapp/new': typeof AuthIntegrationsWhatsappNewRoute
   '/settings/api-keys/$apiKeyId': typeof AuthSettingsApiKeysApiKeyIdRoute
@@ -456,6 +489,8 @@ export interface FileRoutesById {
   '/_auth/': typeof AuthIndexRoute
   '/_auth/agents/$agentId': typeof AuthAgentsAgentIdRoute
   '/_auth/agents/new': typeof AuthAgentsNewRoute
+  '/_auth/calendars/$calendarId': typeof AuthCalendarsCalendarIdRoute
+  '/_auth/calendars/new': typeof AuthCalendarsNewRoute
   '/_auth/contacts/$contactId': typeof AuthContactsContactIdRoute
   '/_auth/contacts/import': typeof AuthContactsImportRoute
   '/_auth/contacts/new': typeof AuthContactsNewRoute
@@ -467,11 +502,13 @@ export interface FileRoutesById {
   '/onboard/instagram/callback': typeof OnboardInstagramCallbackRoute
   '/onboard/whatsapp/$token': typeof OnboardWhatsappTokenRoute
   '/_auth/agents/': typeof AuthAgentsIndexRoute
+  '/_auth/calendars/': typeof AuthCalendarsIndexRoute
   '/_auth/contacts/': typeof AuthContactsIndexRoute
   '/_auth/conversations/': typeof AuthConversationsIndexRoute
   '/_auth/integrations/': typeof AuthIntegrationsIndexRoute
   '/_auth/settings/': typeof AuthSettingsIndexRoute
   '/_auth/stats/': typeof AuthStatsIndexRoute
+  '/_auth/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
   '/_auth/integrations/instagram/new': typeof AuthIntegrationsInstagramNewRoute
   '/_auth/integrations/whatsapp/new': typeof AuthIntegrationsWhatsappNewRoute
   '/_auth/settings/api-keys/$apiKeyId': typeof AuthSettingsApiKeysApiKeyIdRoute
@@ -510,6 +547,8 @@ export interface FileRouteTypes {
     | '/'
     | '/agents/$agentId'
     | '/agents/new'
+    | '/calendars/$calendarId'
+    | '/calendars/new'
     | '/contacts/$contactId'
     | '/contacts/import'
     | '/contacts/new'
@@ -521,11 +560,13 @@ export interface FileRouteTypes {
     | '/onboard/instagram/callback'
     | '/onboard/whatsapp/$token'
     | '/agents'
+    | '/calendars'
     | '/contacts'
     | '/conversations'
     | '/integrations'
     | '/settings'
     | '/stats/'
+    | '/calendars/edit/$calendarId'
     | '/integrations/instagram/new'
     | '/integrations/whatsapp/new'
     | '/settings/api-keys/$apiKeyId'
@@ -561,6 +602,8 @@ export interface FileRouteTypes {
     | '/'
     | '/agents/$agentId'
     | '/agents/new'
+    | '/calendars/$calendarId'
+    | '/calendars/new'
     | '/contacts/$contactId'
     | '/contacts/import'
     | '/contacts/new'
@@ -572,11 +615,13 @@ export interface FileRouteTypes {
     | '/onboard/instagram/callback'
     | '/onboard/whatsapp/$token'
     | '/agents'
+    | '/calendars'
     | '/contacts'
     | '/conversations'
     | '/integrations'
     | '/settings'
     | '/stats'
+    | '/calendars/edit/$calendarId'
     | '/integrations/instagram/new'
     | '/integrations/whatsapp/new'
     | '/settings/api-keys/$apiKeyId'
@@ -614,6 +659,8 @@ export interface FileRouteTypes {
     | '/_auth/'
     | '/_auth/agents/$agentId'
     | '/_auth/agents/new'
+    | '/_auth/calendars/$calendarId'
+    | '/_auth/calendars/new'
     | '/_auth/contacts/$contactId'
     | '/_auth/contacts/import'
     | '/_auth/contacts/new'
@@ -625,11 +672,13 @@ export interface FileRouteTypes {
     | '/onboard/instagram/callback'
     | '/onboard/whatsapp/$token'
     | '/_auth/agents/'
+    | '/_auth/calendars/'
     | '/_auth/contacts/'
     | '/_auth/conversations/'
     | '/_auth/integrations/'
     | '/_auth/settings/'
     | '/_auth/stats/'
+    | '/_auth/calendars/edit/$calendarId'
     | '/_auth/integrations/instagram/new'
     | '/_auth/integrations/whatsapp/new'
     | '/_auth/settings/api-keys/$apiKeyId'
@@ -755,6 +804,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthContactsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/calendars/': {
+      id: '/_auth/calendars/'
+      path: '/calendars'
+      fullPath: '/calendars'
+      preLoaderRoute: typeof AuthCalendarsIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/agents/': {
       id: '/_auth/agents/'
       path: '/agents'
@@ -830,6 +886,20 @@ declare module '@tanstack/react-router' {
       path: '/contacts/$contactId'
       fullPath: '/contacts/$contactId'
       preLoaderRoute: typeof AuthContactsContactIdRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/calendars/new': {
+      id: '/_auth/calendars/new'
+      path: '/calendars/new'
+      fullPath: '/calendars/new'
+      preLoaderRoute: typeof AuthCalendarsNewRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/calendars/$calendarId': {
+      id: '/_auth/calendars/$calendarId'
+      path: '/calendars/$calendarId'
+      fullPath: '/calendars/$calendarId'
+      preLoaderRoute: typeof AuthCalendarsCalendarIdRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/agents/new': {
@@ -951,6 +1021,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIntegrationsInstagramNewRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/calendars/edit/$calendarId': {
+      id: '/_auth/calendars/edit/$calendarId'
+      path: '/calendars/edit/$calendarId'
+      fullPath: '/calendars/edit/$calendarId'
+      preLoaderRoute: typeof AuthCalendarsEditCalendarIdRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/integrations/whatsapp/onboarding/': {
       id: '/_auth/integrations/whatsapp/onboarding/'
       path: '/integrations/whatsapp/onboarding'
@@ -1052,16 +1129,20 @@ interface AuthRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
   AuthAgentsAgentIdRoute: typeof AuthAgentsAgentIdRoute
   AuthAgentsNewRoute: typeof AuthAgentsNewRoute
+  AuthCalendarsCalendarIdRoute: typeof AuthCalendarsCalendarIdRoute
+  AuthCalendarsNewRoute: typeof AuthCalendarsNewRoute
   AuthContactsContactIdRoute: typeof AuthContactsContactIdRoute
   AuthContactsImportRoute: typeof AuthContactsImportRoute
   AuthContactsNewRoute: typeof AuthContactsNewRoute
   AuthConversationsBulkSendRoute: typeof AuthConversationsBulkSendRoute
   AuthIntegrationsMediaPreprocessingRoute: typeof AuthIntegrationsMediaPreprocessingRoute
   AuthAgentsIndexRoute: typeof AuthAgentsIndexRoute
+  AuthCalendarsIndexRoute: typeof AuthCalendarsIndexRoute
   AuthContactsIndexRoute: typeof AuthContactsIndexRoute
   AuthConversationsIndexRoute: typeof AuthConversationsIndexRoute
   AuthIntegrationsIndexRoute: typeof AuthIntegrationsIndexRoute
   AuthSettingsIndexRoute: typeof AuthSettingsIndexRoute
+  AuthCalendarsEditCalendarIdRoute: typeof AuthCalendarsEditCalendarIdRoute
   AuthIntegrationsInstagramNewRoute: typeof AuthIntegrationsInstagramNewRoute
   AuthIntegrationsWhatsappNewRoute: typeof AuthIntegrationsWhatsappNewRoute
   AuthSettingsApiKeysApiKeyIdRoute: typeof AuthSettingsApiKeysApiKeyIdRoute
@@ -1095,6 +1176,8 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
   AuthAgentsAgentIdRoute: AuthAgentsAgentIdRoute,
   AuthAgentsNewRoute: AuthAgentsNewRoute,
+  AuthCalendarsCalendarIdRoute: AuthCalendarsCalendarIdRoute,
+  AuthCalendarsNewRoute: AuthCalendarsNewRoute,
   AuthContactsContactIdRoute: AuthContactsContactIdRoute,
   AuthContactsImportRoute: AuthContactsImportRoute,
   AuthContactsNewRoute: AuthContactsNewRoute,
@@ -1102,10 +1185,12 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthIntegrationsMediaPreprocessingRoute:
     AuthIntegrationsMediaPreprocessingRoute,
   AuthAgentsIndexRoute: AuthAgentsIndexRoute,
+  AuthCalendarsIndexRoute: AuthCalendarsIndexRoute,
   AuthContactsIndexRoute: AuthContactsIndexRoute,
   AuthConversationsIndexRoute: AuthConversationsIndexRoute,
   AuthIntegrationsIndexRoute: AuthIntegrationsIndexRoute,
   AuthSettingsIndexRoute: AuthSettingsIndexRoute,
+  AuthCalendarsEditCalendarIdRoute: AuthCalendarsEditCalendarIdRoute,
   AuthIntegrationsInstagramNewRoute: AuthIntegrationsInstagramNewRoute,
   AuthIntegrationsWhatsappNewRoute: AuthIntegrationsWhatsappNewRoute,
   AuthSettingsApiKeysApiKeyIdRoute: AuthSettingsApiKeysApiKeyIdRoute,

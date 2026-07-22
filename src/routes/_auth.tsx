@@ -14,6 +14,7 @@ import { Bot, Building2, MessageSquarePlus, Settings } from "lucide-react";
 import { useResizable } from "@/hooks/useResizable";
 import { useCurrentAgents } from "@/queries/useAgents";
 import StatsCenter from "@/components/stats/StatsCenter";
+import CalendarCenter from "@/components/calendar/CalendarCenter";
 import LiveMessagePreview from "@/components/messagePreview/LiveMessagePreview";
 
 export const Route = createFileRoute("/_auth")({
@@ -42,6 +43,9 @@ function AppLayout() {
   const location = useLocation();
   const pathname = location.pathname;
   const isStatsRoute = pathname.startsWith("/stats");
+  // An open calendar (`/calendars/<id>`, but not `/calendars/new`) shows its
+  // react-big-calendar board in the wide center panel, master-detail style.
+  const isCalendarBoardRoute = /^\/calendars\/(?!new$)[^/]+$/.test(pathname);
   // Create/edit template routes (.../templates/new or .../templates/$id, but
   // not the list at .../templates). The live phone preview fills the otherwise
   // empty center panel on desktop; on mobile it stacks inside the form panel.
@@ -70,7 +74,8 @@ function AppLayout() {
   console.log("active conv", activeConvId);
 
   const showCenterPanel =
-    (activeConvId || isStatsRoute) && !isTemplateEditorRoute;
+    (activeConvId || isStatsRoute || isCalendarBoardRoute) &&
+    !isTemplateEditorRoute;
 
   return (
     <div
@@ -106,9 +111,11 @@ function AppLayout() {
             ? " hidden md:flex bg-muted"
             : isStatsRoute
               ? " flex bg-muted"
-              : activeConvId
-                ? " flex bg-chat"
-                : " hidden md:flex bg-muted")
+              : isCalendarBoardRoute
+                ? " flex bg-background"
+                : activeConvId
+                  ? " flex bg-chat"
+                  : " hidden md:flex bg-muted")
         }
         onDragEnter={() => setIsHoveringFiles(true)}
         onDrop={() => setIsHoveringFiles(false)}
@@ -121,6 +128,8 @@ function AppLayout() {
           <div className="overflow-y-auto h-full">
             <StatsCenter />
           </div>
+        ) : isCalendarBoardRoute ? (
+          <CalendarCenter />
         ) : activeConvId ? (
           <>
             {isHoveringFiles && <FilePicker setHovering={setIsHoveringFiles} />}

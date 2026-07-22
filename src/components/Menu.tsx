@@ -12,6 +12,7 @@ import {
   Languages,
   Plus,
   NotebookTabs,
+  CalendarDays,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { LinkButton } from "./LinkButton";
@@ -77,6 +78,16 @@ export default function Menu() {
           className="mt-[10px]"
         >
           <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
+        </LinkButton>
+
+        {/* Calendars button */}
+        <LinkButton
+          to="/calendars"
+          title={t("Calendarios")}
+          isActive={pathname.startsWith("/calendars")}
+          className="mt-[10px]"
+        >
+          <CalendarDays className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
 
         {/* Integrations button */}

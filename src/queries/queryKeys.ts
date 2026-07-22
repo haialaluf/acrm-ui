@@ -41,6 +41,15 @@ export const queryKeys = {
     detail: (orgId: NullableId, id: NullableId) =>
       [orgId, "webhooks", id] as const,
   },
+  calendars: {
+    all: (orgId: NullableId) => [orgId, "calendars"] as const,
+    detail: (orgId: NullableId, id: NullableId) =>
+      [orgId, "calendars", id] as const,
+  },
+  appointments: {
+    all: (orgId: NullableId, calendarId: NullableId) =>
+      [orgId, "appointments", calendarId] as const,
+  },
   onboardingTokens: {
     all: (orgId: NullableId, service: string) =>
       [orgId, "onboarding_tokens", service] as const,

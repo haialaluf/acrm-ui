@@ -4,6 +4,7 @@ export default function SectionItem({
   title,
   description,
   aside,
+  actions,
   onClick,
   className,
   disabled,
@@ -13,6 +14,7 @@ export default function SectionItem({
   title: ReactNode;
   description?: ReactNode;
   aside?: ReactNode;
+  actions?: ReactNode;
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
@@ -45,7 +47,11 @@ export default function SectionItem({
       <div className="pl-[10px] pr-[15px] flex items-center">{aside}</div>
 
       {/* Right Pane: Content */}
-      <div className="flex flex-col justify-center grow min-w-0 pr-[15px]">
+      <div
+        className={`flex flex-col justify-center grow min-w-0 ${
+          actions ? "pr-[6px]" : "pr-[15px]"
+        }`}
+      >
         {/* Upper Row: Title */}
         <div className="flex justify-between items-baseline">
           <div className="truncate text-foreground text-[16px]">{title}</div>
@@ -60,6 +66,16 @@ export default function SectionItem({
           </div>
         )}
       </div>
+
+      {/* Trailing actions (e.g. an options menu) */}
+      {actions && (
+        <div
+          className="flex items-center pr-[10px]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

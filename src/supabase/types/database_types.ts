@@ -22,7 +22,14 @@ import type {
   OrganizationAddressExtra,
   OrganizationExtra,
 } from "./extra_types";
-import type { HumanAgentExtraInsert, HumanAgentExtraUpdate } from "./ui_types";
+import type {
+  AppointmentExtra,
+  AppointmentStatus,
+  CalendarExtra,
+  CalendarWorkingHours,
+  HumanAgentExtraInsert,
+  HumanAgentExtraUpdate,
+} from "./ui_types";
 
 export type { Json, Tables };
 
@@ -152,6 +159,115 @@ export type Database = MergeDeep<
           Insert: AgentInsertStrict;
           Update: AgentUpdateStrict;
           Relationships: DatabaseGenerated["public"]["Tables"]["agents"]["Relationships"];
+        };
+        // Not yet in the generated db_types.ts — defined here until a regen
+        // picks it up (see ui_types.ts for the working_hours/extra shapes).
+        calendars: {
+          Row: {
+            organization_id: string;
+            id: string;
+            name: string;
+            timezone: string;
+            working_hours: CalendarWorkingHours | null;
+            extra: CalendarExtra | null;
+            created_at: string;
+            updated_at: string;
+          };
+          Insert: {
+            organization_id: string;
+            id?: string;
+            name: string;
+            timezone: string;
+            working_hours?: CalendarWorkingHours | null;
+            extra?: CalendarExtra | null;
+            created_at?: string;
+            updated_at?: string;
+          };
+          Update: {
+            organization_id?: string;
+            id?: string;
+            name?: string;
+            timezone?: string;
+            working_hours?: CalendarWorkingHours | null;
+            extra?: CalendarExtra | null;
+            created_at?: string;
+            updated_at?: string;
+          };
+          Relationships: [
+            {
+              foreignKeyName: "calendars_organization_id_fkey";
+              columns: ["organization_id"];
+              isOneToOne: false;
+              referencedRelation: "organizations";
+              referencedColumns: ["id"];
+            },
+          ];
+        };
+        // Not yet in the generated db_types.ts — defined here until a regen
+        // picks it up (see ui_types.ts for the status/extra shapes).
+        appointments: {
+          Row: {
+            organization_id: string;
+            id: string;
+            calendar_id: string;
+            contact_id: string | null;
+            title: string | null;
+            starts_at: string;
+            ends_at: string;
+            status: AppointmentStatus;
+            extra: AppointmentExtra | null;
+            created_at: string;
+            updated_at: string;
+          };
+          Insert: {
+            organization_id: string;
+            id?: string;
+            calendar_id: string;
+            contact_id?: string | null;
+            title?: string | null;
+            starts_at: string;
+            ends_at: string;
+            status?: AppointmentStatus;
+            extra?: AppointmentExtra | null;
+            created_at?: string;
+            updated_at?: string;
+          };
+          Update: {
+            organization_id?: string;
+            id?: string;
+            calendar_id?: string;
+            contact_id?: string | null;
+            title?: string | null;
+            starts_at?: string;
+            ends_at?: string;
+            status?: AppointmentStatus;
+            extra?: AppointmentExtra | null;
+            created_at?: string;
+            updated_at?: string;
+          };
+          Relationships: [
+            {
+              foreignKeyName: "appointments_organization_id_fkey";
+              columns: ["organization_id"];
+              isOneToOne: false;
+              referencedRelation: "organizations";
+              referencedColumns: ["id"];
+            },
+            {
+              foreignKeyName: "appointments_calendar_id_fkey";
+              columns: ["calendar_id"];
+              isOneToOne: false;
+              referencedRelation: "calendars";
+              referencedColumns: ["id"];
+            },
+            {
+              foreignKeyName: "appointments_contact_id_fkey";
+              columns: ["contact_id"];
+              isOneToOne: false;
+              referencedRelation: "contacts";
+              referencedColumns: ["id"];
+            },
+          ];
         };
       };
     };
