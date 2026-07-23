@@ -1,0 +1,44 @@
+name: Deploy booking site to Cloudflare Pages
+
+# The public self-service booking page (calendar.delacrm.com/<token>).
+#
+# It lives in this repo but not on GitHub Pages: Pages allows one custom domain
+# per repository and this one already spends it on app.delacrm.com. Cloudflare
+# Pages by direct upload needs no Git integration, so no second repository.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/booking/**"
+      - "booking/**"
+      - "vite.booking.config.ts"
+      - "src/global.css"
+      - "public/locales/**"
+      - ".github/workflows/deploy-booking.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: booking-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25
+          cache: npm
+      - run: npm ci
+      - run: npm run build:booking
+        env:
+          VITE_BOOKING_API_URL: ${{ secrets.VITE_BOOKING_API_URL }}
+          VITE_BOOKING_BASE_URL: ${{ secrets.VITE_BOOKING_BASE_URL }}
+      - run: npx wrangler pages deploy dist-booking --project-name=acrm-booking
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

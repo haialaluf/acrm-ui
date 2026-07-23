@@ -22,3 +22,7 @@ mise.toml
 
 .tanstack
 dist/
+
+# Booking site build output + wrangler's local state (vite.booking.config.ts)
+dist-booking/
+.wrangler/

@@ -1,0 +1,7 @@
+@import "../global.css";
+
+/* Vite's root for this build is `booking/`, so Tailwind v4's automatic content
+   detection scans that directory and never reaches the components under
+   `src/` — which produced a stylesheet with preflight but no utilities at all.
+   Point it at the sources this bundle actually compiles. */
+@source "../../src";

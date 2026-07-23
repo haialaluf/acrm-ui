@@ -9,7 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "prepare": "husky",
-    "types:sync-check": "bash scripts/check-type-sync.sh"
+    "types:sync-check": "bash scripts/check-type-sync.sh",
+    "build:booking": "vite build --config vite.booking.config.ts",
+    "preview:booking": "wrangler pages dev dist-booking"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.81.1",
@@ -61,7 +63,8 @@
     "prettier": "3.6.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.3",
-    "vite": "npm:rolldown-vite@7.2.2"
+    "vite": "npm:rolldown-vite@7.2.2",
+    "wrangler": "^4.42.0"
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.2.2"

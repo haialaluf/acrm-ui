@@ -1,0 +1,4 @@
+# SPA fallback. Every booking URL is /<token>, which is not a real file, so
+# Cloudflare Pages must serve index.html for it and let the app read the token
+# off location.pathname.
+/*  /index.html  200
