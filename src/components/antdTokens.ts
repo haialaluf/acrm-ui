@@ -29,6 +29,19 @@ export const inputTokens = {
   borderRadius: 10,
 };
 
+export const selectTokens = {
+  colorBorder: "var(--border)",
+  hoverBorderColor: "var(--input)",
+  activeBorderColor: "var(--primary)",
+  colorBgContainer: "var(--card)",
+  colorText: "var(--foreground)",
+  colorTextPlaceholder: "var(--muted-foreground)",
+  colorBgElevated: "var(--popover)",
+  optionSelectedBg: "var(--accent)",
+  optionActiveBg: "var(--accent)",
+  borderRadius: 10,
+};
+
 export const modalTokens = {
   contentBg: "var(--popover)",
   headerBg: "var(--popover)",

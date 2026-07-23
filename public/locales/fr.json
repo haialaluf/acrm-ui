@@ -683,5 +683,14 @@
   "El envío se cancela por completo si falla, así que puedes reintentarlo sin duplicar mensajes.": "L'envoi est entièrement annulé en cas d'échec, vous pouvez donc réessayer sans dupliquer de messages.",
   "Detalle del error": "Détail de l'erreur",
   "Destinatarios": "Destinataires",
-  "No se pudo enviar": "Échec de l'envoi"
+  "No se pudo enviar": "Échec de l'envoi",
+  "Compartir enlace de reserva": "Partager le lien de réservation",
+  "Compartir enlace": "Partager le lien",
+  "Contacto": "Contact",
+  "Buscar un contacto": "Rechercher un contact",
+  "Duración de la cita": "Durée du rendez-vous",
+  "{{1}} minutos": "{{1}} minutes",
+  "Copiado": "Copié",
+  "El enlace es reutilizable y caduca en 30 días. Quien lo reciba solo verá horarios libres.": "Le lien est réutilisable et expire dans 30 jours. Son destinataire ne verra que les créneaux libres.",
+  "No se pudo generar el enlace. Inténtalo de nuevo.": "Impossible de générer le lien. Veuillez réessayer."
 }

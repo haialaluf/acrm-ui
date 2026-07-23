@@ -716,5 +716,14 @@
   "El envío se cancela por completo si falla, así que puedes reintentarlo sin duplicar mensajes.": "The send is cancelled entirely if it fails, so you can retry without duplicating messages.",
   "Detalle del error": "Error details",
   "Destinatarios": "Recipients",
-  "No se pudo enviar": "Could not send"
+  "No se pudo enviar": "Could not send",
+  "Compartir enlace de reserva": "Share booking link",
+  "Compartir enlace": "Share link",
+  "Contacto": "Contact",
+  "Buscar un contacto": "Search for a contact",
+  "Duración de la cita": "Appointment duration",
+  "{{1}} minutos": "{{1}} minutes",
+  "Copiado": "Copied",
+  "El enlace es reutilizable y caduca en 30 días. Quien lo reciba solo verá horarios libres.": "The link is reusable and expires in 30 days. Whoever receives it will only see free times.",
+  "No se pudo generar el enlace. Inténtalo de nuevo.": "The link could not be generated. Please try again."
 }
