@@ -87,7 +87,7 @@ export function Markdown({
     content += "&emsp;&emsp;&emsp;";
 
     if (direction === "outgoing") {
-      content += "&emsp;";
+      content += "&emsp;&emsp;";
     }
   }
 
