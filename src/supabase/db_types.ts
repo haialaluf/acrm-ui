@@ -1203,6 +1203,10 @@ export type Database = {
         Args: { p_id: string; p_name: string }
         Returns: boolean
       }
+      send_broadcast: {
+        Args: { _conversations?: Json; _messages?: Json }
+        Returns: number
+      }
     }
     Enums: {
       direction: "incoming" | "outgoing" | "internal"

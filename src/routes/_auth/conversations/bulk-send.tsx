@@ -18,6 +18,7 @@ import {
   type ContactWithAddressesRow,
   type ConversationInsert,
   type ConversationRow,
+  type Json,
   type MessageInsert,
   supabase,
   type TemplateData,
@@ -48,6 +49,27 @@ import {
   STEP_FOR,
   type VarValue,
 } from "@/components/bulkSend/types";
+
+/**
+ * Readable text for whatever `send()` caught. Supabase only wraps failures in a
+ * real `PostgrestError` when the query used `.throwOnError()`; otherwise the
+ * `error` field is a plain `{ message, details, hint, code }` object parsed from
+ * the response body. So an `instanceof Error` check misses it and `String(e)`
+ * yields "[object Object]" — which is worse than useless on the failure screen.
+ * Read `message` structurally instead, and keep `details` when Postgres supplied
+ * it (that is where the failing row shows up).
+ */
+function describeError(e: unknown): string {
+  if (typeof e === "string") return e;
+  if (e && typeof e === "object") {
+    const { message, details } = e as { message?: unknown; details?: unknown };
+    const head = typeof message === "string" && message ? message : null;
+    const tail = typeof details === "string" && details ? details : null;
+    if (head && tail && tail !== head) return `${head} (${tail})`;
+    if (head) return head;
+  }
+  return String(e);
+}
 
 type BulkSendSearch = {
   /** Pre-fill a single recipient (used when this wizard is opened from inside
@@ -120,6 +142,9 @@ function BulkSend() {
   // How many messages were scheduled for later days (split sends). Surfaced on
   // the sending/done screens as "X sent today · Y scheduled".
   const [scheduled, setScheduled] = useState(0);
+  // Why the send failed, when it did. The whole broadcast is one transaction, so
+  // this is all-or-nothing: if it is set, nothing was written and nothing sent.
+  const [sendError, setSendError] = useState<string | null>(null);
 
   // Prefill once data is loaded. Guarded so we don't re-apply if the user
   // navigates back inside the wizard.
@@ -210,6 +235,7 @@ function BulkSend() {
     setStage("sending");
     setProgress({ sent: 0, failed: 0 });
     setScheduled(0);
+    setSendError(null);
 
     // Build all records locally so we can ship them in two bulk inserts
     // (conversations + messages) instead of 2N round-trips. Existing
@@ -282,22 +308,31 @@ function BulkSend() {
 
     let failed = skipped.length;
     try {
-      if (conversationsToInsert.length) {
-        const { error } = await supabase
-          .from("conversations")
-          .insert(conversationsToInsert);
-        if (error) throw error;
-      }
       if (messageRecords.length) {
-        const { error } = await supabase
-          .from("messages")
-          .upsert(messageRecords, { ignoreDuplicates: true });
+        // One transaction for both tables. Writing them as two requests could
+        // half-succeed — on 2026-07-23 the conversations landed, the messages
+        // failed, and the org was left with 1084 orphan conversations and
+        // nothing sent. All-or-nothing also makes a retry after a failure safe,
+        // since there is never a partially-sent broadcast to duplicate.
+        //
+        // The RPC omits defaulted columns rather than sending them as NULL,
+        // which is what broke split sends here: postgrest-js derives `columns`
+        // from the *union* of the records' keys and writes NULL for every key a
+        // record is missing, so immediate rows (no `timestamp` — the column
+        // default `now()` should apply) mixed with scheduled ones (explicit
+        // `timestamp`) violated the not-null constraint and took the whole
+        // broadcast down.
+        const { error } = await supabase.rpc("send_broadcast", {
+          _conversations: conversationsToInsert as unknown as Json,
+          _messages: messageRecords as unknown as Json,
+        });
         if (error) throw error;
       }
       setProgress({ sent: todayCount, failed });
       setScheduled(messageRecords.length - todayCount);
     } catch (e) {
       console.error("bulk-send failed", e);
+      setSendError(describeError(e));
       failed += messageRecords.length;
       setProgress({ sent: 0, failed });
       setScheduled(0);
@@ -318,6 +353,7 @@ function BulkSend() {
     setBatchSchedule({});
     setProgress({ sent: 0, failed: 0 });
     setScheduled(0);
+    setSendError(null);
   }
 
   // Header content varies by stage.
@@ -363,7 +399,7 @@ function BulkSend() {
         };
       case "done":
         return {
-          title: t("Envío completado"),
+          title: sendError ? t("No se pudo enviar") : t("Envío completado"),
           subtitle: template?.name,
           step,
           showProgress: false,
@@ -466,7 +502,9 @@ function BulkSend() {
           progress={progress}
           total={sendToday}
           scheduled={scheduled}
+          error={sendError}
           onReset={reset}
+          onRetry={() => setStage("review")}
           onClose={() => navigate({ to: "/conversations", hash: (h) => h! })}
         />
       )}
