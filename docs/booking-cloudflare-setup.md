@@ -99,11 +99,11 @@ present for the build command, not the deploy command.
 
 Now open the `*.pages.dev` URL from Step 2 and check three things:
 
-| Visit | Expected |
-| --- | --- |
-| `/` | The invalid-link state (no token in the path) |
-| `/garbage` | The invalid-link state — proves the SPA fallback in `booking/public/_redirects` works |
-| `/<a real token>` | The valid state, with the org and calendar name |
+| Visit             | Expected                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| `/`               | The invalid-link state (no token in the path)                                         |
+| `/garbage`        | The invalid-link state — proves the SPA fallback in `booking/public/_redirects` works |
+| `/<a real token>` | The valid state, with the org and calendar name                                       |
 
 For a real token, mint one against production:
 
@@ -128,6 +128,14 @@ Because `delacrm.com` already uses Cloudflare nameservers, Cloudflare creates
 the proxied CNAME itself and issues the certificate. No registrar changes, and
 nothing to add by hand. Status goes `Initializing` → `Active`, usually a minute
 or two but allow longer.
+
+> **Do this through the Pages project, not the DNS tab.** Adding a proxied
+> CNAME from `calendar` to `acrm-booking.pages.dev` by hand looks right and
+> does nothing — Pages routes by hostname, and a hostname that isn't
+> registered on the project has no origin behind it, so every request returns
+> **522**. If you've already created the record, run this step anyway:
+> Cloudflare detects it, shows the existing and new records as identical, and
+> activating changes no DNS at all — it just binds the hostname.
 
 Verify from a terminal rather than trusting the dashboard:
 
@@ -159,12 +167,12 @@ Copy the token — it's shown exactly once.
 Then in GitHub → `acrm-ui` → **Settings** → **Secrets and variables** →
 **Actions** → **New repository secret**, add all four:
 
-| Secret | Value | Status |
-| --- | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | the token you just created | you must add |
-| `CLOUDFLARE_ACCOUNT_ID` | from `npx wrangler whoami` in Step 1 | you must add |
-| `VITE_BOOKING_API_URL` | `https://ndxlahgkhrabfnugrxtp.supabase.co/functions/v1` | ✅ set 2026-07-23 |
-| `VITE_BOOKING_BASE_URL` | `https://calendar.delacrm.com` | ✅ set 2026-07-23 |
+| Secret                  | Value                                                   | Status            |
+| ----------------------- | ------------------------------------------------------- | ----------------- |
+| `CLOUDFLARE_API_TOKEN`  | the token you just created                              | you must add      |
+| `CLOUDFLARE_ACCOUNT_ID` | from `npx wrangler whoami` in Step 1                    | you must add      |
+| `VITE_BOOKING_API_URL`  | `https://ndxlahgkhrabfnugrxtp.supabase.co/functions/v1` | ✅ set 2026-07-23 |
+| `VITE_BOOKING_BASE_URL` | `https://calendar.delacrm.com`                          | ✅ set 2026-07-23 |
 
 The two `VITE_` values are plain configuration, not credentials, so they are
 already in place. The two Cloudflare values are yours to add — the token
@@ -180,7 +188,7 @@ goes inert — templates still send, just without personalised links.
 
 Trigger the workflow without waiting for a qualifying push:
 
-GitHub → **Actions** → *Deploy booking site to Cloudflare Pages* → **Run
+GitHub → **Actions** → _Deploy booking site to Cloudflare Pages_ → **Run
 workflow**.
 
 Or from the CLI:
@@ -208,7 +216,7 @@ different Cloudflare account than the token in Step 5. `npx wrangler pages
 project list` settles it.
 
 **CI fails with an authentication error.** The token needs `Cloudflare Pages:
-Edit` at the *account* level. A token scoped only to a zone can't deploy Pages.
+Edit` at the _account_ level. A token scoped only to a zone can't deploy Pages.
 
 **Custom domain stuck on `Initializing`.** Check for a pre-existing DNS record
 for `calendar` in the `delacrm.com` zone — Cloudflare won't overwrite one it
