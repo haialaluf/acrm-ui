@@ -28,19 +28,9 @@ export type HumanAgentExtraUpdate = {
 };
 
 // ── Organization calendars (public.calendars) ──────────────────────────────
-// The DB has no generated types for `calendars` yet, so the shapes below are
-// UI-authored. `working_hours`/`extra` are opaque jsonb server-side; the
-// meeting-scheduling agent reads `working_hours` back verbatim via the ACRM
-// MCP `check_availability` tool, so keep this shape stable.
-
-export type Weekday = "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
-
-// One working interval, "HH:MM" 24h strings in the calendar's `timezone`.
-export type WorkingHoursDay = { from: string; to: string };
-
-// Per-weekday working hours. A missing day means the calendar is closed that
-// day (the agent treats an absent/empty day as "business closed").
-export type CalendarWorkingHours = Partial<Record<Weekday, WorkingHoursDay>>;
+// Weekday / WorkingHoursDay / CalendarWorkingHours moved to ./extra_types.ts —
+// they are now mirrored from the API, which needs them for the public booking
+// page's free-slot computation.
 
 // public.calendars.extra — keeps the ISO 3166 country/region the calendar was
 // created for. The column of record for scheduling is the IANA `timezone`

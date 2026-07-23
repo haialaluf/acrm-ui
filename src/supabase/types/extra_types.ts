@@ -206,3 +206,31 @@ export type AIAgentExtra = {
   persona?: AgentPersona;
   skills?: SkillInstance[];
 };
+
+// ── Organization calendars (public.calendars) ──────────────────────────────
+// `working_hours` is opaque jsonb server-side; these shapes are the contract
+// between the CRM's calendar editor, the meeting-scheduling agent (which reads
+// `working_hours` back verbatim via the MCP `check_availability` tool) and the
+// public booking page's free-slot computation (`_shared/scheduling.ts`).
+
+export type Weekday = "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
+
+// One working interval, "HH:MM" 24h strings in the calendar's `timezone`.
+export type WorkingHoursDay = { from: string; to: string };
+
+// Per-weekday working hours. A missing day means the calendar is closed that
+// day (the agent treats an absent/empty day as "business closed").
+export type CalendarWorkingHours = Partial<Record<Weekday, WorkingHoursDay>>;
+
+// public.booking_links.extra — per-link overrides for the public booking page.
+export type BookingLinkExtra = {
+  // How far ahead of `now` a slot must start to be offered (default 60).
+  min_notice_minutes?: number;
+  // How many days ahead /slots will answer for (default 30).
+  horizon_days?: number;
+  // Candidate start granularity; defaults to the link's duration_minutes.
+  slot_step_minutes?: number;
+  // Title for appointments booked through this link; defaults to the contact's
+  // name.
+  title?: string;
+};

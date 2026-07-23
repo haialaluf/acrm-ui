@@ -22,11 +22,11 @@ import type {
   OrganizationAddressExtra,
   OrganizationExtra,
 } from "./extra_types";
+import type { CalendarWorkingHours } from "./extra_types";
 import type {
   AppointmentExtra,
   AppointmentStatus,
   CalendarExtra,
-  CalendarWorkingHours,
   HumanAgentExtraInsert,
   HumanAgentExtraUpdate,
 } from "./ui_types";
@@ -160,114 +160,35 @@ export type Database = MergeDeep<
           Update: AgentUpdateStrict;
           Relationships: DatabaseGenerated["public"]["Tables"]["agents"]["Relationships"];
         };
-        // Not yet in the generated db_types.ts — defined here until a regen
-        // picks it up (see ui_types.ts for the working_hours/extra shapes).
+        // Both tables ARE in the generated db_types.ts now. What survives here
+        // is only the narrowing the generator cannot express: `working_hours`,
+        // `extra` and `status` are opaque jsonb/enum columns server-side, and
+        // MergeDeep replaces just these keys on the generated rows. Re-declaring
+        // whole rows (as this used to) would let the copy drift from the DB.
         calendars: {
           Row: {
-            organization_id: string;
-            id: string;
-            name: string;
-            timezone: string;
             working_hours: CalendarWorkingHours | null;
             extra: CalendarExtra | null;
-            created_at: string;
-            updated_at: string;
           };
           Insert: {
-            organization_id: string;
-            id?: string;
-            name: string;
-            timezone: string;
             working_hours?: CalendarWorkingHours | null;
             extra?: CalendarExtra | null;
-            created_at?: string;
-            updated_at?: string;
           };
           Update: {
-            organization_id?: string;
-            id?: string;
-            name?: string;
-            timezone?: string;
             working_hours?: CalendarWorkingHours | null;
             extra?: CalendarExtra | null;
-            created_at?: string;
-            updated_at?: string;
           };
-          Relationships: [
-            {
-              foreignKeyName: "calendars_organization_id_fkey";
-              columns: ["organization_id"];
-              isOneToOne: false;
-              referencedRelation: "organizations";
-              referencedColumns: ["id"];
-            },
-          ];
         };
-        // Not yet in the generated db_types.ts — defined here until a regen
-        // picks it up (see ui_types.ts for the status/extra shapes).
         appointments: {
-          Row: {
-            organization_id: string;
-            id: string;
-            calendar_id: string;
-            contact_id: string | null;
-            title: string | null;
-            starts_at: string;
-            ends_at: string;
-            status: AppointmentStatus;
-            extra: AppointmentExtra | null;
-            created_at: string;
-            updated_at: string;
-          };
+          Row: { status: AppointmentStatus; extra: AppointmentExtra | null };
           Insert: {
-            organization_id: string;
-            id?: string;
-            calendar_id: string;
-            contact_id?: string | null;
-            title?: string | null;
-            starts_at: string;
-            ends_at: string;
             status?: AppointmentStatus;
             extra?: AppointmentExtra | null;
-            created_at?: string;
-            updated_at?: string;
           };
           Update: {
-            organization_id?: string;
-            id?: string;
-            calendar_id?: string;
-            contact_id?: string | null;
-            title?: string | null;
-            starts_at?: string;
-            ends_at?: string;
             status?: AppointmentStatus;
             extra?: AppointmentExtra | null;
-            created_at?: string;
-            updated_at?: string;
           };
-          Relationships: [
-            {
-              foreignKeyName: "appointments_organization_id_fkey";
-              columns: ["organization_id"];
-              isOneToOne: false;
-              referencedRelation: "organizations";
-              referencedColumns: ["id"];
-            },
-            {
-              foreignKeyName: "appointments_calendar_id_fkey";
-              columns: ["calendar_id"];
-              isOneToOne: false;
-              referencedRelation: "calendars";
-              referencedColumns: ["id"];
-            },
-            {
-              foreignKeyName: "appointments_contact_id_fkey";
-              columns: ["contact_id"];
-              isOneToOne: false;
-              referencedRelation: "contacts";
-              referencedColumns: ["id"];
-            },
-          ];
         };
       };
     };

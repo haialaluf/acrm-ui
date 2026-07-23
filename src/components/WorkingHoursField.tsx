@@ -6,7 +6,7 @@ import type {
   CalendarWorkingHours,
   Weekday,
   WorkingHoursDay,
-} from "@/supabase/types/ui_types";
+} from "@/supabase/types/extra_types";
 
 const DEFAULT_DAY: WorkingHoursDay = { from: "09:00", to: "17:00" };
 
