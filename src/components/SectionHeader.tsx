@@ -35,7 +35,7 @@ export default function SectionHeader({
       {showBackButton &&
         (closeButton ? (
           <button
-            className="p-[8px] rounded-full hover:bg-muted mr-[8px] ml-[-8px]"
+            className="p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]"
             title={t("Cerrar")}
             onClick={() => router.history.back()}
           >
@@ -44,7 +44,7 @@ export default function SectionHeader({
         ) : (
           <LinkButton
             to=".."
-            className="mr-[8px] ml-[-8px]"
+            className="me-[8px] ms-[-8px]"
             title={t("Volver")}
           >
             <ArrowLeft className="w-[24px] h-[24px]" />

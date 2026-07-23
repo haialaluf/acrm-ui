@@ -206,7 +206,7 @@ const FilePreviewer = () => {
         {/* Close button - Filename */}
         <div className="py-[8px] px-[16px] min-h-[60px] flex justify-between items-center">
           <button
-            className="p-[8px] rounded-full hover:bg-muted mr-[8px] ml-[-8px]"
+            className="p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]"
             title={t("Cerrar")}
             onClick={quitPreviewer}
           >

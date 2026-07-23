@@ -65,7 +65,7 @@ export default function Header() {
     <div className="header border-b border-border bg-background z-30 shadow-md">
       {/* Back button */}
       <button
-        className="mr-4 md:hidden"
+        className="me-4 md:hidden"
         title={t("Volver")}
         onClick={() => navigate({ hash: undefined })}
       >

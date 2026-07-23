@@ -45,7 +45,7 @@ export default function SectionField({
           {/* Header */}
           <div className="header items-center truncate shrink-0">
             <button
-              className="p-[8px] rounded-full hover:bg-muted mr-[8px] ml-[-8px]"
+              className="p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]"
               title={t("Volver")}
               onClick={() => setIsOpen(false)}
             >

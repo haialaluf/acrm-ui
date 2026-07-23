@@ -140,7 +140,7 @@ export default function SkillsSection<T extends FieldValues>({
           <div className="header items-center truncate shrink-0">
             <button
               type="button"
-              className="p-[8px] rounded-full hover:bg-muted mr-[8px] ml-[-8px]"
+              className="p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]"
               title={t("Volver")}
               onClick={() => setEditingId(null)}
             >
