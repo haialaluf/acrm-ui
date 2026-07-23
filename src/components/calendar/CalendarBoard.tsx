@@ -8,7 +8,13 @@ import "dayjs/locale/pt";
 import "dayjs/locale/fr";
 import "dayjs/locale/he";
 import "dayjs/locale/sw";
-import { ArrowLeft, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Link2,
+  Plus,
+} from "lucide-react";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendarBoard.css";
 
@@ -25,6 +31,7 @@ import {
 import { workingDayIndexSet, workingHoursBounds } from "@/utils/calendar";
 import { LinkButton } from "@/components/LinkButton";
 import MeetingModal, { type MeetingDraft } from "./MeetingModal";
+import ShareBookingLinkModal from "./ShareBookingLinkModal";
 
 type CalEvent = {
   id: string;
@@ -59,6 +66,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
     mode: "new" | "edit";
     draft: MeetingDraft;
   } | null>(null);
+  const [sharing, setSharing] = useState(false);
 
   // dayjs is the shared instance the localizer formats through; align it with
   // the active UI language so weekday/month labels are localized.
@@ -231,6 +239,13 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
         </div>
         <div className="text-[18px] grow capitalize">{label}</div>
         <button
+          className="text-[14px] rounded-full px-4 py-[6px] border border-border bg-card text-foreground hover:bg-accent flex items-center gap-1"
+          onClick={() => setSharing(true)}
+        >
+          <Link2 className="w-[16px] h-[16px]" />
+          {t("Compartir enlace")}
+        </button>
+        <button
           className="primary text-[14px] px-4 flex items-center gap-1"
           onClick={newMeeting}
         >
@@ -288,6 +303,12 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
         onSave={saveMeeting}
         onDelete={deleteMeeting}
         onClose={() => setModal(null)}
+      />
+
+      <ShareBookingLinkModal
+        open={sharing}
+        calendarId={calendarId}
+        onClose={() => setSharing(false)}
       />
     </div>
   );

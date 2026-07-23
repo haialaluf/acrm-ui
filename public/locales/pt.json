@@ -715,5 +715,14 @@
   "El envío se cancela por completo si falla, así que puedes reintentarlo sin duplicar mensajes.": "O envio é cancelado por completo se falhar, por isso pode tentar novamente sem duplicar mensagens.",
   "Detalle del error": "Detalhe do erro",
   "Destinatarios": "Destinatários",
-  "No se pudo enviar": "Não foi possível enviar"
+  "No se pudo enviar": "Não foi possível enviar",
+  "Compartir enlace de reserva": "Compartilhar link de agendamento",
+  "Compartir enlace": "Compartilhar link",
+  "Contacto": "Contato",
+  "Buscar un contacto": "Buscar um contato",
+  "Duración de la cita": "Duração do agendamento",
+  "{{1}} minutos": "{{1}} minutos",
+  "Copiado": "Copiado",
+  "El enlace es reutilizable y caduca en 30 días. Quien lo reciba solo verá horarios libres.": "O link é reutilizável e expira em 30 dias. Quem o receber verá apenas os horários livres.",
+  "No se pudo generar el enlace. Inténtalo de nuevo.": "Não foi possível gerar o link. Tente novamente."
 }
