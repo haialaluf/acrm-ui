@@ -4,4 +4,6 @@ src/routeTree.gen.ts
 
 # Build output and excluded/legacy code (also excluded from tsconfig + ESLint)
 dist
+dist-booking
+.wrangler
 src/deprecated
