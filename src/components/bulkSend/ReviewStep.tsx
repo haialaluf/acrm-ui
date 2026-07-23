@@ -70,6 +70,9 @@ export default function ReviewStep({
   setBatchSchedule,
   scheduleMode,
   setScheduleMode,
+  bookingCalendars,
+  bookingCalendarId,
+  setBookingCalendarId,
 }: {
   template: TemplateData;
   vars: Record<string, VarValue>;
@@ -88,6 +91,11 @@ export default function ReviewStep({
   setBatchSchedule: (s: BatchSchedule) => void;
   scheduleMode: ScheduleMode;
   setScheduleMode: (m: ScheduleMode) => void;
+  /** Set only when this template carries a booking link AND the org has more
+   *  than one calendar — with a single calendar there is nothing to ask. */
+  bookingCalendars?: { id: string; name: string }[];
+  bookingCalendarId: string;
+  setBookingCalendarId: (id: string) => void;
 }) {
   const { translate: t } = useTranslation();
   const [idx, setIdx] = useState(0);
@@ -146,7 +154,11 @@ export default function ReviewStep({
   }, [template, vars, current, headerMedia, t]);
 
   const canSend =
-    recipients.length > 0 && (effective !== "later" || !!scheduledAt);
+    recipients.length > 0 &&
+    (effective !== "later" || !!scheduledAt) &&
+    // A booking template with no calendar chosen would send everyone the
+    // template's example link instead of their own.
+    (!bookingCalendars?.length || !!bookingCalendarId);
 
   return (
     <>
@@ -450,6 +462,26 @@ export default function ReviewStep({
           )}
         </div>
       </div>
+
+      {!!bookingCalendars?.length && (
+        <div className="px-[16px] pb-[12px]">
+          <div className="text-[12px] text-muted-foreground mb-[6px]">
+            {t("Calendario para el enlace de reserva")}
+          </div>
+          <select
+            className="w-full h-[38px] px-[10px] rounded-[8px] border border-input bg-card text-[14px]"
+            value={bookingCalendarId}
+            onChange={(e) => setBookingCalendarId(e.target.value)}
+          >
+            <option value="">{t("Elige un calendario")}</option>
+            {bookingCalendars.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <SectionFooter className="gap-[8px]">
         {effective === "split" && (

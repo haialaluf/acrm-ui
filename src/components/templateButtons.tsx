@@ -1,5 +1,9 @@
 import { Copy, Link, Phone, Reply } from "lucide-react";
-import type { TemplateButton, TemplateButtonDef } from "@/supabase/client";
+import type {
+  TemplateButton,
+  TemplateButtonDef,
+  TemplateData,
+} from "@/supabase/client";
 
 /* Shared model for WhatsApp template buttons, used by the editor
    (TemplateButtonsField), the preview (WhatsAppPreview / TextMessage) and the
@@ -201,13 +205,48 @@ export function buttonDefToPreview(
   return { kind, text };
 }
 
+/* ─── Self-service booking links ──────────────────────────────────────────
+   A template sends booking links by pointing a DYNAMIC url button at the
+   booking origin, with `{{1}}` standing in for the per-recipient token. Meta
+   treats that suffix as a per-message parameter, which is what lets one
+   template deliver 500 different links in one broadcast.
+
+   Detection is by base URL alone: a template either points at the booking
+   domain or it doesn't. That keeps it out of the template metadata and out of
+   the send wizard — nothing to configure, nothing to keep in sync. */
+export const BOOKING_ORIGIN = (
+  import.meta.env.VITE_BOOKING_BASE_URL || "https://calendar.delacrm.com"
+).replace(/\/+$/, "");
+
+/** Index of the template's booking URL button, or null when it has none. */
+export function bookingButtonIndex(template: TemplateData): number | null {
+  const buttons = template.components.find(
+    (c) => c.type === "BUTTONS",
+  )?.buttons;
+  if (!buttons) return null;
+
+  const index = buttons.findIndex(
+    (b) =>
+      b.type === "URL" &&
+      b.url.includes("{{1}}") &&
+      b.url.startsWith(BOOKING_ORIGIN),
+  );
+  return index === -1 ? null : index;
+}
+
 /* ─── Meta button def → send-time message components ─────────────────────
    Only buttons that carry runtime data emit a component: quick replies
    (payload), dynamic URLs (the {{1}} value) and copy-code (the coupon).
    Static URLs and phone buttons need none. The index must match the
-   button's position in the template definition. */
+   button's position in the template definition.
+
+   `urlParams` overrides a dynamic URL button's value per message, keyed by
+   button index. Without it every recipient gets `example[0]` — the single
+   fixed suffix baked into the template — which is exactly wrong for a booking
+   link, where each recipient needs their own token. */
 export function buttonSendComponents(
   buttons: TemplateButtonDef[],
+  urlParams?: Record<number, string>,
 ): TemplateButton[] {
   const components: TemplateButton[] = [];
 
@@ -224,12 +263,17 @@ export function buttonSendComponents(
           },
         ],
       });
-    } else if (button.type === "URL" && button.example) {
+    } else if (
+      button.type === "URL" &&
+      (urlParams?.[index] || button.example)
+    ) {
       components.push({
         type: "button",
         sub_type: "url",
         index: index.toString(),
-        parameters: [{ type: "text", text: button.example[0] }],
+        parameters: [
+          { type: "text", text: urlParams?.[index] ?? button.example![0] },
+        ],
       });
     } else if (button.type === "COPY_CODE") {
       components.push({

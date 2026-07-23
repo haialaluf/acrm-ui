@@ -34,6 +34,9 @@ import ReviewStep from "@/components/bulkSend/ReviewStep";
 import SendingStep from "@/components/bulkSend/SendingStep";
 import DoneStep from "@/components/bulkSend/DoneStep";
 import { buildMessageRecord } from "@/components/bulkSend/buildMessageRecord";
+import { bookingButtonIndex } from "@/components/templateButtons";
+import { useCalendars } from "@/queries/useCalendars";
+import { useMintBookingLinks } from "@/queries/useBookingLinks";
 import {
   type BatchSchedule,
   batchScheduledIso,
@@ -115,6 +118,8 @@ function BulkSend() {
     () => (templates ?? []).filter((tpl) => tpl.status === "APPROVED"),
     [templates],
   );
+  const { data: calendars } = useCalendars();
+  const mintBookingLinks = useMintBookingLinks();
 
   // wizard state
   const [stage, setStage] = useState<Stage>("recipients");
@@ -130,6 +135,9 @@ function BulkSend() {
   // Public URL for a template's mandatory media header (image/video/document).
   // Empty when the chosen template has a text/no header.
   const [headerMedia, setHeaderMedia] = useState("");
+  // Which calendar a booking-link template books against. Only asked for when
+  // the org has more than one; see `bookingCalendarId` below.
+  const [pickedCalendarId, setPickedCalendarId] = useState("");
   // Default to scheduling for later, pre-filled with the next 9am (local).
   const [scheduling, setScheduling] = useState<Scheduling>("later");
   const [scheduledAt, setScheduledAt] = useState(defaultScheduledAt);
@@ -181,6 +189,18 @@ function BulkSend() {
       (c) => selectedIds.has(c.id) && c.addresses?.[0]?.address,
     );
   }, [contacts, selectedIds]);
+
+  /* Self-service booking links. A template carries them by pointing a dynamic
+   * URL button at the booking site; when one does, every recipient needs their
+   * OWN token in that button's parameter. Minting needs a calendar: with
+   * exactly one there is nothing to ask, so it is chosen silently. */
+  const bookingIndex = template ? bookingButtonIndex(template) : null;
+  const bookingCalendarId =
+    bookingIndex == null
+      ? null
+      : calendars?.length === 1
+        ? calendars[0].id
+        : pickedCalendarId || null;
 
   /* Daily-limit batching: split the broadcast into one batch per day when it
    * exceeds the WhatsApp messaging limit fetched from Meta. */
@@ -247,6 +267,28 @@ function BulkSend() {
     // Count records sent today vs scheduled for a later day (split sends).
     let todayCount = 0;
 
+    // One mint for the entire broadcast: 500 recipients cost a single extra
+    // round-trip, and anyone who already holds a live link gets that same link
+    // back (with its expiry pushed out) rather than a second one.
+    let bookingTokens = new Map<string, string>();
+    if (bookingIndex != null && bookingCalendarId) {
+      try {
+        bookingTokens = await mintBookingLinks.mutateAsync({
+          calendarId: bookingCalendarId,
+          contactIds: recipients.map((c) => c.id),
+        });
+      } catch (e) {
+        // Without tokens every recipient would receive the template's example
+        // link — one shared URL pointing at somebody else's booking page — so
+        // fail the send instead.
+        console.error("minting booking links failed", e);
+        setSendError(describeError(e));
+        setProgress({ sent: 0, failed: recipients.length });
+        setStage("done");
+        return;
+      }
+    }
+
     const storeConvs = useBoundStore.getState().chat.conversations;
 
     for (const { contact, scheduledIso } of items) {
@@ -290,6 +332,7 @@ function BulkSend() {
         headerMedia,
         agentId,
         scheduledAt: scheduledIso,
+        bookingToken: bookingTokens.get(contact.id),
       });
       if (!record) {
         skipped.push(contact);
@@ -347,6 +390,7 @@ function BulkSend() {
     setTemplate(null);
     setVars({});
     setHeaderMedia("");
+    setPickedCalendarId("");
     setScheduling("later");
     setScheduledAt(defaultScheduledAt());
     setScheduleMode("auto");
@@ -486,6 +530,13 @@ function BulkSend() {
           setBatchSchedule={setBatchSchedule}
           scheduleMode={scheduleMode}
           setScheduleMode={setScheduleMode}
+          bookingCalendars={
+            bookingIndex != null && (calendars?.length ?? 0) > 1
+              ? (calendars ?? []).map((c) => ({ id: c.id, name: c.name }))
+              : undefined
+          }
+          bookingCalendarId={pickedCalendarId}
+          setBookingCalendarId={setPickedCalendarId}
         />
       )}
 
