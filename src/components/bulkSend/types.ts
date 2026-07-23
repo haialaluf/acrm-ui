@@ -74,31 +74,100 @@ export type BatchSchedule = Record<number, BatchOverride>;
 /** Default clock time for a scheduled batch when the user hasn't picked one. */
 export const DEFAULT_SEND_TIME = "09:00";
 
+/**
+ * WhatsApp's messaging tier is a *rolling* 24h window on the number of unique
+ * customers you may start conversations with — not a per-calendar-day
+ * allowance. Batch N therefore has to clear a full 24h from the send, not
+ * merely land on a later date.
+ */
+const ROLLING_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+/** Cushion so the gap survives the delay between the schedule being rendered
+ *  and the send actually landing, plus any clock skew against Meta. */
+const ROLLING_WINDOW_BUFFER_MS = 5 * 60 * 1000;
+
 function pad2(n: number): string {
   return String(n).padStart(2, "0");
+}
+
+/** Local ISO date (YYYY-MM-DD) for a Date. */
+function localISODate(d: Date): string {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+/** Local HH:mm for a Date. */
+function localTime(d: Date): string {
+  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
+/** Round up to the next 5 minutes, matching the picker's `minuteStep` and
+ *  keeping the displayed schedule stable between renders. */
+function roundUpTo5Minutes(d: Date): Date {
+  const r = new Date(d);
+  r.setSeconds(0, 0);
+  const remainder = r.getMinutes() % 5;
+  if (remainder) r.setMinutes(r.getMinutes() + (5 - remainder));
+  return r;
 }
 
 /** Local ISO date (YYYY-MM-DD) for today + `offset` days. */
 export function offsetToISO(offset: number): string {
   const d = new Date();
   d.setDate(d.getDate() + offset);
-  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  return localISODate(d);
 }
 
 /**
  * Resolve one batch's send date/time, layering any override on top of the
- * default: batch N goes out today + N days; batch 0 sends "now" (empty time),
- * the rest at DEFAULT_SEND_TIME.
+ * default: batch 0 sends "now" (empty time), and batch N goes out on today + N
+ * days at whichever is *later* — its nominal DEFAULT_SEND_TIME slot, or a full
+ * rolling window per batch after the send plus a buffer.
+ *
+ * That second clause is what keeps a split broadcast inside the tier limit.
+ * Anchoring every later batch to a fixed 09:00 meant any send after 09:00 left
+ * under 24h between batch 0 and batch 1 — a 10:38 send put batch 1 just 22h22m
+ * later, so Meta still counted batch 0's recipients against the window and
+ * rejected batch 1. (Batches 1..N were spaced exactly 24h, with no margin at
+ * all.) Taking the later of the two keeps the clean 09:00 slot for morning
+ * sends and otherwise shifts following batches to roughly the hour the
+ * broadcast started, which also keeps them in business hours instead of
+ * drifting into the middle of the night.
+ *
+ * An explicit override is the user's own choice and is returned verbatim — it
+ * is not pushed out to satisfy the window.
  */
 export function resolveBatchSchedule(
   schedule: BatchSchedule,
   index: number,
 ): { isoDate: string; time: string } {
   const ov = schedule[index] ?? {};
-  const isoDate = ov.date || offsetToISO(index);
-  const time =
-    ov.time !== undefined ? ov.time : index === 0 ? "" : DEFAULT_SEND_TIME;
-  return { isoDate, time };
+  if (ov.date !== undefined || ov.time !== undefined) {
+    return {
+      isoDate: ov.date || offsetToISO(index),
+      time:
+        ov.time !== undefined ? ov.time : index === 0 ? "" : DEFAULT_SEND_TIME,
+    };
+  }
+
+  if (index === 0) return { isoDate: offsetToISO(0), time: "" };
+
+  // Walk the batches in order: each one must clear a full window from the batch
+  // before it, not just from the send. Measuring every batch against `now`
+  // alone would leave consecutive batches exactly 24h apart with no margin —
+  // and since the dispatch cron drains only 100 messages per minute, a
+  // 250-message batch takes ~3 minutes to go out, so its tail would still be
+  // inside the window when the next batch started.
+  let previous = Date.now();
+  let at = new Date(previous);
+  for (let i = 1; i <= index; i++) {
+    const nominal = new Date(`${offsetToISO(i)}T${DEFAULT_SEND_TIME}`);
+    const earliest = roundUpTo5Minutes(
+      new Date(previous + ROLLING_WINDOW_MS + ROLLING_WINDOW_BUFFER_MS),
+    );
+    at = nominal.getTime() >= earliest.getTime() ? nominal : earliest;
+    previous = at.getTime();
+  }
+  return { isoDate: localISODate(at), time: localTime(at) };
 }
 
 /**
