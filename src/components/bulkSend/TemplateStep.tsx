@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Wrench } from "lucide-react";
+import { Plus, Wrench } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { type TemplateData } from "@/supabase/client";
 
@@ -13,12 +13,15 @@ export default function TemplateStep({
   selectedId,
   onPick,
   onManage,
+  onCreate,
 }: {
   templates: TemplateData[];
   selectedId?: string;
   onPick: (tpl: TemplateData) => void;
   /** Jump to the templates management page (create/edit templates). */
   onManage?: () => void;
+  /** Jump straight to the create-template form. */
+  onCreate?: () => void;
 }) {
   const { translate: t } = useTranslation();
   const [search, setSearch] = useState("");
@@ -113,6 +116,19 @@ export default function TemplateStep({
             );
           })}
         </div>
+        {onCreate && (
+          <button
+            onClick={onCreate}
+            className="mt-[8px] w-full flex items-center gap-[15px] rounded-xl py-[8px] px-[10px] text-start hover:bg-accent transition-colors"
+          >
+            <div className="p-[8px] bg-primary/10 rounded-full">
+              <Plus className="w-[24px] h-[24px] text-primary" />
+            </div>
+            <div className="text-[16px] text-foreground">
+              {t("Crear plantilla")}
+            </div>
+          </button>
+        )}
         {onManage && (
           <button
             onClick={onManage}

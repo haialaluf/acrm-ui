@@ -25,18 +25,28 @@ import Spinner from "@/components/Spinner";
 export default function ManageTemplatesOverlay({
   organizationAddress,
   onClose,
+  initialMode = "list",
 }: {
   organizationAddress: string;
   onClose: () => void;
+  /** Which sub-view to open on. Defaults to the templates list; pass "new" to
+   *  jump straight into the create form. */
+  initialMode?: "list" | "new";
 }) {
   const { translate: t } = useTranslation();
   const { data: templates, isLoading } = useTemplates(organizationAddress);
   const deleteTemplate = useDeleteTemplate();
 
   // Which sub-view is showing. `undefined` template on "edit" never happens.
+  // `root` marks a form that was opened as the overlay's entry point (i.e. the
+  // wizard's "Create template" button jumped straight here) rather than reached
+  // from the list — so its back arrow closes the overlay instead of dropping to
+  // a list the user never saw.
   const [view, setView] = useState<
-    { mode: "list" } | { mode: "new" } | { mode: "edit"; template: TemplateData }
-  >({ mode: "list" });
+    | { mode: "list" }
+    | { mode: "new"; root?: boolean }
+    | { mode: "edit"; template: TemplateData }
+  >(initialMode === "new" ? { mode: "new", root: true } : { mode: "list" });
 
   const title =
     view.mode === "new"
@@ -45,9 +55,13 @@ export default function ManageTemplatesOverlay({
         ? t("Editar plantilla")
         : t("Plantillas");
 
-  // Back arrow: from the list it closes the overlay (back to the wizard); from
-  // a form it returns to the list.
-  const onBack = () => (view.mode === "list" ? onClose() : setView({ mode: "list" }));
+  // Back arrow: from the list (or a form opened as the entry point) it closes
+  // the overlay back to the wizard; from a form reached via the list it returns
+  // to the list.
+  const onBack = () =>
+    view.mode === "list" || (view.mode === "new" && view.root)
+      ? onClose()
+      : setView({ mode: "list" });
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col bg-background">

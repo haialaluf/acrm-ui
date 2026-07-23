@@ -98,7 +98,10 @@ function BulkSend() {
   const [stage, setStage] = useState<Stage>("recipients");
   // Templates management shown as an overlay over the wizard. Kept as local
   // state (not a route) so opening it never unmounts the wizard.
-  const [managingTemplates, setManagingTemplates] = useState(false);
+  // `false` = closed; otherwise the sub-view the overlay should open on.
+  const [managingTemplates, setManagingTemplates] = useState<
+    false | "list" | "new"
+  >(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [vars, setVars] = useState<Record<string, VarValue>>({});
@@ -393,7 +396,10 @@ function BulkSend() {
           templates={approved}
           selectedId={template?.id}
           onManage={
-            whatsappAddress ? () => setManagingTemplates(true) : undefined
+            whatsappAddress ? () => setManagingTemplates("list") : undefined
+          }
+          onCreate={
+            whatsappAddress ? () => setManagingTemplates("new") : undefined
           }
           onPick={(tpl) => {
             setTemplate(tpl);
@@ -468,6 +474,7 @@ function BulkSend() {
       {managingTemplates && whatsappAddress && (
         <ManageTemplatesOverlay
           organizationAddress={whatsappAddress.address}
+          initialMode={managingTemplates}
           onClose={() => setManagingTemplates(false)}
         />
       )}
