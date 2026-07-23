@@ -33,9 +33,14 @@ import useBoundStore from "@/stores/useBoundStore";
 export default function TemplateEditor({
   existingTemplate,
   organizationAddress,
+  onSaved,
 }: {
   existingTemplate?: TemplateData;
   organizationAddress: string;
+  /** Called after a successful save. When omitted, navigates up to the
+   *  templates list (route behaviour). Supplied when the editor is embedded
+   *  in an overlay (e.g. the bulk-send wizard) that must not change routes. */
+  onSaved?: () => void;
 }) {
   "use no memo";
   const { translate: t, currentLanguage } = useTranslation();
@@ -244,7 +249,10 @@ export default function TemplateEditor({
     mutation.mutate(
       { template, organizationAddress },
       {
-        onSuccess: () => navigate({ to: "..", hash: (prevHash) => prevHash! }),
+        onSuccess: () =>
+          onSaved
+            ? onSaved()
+            : navigate({ to: "..", hash: (prevHash) => prevHash! }),
         onError: (error) =>
           setSubmitError(
             error instanceof Error

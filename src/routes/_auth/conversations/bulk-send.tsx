@@ -27,6 +27,7 @@ import { formatPhoneNumber } from "@/utils/FormatUtils";
 import WizardHeader from "@/components/bulkSend/WizardHeader";
 import RecipientsStep from "@/components/bulkSend/RecipientsStep";
 import TemplateStep from "@/components/bulkSend/TemplateStep";
+import ManageTemplatesOverlay from "@/components/bulkSend/ManageTemplatesOverlay";
 import VariablesStep from "@/components/bulkSend/VariablesStep";
 import ReviewStep from "@/components/bulkSend/ReviewStep";
 import SendingStep from "@/components/bulkSend/SendingStep";
@@ -95,6 +96,9 @@ function BulkSend() {
 
   // wizard state
   const [stage, setStage] = useState<Stage>("recipients");
+  // Templates management shown as an overlay over the wizard. Kept as local
+  // state (not a route) so opening it never unmounts the wizard.
+  const [managingTemplates, setManagingTemplates] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [vars, setVars] = useState<Record<string, VarValue>>({});
@@ -365,7 +369,7 @@ function BulkSend() {
   })();
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="relative flex flex-col h-full">
       <WizardHeader
         title={header.title}
         subtitle={header.subtitle}
@@ -389,14 +393,7 @@ function BulkSend() {
           templates={approved}
           selectedId={template?.id}
           onManage={
-            whatsappAddress
-              ? () =>
-                  navigate({
-                    to: "/integrations/whatsapp/$orgAddressId/templates",
-                    params: { orgAddressId: whatsappAddress.address },
-                    hash: (h) => h!,
-                  })
-              : undefined
+            whatsappAddress ? () => setManagingTemplates(true) : undefined
           }
           onPick={(tpl) => {
             setTemplate(tpl);
@@ -465,6 +462,13 @@ function BulkSend() {
           scheduled={scheduled}
           onReset={reset}
           onClose={() => navigate({ to: "/conversations", hash: (h) => h! })}
+        />
+      )}
+
+      {managingTemplates && whatsappAddress && (
+        <ManageTemplatesOverlay
+          organizationAddress={whatsappAddress.address}
+          onClose={() => setManagingTemplates(false)}
         />
       )}
     </div>
