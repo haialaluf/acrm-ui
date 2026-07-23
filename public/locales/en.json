@@ -708,5 +708,12 @@
   "No hay citas en este rango": "No appointments in this range",
   "(Sin título)": "(Untitled)",
   "Volver a calendarios": "Back to calendars",
-  "Ejemplo: Llamada de bienvenida": "Example: Welcome call"
+  "Ejemplo: Llamada de bienvenida": "Example: Welcome call",
+  "Hay lotes programados a menos de 24 h del anterior. WhatsApp cuenta los destinatarios en una ventana móvil de 24 h, así que esos mensajes serán rechazados. Separa cada lote al menos 24 h.": "Some batches are scheduled less than 24 h after the previous one. WhatsApp counts recipients in a rolling 24-hour window, so those messages will be rejected. Leave at least 24 h between batches.",
+  "Menos de 24 h desde el lote anterior": "Less than 24 h after the previous batch",
+  "No se envió ningún mensaje": "No messages were sent",
+  "El envío se cancela por completo si falla, así que puedes reintentarlo sin duplicar mensajes.": "The send is cancelled entirely if it fails, so you can retry without duplicating messages.",
+  "Detalle del error": "Error details",
+  "Destinatarios": "Recipients",
+  "No se pudo enviar": "Could not send"
 }

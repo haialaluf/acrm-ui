@@ -708,5 +708,12 @@
   "No hay citas en este rango": "Não há agendamentos neste intervalo",
   "(Sin título)": "(Sem título)",
   "Volver a calendarios": "Voltar aos calendários",
-  "Ejemplo: Llamada de bienvenida": "Exemplo: Ligação de boas-vindas"
+  "Ejemplo: Llamada de bienvenida": "Exemplo: Ligação de boas-vindas",
+  "Hay lotes programados a menos de 24 h del anterior. WhatsApp cuenta los destinatarios en una ventana móvil de 24 h, así que esos mensajes serán rechazados. Separa cada lote al menos 24 h.": "Há lotes agendados a menos de 24 h do anterior. O WhatsApp conta os destinatários numa janela móvel de 24 h, por isso essas mensagens serão rejeitadas. Deixe pelo menos 24 h entre cada lote.",
+  "Menos de 24 h desde el lote anterior": "Menos de 24 h desde o lote anterior",
+  "No se envió ningún mensaje": "Nenhuma mensagem foi enviada",
+  "El envío se cancela por completo si falla, así que puedes reintentarlo sin duplicar mensajes.": "O envio é cancelado por completo se falhar, por isso pode tentar novamente sem duplicar mensagens.",
+  "Detalle del error": "Detalhe do erro",
+  "Destinatarios": "Destinatários",
+  "No se pudo enviar": "Não foi possível enviar"
 }

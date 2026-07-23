@@ -676,5 +676,12 @@
   "No hay citas en este rango": "אין פגישות בטווח זה",
   "(Sin título)": "(ללא כותרת)",
   "Volver a calendarios": "חזרה ליומנים",
-  "Ejemplo: Llamada de bienvenida": "לדוגמה: שיחת היכרות"
+  "Ejemplo: Llamada de bienvenida": "לדוגמה: שיחת היכרות",
+  "Hay lotes programados a menos de 24 h del anterior. WhatsApp cuenta los destinatarios en una ventana móvil de 24 h, así que esos mensajes serán rechazados. Separa cada lote al menos 24 h.": "יש מנות שמתוזמנות פחות מ-24 שעות אחרי הקודמת. וואטסאפ סופר נמענים בחלון נע של 24 שעות, ולכן ההודעות האלה יידחו. השאירו לפחות 24 שעות בין מנה למנה.",
+  "Menos de 24 h desde el lote anterior": "פחות מ-24 שעות מהמנה הקודמת",
+  "No se envió ningún mensaje": "לא נשלחה אף הודעה",
+  "El envío se cancela por completo si falla, así que puedes reintentarlo sin duplicar mensajes.": "אם השליחה נכשלת היא מבוטלת במלואה, כך שאפשר לנסות שוב בלי לשלוח הודעות כפולות.",
+  "Detalle del error": "פרטי השגיאה",
+  "Destinatarios": "נמענים",
+  "No se pudo enviar": "השליחה נכשלה"
 }

@@ -675,5 +675,12 @@
   "No hay citas en este rango": "Hakuna miadi katika kipindi hiki",
   "(Sin título)": "(Bila kichwa)",
   "Volver a calendarios": "Rudi kwenye kalenda",
-  "Ejemplo: Llamada de bienvenida": "Mfano: Simu ya karibu"
+  "Ejemplo: Llamada de bienvenida": "Mfano: Simu ya karibu",
+  "Hay lotes programados a menos de 24 h del anterior. WhatsApp cuenta los destinatarios en una ventana móvil de 24 h, así que esos mensajes serán rechazados. Separa cada lote al menos 24 h.": "Kuna makundi yaliyoratibiwa chini ya saa 24 baada ya lililotangulia. WhatsApp huhesabu wapokeaji katika dirisha linalosogea la saa 24, kwa hivyo ujumbe huo utakataliwa. Acha angalau saa 24 kati ya kila kundi.",
+  "Menos de 24 h desde el lote anterior": "Chini ya saa 24 tangu kundi lililotangulia",
+  "No se envió ningún mensaje": "Hakuna ujumbe uliotumwa",
+  "El envío se cancela por completo si falla, así que puedes reintentarlo sin duplicar mensajes.": "Utumaji hughairiwa kabisa ukishindwa, kwa hivyo unaweza kujaribu tena bila kurudia ujumbe.",
+  "Detalle del error": "Maelezo ya hitilafu",
+  "Destinatarios": "Wapokeaji",
+  "No se pudo enviar": "Imeshindwa kutuma"
 }
