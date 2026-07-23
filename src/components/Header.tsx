@@ -18,10 +18,13 @@ export default function Header() {
       <div className="flex justify-end items-center">
         <LinkButton
           to="/conversations/bulk-send"
-          className="ml-[10px]"
+          className="ms-[10px] flex items-center gap-[8px]"
           title={t("Nueva conversación")}
         >
-          <MessageSquarePlus className="w-[24px] h-[24px] text-foreground" />
+          <MessageSquarePlus className="w-[24px] h-[24px] text-foreground shrink-0" />
+          <span className="text-[14px] text-foreground truncate">
+            {t("Nueva conversación")}
+          </span>
         </LinkButton>
       </div>
     </div>
