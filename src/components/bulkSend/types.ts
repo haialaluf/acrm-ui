@@ -200,6 +200,33 @@ export function defaultScheduledAt(): string {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(h)}:${pad2(m)}`;
 }
 
+/**
+ * Absolute batch indices scheduled less than a full rolling window after the
+ * batch before them, and so at risk of being rejected.
+ *
+ * The defaults from `resolveBatchSchedule` always clear the window, but a
+ * per-batch override is honoured verbatim — a broadcast on 2026-07-23 was hand
+ * edited into 23.08h and 14.08h gaps, and those 334 messages would have been
+ * rejected with no indication in the wizard. Batch 0 without a chosen time goes
+ * out immediately, so it is measured from now.
+ */
+export function batchesInsideWindow<T>(
+  batches: Batch<T>[],
+  schedule: BatchSchedule,
+): Set<number> {
+  const flagged = new Set<number>();
+  let previous: number | null = null;
+  for (const batch of batches) {
+    const iso = batchScheduledIso(schedule, batch.dayOffset);
+    const at = iso ? new Date(iso).getTime() : Date.now();
+    if (previous !== null && at - previous < ROLLING_WINDOW_MS) {
+      flagged.add(batch.dayOffset);
+    }
+    previous = at;
+  }
+  return flagged;
+}
+
 /** Count recipients across `batches` that go out immediately (no schedule). */
 export function immediateCount<T>(
   batches: Batch<T>[],

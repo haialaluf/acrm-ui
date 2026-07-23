@@ -1,4 +1,4 @@
-import { CalendarClock, Check, Info } from "lucide-react";
+import { AlertTriangle, CalendarClock, Check, Info } from "lucide-react";
 import { ConfigProvider, DatePicker } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 
@@ -7,6 +7,7 @@ import { datePickerTokens } from "@/components/antdTokens";
 import {
   type Batch,
   type BatchSchedule,
+  batchesInsideWindow,
   DEFAULT_SEND_TIME,
   resolveBatchSchedule,
   type ScheduleMode,
@@ -35,6 +36,9 @@ export default function ScheduleEditor({
 }) {
   const { translate: t, currentLanguage } = useTranslation();
   const custom = mode === "custom";
+  // Batches a user override has pushed inside WhatsApp's rolling 24h window.
+  // The defaults never land here; only hand-picked dates can.
+  const tooSoon = batchesInsideWindow(batches, schedule);
 
   /** Human label ("Hoy" / "Mañana" / weekday) + short date for an ISO date. */
   function dayLabel(isoDate: string) {
@@ -86,6 +90,7 @@ export default function ScheduleEditor({
         {batches.map((b, i) => {
           const { isoDate, time } = resolveBatchSchedule(schedule, i);
           const isToday = i === 0;
+          const flagged = tooSoon.has(i);
           const { label, date } = dayLabel(isoDate);
           const value = dayjs(`${isoDate}T${time || DEFAULT_SEND_TIME}`);
           return (
@@ -102,15 +107,23 @@ export default function ScheduleEditor({
                 style={{
                   width: 24,
                   height: 24,
-                  background: isToday
-                    ? "var(--primary)"
-                    : "oklch(from var(--primary) l c h / 0.10)",
-                  color: isToday
-                    ? "var(--primary-foreground)"
-                    : "var(--primary)",
+                  background: flagged
+                    ? "var(--destructive)"
+                    : isToday
+                      ? "var(--primary)"
+                      : "oklch(from var(--primary) l c h / 0.10)",
+                  color:
+                    flagged || isToday
+                      ? "var(--primary-foreground)"
+                      : "var(--primary)",
                   fontSize: 11,
                   fontWeight: 700,
                 }}
+                title={
+                  flagged
+                    ? t("Menos de 24 h desde el lote anterior")
+                    : undefined
+                }
               >
                 {i + 1}
               </div>
@@ -156,6 +169,24 @@ export default function ScheduleEditor({
           );
         })}
       </div>
+
+      {tooSoon.size > 0 && (
+        <div
+          className="text-[11px] mt-[10px] flex items-start gap-[6px] rounded-[10px] p-[10px]"
+          style={{
+            color: "var(--destructive)",
+            background: "oklch(from var(--destructive) l c h / 0.08)",
+            border: "1px solid oklch(from var(--destructive) l c h / 0.25)",
+          }}
+        >
+          <AlertTriangle className="w-[13px] h-[13px] mt-[1px] shrink-0" />
+          <span>
+            {t(
+              "Hay lotes programados a menos de 24 h del anterior. WhatsApp cuenta los destinatarios en una ventana móvil de 24 h, así que esos mensajes serán rechazados. Separa cada lote al menos 24 h.",
+            )}
+          </span>
+        </div>
+      )}
 
       {custom && (
         <div className="text-[11px] mt-[10px] flex items-start gap-[6px] text-muted-foreground">
