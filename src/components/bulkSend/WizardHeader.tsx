@@ -24,7 +24,7 @@ export default function WizardHeader({
           <button
             type="button"
             onClick={onBack}
-            className="p-[8px] rounded-full hover:bg-muted -ml-[8px]"
+            className="p-[8px] rounded-full hover:bg-muted -ms-[8px]"
             title="Back"
           >
             <ArrowLeft className="w-[20px] h-[20px]" />
