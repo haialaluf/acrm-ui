@@ -6,7 +6,10 @@ import {
   type TemplateMessage,
 } from "@/supabase/client";
 import { newMessage } from "@/utils/MessageUtils";
-import { buttonSendComponents } from "@/components/templateButtons";
+import {
+  bookingButtonIndex,
+  buttonSendComponents,
+} from "@/components/templateButtons";
 import {
   countVars,
   headerMediaFormat,
@@ -28,6 +31,7 @@ export function buildMessageRecord({
   headerMedia,
   agentId,
   scheduledAt,
+  bookingToken,
 }: {
   contact: ContactWithAddressesRow;
   conv: ConversationRow;
@@ -37,6 +41,9 @@ export function buildMessageRecord({
   headerMedia?: string;
   agentId?: string;
   scheduledAt?: string;
+  /** This contact's own booking-link token, for a template whose URL button
+   *  points at the booking site. Each recipient gets a different one. */
+  bookingToken?: string;
 }): MessageInsert | null {
   const head = template.components.find((c) => c.type === "HEADER");
   const body = template.components.find((c) => c.type === "BODY");
@@ -92,7 +99,14 @@ export function buildMessageRecord({
     });
   }
   if (butt?.buttons) {
-    components.push(...buttonSendComponents(butt.buttons));
+    const bookingIdx =
+      bookingToken != null ? bookingButtonIndex(template) : null;
+    components.push(
+      ...buttonSendComponents(
+        butt.buttons,
+        bookingIdx != null ? { [bookingIdx]: bookingToken! } : undefined,
+      ),
+    );
   }
 
   const tplMsg: TemplateMessage["template"] = {
