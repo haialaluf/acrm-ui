@@ -661,6 +661,178 @@ export type Database = {
           },
         ]
       }
+      appointments: {
+        Row: {
+          calendar_id: string
+          contact_id: string | null
+          created_at: string
+          ends_at: string
+          extra: Json | null
+          id: string
+          organization_id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          calendar_id: string
+          contact_id?: string | null
+          created_at?: string
+          ends_at: string
+          extra?: Json | null
+          id?: string
+          organization_id: string
+          starts_at: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calendar_id?: string
+          contact_id?: string | null
+          created_at?: string
+          ends_at?: string
+          extra?: Json | null
+          id?: string
+          organization_id?: string
+          starts_at?: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "calendars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_links: {
+        Row: {
+          calendar_id: string
+          contact_id: string | null
+          created_at: string
+          duration_minutes: number
+          expires_at: string
+          extra: Json | null
+          id: string
+          last_used_at: string | null
+          organization_id: string
+          revoked_at: string | null
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          calendar_id: string
+          contact_id?: string | null
+          created_at?: string
+          duration_minutes?: number
+          expires_at: string
+          extra?: Json | null
+          id?: string
+          last_used_at?: string | null
+          organization_id: string
+          revoked_at?: string | null
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          calendar_id?: string
+          contact_id?: string | null
+          created_at?: string
+          duration_minutes?: number
+          expires_at?: string
+          extra?: Json | null
+          id?: string
+          last_used_at?: string | null
+          organization_id?: string
+          revoked_at?: string | null
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_links_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "calendars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_links_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_links_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendars: {
+        Row: {
+          created_at: string
+          extra: Json | null
+          id: string
+          name: string
+          organization_id: string
+          timezone: string
+          updated_at: string
+          working_hours: Json | null
+        }
+        Insert: {
+          created_at?: string
+          extra?: Json | null
+          id?: string
+          name: string
+          organization_id: string
+          timezone: string
+          updated_at?: string
+          working_hours?: Json | null
+        }
+        Update: {
+          created_at?: string
+          extra?: Json | null
+          id?: string
+          name?: string
+          organization_id?: string
+          timezone?: string
+          updated_at?: string
+          working_hours?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendars_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           created_at: string
@@ -672,7 +844,7 @@ export type Database = {
           source: string
           status: string
           surname: string | null
-          tags: string[] | null
+          tags: string[]
           updated_at: string
         }
         Insert: {
@@ -685,7 +857,7 @@ export type Database = {
           source?: string
           status?: string
           surname?: string | null
-          tags?: string[] | null
+          tags?: string[]
           updated_at?: string
         }
         Update: {
@@ -698,7 +870,7 @@ export type Database = {
           source?: string
           status?: string
           surname?: string | null
-          tags?: string[] | null
+          tags?: string[]
           updated_at?: string
         }
         Relationships: [
@@ -1153,6 +1325,45 @@ export type Database = {
         }
         Returns: boolean
       }
+      book_slot: {
+        Args: {
+          p_calendar_id: string
+          p_contact_id: string
+          p_ends_at: string
+          p_extra?: Json
+          p_organization_id: string
+          p_starts_at: string
+          p_title?: string
+        }
+        Returns: {
+          calendar_id: string
+          contact_id: string | null
+          created_at: string
+          ends_at: string
+          extra: Json | null
+          id: string
+          organization_id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          title: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "appointments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      claim_conversation: {
+        Args: {
+          _conversation_id: string
+          _message_at: string
+          _message_id: string
+          _ttl_seconds?: number
+        }
+        Returns: boolean
+      }
       contact_address_update_rules: {
         Args: {
           p_address: string
@@ -1167,8 +1378,8 @@ export type Database = {
         Args: { p_organization_id: string }
         Returns: {
           contact_address: string
-          last_received_at: string | null
-          last_sent_at: string | null
+          last_received_at: string
+          last_sent_at: string
         }[]
       }
       get_authorized_orgs: {
@@ -1199,6 +1410,18 @@ export type Database = {
         Args: { object: Json; path: string[]; target: Json }
         Returns: Json
       }
+      mint_booking_links: {
+        Args: {
+          p_calendar_id: string
+          p_contact_ids: string[]
+          p_duration_minutes?: number
+          p_expires_at?: string
+        }
+        Returns: {
+          contact_id: string
+          token: string
+        }[]
+      }
       org_update_by_admin_rules: {
         Args: { p_id: string; p_name: string }
         Returns: boolean
@@ -1209,6 +1432,7 @@ export type Database = {
       }
     }
     Enums: {
+      appointment_status: "scheduled" | "confirmed" | "cancelled" | "completed"
       direction: "incoming" | "outgoing" | "internal"
       log_level: "info" | "warning" | "error"
       role: "owner" | "admin" | "member"
@@ -1902,6 +2126,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      appointment_status: ["scheduled", "confirmed", "cancelled", "completed"],
       direction: ["incoming", "outgoing", "internal"],
       log_level: ["info", "warning", "error"],
       role: ["owner", "admin", "member"],

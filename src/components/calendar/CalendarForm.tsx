@@ -22,7 +22,7 @@ import {
   resolveTimezone,
   WEEKDAYS,
 } from "@/utils/calendar";
-import type { CalendarWorkingHours } from "@/supabase/types/ui_types";
+import type { CalendarWorkingHours } from "@/supabase/types/extra_types";
 
 // Shared calendar form. With no `calendar` it creates a new one; with a
 // `calendar` it edits that one — fields are seeded and the update mutation runs

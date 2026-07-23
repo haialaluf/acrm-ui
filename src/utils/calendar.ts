@@ -2,7 +2,7 @@ import type {
   CalendarWorkingHours,
   Weekday,
   WorkingHoursDay,
-} from "@/supabase/types/ui_types";
+} from "@/supabase/types/extra_types";
 
 // Week ordered Sunday-first (Israel/US business week). `label` is a Spanish
 // source string passed through `t()` at render time, like the rest of the app.
