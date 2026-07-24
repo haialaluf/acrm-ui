@@ -5,6 +5,7 @@ import type {
   UseFormSetValue,
 } from "react-hook-form";
 import { useTranslation } from "@/hooks/useTranslation";
+import { isRtl, type Language } from "@/stores/uiSlice";
 import FieldError from "@/components/FieldError";
 import type { TemplateFormData } from "@/components/templateEditorTypes";
 import { getVarNumbers } from "@/components/templateVars";
@@ -45,7 +46,8 @@ export default function BodyField({
   error?: RHFFieldError;
   dark?: boolean;
 }) {
-  const { translate: t } = useTranslation();
+  const { translate: t, currentLanguage } = useTranslation();
+  const uiRtl = isRtl(currentLanguage as Language);
   const bodyRef = useRef<HTMLTextAreaElement | null>(null);
   const lengthState = useLengthState();
   const lg = lengthState(value.length);
@@ -99,7 +101,7 @@ export default function BodyField({
         className="body-area"
         rows={7}
         maxLength={1024}
-        dir="auto"
+        dir={value.trim() ? "auto" : uiRtl ? "rtl" : "ltr"}
         placeholder={t(
           "Escribí tu mensaje. Seleccioná texto y usá la barra de arriba para poner negrita, agregar emoji o insertar una variable.",
         )}

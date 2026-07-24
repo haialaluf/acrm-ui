@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { ConfigProvider, Segmented } from "antd";
 import { Ban, Type, Image as ImageIcon, Video, FileText } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { isRtl, type Language } from "@/stores/uiSlice";
 import type { HeaderType } from "@/components/templateEditorTypes";
 import FormatToolbar from "./FormatToolbar";
 import MediaDropzone from "./MediaDropzone";
@@ -57,7 +58,8 @@ export default function HeaderTypeField({
   onClearMedia: () => void;
   dark?: boolean;
 }) {
-  const { translate: t } = useTranslation();
+  const { translate: t, currentLanguage } = useTranslation();
+  const uiRtl = isRtl(currentLanguage as Language);
   const headerRef = useRef<HTMLTextAreaElement | null>(null);
 
   const options: { value: HeaderType; label: string }[] = [
@@ -117,7 +119,7 @@ export default function HeaderTypeField({
             className="header-text-area"
             rows={1}
             maxLength={60}
-            dir="auto"
+            dir={headerText.trim() ? "auto" : uiRtl ? "rtl" : "ltr"}
             placeholder={t("Ej.: Oferta para {{1}}")}
             value={headerText}
             onChange={(e) => onHeaderText(e.target.value.replace(/\n/g, ""))}
