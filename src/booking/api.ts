@@ -1,9 +1,8 @@
 /**
  * Typed wrapper over the public `booking` edge function.
  *
- * Covers the WHOLE endpoint contract, not just the one call this phase's page
- * makes — it is the seam the slot picker is written against next, so the
- * shapes are settled here while the backend is fresh.
+ * Covers the whole endpoint contract — link context, free slots, and the three
+ * appointment mutations — and is the only place the page talks to the network.
  *
  * No supabase client: these routes take no key and no session. The token in
  * the path is the entire credential, so it is never logged or put in a query

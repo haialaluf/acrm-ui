@@ -19,15 +19,16 @@ function applyTheme(e: MediaQueryList | MediaQueryListEvent) {
 applyTheme(darkMode);
 darkMode.addEventListener("change", applyTheme);
 
+initI18n();
 const lang = detectLanguage();
-initI18n(lang);
 
-// Set before the first paint, so an RTL locale doesn't flip after render.
+// Set before the first paint, so an RTL locale doesn't flip after render. The
+// page keeps them in sync from here on — language is switchable in-page.
 document.documentElement.dir = isRtl(lang) ? "rtl" : "ltr";
 document.documentElement.lang = lang;
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App lang={lang} />
+    <App initialLang={lang} />
   </StrictMode>,
 );

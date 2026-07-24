@@ -205,9 +205,14 @@ A green run plus a new deployment in the Cloudflare dashboard means it's done.
 ## Afterwards
 
 Send yourself a real link end-to-end — ask the agent for one in a conversation,
-or use the bulk-send wizard with a booking template. The page will resolve the
-token and report valid; the slot picker is deliberately not built yet, so
-"valid / invalid" is the whole page for now.
+or use the bulk-send wizard with a booking template. The page resolves the
+token, shows the company and calendar, and books a slot against the live
+`booking` function, so a successful test leaves a real appointment on the
+calendar — cancel it from the page when you're done.
+
+A day is only offered when the function returns free starts for it, so an empty
+month usually means the calendar's `working_hours` are empty, not that the page
+is broken.
 
 ## Troubleshooting
 
