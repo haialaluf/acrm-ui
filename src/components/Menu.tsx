@@ -13,6 +13,7 @@ import {
   Plus,
   NotebookTabs,
   CalendarDays,
+  ChevronRight,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { LinkButton } from "./LinkButton";
@@ -125,6 +126,7 @@ export default function Menu() {
 
         <Dropdown
           menu={{
+            expandIcon: <ChevronRight className="w-[16px] h-[16px]" />,
             items: [
               {
                 key: "user_email",
