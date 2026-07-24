@@ -9,8 +9,6 @@ export default function FieldError({
   const { translate: t } = useTranslation();
   const message = typeof error === "string" ? error : error?.message;
   if (!message) return null;
-  // Messages are stored as translation keys (untranslated at validation time),
-  // so translate here at render time — this keeps them in sync with the current
-  // language instead of freezing the language active when validation last ran.
-  return <div className="text-destructive text-[12px]">{t(message)}</div>;
+
+  return <div className="text-destructive text-[11.5px]">{t(message)}</div>;
 }

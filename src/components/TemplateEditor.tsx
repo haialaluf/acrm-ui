@@ -319,7 +319,7 @@ export default function TemplateEditor({
                 },
               })}
             />
-            <div className="text-[12px] text-muted-foreground mt-[4px]">
+            <div className="hint mt-[4px]">
               {t(
                 "El nombre solo puede tener letras en inglés (minúsculas), números y guiones bajos.",
               )}
