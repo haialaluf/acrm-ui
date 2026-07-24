@@ -243,7 +243,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
           onClick={() => setSharing(true)}
         >
           <Link2 className="w-[16px] h-[16px]" />
-          {t("Compartir enlace")}
+          {t("Share link")}
         </button>
         <button
           className="primary text-[14px] px-4 flex items-center gap-1"

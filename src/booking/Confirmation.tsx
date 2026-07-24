@@ -35,7 +35,7 @@ export default function Confirmation({
 
   const event = {
     title: `${link.calendar_name} · ${link.organization_name}`,
-    description: t("{{1}} minutos").replace(
+    description: t("{{1}} minutes").replace(
       "{{1}}",
       String(link.duration_minutes),
     ),
@@ -50,10 +50,10 @@ export default function Confirmation({
       </div>
 
       <h1 className="m-0 text-[24px] font-semibold text-card-foreground">
-        {t("¡Tu cita está reservada!")}
+        {t("You're booked!")}
       </h1>
       <p className="mt-[8px] mb-[26px] text-[15px] text-muted-foreground">
-        {t("{{1}} te espera. Guarda el horario para no olvidarlo.").replace(
+        {t("{{1}} will see you then. Save the time so you don't forget.").replace(
           "{{1}}",
           link.organization_name,
         )}
@@ -68,7 +68,7 @@ export default function Confirmation({
         <DetailRow icon={<Clock className="h-[19px] w-[19px]" />}>
           <span dir="ltr">
             {formatTime(start, tz, lang)} – {formatTime(end, tz, lang)} ·{" "}
-            {t("{{1}} minutos").replace("{{1}}", String(link.duration_minutes))}
+            {t("{{1}} minutes").replace("{{1}}", String(link.duration_minutes))}
           </span>
         </DetailRow>
         <DetailRow icon={<Globe className="h-[19px] w-[19px]" />}>
@@ -77,7 +77,7 @@ export default function Confirmation({
       </div>
 
       <div className="mb-[12px] text-[12px] font-semibold tracking-[0.05em] text-muted-foreground uppercase">
-        {t("Añadir al calendario")}
+        {t("Add to calendar")}
       </div>
       <div className="flex flex-wrap justify-center gap-[10px]">
         <AddToCalendar href={google(event)}>Google</AddToCalendar>
@@ -89,10 +89,10 @@ export default function Confirmation({
 
       <div className="mt-[22px] flex flex-wrap justify-center gap-[18px]">
         <LinkButton onClick={onReschedule} disabled={cancelling}>
-          {t("Elegir otro horario")}
+          {t("Pick another time")}
         </LinkButton>
         <LinkButton onClick={onCancel} disabled={cancelling}>
-          {cancelling ? t("Cancelando…") : t("Cancelar la cita")}
+          {cancelling ? t("Cancelling…") : t("Cancel appointment")}
         </LinkButton>
       </div>
     </div>

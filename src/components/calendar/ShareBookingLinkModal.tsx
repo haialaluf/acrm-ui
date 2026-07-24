@@ -65,7 +65,7 @@ export default function ShareBookingLinkModal({
         return {
           value: c.id,
           // Falls back to the phone so unnamed contacts stay pickable.
-          label: c.name || pretty || t("Sin nombre"),
+          label: c.name || pretty || t("No name"),
           phone: pretty,
           search: `${c.name ?? ""} ${phone ?? ""}`.toLowerCase(),
         };
@@ -95,14 +95,14 @@ export default function ShareBookingLinkModal({
       <Modal
         open={open}
         onCancel={onClose}
-        title={t("Compartir enlace de reserva")}
+        title={t("Share booking link")}
         width={400}
         destroyOnHidden
         footer={
           <div className="flex items-center gap-2 pt-2">
             <div className="grow" />
             <Button type="text" onClick={onClose}>
-              {url ? t("Listo") : t("Cancelar")}
+              {url ? t("Done") : t("Cancel")}
             </Button>
             {!url && (
               <Button
@@ -111,7 +111,7 @@ export default function ShareBookingLinkModal({
                 disabled={!contactId}
                 onClick={generate}
               >
-                {t("Generar enlace")}
+                {t("Generate link")}
               </Button>
             )}
           </div>
@@ -121,7 +121,7 @@ export default function ShareBookingLinkModal({
           <div className="flex flex-col gap-[18px] py-2">
             <p className="text-[13px] text-muted-foreground">
               {t(
-                "El enlace es reutilizable y caduca en 30 días. Quien lo reciba solo verá horarios libres.",
+                "The link is reusable and expires in 30 days. Whoever receives it will only see free times.",
               )}
             </p>
 
@@ -143,14 +143,14 @@ export default function ShareBookingLinkModal({
                 )
               }
             >
-              {copied ? t("Copiado") : t("Copiar enlace")}
+              {copied ? t("Copied") : t("Copy link")}
             </Button>
           </div>
         ) : (
           <div className="flex flex-col gap-[18px] py-2">
             <label className="flex flex-col gap-[6px]">
               <span className="text-[12px] text-muted-foreground">
-                {t("Contacto")}
+                {t("Contact")}
               </span>
               <Select
                 autoFocus
@@ -158,8 +158,8 @@ export default function ShareBookingLinkModal({
                 value={contactId}
                 onChange={setContactId}
                 loading={loadingContacts}
-                placeholder={t("Buscar un contacto")}
-                notFoundContent={t("Sin resultados")}
+                placeholder={t("Search for a contact")}
+                notFoundContent={t("No results")}
                 options={options}
                 // Match on phone as well as name — two contacts often share one.
                 filterOption={(input, option) =>
@@ -180,21 +180,21 @@ export default function ShareBookingLinkModal({
 
             <label className="flex flex-col gap-[6px]">
               <span className="text-[12px] text-muted-foreground">
-                {t("Duración de la cita")}
+                {t("Appointment duration")}
               </span>
               <Select
                 value={duration}
                 onChange={setDuration}
                 options={DURATIONS.map((m) => ({
                   value: m,
-                  label: t("{{1}} minutos").replace("{{1}}", String(m)),
+                  label: t("{{1}} minutes").replace("{{1}}", String(m)),
                 }))}
               />
             </label>
 
             {mint.isError && (
               <p className="text-[13px] text-destructive">
-                {t("No se pudo generar el enlace. Inténtalo de nuevo.")}
+                {t("The link could not be generated. Please try again.")}
               </p>
             )}
           </div>

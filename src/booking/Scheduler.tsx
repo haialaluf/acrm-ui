@@ -143,23 +143,23 @@ export default function Scheduler({
         </h1>
         <p className="mb-[22px] text-[14px] leading-[1.5] text-muted-foreground">
           {contactName
-            ? t("Hola {{1}}, elige el horario que mejor te venga.").replace(
+            ? t("Hi {{1}}, pick a time that works and we'll confirm the meeting.").replace(
                 "{{1}}",
                 contactName,
               )
-            : t("Elige el horario que mejor te venga.")}
+            : t("Pick a time that works and we'll confirm the meeting.")}
         </p>
 
         <div className="mt-auto flex flex-col gap-[13px]">
           <MetaItem icon={<Clock className="h-[19px] w-[19px]" />}>
-            {t("{{1}} minutos").replace("{{1}}", String(link.duration_minutes))}
+            {t("{{1}} minutes").replace("{{1}}", String(link.duration_minutes))}
           </MetaItem>
           <MetaItem icon={<Globe className="h-[19px] w-[19px]" />}>
             <span>{zoneLabel(tz, lang)}</span>
             {visitorIsElsewhere(tz) && (
               <span className="block text-[12px] text-muted-foreground">
                 {t(
-                  "Los horarios se muestran en la zona horaria de {{1}}",
+                  "Times are shown in {{1}}'s time zone",
                 ).replace("{{1}}", link.organization_name)}
               </span>
             )}
@@ -174,7 +174,7 @@ export default function Scheduler({
       >
         <div className="min-w-0">
           <h2 className="m-0 mb-[18px] text-[19px] font-semibold text-card-foreground">
-            {rescheduleOf ? t("Elegir otro horario") : t("Elige día y hora")}
+            {rescheduleOf ? t("Pick another time") : t("Select a date & time")}
           </h2>
 
           <MonthCalendar
@@ -187,12 +187,12 @@ export default function Scheduler({
             canGoBack={month > currentMonth(tz)}
             onSelect={selectDay}
             onNavigate={navigate}
-            labels={{ previous: t("Mes anterior"), next: t("Mes siguiente") }}
+            labels={{ previous: t("Previous month"), next: t("Next month") }}
           />
 
           {!loading && slotsByDay.size === 0 && (
             <p className="mt-[16px] text-[14px] text-muted-foreground">
-              {t("No hay horarios disponibles este mes.")}
+              {t("No times available this month.")}
             </p>
           )}
 
@@ -212,8 +212,8 @@ export default function Scheduler({
             onPick={setPicked}
             onConfirm={confirm}
             labels={{
-              confirm: t("Confirmar"),
-              empty: t("No quedan horarios libres ese día."),
+              confirm: t("Confirm"),
+              empty: t("No open times left on that day."),
             }}
           />
         )}
@@ -243,10 +243,10 @@ function bookingErrorMessage(error: unknown, t: Translate): string {
     switch (error.code) {
       case "slot_taken":
       case "slot_unavailable":
-        return t("Ese horario acaba de ocuparse. Elige otro, por favor.");
+        return t("That time was just taken. Please pick another.");
       case "too_many_appointments":
-        return t("Ya tienes varias citas reservadas con este enlace.");
+        return t("You already have several appointments booked with this link.");
     }
   }
-  return t("No pudimos confirmar la cita. Inténtalo de nuevo.");
+  return t("We couldn't confirm the appointment. Please try again.");
 }

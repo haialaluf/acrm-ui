@@ -466,14 +466,14 @@ export default function ReviewStep({
       {!!bookingCalendars?.length && (
         <div className="px-[16px] pb-[12px]">
           <div className="text-[12px] text-muted-foreground mb-[6px]">
-            {t("Calendario para el enlace de reserva")}
+            {t("Calendar for the booking link")}
           </div>
           <select
             className="w-full h-[38px] px-[10px] rounded-[8px] border border-input bg-card text-[14px]"
             value={bookingCalendarId}
             onChange={(e) => setBookingCalendarId(e.target.value)}
           >
-            <option value="">{t("Elige un calendario")}</option>
+            <option value="">{t("Choose a calendar")}</option>
             {bookingCalendars.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}

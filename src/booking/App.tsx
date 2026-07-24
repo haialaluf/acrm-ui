@@ -51,7 +51,7 @@ export default function App({ initialLang }: { initialLang: Language }) {
   useEffect(() => {
     document.documentElement.dir = isRtl(lang) ? "rtl" : "ltr";
     document.documentElement.lang = lang;
-    document.title = t("Reservar cita");
+    document.title = t("Book an appointment");
   }, [lang, t]);
 
   useEffect(() => {
@@ -121,9 +121,9 @@ export default function App({ initialLang }: { initialLang: Language }) {
         {state.kind === "invalid" && (
           <Card
             icon={<LinkIcon className="h-[22px] w-[22px]" />}
-            title={t("Este enlace ya no es válido")}
+            title={t("This link is no longer valid")}
             body={t(
-              "Puede haber caducado o haber sido reemplazado. Pide uno nuevo por WhatsApp y podrás reservar en un momento.",
+              "It may have expired or been replaced. Ask for a new one on WhatsApp and you'll be able to book in a moment.",
             )}
           />
         )}
@@ -131,8 +131,8 @@ export default function App({ initialLang }: { initialLang: Language }) {
         {state.kind === "error" && (
           <Card
             icon={<LinkIcon className="h-[22px] w-[22px]" />}
-            title={t("No pudimos cargar tu reserva")}
-            body={t("Revisa tu conexión e inténtalo de nuevo.")}
+            title={t("We couldn't load your booking")}
+            body={t("Check your connection and try again.")}
           />
         )}
 

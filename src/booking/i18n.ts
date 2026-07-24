@@ -5,10 +5,10 @@ import { cacheTranslations, getTranslation } from "@/i18n/translations";
  * `hooks/useTranslation`, which pulls in `useBoundStore` (and with it the whole
  * app's state, supabase client and router).
  *
- * The public page ships two languages, Hebrew and English. Unlike the CRM it
- * never falls back to the Spanish source strings: a contact opening a link has
- * no account and no language setting, so both languages resolve through a
- * dictionary and the visitor can flip between them from the page itself.
+ * The public page ships two languages, Hebrew and English. English is the
+ * source language, so it resolves to the `t()` keys as-is; Hebrew resolves
+ * through a bundled dictionary. A contact opening a link has no account and no
+ * language setting, so the visitor can flip between them from the page itself.
  *
  * The locale JSON is bundled rather than fetched: this page is served from
  * calendar.delacrm.com, which has no `/locales/` to fetch from.
@@ -28,8 +28,10 @@ export function isRtl(lang: Language): boolean {
   return lang === "he";
 }
 
+// Only Hebrew needs a dictionary; English is the source language and resolves
+// to the `t()` keys directly (see `getTranslation`).
 const dictionaries = import.meta.glob<{ default: Record<string, string> }>(
-  "../../public/locales/{he,en}.json",
+  "../../public/locales/he.json",
   { eager: true },
 );
 
@@ -96,7 +98,7 @@ export function initI18n(): void {
   }
 }
 
-/** `t("Spanish source string")` — same convention as the rest of the app. */
+/** `t("English source string")` — same convention as the rest of the app. */
 export function makeT(lang: Language) {
   return (key: string) => getTranslation(key, lang);
 }
