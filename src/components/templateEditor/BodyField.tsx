@@ -106,9 +106,11 @@ export default function BodyField({
       />
 
       <div className="flex items-center justify-between gap-[8px] mt-[8px] flex-wrap">
-        <span className="text-[12px] text-muted-foreground">
-          {t("El cuerpo es obligatorio")}
-        </span>
+        {!error && (
+          <span className="text-[12px] text-muted-foreground">
+            {t("El cuerpo es obligatorio")}
+          </span>
+        )}
         {lg && (
           <span className={"len-chip " + lg.cls}>
             <span className="dot" />
