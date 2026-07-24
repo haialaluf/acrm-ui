@@ -324,7 +324,9 @@ export default function TemplateEditor({
                 "El nombre solo puede tener letras en inglés (minúsculas), números y guiones bajos.",
               )}
             </div>
-            <FieldError error={errors.name} />
+            <div className="min-h-[18px] mt-[4px]">
+              <FieldError error={errors.name} />
+            </div>
           </label>
 
           <HeaderTypeField

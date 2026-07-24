@@ -6,7 +6,6 @@ import type {
 } from "react-hook-form";
 import { useTranslation } from "@/hooks/useTranslation";
 import { isRtl, type Language } from "@/stores/uiSlice";
-import FieldError from "@/components/FieldError";
 import type { TemplateFormData } from "@/components/templateEditorTypes";
 import { getVarNumbers } from "@/components/templateVars";
 import FormatToolbar from "./FormatToolbar";
@@ -107,8 +106,12 @@ export default function BodyField({
         )}
       />
 
-      <div className="flex items-center justify-between gap-[8px] mt-[8px] flex-wrap">
-        {!error && (
+      <div className="flex items-center justify-between gap-[8px] mt-[8px] flex-wrap min-h-[26px]">
+        {error ? (
+          <span className="text-destructive text-[11.5px] leading-[1.5]">
+            {t(error.message ?? "El cuerpo es obligatorio")}
+          </span>
+        ) : (
           <span className="hint">{t("El cuerpo es obligatorio")}</span>
         )}
         {lg && (
@@ -118,7 +121,6 @@ export default function BodyField({
           </span>
         )}
       </div>
-      <FieldError error={error} />
     </div>
   );
 }
