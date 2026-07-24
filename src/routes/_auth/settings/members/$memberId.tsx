@@ -87,8 +87,8 @@ function EditMember() {
         } // Prevent deleting last owner
         deleteDisabledReason={
           isLastOwner
-            ? t("No se puede eliminar al único propietario")
-            : t("Requiere permisos de propietario")
+            ? t("Cannot delete the only owner")
+            : t("Requires owner permissions")
         }
         deleteLoading={deleteAgent.isPending}
       />
@@ -100,13 +100,13 @@ function EditMember() {
           {invitation && invitation.status === "pending" && (
             <div className="flex flex-col gap-[8px]">
               <SectionItem
-                title={t("Invitación pendiente")}
+                title={t("Pending invitation")}
                 description={
                   resendInvitation.isSuccess
-                    ? t("Invitación reenviada")
+                    ? t("Invitation resent")
                     : resendInvitation.isError
-                      ? t("No se pudo reenviar la invitación")
-                      : t("El correo de invitación aún no fue aceptado")
+                      ? t("Could not resend invitation")
+                      : t("The invitation email has not been accepted yet")
                 }
                 aside={
                   <div className="p-[8px]">
@@ -120,20 +120,20 @@ function EditMember() {
                 onClick={() => resendInvitation.mutate(memberId)}
                 disabled={!isOwner}
                 loading={resendInvitation.isPending}
-                disabledReason={t("Requiere permisos de propietario")}
+                disabledReason={t("Requires owner permissions")}
                 className="self-start px-[16px] py-[8px] rounded-full border border-primary text-primary hover:bg-primary/10 disabled:opacity-50 text-[16px]"
               >
-                {t("Reenviar invitación")}
+                {t("Resend invitation")}
               </Button>
             </div>
           )}
 
           <label>
-            <div className="label">{t("Nombre")}</div>
+            <div className="label">{t("Name")}</div>
             <input
               className="text"
               disabled={!isOwner && !isMe}
-              placeholder={t("Nombre del miembro")}
+              placeholder={t("Member name")}
               {...register("name", { required: true })}
             />
           </label>
@@ -141,11 +141,11 @@ function EditMember() {
           <SelectField
             name="extra.role"
             control={control}
-            label={t("Rol")}
+            label={t("Role")}
             options={[
-              { value: "member", label: t("Miembro") },
-              { value: "admin", label: t("Administrador") },
-              { value: "owner", label: t("Propietario") },
+              { value: "member", label: t("Member") },
+              { value: "admin", label: t("Administrator") },
+              { value: "owner", label: t("Owner") },
             ]}
             disabled={!isOwner}
             required
@@ -153,12 +153,12 @@ function EditMember() {
 
           {invitation && invitation.email && (
             <label>
-              <div className="label">{t("Correo electrónico")}</div>
+              <div className="label">{t("Email")}</div>
               <input
                 type="email"
                 className="text"
                 readOnly
-                placeholder={t("usuario@ejemplo.com")}
+                placeholder={t("user@example.com")}
                 {...register("extra.invitation.email")}
               />
             </label>
@@ -173,10 +173,10 @@ function EditMember() {
           disabled={!isOwner && !isMe}
           invalid={!isValid || !isDirty}
           loading={updateAgent.isPending}
-          disabledReason={t("Requiere permisos de propietario")}
+          disabledReason={t("Requires owner permissions")}
           className="primary"
         >
-          {t("Actualizar")}
+          {t("Update")}
         </Button>
       </SectionFooter>
     </>

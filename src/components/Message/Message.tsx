@@ -207,7 +207,7 @@ export function TextMessage({
               className="text-primary cursor-pointer mt-1"
               onClick={() => setExpanded(!expanded)}
             >
-              {expanded ? t("ver menos...") : t("ver más...")}
+              {expanded ? t("show less...") : t("show more...")}
             </div>
           )}
 
@@ -514,7 +514,7 @@ function MediaPlaceholderContent({
   return (
     <TextMessage
       header={header}
-      body={`_${t("Contenido multimedia no disponible")}_`}
+      body={`_${t("Unavailable media")}_`}
       type="markdown"
       direction={message.direction}
       timestamp={message.timestamp}
@@ -576,9 +576,9 @@ export default function Message(props: UIMessage & { message: MessageRow }) {
       .join("__");
 
     if (toolInfo.event === "use") {
-      headerText = `${t("Uso")}: ${toolName}`;
+      headerText = `${t("Usage")}: ${toolName}`;
     } else if (toolInfo.event === "result") {
-      headerText = `${t("Resultado")}: ${toolName}`;
+      headerText = `${t("Result")}: ${toolName}`;
     }
 
     fixedWidth = true;

@@ -5,13 +5,13 @@ import UsageChart from "./UsageChart";
 function translateProductName(name: string, t: (s: string) => string) {
   switch (name) {
     case "Messages":
-      return t("Mensajes");
+      return t("Messages");
     case "Conversations":
-      return t("Conversaciones");
+      return t("Conversations");
     case "Storage":
-      return t("Almacenamiento");
+      return t("Storage");
     case "AI Credits":
-      return t("Créditos IA");
+      return t("AI Credits");
     default:
       return name;
   }
@@ -19,18 +19,18 @@ function translateProductName(name: string, t: (s: string) => string) {
 
 function formatMonth(period: string, t: (s: string) => string) {
   const names = [
-    t("Ene"),
+    t("Jan"),
     t("Feb"),
     t("Mar"),
-    t("Abr"),
+    t("Apr"),
     t("May"),
     t("Jun"),
     t("Jul"),
-    t("Ago"),
+    t("Aug"),
     t("Sep"),
     t("Oct"),
     t("Nov"),
-    t("Dic"),
+    t("Dec"),
   ];
   const m = parseInt(period.slice(5, 7), 10);
   return names[m - 1] || period.slice(5, 7);
@@ -97,7 +97,7 @@ export default function StatsUsage() {
 
   return (
     <div className="flex flex-col gap-[32px] p-[24px] w-full">
-      <h2 className="text-[20px] font-medium">{t("Uso")}</h2>
+      <h2 className="text-[20px] font-medium">{t("Usage")}</h2>
       {visibleProducts?.map((product) => {
         const name = translateProductName(product.name, t);
         const carry = product.kind === "balance" || product.kind === "gauge";
@@ -107,23 +107,23 @@ export default function StatsUsage() {
             <div className="grid grid-cols-2 gap-[16px]">
               <div className="flex flex-col gap-[4px]">
                 <span className="text-[13px] text-muted-foreground">
-                  {t("Últimos 12 meses")}
+                  {t("Last 12 months")}
                 </span>
                 <UsageChart
                   data={fillSeries(months, monthUsage, product.id, carry)}
                   unit={product.unit}
-                  periodLabel={t("Mes")}
+                  periodLabel={t("Month")}
                   formatLabel={(p) => formatMonth(p, t)}
                 />
               </div>
               <div className="flex flex-col gap-[4px]">
                 <span className="text-[13px] text-muted-foreground">
-                  {t("Últimos 14 días")}
+                  {t("Last 14 days")}
                 </span>
                 <UsageChart
                   data={fillSeries(days, dayUsage, product.id, carry)}
                   unit={product.unit}
-                  periodLabel={t("Día")}
+                  periodLabel={t("Day")}
                   formatLabel={formatDay}
                 />
               </div>
@@ -133,7 +133,7 @@ export default function StatsUsage() {
       })}
       {!visibleProducts?.length && (
         <div className="text-muted-foreground text-center py-[40px]">
-          {t("Sin datos de uso")}
+          {t("No usage data")}
         </div>
       )}
     </div>

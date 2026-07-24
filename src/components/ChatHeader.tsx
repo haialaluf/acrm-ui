@@ -66,7 +66,7 @@ export default function Header() {
       {/* Back button */}
       <button
         className="me-4 md:hidden"
-        title={t("Volver")}
+        title={t("Back")}
         onClick={() => navigate({ hash: undefined })}
       >
         <ArrowLeft className="w-[24px] h-[24px] text-foreground" />
@@ -86,7 +86,7 @@ export default function Header() {
           {displayName}
         </div>
         <div className="text-[13px] text-muted-foreground truncate">
-          {service === "local" && t("Contacto de prueba")}
+          {service === "local" && t("Test contact")}
           {service === "whatsapp" &&
             address &&
             ltrIsolate(formatPhoneNumber(address))}

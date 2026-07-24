@@ -95,9 +95,9 @@ export default function SkillsSection<T extends FieldValues>({
 
   return (
     <SectionField
-      label={t("Habilidades")}
+      label={t("Skills")}
       description={
-        enabledCount ? `${enabledCount} ${t("activas")}` : t("Ninguna")
+        enabledCount ? `${enabledCount} ${t("active")}` : t("None")
       }
       disabled={disabled}
     >
@@ -141,7 +141,7 @@ export default function SkillsSection<T extends FieldValues>({
             <button
               type="button"
               className="p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]"
-              title={t("Volver")}
+              title={t("Back")}
               onClick={() => setEditingId(null)}
             >
               <ArrowLeft className="w-[24px] h-[24px]" />
@@ -316,7 +316,7 @@ function SkillConfigFieldInput<T extends FieldValues>({
             }}
           >
             {authorized && <Check className="w-4 h-4" />}
-            {authorized ? connection?.email || t("Autorizado") : t("Autorizar")}
+            {authorized ? connection?.email || t("Authorized") : t("Authorize")}
           </button>
         </div>
       );
@@ -335,11 +335,11 @@ function SkillConfigFieldInput<T extends FieldValues>({
             }}
           >
             {authorized && <Check className="w-4 h-4" />}
-            {authorized ? t("Conectado") : t("Conectar")}
+            {authorized ? t("Connected") : t("Connect")}
           </button>
           {!acrm.isOwner && (
             <p className="text-muted-foreground text-[14px] mt-[8px]">
-              {t("Requiere permisos de propietario para conectar.")}
+              {t("Requires owner permissions to connect.")}
             </p>
           )}
         </div>

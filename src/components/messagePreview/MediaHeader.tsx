@@ -21,7 +21,7 @@ export default function MediaHeader({
           <img src={url} alt="" />
         ) : (
           <div className="wa-media-ph">
-            <span className="mono">{t("tu imagen")}</span>
+            <span className="mono">{t("your image")}</span>
           </div>
         )}
       </div>
@@ -35,7 +35,7 @@ export default function MediaHeader({
           <video src={url} muted />
         ) : (
           <div className="wa-media-ph">
-            <span className="mono">{t("tu video")}</span>
+            <span className="mono">{t("your video")}</span>
           </div>
         )}
         <div className="wa-play">
@@ -53,7 +53,7 @@ export default function MediaHeader({
         </div>
         <div className="wa-doc-meta">
           <div className="wa-doc-name">{fileName || "document.pdf"}</div>
-          <div className="wa-doc-sub">{t("PDF · tocá para abrir")}</div>
+          <div className="wa-doc-sub">{t("PDF · tap to open")}</div>
         </div>
       </div>
     );

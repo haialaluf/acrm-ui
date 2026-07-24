@@ -21,10 +21,10 @@ function TemplatesIndex() {
 
   return (
     <>
-      <SectionHeader title={t("Plantillas")} />
+      <SectionHeader title={t("Templates")} />
       <SectionBody>
         <SectionItem
-          title={t("Crear plantilla")}
+          title={t("Create template")}
           aside={
             <div className="p-[8px] bg-primary/10 rounded-full">
               <Plus className="w-[24px] h-[24px] text-primary" />
@@ -78,7 +78,7 @@ function TemplatesIndex() {
 
         {!isLoading && templates?.length === 0 && (
           <div className="p-8 text-center text-muted-foreground text-sm">
-            {t("No hay plantillas disponibles.")}
+            {t("No templates available.")}
           </div>
         )}
       </SectionBody>

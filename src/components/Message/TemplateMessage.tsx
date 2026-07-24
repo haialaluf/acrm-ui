@@ -65,7 +65,7 @@ export default function TemplateMessage({
   }
 
   const template = message.content.data;
-  const copyLabel = t("Copiar código");
+  const copyLabel = t("Copy code");
 
   // Prefer the definition's buttons (they carry the real labels); fall back to
   // whatever the send payload encodes.

@@ -27,21 +27,21 @@ export default function PersonaSection<T extends FieldValues>({
   const { translate: t } = useTranslation();
 
   return (
-    <SectionField label={t("Rol del agente")} disabled={disabled}>
+    <SectionField label={t("Agent role")} disabled={disabled}>
       <TextAreaField
         name={"extra.persona.goal" as Path<T>}
         control={control}
-        label={t("Objetivo")}
-        placeholder={t("Contactar nuevos leads y calificarlos...")}
+        label={t("Goal")}
+        placeholder={t("Contact new leads and qualify them...")}
         disabled={disabled}
       />
 
       <label>
-        <div className="label">{t("Tono")}</div>
+        <div className="label">{t("Tone")}</div>
         <input
           type="text"
           className="text"
-          placeholder={t("Cercano y profesional")}
+          placeholder={t("Friendly and professional")}
           disabled={disabled}
           {...register("extra.persona.tone" as Path<T>)}
         />
@@ -50,9 +50,9 @@ export default function PersonaSection<T extends FieldValues>({
       <TextAreaField
         name={"extra.persona.escalation_policy" as Path<T>}
         control={control}
-        label={t("Política de escalamiento")}
+        label={t("Escalation policy")}
         placeholder={t(
-          "Deriva a un humano si el cliente lo pide o si no puedes resolver...",
+          "Hand off to a human if the customer asks or if you can't resolve it...",
         )}
         disabled={disabled}
       />

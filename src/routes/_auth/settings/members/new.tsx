@@ -37,7 +37,7 @@ function AddMember() {
 
   return (
     <>
-      <SectionHeader title={t("Agregar miembro")} />
+      <SectionHeader title={t("Add member")} />
 
       <SectionBody>
         <form
@@ -69,15 +69,15 @@ function AddMember() {
           <fieldset disabled={!isOwner} className="contents">
             <p>
               {t(
-                "Los propietarios tienen control total, los administradores gestionan configuraciones y los miembros responden a las conversaciones.",
+                "Owners have full control, admins manage settings, and members respond to conversations.",
               )}
             </p>
 
             <label>
-              <div className="label">{t("Nombre")}</div>
+              <div className="label">{t("Name")}</div>
               <input
                 className="text"
-                placeholder={t("Nombre del miembro")}
+                placeholder={t("Member name")}
                 {...register("name", { required: true })}
               />
             </label>
@@ -85,21 +85,21 @@ function AddMember() {
             <SelectField
               name="extra.role"
               control={control}
-              label={t("Rol")}
+              label={t("Role")}
               options={[
-                { value: "member", label: t("Miembro") },
-                { value: "admin", label: t("Administrador") },
-                { value: "owner", label: t("Propietario") },
+                { value: "member", label: t("Member") },
+                { value: "admin", label: t("Administrator") },
+                { value: "owner", label: t("Owner") },
               ]}
               required
             />
 
             <label>
-              <div className="label">{t("Correo electrónico")}</div>
+              <div className="label">{t("Email")}</div>
               <input
                 type="email"
                 className="text"
-                placeholder={t("usuario@ejemplo.com")}
+                placeholder={t("user@example.com")}
                 {...register("extra.invitation.email", {
                   required: true,
                   pattern: {
@@ -120,10 +120,10 @@ function AddMember() {
           disabled={!isOwner}
           invalid={!isValid || !isDirty}
           loading={createAgent.isPending}
-          disabledReason={t("Requiere permisos de propietario")}
+          disabledReason={t("Requires owner permissions")}
           className="primary"
         >
-          {t("Invitar")}
+          {t("Invite")}
         </Button>
       </SectionFooter>
     </>

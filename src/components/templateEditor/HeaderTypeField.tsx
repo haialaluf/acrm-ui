@@ -63,11 +63,11 @@ export default function HeaderTypeField({
   const headerRef = useRef<HTMLTextAreaElement | null>(null);
 
   const options: { value: HeaderType; label: string }[] = [
-    { value: "NONE", label: t("Ninguno") },
-    { value: "TEXT", label: t("Texto") },
-    { value: "IMAGE", label: t("Imagen") },
+    { value: "NONE", label: t("None") },
+    { value: "TEXT", label: t("Text") },
+    { value: "IMAGE", label: t("Image") },
     { value: "VIDEO", label: t("Video") },
-    { value: "DOCUMENT", label: t("Documento") },
+    { value: "DOCUMENT", label: t("Document") },
   ];
 
   const headerHasVar = headerType === "TEXT" && headerText.includes("{{1}}");
@@ -75,7 +75,7 @@ export default function HeaderTypeField({
   return (
     <div className="flex flex-col">
       <div className="label !mb-[8px]">
-        {t("Encabezado")} ({t("opcional")})
+        {t("Header")} ({t("optional")})
       </div>
 
       <ConfigProvider theme={segmentedTheme}>
@@ -100,7 +100,7 @@ export default function HeaderTypeField({
 
       <div className="hint mt-[8px]">
         {t(
-          "El encabezado va arriba de todo. Llamá la atención con una imagen, o poné un título corto.",
+          "The header sits at the very top. Grab attention with an image, or set a short title.",
         )}
       </div>
 
@@ -108,7 +108,7 @@ export default function HeaderTypeField({
         <div className="mt-[12px] flex flex-col">
           <div className="flex items-baseline justify-between">
             <span className="text-[11px] text-muted-foreground mb-[2px]">
-              {t("Texto del título")}
+              {t("Title text")}
             </span>
             <span className="text-[11px] text-muted-foreground">
               {headerText.length}/60
@@ -120,7 +120,7 @@ export default function HeaderTypeField({
             rows={1}
             maxLength={60}
             dir={headerText.trim() ? "auto" : uiRtl ? "rtl" : "ltr"}
-            placeholder={t("Ej.: Oferta para {{1}}")}
+            placeholder={t("e.g. Offer for {{1}}")}
             value={headerText}
             onChange={(e) => onHeaderText(e.target.value.replace(/\n/g, ""))}
           />
@@ -144,11 +144,11 @@ export default function HeaderTypeField({
           {headerHasVar && (
             <div className="mt-[10px] flex flex-col">
               <span className="text-[11px] text-muted-foreground mb-[2px]">
-                {t("Ejemplo para")} {"{{1}}"}
+                {t("Example for")} {"{{1}}"}
               </span>
               <input
                 className="text"
-                placeholder={t("Ej.: Dana")}
+                placeholder={t("e.g. Dana")}
                 value={headerVariable}
                 onChange={(e) => onHeaderVariable(e.target.value)}
               />

@@ -26,10 +26,10 @@ function StatsLayout() {
 
   return (
     <>
-      <SectionHeader title={t("Estadísticas")} hideBackButton />
+      <SectionHeader title={t("Statistics")} hideBackButton />
       <SectionBody>
         <SectionItem
-          title={t("Cuotas")}
+          title={t("Quotas")}
           aside={
             <div
               className={`p-[8px] rounded-full ${activeTab === "quotas" ? "bg-primary/10" : ""}`}
@@ -45,7 +45,7 @@ function StatsLayout() {
           className={activeTab === "quotas" ? "bg-accent" : ""}
         />
         <SectionItem
-          title={t("Uso")}
+          title={t("Usage")}
           aside={
             <div
               className={`p-[8px] rounded-full ${activeTab === "usage" ? "bg-primary/10" : ""}`}

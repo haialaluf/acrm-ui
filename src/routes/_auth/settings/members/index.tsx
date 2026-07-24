@@ -19,18 +19,18 @@ function ListMembers() {
   const isOwner = currentAgent?.extra?.role === "owner";
 
   const roles: Record<string, string> = {
-    owner: t("Propietario"),
-    admin: t("Administrador"),
-    member: t("Miembro"),
+    owner: t("Owner"),
+    admin: t("Administrator"),
+    member: t("Member"),
   };
 
   return (
     <>
-      <SectionHeader title={t("Miembros")} />
+      <SectionHeader title={t("Members")} />
 
       <SectionBody>
         <SectionItem
-          title={t("Agregar miembro")}
+          title={t("Add member")}
           aside={
             <div className="p-[8px] bg-primary/10 rounded-full">
               <Plus className="w-[24px] h-[24px] text-primary" />
@@ -43,7 +43,7 @@ function ListMembers() {
             })
           }
           disabled={!isOwner}
-          disabledReason={t("Requiere permisos de propietario")}
+          disabledReason={t("Requires owner permissions")}
         />
         {agents
           ?.filter((agent) => !agent.ai)
@@ -55,8 +55,8 @@ function ListMembers() {
             return (
               <SectionItem
                 key={agent.id}
-                title={agent.name + (isMe ? ` (${t("tú")})` : "")}
-                description={role + (pending ? ` (${t("pendiente")})` : "")}
+                title={agent.name + (isMe ? ` (${t("you")})` : "")}
+                description={role + (pending ? ` (${t("pending")})` : "")}
                 aside={
                   <Avatar
                     src={agent.picture}

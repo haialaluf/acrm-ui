@@ -46,7 +46,7 @@ export default function FormatToolbar({
           <button
             type="button"
             className="fmt-btn"
-            title={`${t("Negrita")}  (*${t("texto")}*)`}
+            title={`${t("Bold")}  (*${t("text")}*)`}
             onMouseDown={prevent}
             onClick={() => surround(el(), value, setValue, "*")}
           >
@@ -55,7 +55,7 @@ export default function FormatToolbar({
           <button
             type="button"
             className="fmt-btn"
-            title={`${t("Cursiva")}  (_${t("texto")}_)`}
+            title={`${t("Italic")}  (_${t("text")}_)`}
             onMouseDown={prevent}
             onClick={() => surround(el(), value, setValue, "_")}
           >
@@ -64,7 +64,7 @@ export default function FormatToolbar({
           <button
             type="button"
             className="fmt-btn"
-            title={`${t("Tachado")}  (~${t("texto")}~)`}
+            title={`${t("Strikethrough")}  (~${t("text")}~)`}
             onMouseDown={prevent}
             onClick={() => surround(el(), value, setValue, "~")}
           >
@@ -73,7 +73,7 @@ export default function FormatToolbar({
           <button
             type="button"
             className="fmt-btn"
-            title={t("Monoespaciado")}
+            title={t("Monospace")}
             onMouseDown={prevent}
             onClick={() => surround(el(), value, setValue, "```")}
           >
@@ -83,7 +83,7 @@ export default function FormatToolbar({
           <button
             type="button"
             className="fmt-btn"
-            title={t("Lista con viñetas")}
+            title={t("Bulleted list")}
             onMouseDown={prevent}
             onClick={() =>
               linePrefix(el(), value, setValue, (l) =>
@@ -96,7 +96,7 @@ export default function FormatToolbar({
           <button
             type="button"
             className="fmt-btn"
-            title={t("Lista numerada")}
+            title={t("Numbered list")}
             onMouseDown={prevent}
             onClick={() =>
               linePrefix(
@@ -112,7 +112,7 @@ export default function FormatToolbar({
           <button
             type="button"
             className="fmt-btn"
-            title={t("Cita")}
+            title={t("Quote")}
             onMouseDown={prevent}
             onClick={() =>
               linePrefix(el(), value, setValue, (l) =>
@@ -142,7 +142,7 @@ export default function FormatToolbar({
         <button
           type="button"
           className="fmt-btn wide"
-          title={t("Insertar variable")}
+          title={t("Insert variable")}
           onMouseDown={prevent}
           onClick={onVariable}
         >

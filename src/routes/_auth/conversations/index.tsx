@@ -23,9 +23,9 @@ function Conversations() {
   const updateAgent = useUpdateAgent();
 
   const roles: Record<string, string> = {
-    owner: t("Propietario"),
-    admin: t("Administrador"),
-    member: t("Miembro"),
+    owner: t("Owner"),
+    admin: t("Administrator"),
+    member: t("Member"),
   };
 
   const handleInvitationAction = (
@@ -66,7 +66,7 @@ function Conversations() {
             <div key={invitation.id} className="bg-primary/10 rounded-lg">
               <SectionItem
                 className="h-[92px]"
-                title={t("Invitación pendiente")}
+                title={t("Pending invitation")}
                 description={
                   <div className="flex flex-col gap-[6px] w-full">
                     <p>
@@ -84,7 +84,7 @@ function Conversations() {
                             }
                             className="font-bold text-primary/90 hover:text-primary cursor-pointer"
                           >
-                            {t("Aceptar")}
+                            {t("Accept")}
                           </button>
                           <button
                             onClick={() =>
@@ -92,7 +92,7 @@ function Conversations() {
                             }
                             className="font-bold text-muted-foreground/90 hover:text-muted-foreground cursor-pointer"
                           >
-                            {t("Rechazar")}
+                            {t("Reject")}
                           </button>
                         </>
                       )}

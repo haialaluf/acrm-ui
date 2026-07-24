@@ -36,17 +36,17 @@ export const BTN_LIMITS: Record<
 
 // Spanish source strings (the codebase translates from Spanish via `t()`).
 export const KIND_LABEL: Record<ButtonKind, string> = {
-  QR: "Respuesta rápida",
-  URL: "Enlace",
-  PHONE: "Llamar",
-  COPY: "Copiar código",
+  QR: "Quick reply",
+  URL: "Link",
+  PHONE: "Call",
+  COPY: "Copy code",
 };
 
 export const KIND_HINT: Record<ButtonKind, string> = {
-  QR: "El cliente envía un texto fijo al tocar el botón",
-  URL: "Abre un enlace en el navegador del cliente (puede ser dinámico)",
-  PHONE: "Abre el marcador con tu número de teléfono",
-  COPY: "Copia un código al portapapeles del cliente",
+  QR: "The customer sends a fixed text when tapping",
+  URL: "Opens a link in the customer's browser (can be dynamic)",
+  PHONE: "Opens the dialer with your phone number",
+  COPY: "Copies a code to the customer's clipboard",
 };
 
 export function ButtonKindIcon({

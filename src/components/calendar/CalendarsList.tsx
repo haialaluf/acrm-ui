@@ -52,11 +52,11 @@ export default function CalendarsList({ activeId }: { activeId?: string }) {
 
   return (
     <>
-      <SectionHeader title={t("Calendarios")} />
+      <SectionHeader title={t("Calendars")} />
 
       <SectionBody>
         <SectionItem
-          title={t("Agregar calendario")}
+          title={t("Add calendar")}
           aside={
             <div className="p-[8px] bg-primary/10 rounded-full">
               <Plus className="w-[24px] h-[24px] text-primary" />
@@ -97,13 +97,13 @@ export default function CalendarsList({ activeId }: { activeId?: string }) {
                     items: [
                       {
                         key: "edit",
-                        label: t("Editar calendario"),
+                        label: t("Edit calendar"),
                         icon: <Pencil className="w-[15px] h-[15px]" />,
                         onClick: () => openEdit(calendar.id),
                       },
                       {
                         key: "delete",
-                        label: t("Eliminar calendario"),
+                        label: t("Delete calendar"),
                         icon: <Trash2 className="w-[15px] h-[15px]" />,
                         danger: true,
                         onClick: () => setConfirm(calendar),
@@ -113,7 +113,7 @@ export default function CalendarsList({ activeId }: { activeId?: string }) {
                 >
                   <button
                     className="p-[8px] rounded-full hover:bg-muted text-muted-foreground"
-                    title={t("Opciones")}
+                    title={t("Options")}
                   >
                     <MoreVertical className="w-[20px] h-[20px]" />
                   </button>
@@ -143,13 +143,13 @@ export default function CalendarsList({ activeId }: { activeId?: string }) {
         <Modal
           open={!!confirm}
           onCancel={() => setConfirm(null)}
-          title={t("Eliminar calendario")}
+          title={t("Delete calendar")}
           width={380}
           destroyOnHidden
           footer={
             <div className="flex items-center justify-end gap-2 pt-2">
               <Button type="text" onClick={() => setConfirm(null)}>
-                {t("Cancelar")}
+                {t("Cancel")}
               </Button>
               <Button
                 danger
@@ -157,14 +157,14 @@ export default function CalendarsList({ activeId }: { activeId?: string }) {
                 loading={deleteCalendar.isPending}
                 onClick={confirmDelete}
               >
-                {t("Eliminar")}
+                {t("Delete")}
               </Button>
             </div>
           }
         >
           <div className="py-1">
             <p className="text-[15px] text-foreground">
-              {t("¿Eliminar el calendario?")}
+              {t("Delete this calendar?")}
             </p>
             {confirm && (
               <p className="text-[14px] font-medium text-foreground mt-1">
@@ -172,7 +172,7 @@ export default function CalendarsList({ activeId }: { activeId?: string }) {
               </p>
             )}
             <p className="text-[13px] text-muted-foreground mt-2">
-              {t("Esta acción no se puede deshacer.")}
+              {t("This action cannot be undone.")}
             </p>
           </div>
         </Modal>

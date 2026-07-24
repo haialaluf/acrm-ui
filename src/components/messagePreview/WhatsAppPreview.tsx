@@ -44,7 +44,7 @@ export default function WhatsAppPreview({
 
   const inner = isEmptyMessage(d) ? (
     <div className="wa-empty">
-      {t("Tu mensaje aparecerá acá, tal como lo verá el cliente en WhatsApp.")}
+      {t("Your message will appear here, exactly as the customer sees it in WhatsApp.")}
     </div>
   ) : (
     <WhatsAppBubble data={d} time={clock} showIcons />
@@ -76,11 +76,11 @@ export default function WhatsAppPreview({
           onClick={() => setDark((v) => !v)}
         >
           {dark ? <Sun size={14} /> : <Moon size={14} />}
-          {dark ? t("WhatsApp claro") : t("WhatsApp oscuro")}
+          {dark ? t("Light WhatsApp") : t("Dark WhatsApp")}
         </button>
 
         <div className="stage-cap">
-          {t("Vista previa en vivo — así se ve tu mensaje en WhatsApp")}
+          {t("Live preview — this is how your message looks in WhatsApp")}
         </div>
       </div>
     </div>

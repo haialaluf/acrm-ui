@@ -7,15 +7,15 @@ import { useTranslation } from "@/hooks/useTranslation";
    (example.body_text); the field is only a UI hint that auto-fills it. */
 
 export const VAR_FIELDS: { value: string; label: string; sample: string }[] = [
-  { value: "custom", label: "Valor personalizado", sample: "" },
-  { value: "first_name", label: "Nombre", sample: "Dana" },
-  { value: "last_name", label: "Apellido", sample: "Levi" },
-  { value: "full_name", label: "Nombre completo", sample: "Dana Levi" },
-  { value: "order_id", label: "Número de pedido", sample: "#10482" },
-  { value: "date", label: "Fecha", sample: "26 ago" },
-  { value: "time", label: "Hora", sample: "18:00" },
-  { value: "amount", label: "Importe", sample: "$149" },
-  { value: "code", label: "Código", sample: "A7X2" },
+  { value: "custom", label: "Custom value", sample: "" },
+  { value: "first_name", label: "Name", sample: "Dana" },
+  { value: "last_name", label: "Last name", sample: "Levi" },
+  { value: "full_name", label: "Full name", sample: "Dana Levi" },
+  { value: "order_id", label: "Order number", sample: "#10482" },
+  { value: "date", label: "Date", sample: "26 ago" },
+  { value: "time", label: "Time", sample: "18:00" },
+  { value: "amount", label: "Amount", sample: "$149" },
+  { value: "code", label: "Code", sample: "A7X2" },
 ];
 
 export function fieldSample(v: string): string {
@@ -60,7 +60,7 @@ export default function VariableMapper({
     <div className="var-panel">
       <div className="text-[11px] text-muted-foreground mb-[8px]">
         {t(
-          "Variables — se reemplazan por los datos de cada contacto al enviar",
+          "Variables — replaced with each contact's details when you send",
         )}
       </div>
       <ConfigProvider theme={selectTheme}>
@@ -87,7 +87,7 @@ export default function VariableMapper({
             />
             <input
               className="var-sample"
-              placeholder={t("Valor de ejemplo")}
+              placeholder={t("Sample value")}
               value={v.sample}
               onChange={(e) => onChange(i, { sample: e.target.value })}
             />

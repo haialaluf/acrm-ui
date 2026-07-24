@@ -19,7 +19,7 @@ export default function WhatsAppChatSurface({
       className={"wa-chat" + (dark ? " dark" : "")}
       dir={rtl ? "rtl" : "ltr"}
     >
-      <div className="wa-daypill">{t("Hoy")}</div>
+      <div className="wa-daypill">{t("Today")}</div>
       {children}
     </div>
   );

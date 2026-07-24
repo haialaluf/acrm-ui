@@ -60,23 +60,23 @@ function AddAgent() {
 
   return (
     <>
-      <SectionHeader title={t("Agregar agente")} />
+      <SectionHeader title={t("Add agent")} />
 
       <SectionBody>
         <form id="create-agent-form" onSubmit={handleSubmit(onSubmit)}>
           <fieldset disabled={!isAdmin} className="contents">
             <p>
               {t(
-                "Configura un agente de IA que responderá automáticamente a tus conversaciones.",
+                "Set up an AI agent that will automatically respond to your conversations.",
               )}
             </p>
 
             <label>
-              <div className="label">{t("Nombre")}</div>
+              <div className="label">{t("Name")}</div>
               <input
                 type="text"
                 className="text"
-                placeholder={t("Nombre del agente")}
+                placeholder={t("Agent name")}
                 {...register("name", { required: true })}
               />
             </label>
@@ -84,11 +84,11 @@ function AddAgent() {
             <SelectField
               name="extra.mode"
               control={control}
-              label={t("Estado")}
+              label={t("Status")}
               options={[
-                { value: "active", label: t("Activo") },
-                { value: "draft", label: t("Borrador") },
-                { value: "inactive", label: t("Inactivo") },
+                { value: "active", label: t("Active") },
+                { value: "draft", label: t("Draft") },
+                { value: "inactive", label: t("Inactive") },
               ]}
             />
 
@@ -103,23 +103,23 @@ function AddAgent() {
             />
 
             <p className="text-muted-foreground text-[14px]">
-              {t("Los datos del negocio se configuran en")}{" "}
+              {t("Business details are configured in")}{" "}
               <Link
                 to="/settings/organization"
                 className="underline"
                 hash={(prevHash) => prevHash!}
               >
-                {t("los ajustes de la organización")}
+                {t("the organization settings")}
               </Link>
               .
             </p>
 
-            <SectionField label={t("Avanzado")}>
+            <SectionField label={t("Advanced")}>
               <TextAreaField
                 name="extra.instructions"
                 control={control}
-                label={t("Instrucciones adicionales")}
-                placeholder={t("Eres un asistente útil...")}
+                label={t("Additional instructions")}
+                placeholder={t("You are a helpful assistant...")}
               />
             </SectionField>
           </fieldset>
@@ -133,10 +133,10 @@ function AddAgent() {
           disabled={!isAdmin}
           invalid={!isValid || !isDirty}
           loading={createAgent.isPending}
-          disabledReason={t("Requiere permisos de administrador")}
+          disabledReason={t("Requires administrator permissions")}
           className="primary"
         >
-          {t("Crear")}
+          {t("Create")}
         </Button>
       </SectionFooter>
     </>

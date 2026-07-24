@@ -111,10 +111,10 @@ export default function VariablesStep({
             <div className="text-[12px] mb-[12px] text-muted-foreground">
               {mediaFormat && !hasVars
                 ? t(
-                    "Esta plantilla requiere un archivo en el encabezado — es obligatorio para enviarla.",
+                    "This template requires a file in the header — it is mandatory to send it.",
                   )
                 : t(
-                    "Para cada variable, elige un valor fijo o un campo del contacto que se sustituirá por destinatario.",
+                    "For each variable, choose a fixed value or a contact field that will be substituted per recipient.",
                   )}
             </div>
           )}
@@ -129,7 +129,7 @@ export default function VariablesStep({
             {mediaFormat === "IMAGE" && isValidMediaUrl(headerMedia) && (
               <img
                 src={headerMedia.trim()}
-                alt={t("Vista previa")}
+                alt={t("Preview")}
                 className="w-full max-h-[160px] object-cover rounded-[8px] mb-[10px] block"
               />
             )}
@@ -192,7 +192,7 @@ export default function VariablesStep({
                 border: "1px dashed var(--border)",
               }}
             >
-              {t("Esta plantilla no tiene variables — puedes continuar")}
+              {t("This template has no variables — you can continue")}
             </div>
           )}
         </div>
@@ -201,7 +201,7 @@ export default function VariablesStep({
       <SectionFooter>
         <Button className="primary" onClick={onNext} invalid={!allFilled}>
           <span className="inline-flex items-center justify-center gap-[8px]">
-            {t("Vista previa y envío")}
+            {t("Preview and send")}
             <ArrowLeft className="w-[16px] h-[16px] rotate-180" />
           </span>
         </Button>

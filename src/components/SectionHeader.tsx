@@ -43,7 +43,7 @@ export default function SectionHeader({
         (closeButton ? (
           <button
             className="p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]"
-            title={t("Cerrar")}
+            title={t("Close")}
             onClick={() => router.history.back()}
           >
             <X className="w-[24px] h-[24px]" />
@@ -52,7 +52,7 @@ export default function SectionHeader({
           <LinkButton
             to=".."
             className="me-[8px] ms-[-8px]"
-            title={t("Volver")}
+            title={t("Back")}
           >
             <ArrowLeft className="w-[24px] h-[24px]" />
           </LinkButton>
@@ -70,8 +70,8 @@ export default function SectionHeader({
           className="p-[8px] rounded-full hover:bg-muted ml-auto disabled:opacity-30 disabled:hover:bg-transparent"
           title={
             deleteDisabled && deleteDisabledReason
-              ? `${t("Eliminar")} - ${deleteDisabledReason}`
-              : t("Eliminar")
+              ? `${t("Delete")} - ${deleteDisabledReason}`
+              : t("Delete")
           }
           onClick={onDelete}
           disabled={deleteDisabled || deleteLoading}

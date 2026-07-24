@@ -16,7 +16,7 @@ function IntegrationsIndex() {
 
   return (
     <>
-      <SectionHeader title={t("Integraciones")} />
+      <SectionHeader title={t("Integrations")} />
       <SectionBody className="gap-4">
         <div className="flex flex-col">
           <SectionItem
@@ -57,8 +57,8 @@ function IntegrationsIndex() {
                 <FileText className="w-[24px] h-[24px]" />
               </div>
             }
-            title={t("Pre-procesamiento de media")}
-            description={t("Interpreta audios, imágenes y documentos")}
+            title={t("Media pre-processing")}
+            description={t("Interprets audio, images, and documents")}
             onClick={() =>
               navigate({
                 to: "/integrations/media-preprocessing",

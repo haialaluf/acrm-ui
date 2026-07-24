@@ -41,7 +41,7 @@ export default function VarCard({
             {`{{${num}}}`}
           </span>
           <span className="text-[12px] text-muted-foreground">
-            {scope === "head" ? t("en encabezado") : t("en cuerpo")}
+            {scope === "head" ? t("in header") : t("in body")}
           </span>
         </div>
         <div
@@ -52,13 +52,13 @@ export default function VarCard({
             active={!isField}
             onClick={() => onUpdate({ mode: "static" })}
           >
-            {t("Valor fijo")}
+            {t("Fixed value")}
           </SegmentBtn>
           <SegmentBtn
             active={isField}
             onClick={() => onUpdate({ mode: "field" })}
           >
-            {t("Por destinatario")}
+            {t("Per recipient")}
           </SegmentBtn>
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function VarCard({
             ))}
           </select>
           <div className="text-[11px] mt-[6px] text-muted-foreground">
-            {t("Se sustituirá automáticamente con el valor del contacto")}
+            {t("Will be automatically substituted with the contact's value")}
           </div>
         </>
       ) : (
@@ -93,7 +93,7 @@ export default function VarCard({
             background: "var(--background)",
             border: "1px solid var(--border)",
           }}
-          placeholder={example || t("Valor para todos los destinatarios")}
+          placeholder={example || t("Value for all recipients")}
           value={value.static}
           onChange={(e) => onUpdate({ static: e.target.value })}
         />

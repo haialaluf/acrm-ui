@@ -50,10 +50,10 @@ export default function ManageTemplatesOverlay({
 
   const title =
     view.mode === "new"
-      ? t("Crear plantilla")
+      ? t("Create template")
       : view.mode === "edit"
-        ? t("Editar plantilla")
-        : t("Plantillas");
+        ? t("Edit template")
+        : t("Templates");
 
   // Back arrow: from the list (or a form opened as the entry point) it closes
   // the overlay back to the wizard; from a form reached via the list it returns
@@ -68,7 +68,7 @@ export default function ManageTemplatesOverlay({
       <div className="header items-center truncate">
         <button
           className="p-[8px] rounded-full text-muted-foreground hover:bg-muted me-[8px] ms-[-8px]"
-          title={t("Volver")}
+          title={t("Back")}
           onClick={onBack}
         >
           <ArrowLeft className="w-[24px] h-[24px]" />
@@ -77,7 +77,7 @@ export default function ManageTemplatesOverlay({
         {view.mode === "edit" && (
           <button
             className="p-[8px] rounded-full hover:bg-muted ml-auto disabled:opacity-30 disabled:hover:bg-transparent"
-            title={t("Eliminar")}
+            title={t("Delete")}
             onClick={() =>
               deleteTemplate.mutate(
                 { template: view.template, organizationAddress },
@@ -98,7 +98,7 @@ export default function ManageTemplatesOverlay({
       {view.mode === "list" ? (
         <SectionBody>
           <SectionItem
-            title={t("Crear plantilla")}
+            title={t("Create template")}
             aside={
               <div className="p-[8px] bg-primary/10 rounded-full">
                 <Plus className="w-[24px] h-[24px] text-primary" />
@@ -140,7 +140,7 @@ export default function ManageTemplatesOverlay({
 
           {!isLoading && templates?.length === 0 && (
             <div className="p-8 text-center text-muted-foreground text-sm">
-              {t("No hay plantillas disponibles.")}
+              {t("No templates available.")}
             </div>
           )}
         </SectionBody>

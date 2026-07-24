@@ -19,13 +19,13 @@ export default function StatsCenter() {
       <div className="header border-b border-border bg-background sticky top-0 z-20 md:hidden">
         <button
           className="me-4"
-          title={t("Volver")}
+          title={t("Back")}
           onClick={() => navigate({ to: "/stats", hash: (prev) => prev! })}
         >
           <ArrowLeft className="w-[24px] h-[24px] text-foreground" />
         </button>
         <div className="flex items-center text-[16px] text-foreground">
-          {isUsage ? t("Uso") : t("Cuotas")}
+          {isUsage ? t("Usage") : t("Quotas")}
         </div>
       </div>
 

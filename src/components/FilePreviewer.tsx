@@ -207,7 +207,7 @@ const FilePreviewer = () => {
         <div className="py-[8px] px-[16px] min-h-[60px] flex justify-between items-center">
           <button
             className="p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]"
-            title={t("Cerrar")}
+            title={t("Close")}
             onClick={quitPreviewer}
           >
             <X className="w-[24px] h-[24px]" />
@@ -277,7 +277,7 @@ const FilePreviewer = () => {
                 className="absolute top-[10px] left-[16px] text-[17px] leading-[24px] text-muted-foreground pointer-events-none"
                 onClick={() => editableDiv.current?.focus()}
               >
-                {t("Escribe un mensaje")}
+                {t("Write a message")}
               </div>
             )}
           </div>

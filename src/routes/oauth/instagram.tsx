@@ -70,7 +70,7 @@ function InstagramOAuthCallback() {
         {failed ? (
           <>
             <p className="text-destructive font-medium">
-              {t("No se pudo conectar la cuenta de Instagram.")}
+              {t("The Instagram account could not be connected.")}
             </p>
             <button
               type="button"
@@ -79,12 +79,12 @@ function InstagramOAuthCallback() {
                 navigate({ to: "/integrations/instagram/new", hash: "" })
               }
             >
-              {t("Reintentar")}
+              {t("Retry")}
             </button>
           </>
         ) : (
           <p className="text-muted-foreground">
-            {t("Conectando tu cuenta de Instagram...")}
+            {t("Connecting your Instagram account...")}
           </p>
         )}
       </div>

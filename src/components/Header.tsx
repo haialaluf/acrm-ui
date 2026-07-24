@@ -19,11 +19,11 @@ export default function Header() {
         <LinkButton
           to="/conversations/bulk-send"
           className="ms-[10px] flex items-center gap-[8px]"
-          title={t("Nueva conversación")}
+          title={t("New conversation")}
         >
           <MessageSquarePlus className="w-[24px] h-[24px] text-foreground shrink-0" />
           <span className="text-[14px] text-foreground truncate">
-            {t("Nueva conversación")}
+            {t("New conversation")}
           </span>
         </LinkButton>
       </div>

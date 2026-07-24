@@ -12,17 +12,17 @@ const FORMAT_META: Record<
 > = {
   IMAGE: {
     icon: ImageIcon,
-    label: "Imagen del encabezado",
+    label: "Header image",
     placeholder: "https://ejemplo.com/imagen.jpg",
   },
   VIDEO: {
     icon: Video,
-    label: "Video del encabezado",
+    label: "Header video",
     placeholder: "https://ejemplo.com/video.mp4",
   },
   DOCUMENT: {
     icon: FileText,
-    label: "Documento del encabezado",
+    label: "Header document",
     placeholder: "https://ejemplo.com/documento.pdf",
   },
 };
@@ -91,7 +91,7 @@ export default function HeaderMediaCard({
             color: "var(--primary)",
           }}
         >
-          {t("Obligatorio")}
+          {t("Required")}
         </span>
       </div>
 
@@ -102,7 +102,7 @@ export default function HeaderMediaCard({
         >
           <img
             src={trimmed}
-            alt={t("Vista previa")}
+            alt={t("Preview")}
             className="w-full max-h-[180px] object-cover block"
             onError={() => setImgError(true)}
             onLoad={() => setImgError(false)}
@@ -134,19 +134,19 @@ export default function HeaderMediaCard({
           className="text-[11px] mt-[6px]"
           style={{ color: "var(--destructive)" }}
         >
-          {t("Introduce una URL pública que empiece por http:// o https://")}
+          {t("Enter a public URL that starts with http:// or https://")}
         </div>
       ) : format === "IMAGE" && valid && imgError ? (
         <div
           className="text-[11px] mt-[6px]"
           style={{ color: "var(--destructive)" }}
         >
-          {t("No se pudo cargar la imagen desde esa URL")}
+          {t("Couldn't load the image from that URL")}
         </div>
       ) : (
         <div className="text-[11px] mt-[6px] text-muted-foreground">
           {t(
-            "Se enviará la misma imagen a todos los destinatarios. WhatsApp la descargará desde esta URL pública.",
+            "The same image will be sent to all recipients. WhatsApp will download it from this public URL.",
           )}
         </div>
       )}
@@ -161,8 +161,8 @@ export default function HeaderMediaCard({
         >
           {rehosting && <Loader2 className="w-[12px] h-[12px] animate-spin" />}
           {rehosting
-            ? t("Preparando el archivo de ejemplo…")
-            : t("Usar el archivo de ejemplo de la plantilla")}
+            ? t("Preparing the example file…")
+            : t("Use the template's sample file")}
         </button>
       )}
 
@@ -171,7 +171,7 @@ export default function HeaderMediaCard({
           className="text-[11px] mt-[6px]"
           style={{ color: "var(--destructive)" }}
         >
-          {t("No se pudo preparar el archivo de ejemplo. Inténtalo de nuevo.")}
+          {t("Couldn't prepare the example file. Please try again.")}
         </div>
       )}
     </div>

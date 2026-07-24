@@ -13,13 +13,13 @@ type QuotaBarProps = {
 function translateProductName(name: string, t: (s: string) => string) {
   switch (name) {
     case "Messages":
-      return t("Mensajes");
+      return t("Messages");
     case "Conversations":
-      return t("Conversaciones");
+      return t("Conversations");
     case "Storage":
-      return t("Almacenamiento");
+      return t("Storage");
     case "AI Credits":
-      return t("Créditos IA");
+      return t("AI Credits");
     default:
       return name;
   }
@@ -50,7 +50,7 @@ export default function QuotaBar({
 }: QuotaBarProps) {
   const { translate: t } = useTranslation();
   const isBalance = kind === "balance";
-  const periodLabel = interval === "month" ? " " + t("por mes") : "";
+  const periodLabel = interval === "month" ? " " + t("per month") : "";
 
   if (isBalance) {
     const remaining = used;
@@ -85,7 +85,7 @@ export default function QuotaBar({
         <div className="flex gap-[16px] text-[12px] text-muted-foreground">
           <span className="flex items-center gap-[4px]">
             <span className="inline-block w-[8px] h-[8px] rounded-full bg-primary" />
-            {t("Disponible")}
+            {t("Available")}
           </span>
         </div>
       </div>
@@ -132,12 +132,12 @@ export default function QuotaBar({
       <div className="flex gap-[16px] text-[12px] text-muted-foreground">
         <span className="flex items-center gap-[4px]">
           <span className="inline-block w-[8px] h-[8px] rounded-full bg-primary" />
-          {t("Usado")}
+          {t("Used")}
         </span>
         {inc > 0 && (
           <span className="flex items-center gap-[4px]">
             <span className="inline-block w-[8px] h-[8px] rounded-full bg-primary/40" />
-            {t("Incluido")}
+            {t("Included")}
           </span>
         )}
       </div>

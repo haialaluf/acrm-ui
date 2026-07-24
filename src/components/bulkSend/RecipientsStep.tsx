@@ -65,7 +65,7 @@ export default function RecipientsStep({
   const allSelected =
     selectable.length > 0 && selectable.every((c) => selectedIds.has(c.id));
 
-  const removedReason = t("Este contacto solicitó ser eliminado");
+  const removedReason = t("This contact asked to be removed");
 
   return (
     <>
@@ -79,7 +79,7 @@ export default function RecipientsStep({
           />
           <div className="px-[18px] pb-[8px] flex items-center justify-between text-[12px] text-muted-foreground">
             <span>
-              {filtered.length} {t("contactos")}
+              {filtered.length} {t("contacts")}
             </span>
             <div className="flex gap-[12px]">
               {!allSelected && (
@@ -90,12 +90,12 @@ export default function RecipientsStep({
                     setSelectedIds(next);
                   }}
                 >
-                  {t("Seleccionar todos")}
+                  {t("Select all")}
                 </LinkBtn>
               )}
               {selectedIds.size > 0 && (
                 <LinkBtn onClick={() => setSelectedIds(new Set())}>
-                  {t("Limpiar todo")}
+                  {t("Clear all")}
                 </LinkBtn>
               )}
             </div>
@@ -118,7 +118,7 @@ export default function RecipientsStep({
           })}
           {filtered.length === 0 && (
             <div className="py-[40px] text-center text-muted-foreground text-[14px]">
-              {t("Sin resultados")}
+              {t("No results")}
             </div>
           )}
         </div>
@@ -136,7 +136,7 @@ export default function RecipientsStep({
           <div>
             <span className="font-semibold">{selectedIds.size}</span>{" "}
             <span className="text-muted-foreground">
-              {t("destinatarios seleccionados")}
+              {t("recipients selected")}
             </span>
           </div>
         </div>
@@ -146,7 +146,7 @@ export default function RecipientsStep({
           invalid={selectedIds.size === 0}
         >
           <span className="inline-flex items-center justify-center gap-[8px]">
-            {t("Elegir plantilla")}
+            {t("Choose template")}
             <ArrowLeft className="w-[16px] h-[16px] rotate-180" />
           </span>
         </Button>

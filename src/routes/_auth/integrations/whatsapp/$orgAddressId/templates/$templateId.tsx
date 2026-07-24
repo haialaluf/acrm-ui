@@ -32,7 +32,7 @@ function EditTemplate() {
   if (!template) {
     return (
       <div className="p-4 text-muted-foreground">
-        {t("Plantilla no encontrada")}
+        {t("Template not found")}
       </div>
     );
   }
@@ -40,7 +40,7 @@ function EditTemplate() {
   return (
     <>
       <SectionHeader
-        title={t("Editar plantilla")}
+        title={t("Edit template")}
         onDelete={() => {
           deleteTemplate.mutate(
             { template, organizationAddress: orgAddressId },

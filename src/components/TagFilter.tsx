@@ -66,7 +66,7 @@ export default function TagFilter({
           value={value}
           onChange={onChange}
           options={tags.map((tag) => ({ label: tag, value: tag }))}
-          placeholder={placeholder ?? t("Filtrar por etiquetas")}
+          placeholder={placeholder ?? t("Filter by tags")}
           maxTagCount="responsive"
         />
       </ConfigProvider>

@@ -129,9 +129,9 @@ function sourceLabel(id: string, t: (s: string) => string): string {
   const map: Record<string, string> = {
     manual: t("Manual"),
     whatsapp: t("WhatsApp"),
-    import: t("Importación"),
-    incoming_message: t("Mensaje entrante"),
-    form: t("Formulario"),
+    import: t("Import"),
+    incoming_message: t("Incoming message"),
+    form: t("Form"),
     api: t("API"),
   };
   return map[id] ?? id;
@@ -182,24 +182,24 @@ const filterTheme = {
 function rangePresets(t: (s: string) => string) {
   return [
     {
-      label: t("Últimas 24 horas"),
+      label: t("Last 24 hours"),
       value: [dayjs().subtract(24, "hour"), dayjs()],
     },
-    { label: t("Hoy"), value: [dayjs().startOf("day"), dayjs().endOf("day")] },
+    { label: t("Today"), value: [dayjs().startOf("day"), dayjs().endOf("day")] },
     {
-      label: t("Últimos 7 días"),
+      label: t("Last 7 days"),
       value: [dayjs().subtract(6, "day").startOf("day"), dayjs().endOf("day")],
     },
     {
-      label: t("Últimos 30 días"),
+      label: t("Last 30 days"),
       value: [dayjs().subtract(29, "day").startOf("day"), dayjs().endOf("day")],
     },
     {
-      label: t("Últimos 90 días"),
+      label: t("Last 90 days"),
       value: [dayjs().subtract(89, "day").startOf("day"), dayjs().endOf("day")],
     },
     {
-      label: t("Este año"),
+      label: t("This year"),
       value: [dayjs().startOf("year"), dayjs().endOf("day")],
     },
   ] as { label: string; value: [Dayjs, Dayjs] }[];
@@ -267,19 +267,19 @@ function FilterField({
 function sincePresets(t: (s: string) => string) {
   return [
     {
-      label: t("Últimas 24 horas"),
+      label: t("Last 24 hours"),
       value: dayjs().subtract(24, "hour").startOf("day"),
     },
     {
-      label: t("Últimos 7 días"),
+      label: t("Last 7 days"),
       value: dayjs().subtract(7, "day").startOf("day"),
     },
     {
-      label: t("Últimos 30 días"),
+      label: t("Last 30 days"),
       value: dayjs().subtract(30, "day").startOf("day"),
     },
     {
-      label: t("Últimos 90 días"),
+      label: t("Last 90 days"),
       value: dayjs().subtract(90, "day").startOf("day"),
     },
   ] as { label: string; value: Dayjs }[];
@@ -300,7 +300,7 @@ function SinceFilter({ label, value, onChange }: SinceFilterProps) {
       <DatePicker
         allowClear
         showToday={false}
-        placeholder={t("Fecha")}
+        placeholder={t("Date")}
         value={value != null ? dayjs(value) : null}
         presets={sincePresets(t)}
         disabledDate={(d) => d && d.isAfter(dayjs().endOf("day"))}
@@ -368,7 +368,7 @@ export default function ContactFilter({
           prefix={
             <Search className="text-muted-foreground w-[15px] h-[15px]" />
           }
-          placeholder={t("Buscar por nombre, teléfono, email...")}
+          placeholder={t("Search by name, phone, email...")}
           value={value.search}
           onChange={(e) => patch({ search: e.target.value })}
         />
@@ -391,7 +391,7 @@ export default function ContactFilter({
                     <SlidersHorizontal
                       className={`w-[15px] h-[15px] ${count ? "text-primary" : "text-muted-foreground"}`}
                     />
-                    {t("Filtros")}
+                    {t("Filters")}
                     {count > 0 && (
                       <span className="inline-flex items-center justify-center rounded-full text-[11px] font-semibold text-white bg-primary min-w-[18px] h-[18px] px-[5px]">
                         {count}
@@ -410,19 +410,19 @@ export default function ContactFilter({
                       className="inline-flex items-center gap-[4px] text-[13px] text-muted-foreground hover:text-foreground"
                     >
                       <X className="w-[13px] h-[13px]" />
-                      {t("Limpiar todo")}
+                      {t("Clear all")}
                     </button>
                   ) : null,
                 children: (
                   <div className="grid grid-cols-2 gap-[8px]">
                     {/* Include / exclude tags */}
-                    <FilterField label={t("Con etiquetas")}>
+                    <FilterField label={t("With tags")}>
                       <Select
                         mode="multiple"
                         allowClear
                         showSearch
                         optionFilterProp="label"
-                        placeholder={t("Seleccionar")}
+                        placeholder={t("Select")}
                         value={value.tags}
                         onChange={(tags) => patch({ tags })}
                         maxTagCount="responsive"
@@ -433,13 +433,13 @@ export default function ContactFilter({
                         }))}
                       />
                     </FilterField>
-                    <FilterField label={t("Sin etiquetas")}>
+                    <FilterField label={t("No tags")}>
                       <Select
                         mode="multiple"
                         allowClear
                         showSearch
                         optionFilterProp="label"
-                        placeholder={t("Seleccionar")}
+                        placeholder={t("Select")}
                         value={value.excludeTags}
                         onChange={(excludeTags) => patch({ excludeTags })}
                         maxTagCount="responsive"
@@ -452,11 +452,11 @@ export default function ContactFilter({
                     </FilterField>
 
                     {/* Source + date added */}
-                    <FilterField label={t("Origen")}>
+                    <FilterField label={t("Source")}>
                       <Select
                         mode="multiple"
                         allowClear
-                        placeholder={t("Seleccionar")}
+                        placeholder={t("Select")}
                         value={value.sources}
                         onChange={(sources) => patch({ sources })}
                         maxTagCount="responsive"
@@ -467,10 +467,10 @@ export default function ContactFilter({
                         }))}
                       />
                     </FilterField>
-                    <FilterField label={t("Fecha de creación")}>
+                    <FilterField label={t("Creation date")}>
                       <DatePicker.RangePicker
                         allowEmpty={[true, true]}
-                        placeholder={[t("Desde"), t("Hasta")]}
+                        placeholder={[t("From"), t("To")]}
                         value={addedRange}
                         presets={rangePresets(t)}
                         disabledDate={(d) =>
@@ -486,24 +486,24 @@ export default function ContactFilter({
 
                     {/* Received / not received since */}
                     <SinceFilter
-                      label={t("Recibió desde")}
+                      label={t("Received since")}
                       value={value.recvSince}
                       onChange={(recvSince) => patch({ recvSince })}
                     />
                     <SinceFilter
-                      label={t("No recibió desde")}
+                      label={t("Not received since")}
                       value={value.notRecvSince}
                       onChange={(notRecvSince) => patch({ notRecvSince })}
                     />
 
                     {/* Sent / not sent since */}
                     <SinceFilter
-                      label={t("Envió desde")}
+                      label={t("Sent since")}
                       value={value.sentSince}
                       onChange={(sentSince) => patch({ sentSince })}
                     />
                     <SinceFilter
-                      label={t("No envió desde")}
+                      label={t("Not sent since")}
                       value={value.notSentSince}
                       onChange={(notSentSince) => patch({ notSentSince })}
                     />

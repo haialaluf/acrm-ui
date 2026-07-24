@@ -41,7 +41,7 @@ export default function ItemActions({
 
   const items: MenuProps["items"] = [
     {
-      label: isPaused ? t("Reanudar asistente") : t("Pausar asistente"),
+      label: isPaused ? t("Resume assistant") : t("Pause assistant"),
       key: "0",
       onClick: () =>
         updateConvExtra(conversation, {
@@ -50,8 +50,8 @@ export default function ItemActions({
     },
     {
       label: isArchived(conversation, mostRecentMsg)
-        ? t("Desarchivar chat")
-        : t("Archivar chat"),
+        ? t("Unarchive chat")
+        : t("Archive chat"),
       key: "1",
       onClick: () =>
         updateConvExtra(conversation, {
@@ -61,7 +61,7 @@ export default function ItemActions({
         }),
     },
     {
-      label: isPinned ? t("Desfijar chat") : t("Fijar chat"),
+      label: isPinned ? t("Unpin chat") : t("Pin chat"),
       key: "2",
       onClick: () =>
         updateConvExtra(conversation, {
@@ -69,7 +69,7 @@ export default function ItemActions({
         }),
     },
     /*{
-      label: t("Marcar como no leído"),
+      label: t("Mark as unread"),
       key: "2",
       disabled: true,
     },*/

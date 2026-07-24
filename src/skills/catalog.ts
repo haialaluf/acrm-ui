@@ -36,9 +36,9 @@ export type SkillCatalogEntry = {
 export const SKILL_CATALOG: SkillCatalogEntry[] = [
   {
     id: "meeting_scheduling",
-    title: "Agenda de citas",
+    title: "Appointment scheduling",
     description:
-      "Permite al agente agendar, reagendar y cancelar citas en un calendario de Google.",
+      "Lets the agent schedule, reschedule, and cancel appointments in a Google calendar.",
     icon: "calendar",
     configSpec: [
       {
@@ -50,27 +50,27 @@ export const SKILL_CATALOG: SkillCatalogEntry[] = [
       },
       {
         key: "calendar_id",
-        label: "ID del calendario",
+        label: "Calendar ID",
         type: "text",
         default: "primary",
         placeholder: "primary",
       },
       {
         key: "meeting_duration_minutes",
-        label: "Duración de la cita (minutos)",
+        label: "Appointment duration (minutes)",
         type: "number",
         default: 30,
       },
       {
         key: "working_hours",
-        label: "Horario de atención",
+        label: "Working hours",
         type: "textarea",
         required: true,
-        placeholder: "Lun-Vie 9:00-18:00",
+        placeholder: "Mon-Fri 9:00-18:00",
       },
       {
         key: "buffer_minutes",
-        label: "Margen entre citas (minutos)",
+        label: "Buffer between appointments (minutes)",
         type: "number",
         default: 0,
       },
@@ -78,29 +78,29 @@ export const SKILL_CATALOG: SkillCatalogEntry[] = [
   },
   {
     id: "crm_lookup",
-    title: "Consulta de CRM",
+    title: "CRM lookup",
     description:
-      "Permite al agente consultar el historial de conversaciones, contactos y cuentas del CRM.",
+      "Lets the agent look up conversation history, contacts, and accounts from the CRM.",
     icon: "database",
     configSpec: [
       {
         key: "acrm",
-        label: "Conexión al CRM",
+        label: "CRM connection",
         type: "acrm_api_key",
         required: true,
       },
       {
         key: "allowed_tools",
-        label: "Herramientas permitidas",
+        label: "Allowed tools",
         type: "multiselect",
         options: [
-          { value: "list_conversations", label: "Listar conversaciones" },
-          { value: "fetch_conversation", label: "Obtener conversación" },
-          { value: "search_contacts", label: "Buscar contactos" },
-          { value: "list_accounts", label: "Listar cuentas" },
-          { value: "list_templates", label: "Listar plantillas" },
-          { value: "fetch_template", label: "Obtener plantilla" },
-          { value: "send_message", label: "Enviar mensaje" },
+          { value: "list_conversations", label: "List conversations" },
+          { value: "fetch_conversation", label: "Get conversation" },
+          { value: "search_contacts", label: "Search contacts" },
+          { value: "list_accounts", label: "List accounts" },
+          { value: "list_templates", label: "List templates" },
+          { value: "fetch_template", label: "Get template" },
+          { value: "send_message", label: "Send message" },
         ],
         default: [
           "list_conversations",

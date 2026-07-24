@@ -38,7 +38,7 @@ export default function ReadMoreText({
           className="wa-readmore"
           onClick={() => setExpanded(true)}
         >
-          {t("Leer más")}
+          {t("Read more")}
         </button>
       )}
     </div>

@@ -16,15 +16,15 @@ function useLengthState() {
   return (len: number): { cls: string; text: string } | null => {
     if (len === 0) return null;
     if (len <= 250)
-      return { cls: "good", text: t("Buena longitud — entra en una pantalla") };
+      return { cls: "good", text: t("Good length — fits on one screen") };
     if (len <= 600)
       return {
         cls: "warn",
-        text: t("Se está haciendo largo — WhatsApp puede agregar “Leer más”"),
+        text: t("Getting long — WhatsApp may add “Read more”"),
       };
     return {
       cls: "over",
-      text: t("Muy largo — la mayoría no lo va a leer completo"),
+      text: t("Very long — most people won't read it all"),
     };
   };
 }
@@ -55,14 +55,14 @@ export default function BodyField({
     setValue("body", v, { shouldDirty: true, shouldValidate: true });
 
   const { ref: rhfRef, ...bodyReg } = register("body", {
-    required: "El cuerpo es obligatorio",
-    maxLength: { value: 1024, message: "Máximo 1024 caracteres" },
+    required: "The body is required",
+    maxLength: { value: 1024, message: "Maximum 1024 characters" },
     validate: (v: string) => {
       const trimmed = v.trim();
       if (/^\{\{\d+\}\}/.test(trimmed))
-        return "El cuerpo no puede empezar con una variable";
+        return "The body cannot start with a variable";
       if (/\{\{\d+\}\}$/.test(trimmed))
-        return "El cuerpo no puede terminar con una variable";
+        return "The body cannot end with a variable";
       return true;
     },
   });
@@ -76,7 +76,7 @@ export default function BodyField({
   return (
     <div className="flex flex-col">
       <div className="flex items-baseline justify-between mb-[8px]">
-        <span className="label !mb-0">{t("Cuerpo")}</span>
+        <span className="label !mb-0">{t("Body")}</span>
         <span className="text-[11px] text-muted-foreground">
           {value.length}/1024
         </span>
@@ -102,17 +102,17 @@ export default function BodyField({
         maxLength={1024}
         dir={value.trim() ? "auto" : uiRtl ? "rtl" : "ltr"}
         placeholder={t(
-          "Escribí tu mensaje. Seleccioná texto y usá la barra de arriba para poner negrita, agregar emoji o insertar una variable.",
+          "Write your message. Select text and use the toolbar above to make it bold, add emoji, or insert a variable.",
         )}
       />
 
       <div className="flex items-center justify-between gap-[8px] mt-[8px] flex-wrap min-h-[26px]">
         {error ? (
           <span className="text-destructive text-[11.5px] leading-[1.5]">
-            {t(error.message ?? "El cuerpo es obligatorio")}
+            {t(error.message ?? "The body is required")}
           </span>
         ) : (
-          <span className="hint">{t("El cuerpo es obligatorio")}</span>
+          <span className="hint">{t("The body is required")}</span>
         )}
         {lg && (
           <span className={"len-chip " + lg.cls}>

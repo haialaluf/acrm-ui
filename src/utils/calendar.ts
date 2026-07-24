@@ -4,16 +4,16 @@ import type {
   WorkingHoursDay,
 } from "@/supabase/types/extra_types";
 
-// Week ordered Sunday-first (Israel/US business week). `label` is a Spanish
+// Week ordered Sunday-first (Israel/US business week). `label` is an English
 // source string passed through `t()` at render time, like the rest of the app.
 export const WEEKDAYS: { key: Weekday; label: string }[] = [
-  { key: "sun", label: "Domingo" },
-  { key: "mon", label: "Lunes" },
-  { key: "tue", label: "Martes" },
-  { key: "wed", label: "Miércoles" },
-  { key: "thu", label: "Jueves" },
-  { key: "fri", label: "Viernes" },
-  { key: "sat", label: "Sábado" },
+  { key: "sun", label: "Sunday" },
+  { key: "mon", label: "Monday" },
+  { key: "tue", label: "Tuesday" },
+  { key: "wed", label: "Wednesday" },
+  { key: "thu", label: "Thursday" },
+  { key: "fri", label: "Friday" },
+  { key: "sat", label: "Saturday" },
 ];
 
 const WORKDAYS: Weekday[] = ["sun", "mon", "tue", "wed", "thu"];
@@ -174,7 +174,7 @@ const TZ_REGION: Record<string, string> = {
   "America/Sao_Paulo": "BR",
 };
 
-export function regionLabel(code: string, locale = "es"): string {
+export function regionLabel(code: string, locale = "en"): string {
   try {
     return new Intl.DisplayNames([locale], { type: "region" }).of(code) || code;
   } catch {
@@ -222,7 +222,7 @@ export function daysSummary(
   const activeIdx = WEEKDAYS.map((d, i) => (hours[d.key] ? i : -1)).filter(
     (i) => i >= 0,
   );
-  if (activeIdx.length === 0) return t("Sin días");
+  if (activeIdx.length === 0) return t("No days");
   const initial = (i: number) => t(WEEKDAYS[i].label);
   const contiguous = activeIdx.every(
     (v, i) => i === 0 || v === activeIdx[i - 1] + 1,
@@ -247,5 +247,5 @@ export function hoursSummary(
   const uniform = active.every(
     (h) => h.from === first.from && h.to === first.to,
   );
-  return uniform ? `${first.from} – ${first.to}` : t("Horario variable");
+  return uniform ? `${first.from} – ${first.to}` : t("Variable hours");
 }

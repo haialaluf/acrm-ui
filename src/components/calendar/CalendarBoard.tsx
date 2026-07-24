@@ -77,18 +77,18 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
 
   const messages = useMemo(
     () => ({
-      today: t("Hoy"),
-      previous: t("Anterior"),
-      next: t("Siguiente"),
-      month: t("Mes"),
-      week: t("Semana"),
-      day: t("Día"),
+      today: t("Today"),
+      previous: t("Previous"),
+      next: t("Next"),
+      month: t("Month"),
+      week: t("Week"),
+      day: t("Day"),
       agenda: t("Agenda"),
-      date: t("Fecha"),
-      time: t("Hora"),
-      event: t("Cita"),
-      noEventsInRange: t("No hay citas en este rango"),
-      showMore: (n: number) => `+ ${n} ${t("más")}`,
+      date: t("Date"),
+      time: t("Time"),
+      event: t("Quote"),
+      noEventsInRange: t("No appointments in this range"),
+      showMore: (n: number) => `+ ${n} ${t("more")}`,
     }),
     [t],
   );
@@ -97,7 +97,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
     () =>
       (appointments ?? []).map((a: AppointmentRow) => ({
         id: a.id,
-        title: a.title || t("(Sin título)"),
+        title: a.title || t("(Untitled)"),
         start: new Date(a.starts_at),
         end: new Date(a.ends_at),
       })),
@@ -175,7 +175,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
         <LinkButton
           to="/calendars"
           className="md:hidden"
-          title={t("Volver a calendarios")}
+          title={t("Back to calendars")}
         >
           <ArrowLeft className="w-[22px] h-[22px]" />
         </LinkButton>
@@ -201,9 +201,9 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
             value={view}
             onChange={setView}
             options={[
-              { label: t("Mes"), value: Views.MONTH },
-              { label: t("Semana"), value: Views.WEEK },
-              { label: t("Día"), value: Views.DAY },
+              { label: t("Month"), value: Views.MONTH },
+              { label: t("Week"), value: Views.WEEK },
+              { label: t("Day"), value: Views.DAY },
             ]}
           />
         </ConfigProvider>
@@ -215,12 +215,12 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
           className="text-[13px] rounded-full px-4 py-[6px] border border-border bg-card text-foreground hover:bg-accent"
           onClick={() => setDate(new Date())}
         >
-          {t("Hoy")}
+          {t("Today")}
         </button>
         <div className="flex items-center gap-1">
           <button
             className="p-[8px] rounded-full hover:bg-muted"
-            title={t("Anterior")}
+            title={t("Previous")}
             onClick={() =>
               setDate((d) => dayjs(d).subtract(1, navUnit(view)).toDate())
             }
@@ -229,7 +229,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
           </button>
           <button
             className="p-[8px] rounded-full hover:bg-muted"
-            title={t("Siguiente")}
+            title={t("Next")}
             onClick={() =>
               setDate((d) => dayjs(d).add(1, navUnit(view)).toDate())
             }
@@ -250,7 +250,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
           onClick={newMeeting}
         >
           <Plus className="w-[16px] h-[16px]" />
-          {t("Nueva cita")}
+          {t("New appointment")}
         </button>
       </div>
 
@@ -279,7 +279,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
               mode: "edit",
               draft: {
                 id: ev.id,
-                title: ev.title === t("(Sin título)") ? "" : ev.title,
+                title: ev.title === t("(Untitled)") ? "" : ev.title,
                 start: ev.start,
                 end: ev.end,
               },

@@ -60,7 +60,7 @@ export default function ContactTagSelect({
         onChange={onChange}
         onBlur={onBlur}
         options={allTags.map((tag) => ({ label: tag, value: tag }))}
-        placeholder={t("Agregar etiquetas")}
+        placeholder={t("Add tags")}
         tokenSeparators={[","]}
         notFoundContent={null}
       />

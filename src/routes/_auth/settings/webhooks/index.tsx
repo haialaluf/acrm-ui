@@ -24,7 +24,7 @@ function ListWebhooks() {
 
       <SectionBody>
         <SectionItem
-          title={t("Agregar webhook")}
+          title={t("Add webhook")}
           aside={
             <div className="p-[8px] bg-primary/10 rounded-full">
               <Plus className="w-[24px] h-[24px] text-primary" />
@@ -37,7 +37,7 @@ function ListWebhooks() {
             })
           }
           disabled={!isAdmin}
-          disabledReason={t("Requiere permisos de administrador")}
+          disabledReason={t("Requires administrator permissions")}
         />
         {webhooks?.map((webhook) => (
           <SectionItem

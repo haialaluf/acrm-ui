@@ -87,7 +87,7 @@ function AgentDetail() {
             });
           }}
           deleteDisabled={!isAdmin}
-          deleteDisabledReason={t("Requiere permisos de administrador")}
+          deleteDisabledReason={t("Requires administrator permissions")}
           deleteLoading={deleteAgent.isPending}
         />
 
@@ -98,11 +98,11 @@ function AgentDetail() {
           >
             <fieldset disabled={!isAdmin} className="contents">
               <label>
-                <div className="label">{t("Nombre")}</div>
+                <div className="label">{t("Name")}</div>
                 <input
                   type="text"
                   className="text"
-                  placeholder={t("Nombre del agente")}
+                  placeholder={t("Agent name")}
                   {...register("name", { required: true })}
                 />
               </label>
@@ -110,11 +110,11 @@ function AgentDetail() {
               <SelectField
                 name="extra.mode"
                 control={control}
-                label={t("Estado")}
+                label={t("Status")}
                 options={[
-                  { value: "active", label: t("Activo") },
-                  { value: "draft", label: t("Borrador") },
-                  { value: "inactive", label: t("Inactivo") },
+                  { value: "active", label: t("Active") },
+                  { value: "draft", label: t("Draft") },
+                  { value: "inactive", label: t("Inactive") },
                 ]}
               />
 
@@ -134,23 +134,23 @@ function AgentDetail() {
               />
 
               <p className="text-muted-foreground text-[14px]">
-                {t("Los datos del negocio se configuran en")}{" "}
+                {t("Business details are configured in")}{" "}
                 <Link
                   to="/settings/organization"
                   className="underline"
                   hash={(prevHash) => prevHash!}
                 >
-                  {t("los ajustes de la organización")}
+                  {t("the organization settings")}
                 </Link>
                 .
               </p>
 
-              <SectionField label={t("Avanzado")}>
+              <SectionField label={t("Advanced")}>
                 <TextAreaField
                   name="extra.instructions"
                   control={control}
-                  label={t("Instrucciones adicionales")}
-                  placeholder={t("Eres un asistente útil...")}
+                  label={t("Additional instructions")}
+                  placeholder={t("You are a helpful assistant...")}
                 />
               </SectionField>
             </fieldset>
@@ -160,7 +160,7 @@ function AgentDetail() {
         <SectionFooter>
           {!isDirty ? (
             <button type="button" className="primary" onClick={handleChat}>
-              {t("Chatea con este agente")}
+              {t("Chat with this agent")}
             </button>
           ) : (
             <Button
@@ -169,10 +169,10 @@ function AgentDetail() {
               disabled={!isAdmin}
               invalid={!isValid}
               loading={updateAgent.isPending}
-              disabledReason={t("Requiere permisos de administrador")}
+              disabledReason={t("Requires administrator permissions")}
               className="primary"
             >
-              {t("Actualizar")}
+              {t("Update")}
             </Button>
           )}
         </SectionFooter>

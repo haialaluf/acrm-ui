@@ -71,7 +71,7 @@ export default function TemplateEditor({
       mode: "onTouched",
       defaultValues: {
         name: existingTemplate?.name || "",
-        language: existingTemplate?.language || currentLanguage || "es",
+        language: existingTemplate?.language || currentLanguage || "en",
         category: existingTemplate?.category || "MARKETING",
         headerType: defaultHeaderType,
         header:
@@ -86,7 +86,7 @@ export default function TemplateEditor({
             : "",
         mediaName:
           existingHeader && existingHeader.format !== "TEXT"
-            ? t("Muestra actual")
+            ? t("Current sample")
             : "",
         body: existingBody?.text || "",
         bodyVariables: (existingBody?.example?.body_text[0] || []).map(
@@ -151,7 +151,7 @@ export default function TemplateEditor({
       ? [headerVariable]
       : [];
   const previewButtons: PreviewButton[] = (buttons || []).map((b) =>
-    buttonDefToPreview(formButtonToComponent(b), t("Copiar código")),
+    buttonDefToPreview(formButtonToComponent(b), t("Copy code")),
   );
   const previewData: MessagePreviewData = {
     headerType,
@@ -257,7 +257,7 @@ export default function TemplateEditor({
           setSubmitError(
             error instanceof Error
               ? error.message
-              : t("No se pudo guardar la plantilla"),
+              : t("Couldn't save the template"),
           ),
       },
     );
@@ -282,18 +282,18 @@ export default function TemplateEditor({
           <SelectField<TemplateFormData>
             name="category"
             control={control}
-            label={t("Categoría")}
+            label={t("Category")}
             disabled={!!existingTemplate}
             options={[
-              { value: "MARKETING", label: t("Promoción") },
-              { value: "UTILITY", label: t("Utilidad") },
+              { value: "MARKETING", label: t("Marketing") },
+              { value: "UTILITY", label: t("Utility") },
             ]}
           />
 
           <SelectField<TemplateFormData>
             name="language"
             control={control}
-            label={t("Idioma")}
+            label={t("Language")}
             disabled={!!existingTemplate}
             options={[
               { value: "en", label: "English" },
@@ -304,14 +304,14 @@ export default function TemplateEditor({
           />
 
           <label>
-            <div className="label">{t("Nombre")}</div>
+            <div className="label">{t("Name")}</div>
             <input
               type="text"
               className="text"
-              placeholder={t("nombre_de_plantilla")}
+              placeholder={t("template_name")}
               disabled={!!existingTemplate}
               {...register("name", {
-                required: "El nombre es obligatorio",
+                required: "The name is required",
                 onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
                   e.target.value = e.target.value
                     .toLowerCase()
@@ -321,7 +321,7 @@ export default function TemplateEditor({
             />
             <div className="hint mt-[4px]">
               {t(
-                "El nombre solo puede tener letras en inglés (minúsculas), números y guiones bajos.",
+                "The name can only contain lowercase English letters, numbers and underscores.",
               )}
             </div>
             <div className="min-h-[18px] mt-[4px]">
@@ -377,15 +377,15 @@ export default function TemplateEditor({
 
           <label>
             <div className="label">
-              {t("Pie")} ({t("opcional")})
+              {t("Footer")} ({t("optional")})
             </div>
             <input
               type="text"
               className="text"
-              placeholder={t("Texto del pie")}
+              placeholder={t("Footer text")}
               maxLength={60}
               {...register("footer", {
-                maxLength: { value: 60, message: t("Máximo 60 caracteres") },
+                maxLength: { value: 60, message: t("Maximum 60 characters") },
               })}
             />
           </label>
@@ -422,7 +422,7 @@ export default function TemplateEditor({
           loading={isPending}
           className="primary"
         >
-          {t("Enviar a revisión")}
+          {t("Submit for review")}
         </Button>
       </SectionFooter>
     </>

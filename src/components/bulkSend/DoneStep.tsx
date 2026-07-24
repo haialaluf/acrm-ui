@@ -56,14 +56,14 @@ export default function DoneStep({
               />
             </div>
             <div className="text-[18px] mt-[16px]">
-              {t("No se envió ningún mensaje")}
+              {t("No messages were sent")}
             </div>
             <div
               className="text-[13px] mt-[4px] text-center text-muted-foreground"
               style={{ maxWidth: 320 }}
             >
               {t(
-                "El envío se cancela por completo si falla, así que puedes reintentarlo sin duplicar mensajes.",
+                "The send is cancelled entirely if it fails, so you can retry without duplicating messages.",
               )}
             </div>
           </div>
@@ -76,19 +76,19 @@ export default function DoneStep({
             }}
           >
             <div className="text-[12px] mb-[6px] text-muted-foreground">
-              {t("Detalle del error")}
+              {t("Error details")}
             </div>
             <div className="text-[13px] break-words">{error}</div>
           </div>
 
           <div className="grid grid-cols-2 gap-[8px]">
             <StatTile
-              label={t("Destinatarios")}
+              label={t("Recipients")}
               value={total}
               color="var(--foreground)"
             />
             <StatTile
-              label={t("Enviados")}
+              label={t("Sent")}
               value={0}
               color="var(--destructive)"
             />
@@ -101,10 +101,10 @@ export default function DoneStep({
               className="bg-transparent border border-border hover:bg-muted rounded-full text-[14px] py-[8px]"
               onClick={onClose}
             >
-              {t("Cerrar")}
+              {t("Close")}
             </Button>
             <Button className="primary" onClick={onRetry ?? onReset}>
-              {t("Reintentar")}
+              {t("Retry")}
             </Button>
           </div>
         </SectionFooter>
@@ -131,10 +131,10 @@ export default function DoneStep({
             />
           </div>
           <div className="text-[18px] mt-[16px]">
-            {progress.sent} {t("mensajes enviados")}
+            {progress.sent} {t("messages sent")}
           </div>
           <div className="text-[13px] mt-[4px] text-muted-foreground">
-            {t("Sigue las entregas en las conversaciones creadas")}
+            {t("Track deliveries in the created conversations")}
           </div>
           {scheduled > 0 && (
             <div
@@ -144,14 +144,14 @@ export default function DoneStep({
                 background: "oklch(from var(--primary) l c h / 0.08)",
               }}
             >
-              {scheduled} {t("programados para los próximos días")}
+              {scheduled} {t("scheduled for the coming days")}
             </div>
           )}
         </div>
 
         <div className="grid grid-cols-3 gap-[8px] mb-[16px]">
           <StatTile
-            label={t("Enviados")}
+            label={t("Sent")}
             value={progress.sent}
             color="var(--foreground)"
           />
@@ -161,7 +161,7 @@ export default function DoneStep({
             color="oklch(from var(--success) calc(l - 0.1) c h)"
           />
           <StatTile
-            label={t("Fallidos")}
+            label={t("Failed")}
             value={progress.failed}
             color="var(--destructive)"
           />
@@ -175,18 +175,18 @@ export default function DoneStep({
           }}
         >
           <div className="text-[14px] mb-[10px] font-medium">
-            {t("Siguientes pasos")}
+            {t("Next steps")}
           </div>
           <ActionRow
             icon={<MessageSquare className="w-[14px] h-[14px] text-primary" />}
-            title={t("Abrir las conversaciones creadas")}
-            subtitle={`${progress.sent} ${t("nuevas conversaciones en la lista")}`}
+            title={t("Open created conversations")}
+            subtitle={`${progress.sent} ${t("new conversations in the list")}`}
             onClick={onClose}
           />
           <ActionRow
             icon={<RotateCcw className="w-[14px] h-[14px] text-primary" />}
-            title={t("Reintentar con fallidos")}
-            subtitle={`${progress.failed} ${t("destinatarios")}`}
+            title={t("Retry with failed")}
+            subtitle={`${progress.failed} ${t("recipients")}`}
             disabled={progress.failed === 0}
           />
         </div>
@@ -198,10 +198,10 @@ export default function DoneStep({
             className="bg-transparent border border-border hover:bg-muted rounded-full text-[14px] py-[8px]"
             onClick={onReset}
           >
-            {t("Otro envío")}
+            {t("Another send")}
           </Button>
           <Button className="primary" onClick={onClose}>
-            {t("Listo")}
+            {t("Done")}
           </Button>
         </div>
       </SectionFooter>

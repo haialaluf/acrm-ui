@@ -41,7 +41,7 @@ const useBoundStore = create<AppState>()(
             ...prev.ui,
             ...state.ui,
           };
-          if (state.ui.language && state.ui.language !== "es") {
+          if (state.ui.language && state.ui.language !== "en") {
             loadTranslations(state.ui.language);
           }
         }

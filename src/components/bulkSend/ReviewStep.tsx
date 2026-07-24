@@ -130,7 +130,7 @@ export default function ReviewStep({
     const bodyText = fillTemplate(body?.text, "body", vars, current);
     const footer = foot?.text ?? "";
     const buttons: PreviewButton[] =
-      butt?.buttons?.map((b) => buttonDefToPreview(b, t("Copiar código"))) ??
+      butt?.buttons?.map((b) => buttonDefToPreview(b, t("Copy code"))) ??
       [];
 
     const hasMedia = mediaFmt != null && isValidMediaUrl(headerMedia);
@@ -166,7 +166,7 @@ export default function ReviewStep({
         <div className="px-[16px] pt-[14px]">
           <div className="flex items-center justify-between mb-[10px]">
             <div className="text-[12px] text-muted-foreground">
-              {t("Vista previa para")}
+              {t("Preview for")}
             </div>
             <div className="flex items-center gap-[8px]">
               <NavBtn onClick={() => setIdx(Math.max(0, safeIdx - 1))}>
@@ -225,7 +225,7 @@ export default function ReviewStep({
 
         <div className="px-[16px] mt-[16px]">
           <div className="text-[12px] text-muted-foreground mb-[8px]">
-            {recipients.length} {t("destinatarios")}
+            {recipients.length} {t("recipients")}
           </div>
           <div
             className="flex flex-wrap gap-[5px] max-h-[110px] overflow-y-auto rounded-[12px] p-[8px]"
@@ -245,7 +245,7 @@ export default function ReviewStep({
                   type="button"
                   onClick={() => onRemove(c.id)}
                   className="text-muted-foreground hover:text-foreground bg-transparent border-none p-0 inline-flex"
-                  title={t("Quitar")}
+                  title={t("Remove")}
                 >
                   <X className="w-[11px] h-[11px]" />
                 </button>
@@ -276,7 +276,7 @@ export default function ReviewStep({
           {overLimit ? (
             <>
               <div className="text-[12px] text-muted-foreground mb-[8px]">
-                {t("Seleccionaste más que el límite diario — cómo enviar")}
+                {t("You selected more than the daily limit — how to send")}
               </div>
               <div
                 className="rounded-[12px] overflow-hidden"
@@ -301,7 +301,7 @@ export default function ReviewStep({
                   </div>
                   <div className="flex-1">
                     <div className="text-[14px] flex items-center gap-[6px]">
-                      {t("Dividir en")} {batches.length} {t("días")}
+                      {t("Split into")} {batches.length} {t("days")}
                       <span
                         className="text-[10px] rounded-full px-[6px] py-[1px]"
                         style={{
@@ -309,13 +309,13 @@ export default function ReviewStep({
                           color: "var(--primary)",
                         }}
                       >
-                        {t("Recomendado")}
+                        {t("Recommended")}
                       </span>
                     </div>
                     <div className="text-[12px] text-muted-foreground">
-                      {t("Hasta")} {dailyLimit} {t("por día")} —{" "}
-                      {batches[0]?.list.length ?? 0} {t("hoy")},{" "}
-                      {t("el resto los días siguientes")}
+                      {t("To")} {dailyLimit} {t("per day")} —{" "}
+                      {batches[0]?.list.length ?? 0} {t("today")},{" "}
+                      {t("the rest on the following days")}
                     </div>
                   </div>
                   <CalendarClock className="w-[18px] h-[18px] text-muted-foreground" />
@@ -353,15 +353,15 @@ export default function ReviewStep({
                     <Radio checked={effective === "now"} />
                   </div>
                   <div className="flex-1">
-                    <div className="text-[14px]">{t("Enviar todo ahora")}</div>
+                    <div className="text-[14px]">{t("Send all now")}</div>
                     <div
                       className="text-[12px]"
                       style={{
                         color: "oklch(from var(--warning) calc(l - 0.15) c h)",
                       }}
                     >
-                      {t("Excede el límite — los mensajes por encima de")}{" "}
-                      {dailyLimit} {t("podrían ser bloqueados")}
+                      {t("Exceeds the limit — messages above")}{" "}
+                      {dailyLimit} {t("could be blocked")}
                     </div>
                   </div>
                   <TriangleAlert
@@ -376,7 +376,7 @@ export default function ReviewStep({
           ) : (
             <>
               <div className="text-[12px] text-muted-foreground mb-[8px]">
-                {t("Cuándo enviar")}
+                {t("When to send")}
               </div>
               <div
                 className="rounded-[12px] overflow-hidden"
@@ -398,9 +398,9 @@ export default function ReviewStep({
                 >
                   <Radio checked={scheduling === "now"} />
                   <div className="flex-1">
-                    <div className="text-[14px]">{t("Enviar ahora")}</div>
+                    <div className="text-[14px]">{t("Send now")}</div>
                     <div className="text-[12px] text-muted-foreground">
-                      {t("Se enviará en un único lote")}
+                      {t("Will be sent in a single batch")}
                     </div>
                   </div>
                   <Clock className="w-[16px] h-[16px] text-muted-foreground" />
@@ -422,7 +422,7 @@ export default function ReviewStep({
                   </div>
                   <div className="flex-1">
                     <div className="text-[14px]">
-                      {t("Programar para más tarde")}
+                      {t("Schedule for later")}
                     </div>
                     {scheduling === "later" ? (
                       <div
@@ -444,14 +444,14 @@ export default function ReviewStep({
                             disabledDate={(d) =>
                               d && d.isBefore(dayjs().startOf("day"))
                             }
-                            placeholder={t("Elige fecha y hora")}
+                            placeholder={t("Choose date and time")}
                             allowClear
                           />
                         </ConfigProvider>
                       </div>
                     ) : (
                       <div className="text-[12px] text-muted-foreground">
-                        {t("Elige fecha y hora")}
+                        {t("Choose date and time")}
                       </div>
                     )}
                   </div>
@@ -486,9 +486,9 @@ export default function ReviewStep({
       <SectionFooter className="gap-[8px]">
         {effective === "split" && (
           <div className="flex items-center justify-between mb-[2px] text-[12px]">
-            <span className="text-muted-foreground">{t("Se divide")}</span>
+            <span className="text-muted-foreground">{t("Split")}</span>
             <span>
-              <b>{todayCount}</b> {t("hoy")} · {remaining} {t("programados")}
+              <b>{todayCount}</b> {t("today")} · {remaining} {t("scheduled")}
             </span>
           </div>
         )}
@@ -496,10 +496,10 @@ export default function ReviewStep({
           <span className="inline-flex items-center justify-center gap-[8px]">
             <Send className="w-[16px] h-[16px]" />
             {effective === "split"
-              ? `${t("Enviar")} ${todayCount} ${t("hoy y programar el resto")}`
+              ? `${t("Send")} ${todayCount} ${t("today and schedule the rest")}`
               : effective === "now"
-                ? `${t("Enviar a")} ${recipients.length} ${t("destinatarios")}`
-                : t("Programar envío")}
+                ? `${t("Send to")} ${recipients.length} ${t("recipients")}`
+                : t("Schedule send")}
           </span>
         </Button>
       </SectionFooter>

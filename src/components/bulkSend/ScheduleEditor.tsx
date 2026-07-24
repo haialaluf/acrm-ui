@@ -47,8 +47,8 @@ export default function ScheduleEditor({
     today.setHours(0, 0, 0, 0);
     const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
     const date = `${d.getDate()}.${d.getMonth() + 1}`;
-    if (diff <= 0) return { label: t("Hoy"), date };
-    if (diff === 1) return { label: t("Mañana"), date };
+    if (diff <= 0) return { label: t("Today"), date };
+    if (diff === 1) return { label: t("Tomorrow"), date };
     const weekday = new Intl.DateTimeFormat(currentLanguage, {
       weekday: "long",
     }).format(d);
@@ -63,7 +63,7 @@ export default function ScheduleEditor({
     <div>
       <div className="flex items-center justify-between mb-[8px]">
         <div className="text-[12px] text-muted-foreground">
-          {t("Calendario de envío")}
+          {t("Send schedule")}
         </div>
         <button
           type="button"
@@ -82,7 +82,7 @@ export default function ScheduleEditor({
           ) : (
             <CalendarClock className="w-[13px] h-[13px]" />
           )}
-          {custom ? t("Terminar edición") : t("Elegir fechas y horas")}
+          {custom ? t("Done editing") : t("Choose dates & times")}
         </button>
       </div>
 
@@ -121,7 +121,7 @@ export default function ScheduleEditor({
                 }}
                 title={
                   flagged
-                    ? t("Menos de 24 h desde el lote anterior")
+                    ? t("Less than 24 h after the previous batch")
                     : undefined
                 }
               >
@@ -156,14 +156,14 @@ export default function ScheduleEditor({
                 <div className="flex-1 min-w-0 text-[13px]">
                   {label}{" "}
                   <span className="text-[11px] text-muted-foreground">
-                    {date} · {isToday && !time ? t("ahora") : time}
+                    {date} · {isToday && !time ? t("now") : time}
                   </span>
                 </div>
               )}
 
               <div className="text-[13px] font-semibold">{b.list.length}</div>
               <div className="text-[11px] text-muted-foreground">
-                {t("mensajes")}
+                {t("messages")}
               </div>
             </div>
           );
@@ -182,7 +182,7 @@ export default function ScheduleEditor({
           <AlertTriangle className="w-[13px] h-[13px] mt-[1px] shrink-0" />
           <span>
             {t(
-              "Hay lotes programados a menos de 24 h del anterior. WhatsApp cuenta los destinatarios en una ventana móvil de 24 h, así que esos mensajes serán rechazados. Separa cada lote al menos 24 h.",
+              "Some batches are scheduled less than 24 h after the previous one. WhatsApp counts recipients in a rolling 24-hour window, so those messages will be rejected. Leave at least 24 h between batches.",
             )}
           </span>
         </div>
@@ -192,7 +192,7 @@ export default function ScheduleEditor({
         <div className="text-[11px] mt-[10px] flex items-start gap-[6px] text-muted-foreground">
           <Info className="w-[13px] h-[13px] mt-[1px] shrink-0" />
           {t(
-            "Cada lote se enviará en la fecha y hora elegidas. Puedes cambiarlo hasta el momento del envío.",
+            "Each batch is sent at the chosen date and time. You can change it any time before it's sent.",
           )}
         </div>
       )}

@@ -93,7 +93,7 @@ export default function MeetingModal({
       <Modal
         open={open}
         onCancel={onClose}
-        title={mode === "edit" ? t("Editar cita") : t("Nueva cita")}
+        title={mode === "edit" ? t("Edit appointment") : t("New appointment")}
         width={400}
         destroyOnHidden
         footer={
@@ -106,12 +106,12 @@ export default function MeetingModal({
                 onClick={onDelete}
                 className="me-auto"
               >
-                {t("Eliminar")}
+                {t("Delete")}
               </Button>
             )}
             <div className="grow" />
             <Button type="text" onClick={onClose}>
-              {t("Cancelar")}
+              {t("Cancel")}
             </Button>
             <Button
               type="primary"
@@ -119,7 +119,7 @@ export default function MeetingModal({
               disabled={!canSave}
               onClick={submit}
             >
-              {t("Guardar")}
+              {t("Save")}
             </Button>
           </div>
         }
@@ -127,20 +127,20 @@ export default function MeetingModal({
         <div className="flex flex-col gap-[18px] py-2">
           <label className="flex flex-col gap-[6px]">
             <span className="text-[12px] text-muted-foreground">
-              {t("Título")}
+              {t("Title")}
             </span>
             <Input
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={t("Ejemplo: Llamada de bienvenida")}
+              placeholder={t("Example: Welcome call")}
               onPressEnter={submit}
             />
           </label>
 
           <label className="flex flex-col gap-[6px]">
             <span className="text-[12px] text-muted-foreground">
-              {t("Fecha")}
+              {t("Date")}
             </span>
             <DatePicker
               value={date}
@@ -154,7 +154,7 @@ export default function MeetingModal({
           <div className="flex items-end gap-3">
             <label className="flex flex-col gap-[6px] grow">
               <span className="text-[12px] text-muted-foreground">
-                {t("Desde")}
+                {t("From")}
               </span>
               <TimePicker
                 value={from}
@@ -168,7 +168,7 @@ export default function MeetingModal({
             </label>
             <label className="flex flex-col gap-[6px] grow">
               <span className="text-[12px] text-muted-foreground">
-                {t("Hasta")}
+                {t("To")}
               </span>
               <TimePicker
                 value={to}

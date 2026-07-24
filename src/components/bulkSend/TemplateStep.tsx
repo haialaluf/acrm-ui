@@ -37,14 +37,14 @@ export default function TemplateStep({
         <PillSearch
           value={search}
           onChange={setSearch}
-          placeholder={t("Buscar plantilla")}
+          placeholder={t("Search template")}
         />
       </div>
       <div className="grow overflow-y-auto px-[12px] pb-[12px]">
         <div className="flex flex-col gap-[6px]">
           {filtered.length === 0 && (
             <div className="py-[40px] text-center text-muted-foreground text-[14px]">
-              {t("Solo se muestran plantillas aprobadas")}
+              {t("Only approved templates are shown")}
             </div>
           )}
           {filtered.map((tpl) => {
@@ -110,7 +110,7 @@ export default function TemplateStep({
                       · {totalVars} {t("variables")}
                     </span>
                   )}
-                  {head && <span>· {t("Encabezado")}</span>}
+                  {head && <span>· {t("Header")}</span>}
                 </div>
               </button>
             );
@@ -125,7 +125,7 @@ export default function TemplateStep({
               <Plus className="w-[24px] h-[24px] text-primary" />
             </div>
             <div className="text-[16px] text-foreground">
-              {t("Crear plantilla")}
+              {t("Create template")}
             </div>
           </button>
         )}
@@ -135,7 +135,7 @@ export default function TemplateStep({
             className="mt-[8px] w-full flex items-center justify-center gap-[6px] rounded-[14px] py-[12px] text-[13px] font-medium text-muted-foreground border border-dashed border-border hover:bg-accent transition-colors"
           >
             <Wrench className="w-[14px] h-[14px]" />
-            {t("Gestionar plantillas")}
+            {t("Manage templates")}
           </button>
         )}
       </div>

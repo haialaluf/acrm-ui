@@ -63,12 +63,12 @@ function AddButtonMenu({
   const total = buttons.length;
 
   function disabledReason(kind: ButtonKind): string | null {
-    if (total >= BTN_TOTAL_MAX) return `${t("Límite total")}: ${BTN_TOTAL_MAX}`;
+    if (total >= BTN_TOTAL_MAX) return `${t("Total limit")}: ${BTN_TOTAL_MAX}`;
     const cap = BTN_LIMITS[kind].max;
     if ((counts[kind] || 0) >= cap)
-      return `${t("Máximo")} ${cap} ${t("de este tipo")}`;
+      return `${t("Maximum")} ${cap} ${t("of this type")}`;
     if (BTN_LIMITS[kind].marketingOnly && category !== "MARKETING")
-      return t("Solo disponible para la categoría Promoción");
+      return t("Only available for the Marketing category");
     return null;
   }
 
@@ -81,7 +81,7 @@ function AddButtonMenu({
         disabled={total >= BTN_TOTAL_MAX}
       >
         <Plus className="w-[16px] h-[16px]" />
-        {total === 0 ? t("Agregar botón") : t("Agregar otro botón")}
+        {total === 0 ? t("Add button") : t("Add another button")}
       </button>
 
       {open && (
@@ -90,7 +90,7 @@ function AddButtonMenu({
           role="menu"
         >
           <div className="px-[8px] pt-[4px] pb-[6px] text-[11px] text-muted-foreground">
-            {t("Elegí un tipo de botón")}
+            {t("Choose a button type")}
           </div>
           {BUTTON_KINDS.map((k) => {
             const reason = disabledReason(k);
@@ -176,7 +176,7 @@ function ButtonCard({
           className="w-[28px] h-[28px] rounded-full inline-flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent"
           onClick={onMoveUp}
           disabled={!canUp}
-          title={t("Mover arriba")}
+          title={t("Move up")}
         >
           <ChevronUp className="w-[14px] h-[14px]" />
         </button>
@@ -185,7 +185,7 @@ function ButtonCard({
           className="w-[28px] h-[28px] rounded-full inline-flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent"
           onClick={onMoveDown}
           disabled={!canDown}
-          title={t("Mover abajo")}
+          title={t("Move down")}
         >
           <ChevronDown className="w-[14px] h-[14px]" />
         </button>
@@ -193,7 +193,7 @@ function ButtonCard({
           type="button"
           className="w-[28px] h-[28px] rounded-full inline-flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-destructive"
           onClick={onRemove}
-          title={t("Eliminar")}
+          title={t("Delete")}
         >
           <Trash2 className="w-[14px] h-[14px]" />
         </button>
@@ -204,8 +204,8 @@ function ButtonCard({
         <div className="flex items-baseline justify-between">
           <span className="text-[11px] text-muted-foreground mb-[2px]">
             {kind === "COPY"
-              ? t("Texto del botón (fijo)")
-              : t("Texto del botón")}
+              ? t("Button text (fixed)")
+              : t("Button text")}
           </span>
           {kind !== "COPY" && (
             <span className="text-[11px] text-muted-foreground">
@@ -215,7 +215,7 @@ function ButtonCard({
         </div>
         {kind === "COPY" ? (
           <div className="text-[14px] text-muted-foreground py-[4px]">
-            {t("Copiar código")}
+            {t("Copy code")}
           </div>
         ) : (
           <input
@@ -223,14 +223,14 @@ function ButtonCard({
             maxLength={max}
             placeholder={
               kind === "QR"
-                ? t("Sí, me interesa")
+                ? t("Yes, I'm interested")
                 : kind === "URL"
-                  ? t("Más información")
-                  : t("Llamanos")
+                  ? t("More info")
+                  : t("Call us")
             }
             {...register(`buttons.${index}.text`, {
               validate: (value) =>
-                value?.trim() ? true : t("El texto del botón es obligatorio"),
+                value?.trim() ? true : t("Button text is required"),
             })}
           />
         )}
@@ -241,7 +241,7 @@ function ButtonCard({
         <>
           <div className="flex items-center justify-between mb-[8px]">
             <span className="text-[11px] text-muted-foreground">
-              {t("Tipo de URL")}
+              {t("URL type")}
             </span>
             <div className="inline-flex p-[2px] bg-muted rounded-full">
               <button
@@ -254,7 +254,7 @@ function ButtonCard({
                 }
                 onClick={() => setUrlMode("STATIC")}
               >
-                {t("Estática")}
+                {t("Static")}
               </button>
               <button
                 type="button"
@@ -266,7 +266,7 @@ function ButtonCard({
                 }
                 onClick={() => setUrlMode("DYNAMIC")}
               >
-                {t("Dinámica")}
+                {t("Dynamic")}
               </button>
             </div>
           </div>
@@ -276,8 +276,8 @@ function ButtonCard({
             }
           >
             <span className="text-[11px] text-muted-foreground mb-[2px]">
-              {t("Dirección URL")}
-              {urlMode === "DYNAMIC" ? " " + t("(con {{1}} al final)") : ""}
+              {t("URL address")}
+              {urlMode === "DYNAMIC" ? " " + t("(with {{1}} at the end)") : ""}
             </span>
             <input
               className={T_SM + MONO}
@@ -291,14 +291,14 @@ function ButtonCard({
                 validate: (value) =>
                   kind !== "URL" || value?.trim()
                     ? true
-                    : t("Ingresá la dirección URL"),
+                    : t("Enter the URL"),
               })}
             />
           </div>
           {urlMode === "DYNAMIC" && (
             <div className="flex flex-col">
               <span className="text-[11px] text-muted-foreground mb-[2px]">
-                {t("Valor de ejemplo para {{1}} (para revisión de Meta)")}
+                {t("Example value for {{1}} (for Meta review)")}
               </span>
               <input
                 className={T_SM + MONO}
@@ -316,7 +316,7 @@ function ButtonCard({
         <div className="flex gap-[12px]">
           <div className="flex flex-col w-[84px]">
             <span className="text-[11px] text-muted-foreground mb-[2px]">
-              {t("Código de país")}
+              {t("Country code")}
             </span>
             <select
               className={T_SM + MONO}
@@ -332,7 +332,7 @@ function ButtonCard({
           </div>
           <div className="flex flex-col flex-1">
             <span className="text-[11px] text-muted-foreground mb-[2px]">
-              {t("Número de teléfono")}
+              {t("Phone number")}
             </span>
             <input
               className={T_SM + MONO}
@@ -345,7 +345,7 @@ function ButtonCard({
                 validate: (value) =>
                   kind !== "PHONE" || value?.trim()
                     ? true
-                    : t("Ingresá el número de teléfono"),
+                    : t("Enter the phone number"),
               })}
             />
           </div>
@@ -357,7 +357,7 @@ function ButtonCard({
         <div className="flex flex-col">
           <div className="flex items-baseline justify-between">
             <span className="text-[11px] text-muted-foreground mb-[2px]">
-              {t("Código de oferta (se copia al portapapeles del cliente)")}
+              {t("Offer code (copied to the customer's clipboard)")}
             </span>
             <span className="text-[11px] text-muted-foreground">
               {codeValue.length}/15
@@ -375,7 +375,7 @@ function ButtonCard({
               validate: (value) =>
                 kind !== "COPY" || value?.trim()
                   ? true
-                  : t("Ingresá el código de oferta"),
+                  : t("Enter the offer code"),
             })}
           />
         </div>
@@ -418,7 +418,7 @@ export default function TemplateButtonsField({
     <div className="flex flex-col">
       <div className="flex items-baseline justify-between mb-[8px]">
         <span className="label !mb-0">
-          {t("Botones")} ({t("opcional")})
+          {t("Buttons")} ({t("optional")})
         </span>
         <span className="text-[11px] text-muted-foreground">
           {fields.length}/{BTN_TOTAL_MAX}
@@ -428,11 +428,11 @@ export default function TemplateButtonsField({
       {fields.length === 0 ? (
         <div className="rounded-[10px] border border-dashed border-border bg-card/50 p-[14px] mb-[8px]">
           <div className="text-[13px] text-foreground mb-[4px]">
-            {t("Agregá botones interactivos al mensaje")}
+            {t("Add interactive buttons to the message")}
           </div>
           <div className="text-[12px] text-muted-foreground leading-relaxed">
             {t(
-              "Respuestas rápidas con un toque, un enlace a tu sitio, llamada, o un código de cupón para copiar.",
+              "One-tap quick replies, a link to your site, a call, or a coupon code to copy.",
             )}
           </div>
         </div>

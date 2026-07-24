@@ -59,7 +59,7 @@ export default function SendingStep({
           >
             <div className="text-[26px] font-semibold">{pct}%</div>
             <div className="text-[12px] text-muted-foreground">
-              {done} {t("de")} {total}
+              {done} {t("of")} {total}
             </div>
           </div>
         </div>
@@ -68,9 +68,9 @@ export default function SendingStep({
           style={{ maxWidth: 320 }}
         >
           {isDone
-            ? t("Envío completado")
+            ? t("Sending completed")
             : t(
-                "Enviando mensajes… puedes cerrar — continuará en segundo plano.",
+                "Sending messages… you can close — it will continue in the background.",
               )}
         </div>
         {scheduled > 0 && (
@@ -81,24 +81,24 @@ export default function SendingStep({
               background: "oklch(from var(--primary) l c h / 0.08)",
             }}
           >
-            {scheduled} {t("programados para los próximos días")}
+            {scheduled} {t("scheduled for the coming days")}
           </div>
         )}
       </div>
 
       <div className="grid grid-cols-3 gap-[8px]">
         <StatTile
-          label={t("Enviados")}
+          label={t("Sent")}
           value={progress.sent}
           color="var(--foreground)"
         />
         <StatTile
-          label={t("Pendientes")}
+          label={t("Pending")}
           value={Math.max(0, total - done)}
           color="oklch(from var(--primary) calc(l - 0.05) c h)"
         />
         <StatTile
-          label={t("Fallidos")}
+          label={t("Failed")}
           value={progress.failed}
           color="var(--destructive)"
         />

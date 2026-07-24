@@ -16,17 +16,17 @@ const SPEC: Record<MediaType, { accept: string; tag: string; hint: string }> = {
   IMAGE: {
     accept: "image/png,image/jpeg",
     tag: "PNG / JPG",
-    hint: "Hasta 5 MB · 1:1 (cuadrada) o 1.91:1 (apaisada) se ven mejor",
+    hint: "Up to 5 MB · 1:1 (square) or 1.91:1 (wide) look best",
   },
   VIDEO: {
     accept: "video/mp4",
     tag: "MP4",
-    hint: "Hasta 16 MB · muestra un botón de reproducción en el chat",
+    hint: "Up to 16 MB · shows a play button in the chat",
   },
   DOCUMENT: {
     accept: "application/pdf",
     tag: "PDF",
-    hint: "Hasta 10 MB · aparece como una tarjeta de archivo",
+    hint: "Up to 10 MB · appears as a file card",
   },
 };
 
@@ -78,13 +78,13 @@ export default function MediaDropzone({
         <div className="media-picked-meta">
           <div className="media-picked-name">{name}</div>
           <div className="media-picked-sub">
-            {spec.tag} · {t("muestra para la revisión")}
+            {spec.tag} · {t("sample for review")}
           </div>
         </div>
         <button
           type="button"
           className="w-[28px] h-[28px] rounded-full inline-flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-destructive shrink-0"
-          title={t("Quitar")}
+          title={t("Remove")}
           onClick={onClear}
         >
           <X size={15} />
@@ -111,7 +111,7 @@ export default function MediaDropzone({
               setError(
                 e instanceof Error
                   ? e.message
-                  : t("No se pudo subir el archivo"),
+                  : t("Couldn't upload the file"),
               ),
             )
             .finally(() => setUploading(false));
@@ -127,11 +127,11 @@ export default function MediaDropzone({
         </div>
         <div className="media-drop-t">
           {uploading ? (
-            t("Subiendo…")
+            t("Uploading…")
           ) : (
             <>
-              {t("Soltá el archivo acá o")}{" "}
-              <span className="text-primary">{t("explorá")}</span>
+              {t("Drop the file here or")}{" "}
+              <span className="text-primary">{t("browse")}</span>
             </>
           )}
         </div>

@@ -406,15 +406,15 @@ function BulkSend() {
     switch (stage) {
       case "recipients":
         return {
-          title: t("Envío masivo"),
-          subtitle: t("Elige los destinatarios"),
+          title: t("Bulk send"),
+          subtitle: t("Choose recipients"),
           step,
           showProgress: true,
         };
       case "template":
         return {
-          title: t("Elige una plantilla"),
-          subtitle: `${selectedIds.size} ${t("destinatarios")}`,
+          title: t("Choose a template"),
+          subtitle: `${selectedIds.size} ${t("recipients")}`,
           step,
           showProgress: true,
         };
@@ -427,23 +427,23 @@ function BulkSend() {
         };
       case "review":
         return {
-          title: t("Vista previa y envío"),
+          title: t("Preview and send"),
           subtitle: `${recipients.length} ${t(
-            "destinatarios",
+            "recipients",
           )} · ${template?.name}`,
           step,
           showProgress: true,
         };
       case "sending":
         return {
-          title: t("Enviando…"),
+          title: t("Sending…"),
           subtitle: template?.name,
           step,
           showProgress: false,
         };
       case "done":
         return {
-          title: sendError ? t("No se pudo enviar") : t("Envío completado"),
+          title: sendError ? t("Could not send") : t("Sending completed"),
           subtitle: template?.name,
           step,
           showProgress: false,

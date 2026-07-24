@@ -282,10 +282,10 @@ export function isValidMediaUrl(url: string): boolean {
 }
 
 export const FIELD_OPTIONS: { id: ContactField; label: string }[] = [
-  { id: "name", label: "Nombre" },
-  { id: "surname", label: "Apellido" },
+  { id: "name", label: "Name" },
+  { id: "surname", label: "Last name" },
   { id: "email", label: "Email" },
-  { id: "phone", label: "Teléfono" },
+  { id: "phone", label: "Phone" },
 ];
 
 export const TOTAL_STEPS = 4;

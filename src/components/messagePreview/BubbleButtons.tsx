@@ -6,10 +6,10 @@ import {
 } from "@/components/templateButtons";
 
 const DEFAULT_LABEL: Record<PreviewButton["kind"], string> = {
-  QR: "Respuesta rápida",
-  URL: "Visitar sitio web",
-  PHONE: "Llamar",
-  COPY: "Copiar código",
+  QR: "Quick reply",
+  URL: "Visit website",
+  PHONE: "Call",
+  COPY: "Copy code",
 };
 
 /** Buttons attached under the bubble. WhatsApp shows up to 3; with more it
@@ -44,7 +44,7 @@ export default function BubbleButtons({
       {overflow && (
         <div className="wa-act">
           <List className="w-[15px] h-[15px]" />
-          <span>{t("Ver todas las opciones")}</span>
+          <span>{t("See all options")}</span>
         </div>
       )}
     </div>

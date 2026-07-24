@@ -152,7 +152,7 @@ function AppLayout() {
             {!activeOrgId && (
               <ActionCard
                 icon={<Building2 className="w-[24px] h-[24px]" />}
-                title={t("Crear organización")}
+                title={t("Create organization")}
                 to="/settings/organization/new"
               />
             )}
@@ -161,20 +161,20 @@ function AppLayout() {
                 {!hasAiAgents && (
                   <ActionCard
                     icon={<Bot className="w-[24px] h-[24px]" />}
-                    title={t("Crear agente")}
+                    title={t("Create agent")}
                     to="/agents/new"
                   />
                 )}
                 {hasAiAgents && (
                   <ActionCard
                     icon={<MessageSquarePlus className="w-[24px] h-[24px]" />}
-                    title={t("Iniciar conversación")}
+                    title={t("Start conversation")}
                     to="/conversations/bulk-send"
                   />
                 )}
                 <ActionCard
                   icon={<Settings className="w-[24px] h-[24px]" />}
-                  title={t("Configurar WhatsApp")}
+                  title={t("Configure WhatsApp")}
                   to="/integrations/whatsapp/new"
                 />
               </>

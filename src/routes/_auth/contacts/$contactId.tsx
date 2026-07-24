@@ -70,7 +70,7 @@ function ContactDetail() {
     contact && (
       <>
         <SectionHeader
-          title={contact.name || t("Sin nombre")}
+          title={contact.name || t("No name")}
           onDelete={() => {
             deleteContact.mutate(contactId, {
               onSuccess: () =>
@@ -102,21 +102,21 @@ function ContactDetail() {
             onSubmit={handleSubmit((data) => updateContact.mutate(data))}
           >
             <label>
-              <div className="label">{t("Nombre")}</div>
+              <div className="label">{t("Name")}</div>
               <input
                 type="text"
                 className="text"
-                placeholder={t("Nombre del contacto")}
+                placeholder={t("Contact name")}
                 {...register("name")}
               />
             </label>
 
             <label>
-              <div className="label">{t("Apellido")}</div>
+              <div className="label">{t("Last name")}</div>
               <input
                 type="text"
                 className="text"
-                placeholder={t("Apellido del contacto")}
+                placeholder={t("Contact last name")}
                 {...register("surname")}
               />
             </label>
@@ -126,13 +126,13 @@ function ContactDetail() {
               <input
                 type="email"
                 className="text"
-                placeholder={t("correo@ejemplo.com")}
+                placeholder={t("email@example.com")}
                 {...register("email")}
               />
             </label>
 
             <label>
-              <div className="label">{t("Origen")}</div>
+              <div className="label">{t("Source")}</div>
               <input
                 type="text"
                 className="text"
@@ -142,7 +142,7 @@ function ContactDetail() {
             </label>
 
             <div>
-              <div className="label">{t("Etiquetas")}</div>
+              <div className="label">{t("Tags")}</div>
               <Controller
                 control={control}
                 name="tags"
@@ -163,7 +163,7 @@ function ContactDetail() {
                 | undefined;
               const syncedSuffix =
                 extra?.synced?.action === "add"
-                  ? " (" + t("Sincronizado") + ")"
+                  ? " (" + t("Synced") + ")"
                   : "";
 
               // Instagram addresses are internal IG-scoped ids (igsid), not
@@ -191,7 +191,7 @@ function ContactDetail() {
               return (
                 <label key={field.id}>
                   <div className="label">
-                    {t("Teléfono")} {idx + 1}
+                    {t("Phone")} {idx + 1}
                     {syncedSuffix}
                   </div>
                   <div className="flex items-center gap-2">
@@ -211,7 +211,7 @@ function ContactDetail() {
                           validate: (value) =>
                             !value ||
                             isValidPhoneNumber(value) ||
-                            "Número inválido",
+                            "Invalid number",
                         })}
                       />
                     )}
@@ -219,7 +219,7 @@ function ContactDetail() {
                       type="button"
                       className="p-[8px] rounded-full hover:bg-muted transition-colors"
                       onClick={() => remove(idx)}
-                      title={t("Eliminar")}
+                      title={t("Delete")}
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -236,7 +236,7 @@ function ContactDetail() {
               onClick={() => append({ address: "" })}
             >
               <Plus className="w-4 h-4" />
-              {t("Agregar teléfono")}
+              {t("Add phone")}
             </button>
           </form>
         </SectionBody>
@@ -249,7 +249,7 @@ function ContactDetail() {
             loading={updateContact.isPending}
             className="primary"
           >
-            {t("Actualizar")}
+            {t("Update")}
           </Button>
         </SectionFooter>
       </>

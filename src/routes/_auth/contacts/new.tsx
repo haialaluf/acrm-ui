@@ -48,7 +48,7 @@ function ContactNew() {
 
   return (
     <>
-      <SectionHeader title={t("Nuevo contacto")} />
+      <SectionHeader title={t("New contact")} />
 
       <SectionBody>
         <form
@@ -64,21 +64,21 @@ function ContactNew() {
           )}
         >
           <label>
-            <div className="label">{t("Nombre")}</div>
+            <div className="label">{t("Name")}</div>
             <input
               type="text"
               className="text"
-              placeholder={t("Nombre del contacto")}
+              placeholder={t("Contact name")}
               {...register("name")}
             />
           </label>
 
           <label>
-            <div className="label">{t("Apellido")}</div>
+            <div className="label">{t("Last name")}</div>
             <input
               type="text"
               className="text"
-              placeholder={t("Apellido del contacto")}
+              placeholder={t("Contact last name")}
               {...register("surname")}
             />
           </label>
@@ -88,13 +88,13 @@ function ContactNew() {
             <input
               type="email"
               className="text"
-              placeholder={t("correo@ejemplo.com")}
+              placeholder={t("email@example.com")}
               {...register("email")}
             />
           </label>
 
           <div>
-            <div className="label">{t("Etiquetas")}</div>
+            <div className="label">{t("Tags")}</div>
             <Controller
               control={control}
               name="tags"
@@ -111,7 +111,7 @@ function ContactNew() {
           {fields.map((field, idx) => (
             <label key={field.id}>
               <div className="label">
-                {t("Teléfono")} {idx + 1}
+                {t("Phone")} {idx + 1}
               </div>
               <div className="flex items-center gap-2">
                 <input
@@ -122,14 +122,14 @@ function ContactNew() {
                     validate: (value) =>
                       !value ||
                       isValidPhoneNumber(value) ||
-                      "Número inválido",
+                      "Invalid number",
                   })}
                 />
                 <button
                   type="button"
                   className="p-[8px] rounded-full hover:bg-muted transition-colors"
                   onClick={() => remove(idx)}
-                  title={t("Eliminar")}
+                  title={t("Delete")}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -145,7 +145,7 @@ function ContactNew() {
             onClick={() => append({ address: "" })}
           >
             <Plus className="w-4 h-4" />
-            {t("Agregar teléfono")}
+            {t("Add phone")}
           </button>
         </form>
       </SectionBody>
@@ -158,7 +158,7 @@ function ContactNew() {
           loading={createContact.isPending}
           className="primary"
         >
-          {t("Crear")}
+          {t("Create")}
         </Button>
       </SectionFooter>
     </>

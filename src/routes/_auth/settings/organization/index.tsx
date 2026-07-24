@@ -65,7 +65,7 @@ function EditOrganization() {
   return (
     <>
       <SectionHeader
-        title={t("Editar organización")}
+        title={t("Edit organization")}
         onDelete={() =>
           deleteOrg.mutate(undefined, {
             onSuccess: () => {
@@ -75,7 +75,7 @@ function EditOrganization() {
           })
         }
         deleteDisabled={!isOwner}
-        deleteDisabledReason={t("Requiere permisos de propietario")}
+        deleteDisabledReason={t("Requires owner permissions")}
         deleteLoading={deleteOrg.isPending}
       />
 
@@ -85,17 +85,17 @@ function EditOrganization() {
           onSubmit={handleSubmit((data) => updateOrg.mutate(data))}
         >
           <label>
-            <div className="label">{t("Nombre")}</div>
+            <div className="label">{t("Name")}</div>
             <input
               className="text"
-              placeholder={t("Nombre de la organización")}
+              placeholder={t("Organization name")}
               disabled={!isOwner}
               {...register("name", { required: true })}
             />
           </label>
 
           <label>
-            <div className="label">{t("Demora de respuesta (segundos)")}</div>
+            <div className="label">{t("Response delay (seconds)")}</div>
             <input
               type="number"
               className="text"
@@ -110,9 +110,9 @@ function EditOrganization() {
           <TextAreaField
             control={control}
             name="extra.welcome_message"
-            label={t("Mensaje de bienvenida")}
+            label={t("Welcome message")}
             placeholder={t(
-              "Hola! Soy un agente virtual. ¿En qué puedo ayudarte?",
+              "Hello! I'm a virtual agent. How can I help you?",
             )}
             disabled={!isOwner}
           />
@@ -120,10 +120,10 @@ function EditOrganization() {
           <SelectField
             control={control}
             name="extra.error_messages_direction"
-            label={t("Mensajes de error")}
+            label={t("Error messages")}
             options={[
-              { value: "internal", label: t("Solo en la UI") },
-              { value: "outgoing", label: t("Visible desde WhatsApp") },
+              { value: "internal", label: t("UI only") },
+              { value: "outgoing", label: t("Visible from WhatsApp") },
             ]}
             disabled={!isOwner}
           />
@@ -132,8 +132,8 @@ function EditOrganization() {
             <SelectField
               control={control}
               name="extra.default_agent_id"
-              label={t("Agente por defecto")}
-              placeholder={t("Agente activo más antiguo")}
+              label={t("Default agent")}
+              placeholder={t("Oldest active agent")}
               options={aiAgents.map((a) => ({ value: a.id, label: a.name }))}
               disabled={!isOwner}
             />
@@ -143,12 +143,12 @@ function EditOrganization() {
 
           {/* Company-wide facts, shared by all this organization's agents. */}
           <SectionField
-            label={t("Perfil del negocio")}
-            description={t("Compartido por todos los agentes")}
+            label={t("Business profile")}
+            description={t("Shared by all agents")}
             disabled={!isOwner}
           >
             <label>
-              <div className="label">{t("Nombre del negocio")}</div>
+              <div className="label">{t("Business name")}</div>
               <input
                 className="text"
                 placeholder={org?.name}
@@ -160,32 +160,32 @@ function EditOrganization() {
             <TextAreaField
               control={control}
               name="extra.business_profile.description"
-              label={t("Descripción")}
-              placeholder={t("¿A qué se dedica el negocio?")}
+              label={t("Description")}
+              placeholder={t("What does the business do?")}
               disabled={!isOwner}
             />
 
             <TextAreaField
               control={control}
               name="extra.business_profile.services"
-              label={t("Servicios")}
-              placeholder={t("Corte 30min $20\nColor 60min $50 ...")}
+              label={t("Services")}
+              placeholder={t("Haircut 30min $20\nColor 60min $50 ...")}
               disabled={!isOwner}
             />
 
             <TextAreaField
               control={control}
               name="extra.business_profile.working_hours"
-              label={t("Horario de atención")}
-              placeholder={t("Lun-Vie 9:00-18:00")}
+              label={t("Working hours")}
+              placeholder={t("Mon-Fri 9:00-18:00")}
               disabled={!isOwner}
             />
 
             <label>
-              <div className="label">{t("Idioma")}</div>
+              <div className="label">{t("Language")}</div>
               <input
                 className="text"
-                placeholder={t("Español")}
+                placeholder={t("Spanish")}
                 disabled={!isOwner}
                 {...register("extra.business_profile.language")}
               />
@@ -194,8 +194,8 @@ function EditOrganization() {
             <TextAreaField
               control={control}
               name="extra.business_profile.notes"
-              label={t("Notas")}
-              placeholder={t("Cualquier detalle adicional para los agentes")}
+              label={t("Notes")}
+              placeholder={t("Any additional details for the agents")}
               disabled={!isOwner}
             />
           </SectionField>
@@ -209,10 +209,10 @@ function EditOrganization() {
           disabled={!isOwner}
           invalid={!isValid || !isDirty}
           loading={updateOrg.isPending}
-          disabledReason={t("Requiere permisos de propietario")}
+          disabledReason={t("Requires owner permissions")}
           className="primary"
         >
-          {t("Actualizar")}
+          {t("Update")}
         </Button>
       </SectionFooter>
     </>

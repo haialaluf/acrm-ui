@@ -37,7 +37,7 @@ export default function WhatsAppIntegration({
   if (!context?.launchWhatsAppSignup) return null;
 
   const sdkErrorMessage = t(
-    "No se pudo cargar el SDK de Facebook. Desactivá la protección contra rastreo o el bloqueador de anuncios para este sitio, o probá con otro navegador.",
+    "Couldn't load the Facebook SDK. Disable tracking protection or your ad blocker for this site, or try another browser.",
   );
 
   return (
@@ -51,7 +51,7 @@ export default function WhatsAppIntegration({
           sdkFailed
             ? sdkErrorMessage
             : !isOwner
-              ? t("Requiere permisos de propietario")
+              ? t("Requires owner permissions")
               : undefined
         }
         loading={loading}
@@ -64,7 +64,7 @@ export default function WhatsAppIntegration({
           )
         }
       >
-        {t("Continuar con Facebook")}
+        {t("Continue with Facebook")}
       </Button>
     </div>
   );

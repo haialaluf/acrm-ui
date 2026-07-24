@@ -46,15 +46,15 @@ export function mediaType(type: string) {
     case "audio":
       return "Audio";
     case "application":
-      return "Documento";
+      return "Document";
     case "image":
-      return "Imagen";
+      return "Image";
     case "sticker":
-      return "Pegatina";
+      return "Sticker";
     case "video":
       return "Video";
     default:
-      return "Archivo";
+      return "File";
   }
 }
 
@@ -127,7 +127,7 @@ export default function DocumentMessage(message: MessageRow) {
 
         {/* Info */}
         <div className="mx-[10px] -top-[2px] grow min-w-0 relative">
-          <div>{media.name || mediaType(media.mime_type)}</div>
+          <div>{media.name || t(mediaType(media.mime_type))}</div>
           <div className="text-muted-foreground py-[3px] text-[12px]">
             <span className="uppercase">{extension(media.name)}</span>
             {media.name && !isNaN(media.size) && (
@@ -199,8 +199,8 @@ export default function DocumentMessage(message: MessageRow) {
               onClick={() => setShowAnnotation(!showAnnotation)}
             >
               {showAnnotation
-                ? t("ocultar descripción...")
-                : t("ver descripción...")}
+                ? t("hide description...")
+                : t("show description...")}
             </div>
           </div>
         )}

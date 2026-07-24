@@ -84,8 +84,8 @@ export default function WhatsAppPhoneFrame({
           <ChevronLeft className="wa-back" size={22} />
           <div className="wa-ava">{initial}</div>
           <div className="wa-peer">
-            <div className="wa-name">{businessName || t("Negocio")}</div>
-            <div className="wa-presence">{t("en línea")}</div>
+            <div className="wa-name">{businessName || t("Business")}</div>
+            <div className="wa-presence">{t("online")}</div>
           </div>
           <div className="wa-hicons">
             <Video size={20} />
@@ -99,7 +99,7 @@ export default function WhatsAppPhoneFrame({
         <div className="wa-composer" dir={rtl ? "rtl" : "ltr"}>
           <div className="wa-input">
             <Smile size={18} />
-            <span>{t("Mensaje")}</span>
+            <span>{t("Message")}</span>
           </div>
           <div className="wa-mic">
             <Mic size={18} color="#fff" />

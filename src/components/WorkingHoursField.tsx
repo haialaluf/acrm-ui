@@ -46,16 +46,16 @@ export default function WorkingHoursField({
   return (
     <div className="flex flex-col gap-[10px]">
       <div className="flex items-baseline justify-between">
-        <div className="label mb-0">{t("Horario de atención")}</div>
+        <div className="label mb-0">{t("Working hours")}</div>
         <span className="text-[12px] text-muted-foreground">
           {activeCount
-            ? `${activeCount} ${t("días activos")}`
-            : t("Sin días seleccionados")}
+            ? `${activeCount} ${t("active days")}`
+            : t("No days selected")}
         </span>
       </div>
       <p className="text-[12px] text-muted-foreground -mt-1">
         {t(
-          "Los días y horas en los que se pueden agendar citas en este calendario.",
+          "The days and hours when appointments can be scheduled in this calendar.",
         )}
       </p>
 
@@ -89,7 +89,7 @@ export default function WorkingHoursField({
                     onChange={(v) => setTime(d.key, { from: v })}
                   />
                   <span className="text-[13px] text-muted-foreground">
-                    {t("hasta")}
+                    {t("to")}
                   </span>
                   <TimeInput
                     value={day.to}
@@ -97,7 +97,7 @@ export default function WorkingHoursField({
                   />
                   <button
                     type="button"
-                    title={t("Aplicar este horario a todos los días")}
+                    title={t("Apply these hours to all days")}
                     onClick={() => applyToAll(day)}
                     className="p-[7px] rounded-full hover:bg-muted text-muted-foreground shrink-0"
                   >
@@ -106,7 +106,7 @@ export default function WorkingHoursField({
                 </div>
               ) : (
                 <div className="grow text-end text-[13px] text-muted-foreground">
-                  {t("Cerrado")}
+                  {t("Closed")}
                 </div>
               )}
             </div>

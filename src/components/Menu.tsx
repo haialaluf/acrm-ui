@@ -54,7 +54,7 @@ export default function Menu() {
         {/* Conversations button */}
         <LinkButton
           to="/conversations"
-          title={t("Mensajes")}
+          title={t("Messages")}
           isActive={pathname.startsWith("/conversations")}
           className="mt-[10px]"
         >
@@ -64,7 +64,7 @@ export default function Menu() {
         {/* Agents button */}
         <LinkButton
           to="/agents"
-          title={t("Agentes")}
+          title={t("Agents")}
           isActive={pathname.startsWith("/agents")}
           className="mt-[10px]"
         >
@@ -74,7 +74,7 @@ export default function Menu() {
         {/* Contacts button */}
         <LinkButton
           to="/contacts"
-          title={t("Contactos")}
+          title={t("Contacts")}
           isActive={pathname.startsWith("/contacts")}
           className="mt-[10px]"
         >
@@ -84,7 +84,7 @@ export default function Menu() {
         {/* Calendars button */}
         <LinkButton
           to="/calendars"
-          title={t("Calendarios")}
+          title={t("Calendars")}
           isActive={pathname.startsWith("/calendars")}
           className="mt-[10px]"
         >
@@ -94,7 +94,7 @@ export default function Menu() {
         {/* Integrations button */}
         <LinkButton
           to="/integrations"
-          title={t("Integraciones")}
+          title={t("Integrations")}
           isActive={pathname.startsWith("/integrations")}
           className="mt-[10px]"
         >
@@ -104,7 +104,7 @@ export default function Menu() {
         {/* Stats button */}
         <LinkButton
           to="/stats"
-          title={t("Estadísticas")}
+          title={t("Statistics")}
           isActive={pathname.startsWith("/stats")}
           className="mt-[10px]"
         >
@@ -117,7 +117,7 @@ export default function Menu() {
         {/* Settings button */}
         <LinkButton
           to="/settings"
-          title={t("Preferencias")}
+          title={t("Settings")}
           isActive={pathname.startsWith("/settings")}
           className="mt-[10px]"
         >
@@ -149,7 +149,7 @@ export default function Menu() {
                   })) || []),
                   {
                     key: "new_org",
-                    label: t("Nueva organización"),
+                    label: t("New organization"),
                     icon: <Plus className="w-[16px] h-[16px]" />,
                     onClick: () =>
                       navigate({
@@ -162,7 +162,7 @@ export default function Menu() {
               { type: "divider" },
               {
                 key: "lang",
-                label: t("Idioma"),
+                label: t("Language"),
                 icon: <Languages className="w-[16px] h-[16px]" />,
                 children: (["en", "he", "es", "pt", "sw", "fr"] as const).map(
                   (lang) => ({
@@ -186,7 +186,7 @@ export default function Menu() {
               { type: "divider" },
               {
                 key: "logout",
-                label: t("Cerrar sesión"),
+                label: t("Logout"),
                 icon: <LogOut className="w-[16px] h-[16px]" />,
                 onClick: () => {
                   supabase.auth.signOut();

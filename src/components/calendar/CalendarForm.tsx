@@ -104,7 +104,7 @@ export default function CalendarForm({ calendar }: { calendar?: CalendarRow }) {
   return (
     <>
       <SectionHeader
-        title={isEdit ? t("Editar calendario") : t("Nuevo calendario")}
+        title={isEdit ? t("Edit calendar") : t("New calendar")}
       />
 
       <SectionBody>
@@ -116,28 +116,28 @@ export default function CalendarForm({ calendar }: { calendar?: CalendarRow }) {
           }}
         >
           <label>
-            <div className="label">{t("Nombre del calendario")}</div>
+            <div className="label">{t("Calendar name")}</div>
             <input
               className="text"
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={t("Ejemplo: Citas de venta")}
+              placeholder={t("Example: Sales appointments")}
             />
           </label>
 
           <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-[8px]">
-              <div className="label mb-0">{t("País")}</div>
+              <div className="label mb-0">{t("Country")}</div>
               {showDetected && (
                 <span className="inline-flex items-center gap-1 text-[10px] text-primary bg-primary/10 rounded-full px-[7px] py-[1px]">
                   <CheckCircle2 className="w-[10px] h-[10px]" />
-                  {t("Detectado del navegador")}
+                  {t("Detected from browser")}
                 </span>
               )}
             </div>
             <SelectField
-              label={t("País")}
+              label={t("Country")}
               value={region}
               onChange={(value) => {
                 setRegion(value);
@@ -147,7 +147,7 @@ export default function CalendarForm({ calendar }: { calendar?: CalendarRow }) {
             />
             <p className="text-[12px] text-muted-foreground mt-2">
               {t(
-                "La zona horaria y el horario de atención se ajustan al país seleccionado.",
+                "The time zone and working hours adjust to the selected country.",
               )}
             </p>
           </div>
@@ -166,7 +166,7 @@ export default function CalendarForm({ calendar }: { calendar?: CalendarRow }) {
           loading={createCalendar.isPending || updateCalendar.isPending}
           className="primary"
         >
-          {isEdit ? t("Guardar cambios") : t("Guardar calendario")}
+          {isEdit ? t("Save changes") : t("Save calendar")}
         </Button>
       </SectionFooter>
     </>

@@ -15,7 +15,7 @@ function NewTemplate() {
 
   return (
     <>
-      <SectionHeader title={t("Crear plantilla")} />
+      <SectionHeader title={t("Create template")} />
       <TemplateEditor organizationAddress={orgAddressId} />
     </>
   );

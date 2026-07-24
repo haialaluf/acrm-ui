@@ -15,12 +15,12 @@ function SettingsIndex() {
 
   return (
     <>
-      <SectionHeader title={t("Preferencias")} />
+      <SectionHeader title={t("Settings")} />
 
       <SectionBody className="gap-4">
         <div className="flex flex-col">
           <SectionItem
-            title={t("Organización")}
+            title={t("Organization")}
             aside={
               <div className="p-[8px]">
                 <Building2 className="w-[24px] h-[24px] text-muted-foreground" />
@@ -34,7 +34,7 @@ function SettingsIndex() {
             }
           />
           <SectionItem
-            title={t("Miembros")}
+            title={t("Members")}
             aside={
               <div className="p-[8px]">
                 <Users className="w-[24px] h-[24px] text-muted-foreground" />
@@ -62,7 +62,7 @@ function SettingsIndex() {
             }
           />
           <SectionItem
-            title={t("Claves API")}
+            title={t("API Keys")}
             aside={
               <div className="p-[8px]">
                 <Key className="w-[24px] h-[24px] text-muted-foreground" />

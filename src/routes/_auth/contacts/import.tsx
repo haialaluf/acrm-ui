@@ -210,11 +210,11 @@ function ImportContacts() {
       setState("uploaded");
     } catch (e) {
       if (e instanceof UnsupportedFileError) {
-        setParseError(t("Formato de archivo no compatible. Usa CSV o Excel."));
+        setParseError(t("Unsupported file format. Use CSV or Excel."));
       } else if (e instanceof EmptyFileError) {
-        setParseError(t("El archivo está vacío"));
+        setParseError(t("The file is empty"));
       } else {
-        setParseError(t("No se pudo leer el archivo"));
+        setParseError(t("Could not read the file"));
       }
     }
   }
@@ -256,7 +256,7 @@ function ImportContacts() {
           setTimeout(() => setState("done"), 350);
         },
         onError: () => {
-          setParseError(t("No se pudo leer el archivo"));
+          setParseError(t("Could not read the file"));
           setState("uploaded");
         },
       },
@@ -271,7 +271,7 @@ function ImportContacts() {
   return (
     <>
       <SectionHeader
-        title={t("Importar contactos")}
+        title={t("Import contacts")}
         onDelete={state === "uploaded" ? resetToPick : undefined}
       />
 
@@ -282,7 +282,7 @@ function ImportContacts() {
             <>
               <p>
                 {t(
-                  "Importa una lista de contactos desde un archivo CSV o Excel. El sistema detectará automáticamente la estructura del archivo — nombre, teléfono y email. Todos los contactos importados recibirán las etiquetas que elijas.",
+                  "Import a list of contacts from a CSV or Excel file. The system will automatically detect the file structure — name, phone and email. All imported contacts will receive the tags you choose.",
                 )}
               </p>
               <DropZone onPick={handleFile} t={t} />
@@ -318,10 +318,10 @@ function ImportContacts() {
               <div className="flex flex-col gap-2">
                 <div className="flex items-baseline justify-between">
                   <div className="label" style={{ margin: 0 }}>
-                    {t("Vista previa")}
+                    {t("Preview")}
                   </div>
                   <div className="text-[12px] text-muted-foreground">
-                    {fill("{n} de {m} filas", {
+                    {fill("{n} of {m} rows", {
                       n: previewRows.length,
                       m: file.rows,
                     })}
@@ -395,7 +395,7 @@ function ImportContacts() {
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <div className="label" style={{ margin: 0 }}>
-                    {t("Campos detectados automáticamente")}
+                    {t("Automatically detected fields")}
                   </div>
                   <span className="row-tag ok inline-flex items-center gap-1">
                     <Check className="w-[10px] h-[10px]" />
@@ -404,17 +404,17 @@ function ImportContacts() {
                 </div>
                 <div className="text-[12px] -mt-1 text-muted-foreground">
                   {t(
-                    "Puedes cambiar la asignación si algo se detectó incorrectamente",
+                    "You can change the mapping if something was detected incorrectly",
                   )}
                 </div>
                 <div className="grid grid-cols-[100px_1fr] gap-x-3 gap-y-2 items-center">
                   {(
                     [
-                      { key: "name", label: t("Nombre"), required: true },
-                      { key: "surname", label: t("Apellido"), required: false },
-                      { key: "phone", label: t("Teléfono"), required: true },
+                      { key: "name", label: t("Name"), required: true },
+                      { key: "surname", label: t("Last name"), required: false },
+                      { key: "phone", label: t("Phone"), required: true },
                       { key: "email", label: t("Email"), required: false },
-                      { key: "tags", label: t("Etiquetas"), required: false },
+                      { key: "tags", label: t("Tags"), required: false },
                     ] as const
                   ).map((f) => (
                     <FieldMapRow
@@ -426,7 +426,7 @@ function ImportContacts() {
                       onChange={(v) =>
                         setMapping((m) => ({ ...m, [f.key]: v }))
                       }
-                      noneLabel={t("— Ninguno —")}
+                      noneLabel={t("— None —")}
                     />
                   ))}
                 </div>
@@ -437,12 +437,12 @@ function ImportContacts() {
               {/* Tags */}
               <div className="flex flex-col">
                 <div className="label">
-                  {t("Etiquetas que se aplicarán a todos los contactos")}
+                  {t("Tags that will be applied to all contacts")}
                 </div>
                 <ContactTagSelect value={tags} onChange={setTags} />
                 <div className="text-[12px] mt-2 text-muted-foreground">
                   {t(
-                    "Presiona Enter o coma para agregar una etiqueta · puedes elegir entre etiquetas existentes",
+                    "Press Enter or comma to add a tag · you can choose from existing tags",
                   )}
                 </div>
               </div>
@@ -452,7 +452,7 @@ function ImportContacts() {
               {/* Options */}
               <div className="flex flex-col gap-3">
                 <div className="label" style={{ margin: 0 }}>
-                  {t("Opciones")}
+                  {t("Options")}
                 </div>
                 <Toggle
                   checked={skipDupes}
@@ -461,9 +461,9 @@ function ImportContacts() {
                     if (v) setUpdateExisting(false);
                   }}
                   rtl={rtl}
-                  label={t("Omitir duplicados")}
+                  label={t("Skip duplicates")}
                   hint={t(
-                    "Los contactos con un número de teléfono que ya existe serán omitidos",
+                    "Contacts with a phone number that already exists will be skipped",
                   )}
                 />
                 <Toggle
@@ -471,9 +471,9 @@ function ImportContacts() {
                   onChange={setUpdateExisting}
                   disabled={skipDupes}
                   rtl={rtl}
-                  label={t("Actualizar registros existentes")}
+                  label={t("Update existing records")}
                   hint={t(
-                    "Agrega las nuevas etiquetas a los contactos existentes identificados como duplicados",
+                    "Add the new tags to existing contacts identified as duplicates",
                   )}
                 />
               </div>
@@ -495,9 +495,9 @@ function ImportContacts() {
                     style={{ color: "var(--primary)" }}
                   />
                 </div>
-                <div className="text-[18px]">{t("Importando contactos…")}</div>
+                <div className="text-[18px]">{t("Importing contacts…")}</div>
                 <div className="text-[14px] text-muted-foreground">
-                  {fill("{n} de {m}", {
+                  {fill("{n} of {m}", {
                     n: processed,
                     m: total || importableCount,
                   })}
@@ -532,16 +532,16 @@ function ImportContacts() {
                     strokeWidth={2.5}
                   />
                 </div>
-                <div className="text-[20px]">{t("Importación completada")}</div>
+                <div className="text-[20px]">{t("Import completed")}</div>
                 <div
                   className="text-[14px] text-muted-foreground leading-relaxed"
                   style={{ maxWidth: 320 }}
                 >
                   {importedTotal > 0
-                    ? fill("{n} nuevos contactos agregados a tu lista.", {
+                    ? fill("{n} new contacts added to your list.", {
                         n: result?.added ?? 0,
                       })
-                    : t("No se agregaron contactos nuevos.")}
+                    : t("No new contacts were added.")}
                 </div>
               </div>
 
@@ -555,7 +555,7 @@ function ImportContacts() {
                 }}
               >
                 <SummaryRow
-                  label={t("Agregados")}
+                  label={t("Added")}
                   accent="ok"
                   value={result?.added ?? 0}
                 />
@@ -563,8 +563,8 @@ function ImportContacts() {
                   <SummaryRow
                     label={
                       skipDupes
-                        ? t("Duplicados (omitidos)")
-                        : t("Duplicados (actualizados)")
+                        ? t("Duplicates (skipped)")
+                        : t("Duplicates (updated)")
                     }
                     accent="dup"
                     value={skipDupes ? counts.dup : (result?.updated ?? 0)}
@@ -572,18 +572,18 @@ function ImportContacts() {
                 )}
                 {counts.err > 0 && (
                   <SummaryRow
-                    label={t("Errores (no importados)")}
+                    label={t("Errors (not imported)")}
                     accent="err"
                     value={counts.err}
                   />
                 )}
                 <div className="flex justify-between items-start text-[14px]">
                   <span className="text-muted-foreground">
-                    {t("Etiquetas aplicadas")}
+                    {t("Tags applied")}
                   </span>
                   {tags.length === 0 ? (
                     <span className="text-muted-foreground">
-                      {t("ninguna")}
+                      {t("none")}
                     </span>
                   ) : (
                     <div
@@ -611,7 +611,7 @@ function ImportContacts() {
       {state === "pick" && (
         <SectionFooter>
           <Button className="primary" invalid disabled>
-            {t("Continuar")}
+            {t("Continue")}
           </Button>
         </SectionFooter>
       )}
@@ -623,7 +623,7 @@ function ImportContacts() {
             onClick={startImport}
             invalid={importableCount === 0 || !mappingReady}
           >
-            {fill("Importar {n} contactos", { n: importableCount })}
+            {fill("Import {n} contacts", { n: importableCount })}
           </Button>
         </SectionFooter>
       )}
@@ -636,13 +636,13 @@ function ImportContacts() {
               navigate({ to: "/contacts", hash: (prevHash) => prevHash! })
             }
           >
-            {t("Volver a contactos")}
+            {t("Back to contacts")}
           </Button>
           <Button
             className="bg-transparent border border-border hover:bg-muted rounded-full text-[14px] py-[8px]"
             onClick={resetToPick}
           >
-            {t("Importar otro archivo")}
+            {t("Import another file")}
           </Button>
         </SectionFooter>
       )}
@@ -691,15 +691,15 @@ function DropZone({
           <Upload className="w-7 h-7" style={{ color: "var(--primary)" }} />
         </div>
         <div className="text-[16px]" style={{ color: "var(--foreground)" }}>
-          {t("Arrastra el archivo aquí o")}{" "}
+          {t("Drag the file here or")}{" "}
           <span
             style={{ color: "var(--primary)", textDecoration: "underline" }}
           >
-            {t("selecciona desde el equipo")}
+            {t("select from your computer")}
           </span>
         </div>
         <div className="text-[13px] text-muted-foreground">
-          {t("CSV, XLS, XLSX · hasta 10MB")}
+          {t("CSV, XLS, XLSX · up to 10MB")}
         </div>
         <div className="flex items-center gap-2 mt-1 text-[12px] text-muted-foreground">
           <Sparkles
@@ -707,7 +707,7 @@ function DropZone({
             style={{ color: "var(--primary)" }}
           />
           {t(
-            "Detección automática de columnas — cualquier formato de archivo es compatible",
+            "Automatic column detection — any file format is supported",
           )}
         </div>
       </div>
@@ -745,15 +745,15 @@ function FileCard({
           {file.filename}
         </div>
         <div className="text-[12px] text-muted-foreground">
-          {file.size} · {file.rows} {t("filas")} · {file.headers.length}{" "}
-          {t("columnas detectadas")}
+          {file.size} · {file.rows} {t("rows")} · {file.headers.length}{" "}
+          {t("columns detected")}
         </div>
       </div>
       <button
         type="button"
         className="p-[8px] rounded-full hover:bg-muted shrink-0"
         onClick={onRemove}
-        title={t("Eliminar")}
+        title={t("Delete")}
       >
         <X className="w-[18px] h-[18px]" />
       </button>
@@ -785,7 +785,7 @@ function ValidationBanner({
       >
         <Check className="w-4 h-4 shrink-0" strokeWidth={2.5} />
         <span>
-          {fill("Archivo limpio — {n} filas listas para importar", {
+          {fill("Clean file — {n} rows ready to import", {
             n: counts.total,
           })}
         </span>
@@ -803,14 +803,14 @@ function ValidationBanner({
       <div className="flex items-center gap-2">
         <TriangleAlert className="w-4 h-4 shrink-0" strokeWidth={2.5} />
         <span style={{ fontWeight: 500 }}>
-          {t("Se encontraron problemas en el archivo")}
+          {t("Issues found in the file")}
         </span>
       </div>
       <div className="text-[12px] mt-1 text-muted-foreground flex flex-col">
         {counts.err > 0 && (
           <span>
             ·{" "}
-            {fill("{n} filas con errores (no se importarán)", {
+            {fill("{n} rows with errors (will not be imported)", {
               n: counts.err,
             })}
           </span>
@@ -819,12 +819,12 @@ function ValidationBanner({
           <span>
             ·{" "}
             {skipDupes
-              ? fill("{n} duplicados (se omitirán)", { n: counts.dup })
-              : fill("{n} duplicados (se actualizarán)", { n: counts.dup })}
+              ? fill("{n} duplicates (will be skipped)", { n: counts.dup })
+              : fill("{n} duplicates (will be updated)", { n: counts.dup })}
           </span>
         )}
         <span>
-          · {fill("{n} filas se importarán correctamente", { n: importable })}
+          · {fill("{n} rows will be imported successfully", { n: importable })}
         </span>
       </div>
     </div>
@@ -843,19 +843,19 @@ function FieldRoleChip({
   let role: string | null = null;
   let color = "";
   if (mapping.name === idx) {
-    role = t("Nombre");
+    role = t("Name");
     color = "var(--primary)";
   } else if (mapping.surname === idx) {
-    role = t("Apellido");
+    role = t("Last name");
     color = "oklch(0.55 0.14 300)";
   } else if (mapping.phone === idx) {
-    role = t("Teléfono");
+    role = t("Phone");
     color = "oklch(0.55 0.14 220)";
   } else if (mapping.email === idx) {
     role = t("Email");
     color = "oklch(0.6 0.14 150)";
   } else if (mapping.tags === idx) {
-    role = t("Etiquetas");
+    role = t("Tags");
     color = "oklch(0.6 0.13 50)";
   }
   if (!role) return null;

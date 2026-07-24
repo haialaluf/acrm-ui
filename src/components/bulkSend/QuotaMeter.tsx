@@ -35,7 +35,7 @@ export default function QuotaMeter({
       <div className="flex items-center justify-between text-[12px] mb-[6px]">
         <span className="flex items-center gap-[5px] text-muted-foreground">
           <Clock className="w-[13px] h-[13px]" />
-          {t("Límite diario")}
+          {t("Daily limit")}
           {tier && (
             <span className="text-muted-foreground opacity-70">· {tier}</span>
           )}
@@ -48,7 +48,7 @@ export default function QuotaMeter({
           }}
         >
           <b className="text-foreground">{selected}</b> / {dailyLimit}{" "}
-          {t("por día")}
+          {t("per day")}
         </span>
       </div>
       <div

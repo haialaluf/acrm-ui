@@ -38,9 +38,9 @@ function WhatsAppDetails() {
   const isCoexistence = flowType === "existing_phone_number";
 
   const flowTypeLabels: Record<string, string> = {
-    new_phone_number: t("Nuevo número de WhatsApp"),
-    existing_phone_number: t("Cuenta de WhatsApp Business existente"),
-    only_waba: t("Solo WABA"),
+    new_phone_number: t("New WhatsApp number"),
+    existing_phone_number: t("Existing WhatsApp Business account"),
+    only_waba: t("WABA only"),
   };
 
   const handleDisconnect = () => {
@@ -61,11 +61,11 @@ function WhatsAppDetails() {
 
   return (
     <>
-      <SectionHeader title={extra?.verified_name || t("Cuenta de WhatsApp")} />
+      <SectionHeader title={extra?.verified_name || t("WhatsApp account")} />
 
       <SectionBody className="pb-[40px]">
         <SectionItem
-          title={t("Plantillas de mensajes")}
+          title={t("Message templates")}
           aside={
             <div className="p-[8px]">
               <LayoutTemplate className="w-[24px] h-[24px] text-muted-foreground" />
@@ -81,17 +81,17 @@ function WhatsAppDetails() {
         />
         <form>
           <label>
-            <div className="label">{t("Nombre verificado")}</div>
+            <div className="label">{t("Verified name")}</div>
             <input
               type="text"
               className="text"
-              value={extra?.verified_name || t("Sin nombre")}
+              value={extra?.verified_name || t("No name")}
               readOnly
             />
           </label>
 
           <label>
-            <div className="label">{t("Número de teléfono")}</div>
+            <div className="label">{t("Phone number")}</div>
             <input
               type="tel"
               className="text"
@@ -101,7 +101,7 @@ function WhatsAppDetails() {
           </label>
 
           <label>
-            <div className="label">{t("Tipo de integración")}</div>
+            <div className="label">{t("Integration type")}</div>
             <input
               type="text"
               className="text"
@@ -111,7 +111,7 @@ function WhatsAppDetails() {
           </label>
 
           <label>
-            <div className="label">{t("ID de número")}</div>
+            <div className="label">{t("Number ID")}</div>
             <input
               type="text"
               className="text"
@@ -121,7 +121,7 @@ function WhatsAppDetails() {
           </label>
 
           <label>
-            <div className="label">{t("ID de WABA")}</div>
+            <div className="label">{t("WABA ID")}</div>
             <input
               type="text"
               className="text"
@@ -131,14 +131,14 @@ function WhatsAppDetails() {
           </label>
 
           <label>
-            <div className="label">{t("Estado")}</div>
+            <div className="label">{t("Status")}</div>
             <input
               type="text"
               className="text capitalize"
               value={
                 integration.status === "connected"
-                  ? t("Conectado")
-                  : t("Desconectado")
+                  ? t("Connected")
+                  : t("Disconnected")
               }
               readOnly
             />
@@ -146,7 +146,7 @@ function WhatsAppDetails() {
 
           {extra?.access_token && (
             <label>
-              <div className="label">{t("Token de acceso de WABA")}</div>
+              <div className="label">{t("WABA access token")}</div>
               <input
                 type="text"
                 className="text font-mono text-xs"
@@ -159,18 +159,18 @@ function WhatsAppDetails() {
           <div className="instructions">
             <p>
               {t(
-                "Sobrescribir la URL de callback es útil para evadir Acrm y recibir los webhooks crudos en el endpoint que indiques. DelaCRM seguirá recibiendo los eventos de cuenta y plantillas (no se pueden redirigir), pero no recibirá los mensajes.",
+                "Overriding the callback URL is useful to bypass Acrm and receive the raw webhooks at the endpoint you specify. DelaCRM will still receive account and template events (they can't be redirected), but won't receive the messages.",
               )}
             </p>
           </div>
 
           <label>
-            <div className="label">{t("URL de callback")}</div>
+            <div className="label">{t("Callback URL")}</div>
             <input
               type="text"
               className="text"
               value={extra?.callback_url || ""}
-              placeholder={t("Sin sobrescribir")}
+              placeholder={t("Not overridden")}
               readOnly
             />
           </label>
@@ -181,7 +181,7 @@ function WhatsAppDetails() {
               type="text"
               className="text"
               value={extra?.verify_token || ""}
-              placeholder={t("Sin sobrescribir")}
+              placeholder={t("Not overridden")}
               readOnly
             />
           </label>
@@ -193,10 +193,10 @@ function WhatsAppDetails() {
               className="primary bg-destructive text-primary-foreground hover:bg-destructive/80 px-4 py-2 rounded-full font-medium transition-colors w-fit text-[14px]"
               onClick={handleDisconnect}
               disabled={!isOwner}
-              disabledReason={t("Requiere permisos de propietario")}
+              disabledReason={t("Requires owner permissions")}
               loading={disconnect.isPending}
             >
-              {t("Desconectar")}
+              {t("Disconnect")}
             </Button>
           )}
 
@@ -205,14 +205,14 @@ function WhatsAppDetails() {
             <div className="instructions">
               <p>
                 {t(
-                  "La cuenta debe ser desvinculada desde la aplicación móvil de WhatsApp Business:",
+                  "The account must be unlinked from the WhatsApp Business mobile app:",
                 )}
               </p>
               <ol>
-                <li>{t("Abrí la aplicación WhatsApp Business")}</li>
-                <li>{t("Andá a Ajustes > Cuenta > Plataforma de negocio")}</li>
+                <li>{t("Open the WhatsApp Business app")}</li>
+                <li>{t("Go to Settings > Account > Business Platform")}</li>
                 <li>
-                  {t('Tocá la plataforma conectada y seleccioná "Desconectar"')}
+                  {t("Tap the connected platform and select \"Disconnect\"")}
                 </li>
               </ol>
             </div>

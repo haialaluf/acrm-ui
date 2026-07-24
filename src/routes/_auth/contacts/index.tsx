@@ -78,14 +78,14 @@ function ListContacts() {
   return (
     <>
       <SectionHeader
-        title={t("Contactos")}
+        title={t("Contacts")}
         action={
           allContacts.length > 0 && !selectionMode ? (
             <button
               className="text-[14px] text-primary"
               onClick={() => setSelectionMode(true)}
             >
-              {t("Seleccionar")}
+              {t("Select")}
             </button>
           ) : undefined
         }
@@ -105,8 +105,8 @@ function ListContacts() {
               <Checkbox checked={allSelected} onChange={toggleSelectAll} />
               <span className="text-[14px]">
                 {selected.size > 0
-                  ? `${selected.size} ${t("seleccionados")}`
-                  : t("Seleccionar todos")}
+                  ? `${selected.size} ${t("selected")}`
+                  : t("Select all")}
               </span>
             </label>
 
@@ -118,13 +118,13 @@ function ListContacts() {
                 onClick={() => setConfirming(true)}
               >
                 <Trash2 className="w-4 h-4" />
-                {t("Eliminar")}
+                {t("Delete")}
               </button>
               <button
                 className="text-[14px] text-muted-foreground"
                 onClick={exitSelection}
               >
-                {t("Cancelar")}
+                {t("Cancel")}
               </button>
             </div>
           </div>
@@ -138,8 +138,8 @@ function ListContacts() {
               }}
             >
               <div className="text-[14px] leading-[1.5]">
-                {t("¿Eliminar los contactos seleccionados?")} ({selected.size}){" "}
-                {t("Esta acción no se puede deshacer.")}
+                {t("Delete the selected contacts?")} ({selected.size}){" "}
+                {t("This action cannot be undone.")}
               </div>
               <div className="flex items-center gap-[10px] mt-[12px]">
                 <Button
@@ -147,13 +147,13 @@ function ListContacts() {
                   loading={deleteContacts.isPending}
                   onClick={handleDelete}
                 >
-                  {t("Eliminar")}
+                  {t("Delete")}
                 </Button>
                 <button
                   className="text-[14px] text-muted-foreground px-[6px] py-[9px]"
                   onClick={() => setConfirming(false)}
                 >
-                  {t("Cancelar")}
+                  {t("Cancel")}
                 </button>
               </div>
             </div>
@@ -165,7 +165,7 @@ function ListContacts() {
         {!selectionMode && (
           <>
             <SectionItem
-              title={t("Agregar contacto")}
+              title={t("Add contact")}
               aside={
                 <div className="p-[8px] bg-primary/10 rounded-full">
                   <Plus className="w-[24px] h-[24px] text-primary" />
@@ -179,8 +179,8 @@ function ListContacts() {
               }
             />
             <SectionItem
-              title={t("Importar contactos")}
-              description={t("Desde un archivo CSV o Excel")}
+              title={t("Import contacts")}
+              description={t("From a CSV or Excel file")}
               aside={
                 <div className="p-[8px] bg-primary/10 rounded-full">
                   <Upload className="w-[24px] h-[24px] text-primary" />
@@ -197,20 +197,20 @@ function ListContacts() {
         )}
         {hasAnyFilter && filtered.length === 0 && (
           <div className="py-[32px] text-center text-muted-foreground text-[14px]">
-            {t("Sin resultados")}
+            {t("No results")}
           </div>
         )}
         {filtered.map((contact) => (
           <SectionItem
             key={contact.id}
             selected={selectionMode && selected.has(contact.id)}
-            title={contact.name || t("Sin nombre")}
+            title={contact.name || t("No name")}
             description={
               contact.addresses?.at(0)?.address
                 ? ltrIsolate(
                     formatPhoneNumber(contact.addresses.at(0)!.address),
                   )
-                : t("Sin dirección")
+                : t("No address")
             }
             aside={
               selectionMode ? (
