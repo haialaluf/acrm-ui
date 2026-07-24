@@ -69,7 +69,8 @@ export type UIState = {
   templatePicker: boolean;
   templateDrafts: Map<string, TemplateDraft>;
   activeOrgId: string | null;
-  activeConvId: string | null;
+  /** Thread key of the open conversation — see `threadKey`. */
+  activeThreadKey: string | null;
   user: User | null;
   sendAsContact: boolean;
   filter: keyof typeof filters;
@@ -82,7 +83,7 @@ export type UIState = {
 export type UIActions = {
   toggle: (component: keyof UIState, value?: boolean) => void;
   setActiveOrg: (id: string | null) => void;
-  setActiveConv: (id: string | null) => void;
+  setActiveThread: (key: string | null) => void;
   setUser: (user: User | null) => void;
   setSendAsContact: (sendAsContact: boolean) => void;
   setFilter: (filter: keyof typeof filters) => void;
@@ -107,7 +108,7 @@ export const createUISlice: StateCreator<Partial<AppState>> = (
   templatePicker: false,
   templateDrafts: new Map(),
   activeOrgId: null,
-  activeConvId: null,
+  activeThreadKey: null,
   user: null,
   sendAsContact: false,
   filter: "todas" as keyof typeof filters,
@@ -129,11 +130,11 @@ export const createUISlice: StateCreator<Partial<AppState>> = (
         activeOrgId,
       },
     })),
-  setActiveConv: (activeConvId: string | null) =>
+  setActiveThread: (activeThreadKey: string | null) =>
     set((state) => ({
       ui: {
         ...state.ui,
-        activeConvId,
+        activeThreadKey,
       },
     })),
   setUser: (user: User | null) =>

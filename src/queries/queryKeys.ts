@@ -26,6 +26,17 @@ export const queryKeys = {
     messageActivity: (orgId: NullableId) =>
       [orgId, "contacts", "message_activity"] as const,
   },
+  conversations: {
+    /** Paginated sidebar list; every server-side filter is part of the key. */
+    page: (orgId: NullableId, filter: string, search: string, tags: string[]) =>
+      [orgId, "conversations", "page", filter, search, tags] as const,
+    /** Conversation rows of a thread, resolved from its key on a deep link. */
+    thread: (orgId: NullableId, threadKey: NullableId) =>
+      [orgId, "conversations", "thread", threadKey] as const,
+    /** Paginated history of one thread. */
+    messages: (orgId: NullableId, threadKey: NullableId) =>
+      [orgId, "conversations", "thread", threadKey, "messages"] as const,
+  },
   organizations: {
     all: () => ["organizations"] as const,
     detail: (id: NullableId) => ["organizations", id] as const,

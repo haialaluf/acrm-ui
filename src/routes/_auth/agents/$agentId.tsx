@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import SectionBody from "@/components/SectionBody";
 import useBoundStore from "@/stores/useBoundStore";
 import { type AIAgentRow, type AIAgentUpdate } from "@/supabase/client";
-import { startConversation } from "@/utils/ConversationUtils";
+import { startConversation, threadKey } from "@/utils/ConversationUtils";
 import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
 import SectionFooter from "@/components/SectionFooter";
 import Button from "@/components/Button";
@@ -64,7 +64,7 @@ function AgentDetail() {
   const handleChat = () => {
     if (!activeOrgId || !localAddress) return;
 
-    const convId = startConversation({
+    const conv = startConversation({
       organization_id: activeOrgId,
       organization_address: localAddress.address,
       service: "local",
@@ -72,7 +72,9 @@ function AgentDetail() {
       name: agent?.name,
     });
 
-    navigate({ hash: convId });
+    // Agent chats have no contact address, so their thread key is built from
+    // the conversation id — see `threadKey`.
+    navigate({ hash: threadKey(conv) });
   };
 
   return (

@@ -16,29 +16,28 @@ import { pushConversationToDb } from "@/utils/ConversationUtils";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { moveCursorToEnd } from "@/utils/UtilityFunctions";
 import { htmlToMarkdown } from "@/utils/htmlToMarkdown";
+import { useActiveConversation } from "@/hooks/useThread";
 
 const FilePreviewer = () => {
   const { translate: t } = useTranslation();
   const { data: agent } = useCurrentAgent();
   const agentId = agent?.id;
-  const activeConvId = useBoundStore((store) => store.ui.activeConvId);
-  const conv = useBoundStore((store) =>
-    store.chat.conversations.get(store.ui.activeConvId || ""),
-  );
+  const activeThreadKey = useBoundStore((store) => store.ui.activeThreadKey);
+  const conv = useActiveConversation();
   const drafts = useBoundStore((store) =>
-    store.chat.fileDrafts.get(store.ui.activeConvId || ""),
+    store.chat.fileDrafts.get(store.ui.activeThreadKey || ""),
   );
   const textDraft = useBoundStore((store) =>
-    store.chat.textDrafts.get(store.ui.activeConvId || ""),
+    store.chat.textDrafts.get(store.ui.activeThreadKey || ""),
   );
-  const setConversationFileDrafts = useBoundStore(
-    (store) => store.chat.setConversationFileDrafts,
+  const setThreadFileDrafts = useBoundStore(
+    (store) => store.chat.setThreadFileDrafts,
   );
-  const setConversationFileDraftCaption = useBoundStore(
-    (store) => store.chat.setConversationFileDraftCaption,
+  const setThreadFileDraftCaption = useBoundStore(
+    (store) => store.chat.setThreadFileDraftCaption,
   );
-  const setConversationTextDraft = useBoundStore(
-    (store) => store.chat.setConversationTextDraft,
+  const setThreadTextDraft = useBoundStore(
+    (store) => store.chat.setThreadTextDraft,
   );
   const sendAsContact = useBoundStore((store) => store.ui.sendAsContact);
   const setMediaLoad = useBoundStore((store) => store.chat.setMediaLoad);
@@ -50,7 +49,7 @@ const FilePreviewer = () => {
 
   useEffect(() => {
     setPreviewIndex(0);
-  }, [activeConvId]);
+  }, [activeThreadKey]);
 
   useEffect(() => {
     if (!editableDiv.current || !drafts) {
@@ -63,7 +62,7 @@ const FilePreviewer = () => {
   }, [drafts?.length, previewIndex]);
 
   const unloadDrafts = () => {
-    if (!activeConvId || !drafts) {
+    if (!activeThreadKey || !drafts) {
       return;
     }
 
@@ -72,16 +71,16 @@ const FilePreviewer = () => {
       .filter((caption) => !!caption)
       .join("\n\n");
 
-    setConversationTextDraft(activeConvId, textDraft || "");
+    setThreadTextDraft(activeThreadKey, textDraft || "");
   };
 
   const resetFiles = () => {
-    if (!activeConvId) {
+    if (!activeThreadKey) {
       return;
     }
 
     setPreviewIndex(0);
-    setConversationFileDrafts(activeConvId, []);
+    setThreadFileDrafts(activeThreadKey, []);
   };
 
   // TODO: should be able to quit pressing ESC - cabra 01/06/2024
@@ -92,7 +91,7 @@ const FilePreviewer = () => {
   };
 
   const removeFile = (index: number) => {
-    if (!activeConvId || !drafts) {
+    if (!activeThreadKey || !drafts) {
       return;
     }
 
@@ -104,7 +103,7 @@ const FilePreviewer = () => {
     const draftsCopy = Array.from(drafts);
     draftsCopy.splice(index, 1); // or just use Array.toSpliced instead of shallow copying
 
-    setConversationFileDrafts(activeConvId, draftsCopy);
+    setThreadFileDrafts(activeThreadKey, draftsCopy);
 
     if (index <= previewIndex && previewIndex > 0) {
       setPreviewIndex(previewIndex - 1);
@@ -112,7 +111,7 @@ const FilePreviewer = () => {
   };
 
   const addFiles = (files: FileList | null) => {
-    if (!files || !activeConvId || !drafts) {
+    if (!files || !activeThreadKey || !drafts) {
       return;
     }
 
@@ -122,7 +121,7 @@ const FilePreviewer = () => {
       newDrafts[0].caption = textDraft;
     }
 
-    setConversationFileDrafts(activeConvId, drafts.concat(newDrafts));
+    setThreadFileDrafts(activeThreadKey, drafts.concat(newDrafts));
     setPreviewIndex(drafts.length); // set the index on the first of the new files
   };
 
@@ -131,7 +130,7 @@ const FilePreviewer = () => {
     const handlePaste = (e: ClipboardEvent) => {
       const files = e.clipboardData?.files;
 
-      if (!activeConvId || !files?.length) {
+      if (!activeThreadKey || !files?.length) {
         return;
       }
 
@@ -141,10 +140,10 @@ const FilePreviewer = () => {
 
     window.addEventListener("paste", handlePaste);
     return () => window.removeEventListener("paste", handlePaste);
-  }, [activeConvId, addFiles]);
+  }, [activeThreadKey, addFiles]);
 
   const sendMediaMessages = async () => {
-    if (!activeConvId || !conv || !drafts) {
+    if (!activeThreadKey || !conv || !drafts) {
       return;
     }
 
@@ -182,7 +181,7 @@ const FilePreviewer = () => {
       pushMessageToStore(record);
     }
 
-    setConversationTextDraft(activeConvId, "");
+    setThreadTextDraft(activeThreadKey, "");
     (conv.extra as any)?.draft && saveDraft(conv, "", sendAsContact);
     resetFiles();
   };
@@ -200,7 +199,7 @@ const FilePreviewer = () => {
    * 9. Títulos (tooltips) botones?
    */
   return (
-    activeConvId &&
+    activeThreadKey &&
     previewDraft && (
       <div className="flex flex-col bg-background text-foreground z-50 absolute top-[60px] h-[calc(100dvh-60px)] w-full">
         {/* Close button - Filename */}
@@ -256,8 +255,8 @@ const FilePreviewer = () => {
                   return;
                 }
 
-                setConversationFileDraftCaption(
-                  activeConvId,
+                setThreadFileDraftCaption(
+                  activeThreadKey,
                   previewIndex,
                   htmlToMarkdown(event.currentTarget.innerHTML),
                 );

@@ -69,14 +69,16 @@ export function reset() {
       ui: {
         ...state.ui,
         activeOrgId: null,
-        activeConvId: null,
+        activeThreadKey: null,
         initialized: false,
       },
       chat: {
         ...state.chat,
         organizations: new Map(),
         conversations: new Map(),
+        threads: new Map(),
         messages: new Map(),
+        orphanMessages: new Map(),
       },
     };
   });

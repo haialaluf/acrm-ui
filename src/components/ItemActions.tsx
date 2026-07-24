@@ -4,6 +4,7 @@ import { type MessageRow } from "@/supabase/client";
 import { isArchived } from "@/stores/uiSlice";
 import { useTranslation } from "@/hooks/useTranslation";
 import { updateConvExtra } from "@/utils/ConversationUtils";
+import { useThreadConversation } from "@/hooks/useThread";
 
 export default function ItemActions({
   children,
@@ -16,9 +17,7 @@ export default function ItemActions({
   trigger: ("contextMenu" | "click" | "hover")[] | undefined;
   visible?: boolean;
 }) {
-  const conversation = useBoundStore((state) =>
-    state.chat.conversations.get(itemId || ""),
-  );
+  const conversation = useThreadConversation(itemId);
   const mostRecentMsg: MessageRow | undefined = useBoundStore(
     (state) =>
       state.chat.messages

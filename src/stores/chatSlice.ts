@@ -4,6 +4,7 @@ import type { StateCreator } from "zustand";
 // @ts-expect-error no type declarations for the core-js-pure submodule
 import groupBy from "core-js-pure/actual/object/group-by";
 import { type MessageRowV0, toV1 } from "@/supabase/messages-v0";
+import { primaryConversation, threadKey } from "@/utils/ConversationUtils";
 
 export function timestampDescending(a?: MessageRow, b?: MessageRow) {
   // Valid comparator: returns a signed number and 0 on ties. The previous
@@ -37,28 +38,127 @@ type MediaLoad = {
   handledOnce?: boolean;
 };
 
+/**
+ * A sidebar entry: every conversation row for one counterpart, plus the bits
+ * the list needs without walking the (now paginated) message history.
+ */
+export type ThreadState = {
+  key: string;
+  /** Conversation rows of this thread, newest first. */
+  convIds: string[];
+  /** Row new messages are written to — see `primaryConversation`. */
+  primaryConvId: string;
+  /**
+   * Unread incoming messages. Comes from `conversations_page` (which counts
+   * server-side across the whole history) and is then kept live by realtime:
+   * incoming bumps it, outgoing clears it. Never derived from the loaded
+   * messages, which are only ever a window of the history.
+   */
+  unread: number;
+  /** Timestamp of the newest loaded message; drives the sidebar ordering. */
+  lastMessageAt: string | null;
+};
+
+/** One row of the `conversations_page` RPC, narrowed to what the store needs. */
+export type ThreadPageRow = {
+  thread_key: string;
+  conversations: ConversationRow[];
+  last_message: MessageRow | null;
+  unread_count: number;
+  pinned: boolean;
+};
+
 export type ChatState = {
   conversations: Map<string, ConversationRow>;
-  messages: Map<string, Map<string, MessageRow>>; // TODO: replace the nested maps with a data structure capable of prefix search (a Trie) - cabra 2024/07/26
-  textDrafts: Map<string, string>;
-  fileDrafts: Map<string, FileDraft[]>;
+  threads: Map<string, ThreadState>;
+  messages: Map<string, Map<string, MessageRow>>; // by thread key
+  /** Messages that arrived before their conversation row did (realtime races).
+   *  Flushed by `pushConversations`. */
+  orphanMessages: Map<string, MessageRow[]>; // by conversation id
+  textDrafts: Map<string, string>; // by thread key
+  fileDrafts: Map<string, FileDraft[]>; // by thread key
   mediaLoads: Map<string, MediaLoad>;
 };
 
 export type ChatActions = {
   pushConversations: (convs: ConversationRow[]) => void;
   pushMessages: (msgs: MessageRow[]) => void;
+  pushThreadPage: (rows: ThreadPageRow[]) => void;
+  /** Realtime arrival — the only path that moves the unread counter. */
+  notifyRealtimeMessage: (msg: MessageRow) => void;
   setMediaLoad: (messageId: string, mediaLoad: MediaLoad) => void;
-  setConversationTextDraft: (convId: string, textDraft: string) => void;
-  setConversationFileDrafts: (convId: string, drafts: FileDraft[]) => void;
-  setConversationFileDraftCaption: (
-    convId: string,
+  setThreadTextDraft: (threadKey: string, textDraft: string) => void;
+  setThreadFileDrafts: (threadKey: string, drafts: FileDraft[]) => void;
+  setThreadFileDraftCaption: (
+    threadKey: string,
     draftIndex: number,
     caption: string,
   ) => void;
 };
 
 export type ChatSlice = ChatState & ChatActions;
+
+/** Rebuilds a thread's derived fields from the conversation rows it owns. */
+function deriveThread(
+  key: string,
+  convIds: string[],
+  conversations: Map<string, ConversationRow>,
+  previous?: ThreadState,
+): ThreadState {
+  const convs = convIds
+    .map((id) => conversations.get(id))
+    .filter(Boolean) as ConversationRow[];
+
+  const primary = primaryConversation(convs);
+
+  const sortedIds = [...convs]
+    .sort((a, b) => +new Date(b.created_at || 0) - +new Date(a.created_at || 0))
+    .map((c) => c.id);
+
+  return {
+    key,
+    convIds: sortedIds.length ? sortedIds : convIds,
+    primaryConvId: primary?.id ?? convIds[0],
+    unread: previous?.unread ?? 0,
+    lastMessageAt: previous?.lastMessageAt ?? null,
+  };
+}
+
+/** Newest-first insert of `msgs` into a thread's message map. */
+function mergeThreadMessages(
+  cached: Map<string, MessageRow> | undefined,
+  msgs: MessageRow[],
+) {
+  const merged = new Map(cached);
+
+  for (const msg of msgs) {
+    // skip push when the cached msg is more recent than the incoming msg
+    const cachedUpdatedAt = merged.get(msg.id)?.updated_at;
+
+    if (
+      cachedUpdatedAt &&
+      +new Date(cachedUpdatedAt) > +new Date(msg.updated_at)
+    ) {
+      continue;
+    }
+
+    merged.set(msg.id, msg);
+  }
+
+  return new Map(
+    Array.from(merged.values())
+      .sort(timestampDescending)
+      .map((msg) => [msg.id, msg] as const),
+  );
+}
+
+function toV1Messages(msgsMixedVersions: MessageRow[]) {
+  return msgsMixedVersions
+    .map((m) =>
+      m.content.version === "1" ? m : toV1(m as unknown as MessageRowV0),
+    )
+    .filter(Boolean) as MessageRow[];
+}
 
 // @ts-expect-error partializing the slice creator's state type
 export const createChatSlice: StateCreator<Partial<AppState>> = (
@@ -71,84 +171,68 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
   ) => void,
 ) => ({
   conversations: new Map(),
+  threads: new Map(),
   messages: new Map(),
+  orphanMessages: new Map(),
   textDrafts: new Map(),
   fileDrafts: new Map(),
   mediaLoads: new Map(),
   pushConversations: (convs: ConversationRow[]) =>
+    set((state) => applyConversations(state, convs)),
+  pushMessages: (msgs: MessageRow[]) =>
+    set((state) => applyMessages(state, msgs)),
+  pushThreadPage: (rows: ThreadPageRow[]) =>
     set((state) => {
-      const conversations = new Map(state.chat.conversations);
-
-      for (const conv of convs) {
-        // skip push when the cached conv is more recent than the incoming conv
-        const cachedUpdatedAt = conversations.get(conv.id)?.updated_at;
-
-        if (
-          cachedUpdatedAt &&
-          +new Date(cachedUpdatedAt) > +new Date(conv.updated_at)
-        ) {
-          continue;
-        }
-
-        conversations.set(conv.id, conv);
-      }
-
-      return {
-        chat: {
-          ...state.chat,
-          conversations,
-        },
-      };
-    }),
-  pushMessages: (msgsMixedVersions: MessageRow[]) =>
-    set((state) => {
-      const msgs = msgsMixedVersions
-        .map((m) =>
-          m.content.version === "1" ? m : toV1(m as unknown as MessageRowV0),
-        )
-        .filter(Boolean) as MessageRow[];
-
-      const messages = new Map(state.chat.messages);
-
-      const msgsByConv: { [key: string]: MessageRow[] } = groupBy(
-        msgs.filter((m) => m.timestamp <= m.updated_at), // do not display scheduled messages (timestamp in the future)
-        (msg: MessageRow) => msg.conversation_id,
+      let next = applyConversations(
+        state,
+        rows.flatMap((row) => row.conversations ?? []),
       );
 
-      for (const [convId, convMsgs] of Object.entries(msgsByConv)) {
-        /* PART A: Conciliation */
-        const messagesByConv = new Map(messages.get(convId));
+      const lastMessages = rows
+        .map((row) => row.last_message)
+        .filter(Boolean) as MessageRow[];
 
-        for (const msg of convMsgs!) {
-          // skip push when the cached msg is more recent than the incoming msg
-          const cachedUpdatedAt = messagesByConv.get(msg.id)?.updated_at;
+      next = applyMessages({ ...state, ...next } as AppState, lastMessages);
 
-          if (
-            cachedUpdatedAt &&
-            +new Date(cachedUpdatedAt) > +new Date(msg.updated_at)
-          ) {
-            continue;
-          }
+      const threads = new Map(next.chat!.threads);
 
-          messagesByConv.set(msg.id, msg);
-        }
+      for (const row of rows) {
+        const thread = threads.get(row.thread_key);
+        if (!thread) continue;
 
-        /* PART B: Sorting (most recent first) */
-        const sortedMessagesByConv = new Map(
-          Array.from(messagesByConv.values())
-            .sort(timestampDescending)
-            .map((msg) => [msg.id, msg]),
-        );
-
-        messages.set(convId, sortedMessagesByConv);
+        threads.set(row.thread_key, {
+          ...thread,
+          unread: row.unread_count ?? 0,
+        });
       }
 
-      return {
-        chat: {
-          ...state.chat,
-          messages,
-        },
-      };
+      return { chat: { ...next.chat!, threads } };
+    }),
+  notifyRealtimeMessage: (msg: MessageRow) =>
+    set((state) => {
+      const conv = state.chat.conversations.get(msg.conversation_id);
+      if (!conv) return {};
+
+      const key = threadKey(conv);
+      const thread = state.chat.threads.get(key);
+      if (!thread) return {};
+
+      // Only the contact's messages can make a thread unread; anything the
+      // organization sends (from here or from the WhatsApp app) clears it —
+      // the same rule the badge used when it walked the message list.
+      const unread =
+        msg.direction === "incoming"
+          ? thread.unread + 1
+          : msg.direction === "outgoing"
+            ? 0
+            : thread.unread;
+
+      if (unread === thread.unread) return {};
+
+      const threads = new Map(state.chat.threads);
+      threads.set(key, { ...thread, unread });
+
+      return { chat: { ...state.chat, threads } };
     }),
   setMediaLoad: (messageId: string, mediaLoad: MediaLoad) => {
     set((state) => {
@@ -164,11 +248,11 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
       };
     });
   },
-  setConversationTextDraft: (convId: string, textDraft: string) => {
+  setThreadTextDraft: (key: string, textDraft: string) => {
     set((state) => {
       const textDrafts = new Map(state.chat.textDrafts);
 
-      textDrafts.set(convId, textDraft);
+      textDrafts.set(key, textDraft);
 
       return {
         chat: {
@@ -178,11 +262,11 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
       };
     });
   },
-  setConversationFileDrafts: (convId: string, fileDraftArray: FileDraft[]) => {
+  setThreadFileDrafts: (key: string, fileDraftArray: FileDraft[]) => {
     set((state) => {
       const fileDrafts = new Map(state.chat.fileDrafts);
 
-      fileDrafts.set(convId, fileDraftArray);
+      fileDrafts.set(key, fileDraftArray);
 
       return {
         chat: {
@@ -192,26 +276,25 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
       };
     });
   },
-  setConversationFileDraftCaption: (
-    convId: string,
+  setThreadFileDraftCaption: (
+    key: string,
     draftIndex: number,
     caption: string,
   ) => {
     set((state) => {
       const fileDrafts = new Map(state.chat.fileDrafts);
 
-      const draft =
-        fileDrafts.get(convId) && fileDrafts.get(convId)![draftIndex];
+      const draft = fileDrafts.get(key) && fileDrafts.get(key)![draftIndex];
 
       if (!draft) {
         return {};
       }
 
-      const fileDraftsArray = Array.from(fileDrafts.get(convId)!);
+      const fileDraftsArray = Array.from(fileDrafts.get(key)!);
 
       fileDraftsArray[draftIndex] = { ...draft, caption };
 
-      fileDrafts.set(convId, fileDraftsArray);
+      fileDrafts.set(key, fileDraftsArray);
 
       return {
         chat: {
@@ -222,3 +305,122 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
     });
   },
 });
+
+/* The two reducers below are shared by the actions above and by
+ * `pushThreadPage`, which has to run both in a single `set`. */
+
+function applyConversations(
+  state: AppState,
+  convs: ConversationRow[],
+): Partial<AppState> {
+  if (!convs.length) return {};
+
+  const conversations = new Map(state.chat.conversations);
+  const threads = new Map(state.chat.threads);
+  const touched = new Map<string, Set<string>>();
+
+  for (const conv of convs) {
+    // skip push when the cached conv is more recent than the incoming conv
+    const cachedUpdatedAt = conversations.get(conv.id)?.updated_at;
+
+    if (
+      cachedUpdatedAt &&
+      +new Date(cachedUpdatedAt) > +new Date(conv.updated_at)
+    ) {
+      continue;
+    }
+
+    conversations.set(conv.id, conv);
+
+    const key = threadKey(conv);
+    const ids = touched.get(key) ?? new Set(threads.get(key)?.convIds ?? []);
+    ids.add(conv.id);
+    touched.set(key, ids);
+  }
+
+  for (const [key, ids] of touched) {
+    threads.set(
+      key,
+      deriveThread(key, [...ids], conversations, threads.get(key)),
+    );
+  }
+
+  const next: Partial<AppState> = {
+    chat: { ...state.chat, conversations, threads },
+  };
+
+  // A conversation row landing may unblock messages that arrived first.
+  const pending = [...touched.values()]
+    .flatMap((ids) => [...ids])
+    .flatMap((id) => state.chat.orphanMessages.get(id) ?? []);
+
+  if (!pending.length) return next;
+
+  const orphanMessages = new Map(state.chat.orphanMessages);
+  for (const ids of touched.values()) {
+    for (const id of ids) orphanMessages.delete(id);
+  }
+
+  return applyMessages(
+    { ...state, chat: { ...next.chat!, orphanMessages } } as AppState,
+    pending,
+  );
+}
+
+function applyMessages(
+  state: AppState,
+  msgsMixedVersions: MessageRow[],
+): Partial<AppState> {
+  if (!msgsMixedVersions.length) return {};
+
+  const msgs = toV1Messages(msgsMixedVersions)
+    // do not display scheduled messages (timestamp in the future)
+    .filter((m) => m.timestamp <= m.updated_at);
+
+  const messages = new Map(state.chat.messages);
+  const threads = new Map(state.chat.threads);
+  let orphanMessages = state.chat.orphanMessages;
+
+  const msgsByConv: { [key: string]: MessageRow[] } = groupBy(
+    msgs,
+    (msg: MessageRow) => msg.conversation_id,
+  );
+
+  const byThread = new Map<string, MessageRow[]>();
+
+  for (const [convId, convMsgs] of Object.entries(msgsByConv)) {
+    const conv = state.chat.conversations.get(convId);
+
+    if (!conv) {
+      // Realtime can deliver a message before its conversation row; park it
+      // until `pushConversations` can tell us which thread it belongs to.
+      if (orphanMessages === state.chat.orphanMessages) {
+        orphanMessages = new Map(orphanMessages);
+      }
+      orphanMessages.set(convId, [
+        ...(orphanMessages.get(convId) ?? []),
+        ...convMsgs!,
+      ]);
+      continue;
+    }
+
+    const key = threadKey(conv);
+    byThread.set(key, [...(byThread.get(key) ?? []), ...convMsgs!]);
+  }
+
+  for (const [key, threadMsgs] of byThread) {
+    const merged = mergeThreadMessages(messages.get(key), threadMsgs);
+    messages.set(key, merged);
+
+    const thread = threads.get(key);
+    const newest = merged.values().next().value as MessageRow | undefined;
+
+    if (thread && newest) {
+      threads.set(key, { ...thread, lastMessageAt: newest.timestamp });
+    }
+  }
+
+  return {
+    chat: { ...state.chat, messages, threads, orphanMessages },
+  };
+}

@@ -18,20 +18,20 @@ type Props = {
  */
 const FilePicker = (pickerProps: Props) => {
   const { setHovering } = pickerProps;
-  const activeConvId = useBoundStore((store) => store.ui.activeConvId);
+  const activeThreadKey = useBoundStore((store) => store.ui.activeThreadKey);
 
   const drafts = useBoundStore((store) =>
-    store.chat.fileDrafts.get(store.ui.activeConvId || ""),
+    store.chat.fileDrafts.get(store.ui.activeThreadKey || ""),
   );
 
   const textDraft = useBoundStore((store) =>
-    store.chat.textDrafts.get(store.ui.activeConvId || ""),
+    store.chat.textDrafts.get(store.ui.activeThreadKey || ""),
   );
 
   const setFileDrafts = useBoundStore(
     (store) => (fileDrafts: FileDraft[]) =>
-      store.chat.setConversationFileDrafts(
-        store.ui.activeConvId || "",
+      store.chat.setThreadFileDrafts(
+        store.ui.activeThreadKey || "",
         fileDrafts,
       ),
   );
@@ -59,7 +59,7 @@ const FilePicker = (pickerProps: Props) => {
   };
 
   return (
-    activeConvId && (
+    activeThreadKey && (
       <div
         className={`${styles.dragger} z-40 absolute h-full w-full p-4 bg-white`}
       >

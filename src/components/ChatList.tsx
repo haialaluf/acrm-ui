@@ -1,38 +1,33 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import useBoundStore from "@/stores/useBoundStore";
 import ChatListItem from "./ChatListItem";
-import { type ConversationRow, type MessageRow } from "@/supabase/client";
 import { timestampDescending } from "@/stores/chatSlice";
 import { filters, Filters } from "@/stores/uiSlice";
-import { useContacts } from "@/queries/useContacts";
-import Fuse from "fuse.js";
+import { useConversationsPage } from "@/queries/useConversationsPage";
 import { useTranslation } from "@/hooks/useTranslation";
+import Spinner from "./Spinner";
 
-export type ConvMetadata = {
-  convId: string;
-  conv: ConversationRow;
-  mostRecentMsg?: MessageRow;
-};
+/** Row height (72px item + 4px gap) — items are fixed height, so no measuring. */
+const ROW_HEIGHT = 76;
 
-function pinnedAscending(a: ConversationRow, b: ConversationRow) {
-  const aPin = a.extra?.pinned;
-  const bPin = b.extra?.pinned;
-
-  if (!aPin && !bPin) {
+function pinnedAscending(a?: string | null, b?: string | null) {
+  if (!a && !b) {
     return 0;
   }
 
-  if (aPin && bPin) {
-    return +new Date(aPin) > +new Date(bPin) ? 1 : -1;
+  if (a && b) {
+    return +new Date(a) > +new Date(b) ? 1 : -1;
   }
 
-  return aPin && !bPin ? -1 : 1;
+  return a && !b ? -1 : 1;
 }
 
 const ChatList = () => {
   const { translate: t } = useTranslation();
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
   const conversations = useBoundStore((state) => state.chat.conversations);
+  const threads = useBoundStore((state) => state.chat.threads);
   const messages = useBoundStore((state) => state.chat.messages);
   const filterName = useBoundStore((state) => state.ui.filter);
   const setFilterName = useBoundStore((state) => state.ui.setFilter);
@@ -40,88 +35,130 @@ const ChatList = () => {
   const setSearchPattern = useBoundStore((state) => state.ui.setSearchPattern);
   const tagsFilter = useBoundStore((state) => state.ui.tagsFilter);
   const setTagsFilter = useBoundStore((state) => state.ui.setTagsFilter);
-  const { data: contacts } = useContacts();
 
-  // Map each contact address to its tags so conversations (which only carry a
-  // `contact_address`) can be matched against the selected tag filter.
-  const tagsByAddress = useMemo(() => {
-    const map = new Map<string, string[]>();
-    for (const contact of contacts ?? []) {
-      // `tags` isn't in db_types.ts yet — see useContactTags.
-      const contactTags = (contact as { tags?: string[] | null }).tags ?? [];
-      if (!contactTags.length) continue;
-      for (const addr of contact.addresses ?? []) {
-        if (addr.address) map.set(addr.address, contactTags);
-      }
-    }
-    return map;
-  }, [contacts]);
+  // Filter, search and tags are applied by the RPC — with the list paginated,
+  // narrowing client-side would only ever search the part already fetched.
+  const {
+    threadKeys,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useConversationsPage();
 
-  const emailByAddress = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const contact of contacts ?? []) {
-      if (!contact.email) continue;
-      for (const addr of contact.addresses ?? []) {
-        if (addr.address) map.set(addr.address, contact.email);
-      }
-    }
-    return map;
-  }, [contacts]);
+  const scroller = useRef<HTMLDivElement>(null);
 
-  function getMostRecentMsg(convId: string): MessageRow | undefined {
-    return messages.get(convId)?.values().next().value;
-  }
+  // The server decided *which* threads are here; ordering is re-derived locally
+  // so a realtime message or a pin/archive reorders the list immediately,
+  // without waiting for a refetch. The same predicates the RPC uses run here
+  // too, so a chat archived in this session drops out at once.
+  const itemIds = useMemo(() => {
+    const describe = (key: string) => {
+      const thread = threads.get(key);
+      const conv = thread && conversations.get(thread.primaryConvId);
+      const mostRecentMsg = messages.get(key)?.values().next().value;
 
-  let items: ConvMetadata[] = [...conversations]
-    /*.filter(
-      ([, conv]) =>
-        role === "admin" || conv.service !== "local",
-    )*/
-    .map(([convId, conv]) => ({
-      convId,
-      conv,
-      mostRecentMsg: getMostRecentMsg(convId),
-    }))
-    .filter(
-      (a) =>
-        a.conv.organization_id === activeOrgId &&
-        filters[filterName](a.conv, a.mostRecentMsg) &&
-        !!a.mostRecentMsg &&
-        (tagsFilter.length === 0 ||
-          tagsFilter.some((tag) =>
-            (tagsByAddress.get(a.conv.contact_address ?? "") ?? []).includes(
-              tag,
-            ),
-          )),
+      return { key, conv, mostRecentMsg, thread };
+    };
+
+    const loaded = threadKeys.map(describe);
+
+    // A message can arrive over realtime for a thread no page has returned —
+    // a first-time contact, or one that sat below the loaded window. It is
+    // newer than everything on screen, so it belongs at the top; anything
+    // older stays hidden until the next refetch places it properly.
+    const newestLoadedAt = loaded.reduce(
+      (max, row) => Math.max(max, +new Date(row.thread?.lastMessageAt ?? 0)),
+      0,
     );
 
-  if (searchPattern) {
-    const enriched = items.map((item) => ({
-      ...item,
-      contactEmail: emailByAddress.get(item.conv.contact_address ?? ""),
-    }));
-    const fuse = new Fuse(enriched, {
-      threshold: 0.4,
-      keys: ["conv.name", "conv.contact_address", "contactEmail"],
-    });
-    items = fuse.search(searchPattern).map((r) => r.item);
-  } else {
-    items.sort(
-      (a, b) =>
-        pinnedAscending(a.conv, b.conv) ||
-        timestampDescending(a.mostRecentMsg, b.mostRecentMsg),
-    );
-  }
+    const arrived = newestLoadedAt
+      ? [...threads.values()]
+          .filter(
+            (thread) =>
+              !threadKeys.includes(thread.key) &&
+              +new Date(thread.lastMessageAt ?? 0) > newestLoadedAt,
+          )
+          .map((thread) => describe(thread.key))
+      : [];
 
-  const itemIds = items.map((a) => a.convId);
+    const rows = [...loaded, ...arrived].filter(
+      (row) =>
+        row.conv &&
+        row.conv.organization_id === activeOrgId &&
+        filters[filterName](row.conv, row.mostRecentMsg),
+    );
+
+    return rows
+      .sort(
+        (a, b) =>
+          pinnedAscending(a.conv!.extra?.pinned, b.conv!.extra?.pinned) ||
+          timestampDescending(a.mostRecentMsg, b.mostRecentMsg),
+      )
+      .map((row) => row.key);
+  }, [threadKeys, threads, conversations, messages, filterName, activeOrgId]);
+
+  // One extra row at the tail: the loading sentinel that pulls the next page.
+  const count = itemIds.length + (hasNextPage ? 1 : 0);
+
+  const virtualizer = useVirtualizer({
+    count,
+    getScrollElement: () => scroller.current,
+    estimateSize: () => ROW_HEIGHT,
+    getItemKey: (index) => itemIds[index] ?? "__sentinel__",
+    overscan: 8,
+  });
+
+  const virtualItems = virtualizer.getVirtualItems();
+
+  useEffect(() => {
+    const last = virtualItems[virtualItems.length - 1];
+
+    if (!last || !hasNextPage || isFetchingNextPage) return;
+
+    if (last.index >= itemIds.length - 1) {
+      void fetchNextPage();
+    }
+  }, [
+    virtualItems,
+    hasNextPage,
+    isFetchingNextPage,
+    itemIds.length,
+    fetchNextPage,
+  ]);
 
   return (
-    <div className="overflow-y-auto [scrollbar-gutter:stable] w-full h-full pt-[10px] px-[10px]">
+    <div
+      ref={scroller}
+      className="overflow-y-auto [scrollbar-gutter:stable] w-full h-full pt-[10px] px-[10px]"
+    >
       {itemIds.length ? (
-        <div className="flex flex-col gap-[4px]">
-          {itemIds.map((key) => (
-            <ChatListItem key={key} itemId={key} />
+        <div
+          className="relative w-full"
+          style={{ height: virtualizer.getTotalSize() }}
+        >
+          {virtualItems.map((virtualRow) => (
+            <div
+              key={virtualRow.key}
+              className="absolute top-0 left-0 w-full pb-[4px]"
+              style={{
+                height: ROW_HEIGHT,
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              {virtualRow.index < itemIds.length ? (
+                <ChatListItem itemId={itemIds[virtualRow.index]} />
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <Spinner size={20} />
+                </div>
+              )}
+            </div>
           ))}
+        </div>
+      ) : isLoading ? (
+        <div className="h-full flex items-center justify-center">
+          <Spinner size={24} />
         </div>
       ) : (
         <div className="h-full flex items-center justify-center flex-col text-foreground text-[15px] mt-[-24px]">

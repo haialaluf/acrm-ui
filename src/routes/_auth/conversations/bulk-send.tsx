@@ -307,14 +307,14 @@ function BulkSend() {
       );
 
       if (!conv) {
-        const id = startConversation({
+        const record = startConversation({
           organization_id: activeOrgId,
           organization_address: whatsappAddress.address,
           contact_address: phone,
           service: "whatsapp",
           name: contact.name || formatPhoneNumber(phone),
         });
-        conv = useBoundStore.getState().chat.conversations.get(id!);
+        conv = useBoundStore.getState().chat.conversations.get(record.id!);
         if (!conv) {
           skipped.push(contact);
           continue;

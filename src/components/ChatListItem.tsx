@@ -25,6 +25,7 @@ import { useContactByAddress } from "@/queries/useContacts";
 import { useContactAddress } from "@/queries/useContactsAddresses";
 import { formatPhoneNumber, nameInitials } from "@/utils/FormatUtils";
 import { useNavigate } from "@tanstack/react-router";
+import { useThreadConversation } from "@/hooks/useThread";
 
 function mediaPreview(t: (content: string) => ReactNode, message?: MessageRow) {
   let mediaIcon = null;
@@ -157,13 +158,11 @@ function severityClass(hours: number) {
 
 export default function ChatListItem({ itemId }: { itemId: string }) {
   const navigate = useNavigate();
-  const activeConvId = useBoundStore((state) => state.ui.activeConvId);
+  const activeThreadKey = useBoundStore((state) => state.ui.activeThreadKey);
 
-  const active = itemId === activeConvId;
+  const active = itemId === activeThreadKey;
 
-  const conversation = useBoundStore((state) =>
-    state.chat.conversations.get(itemId),
-  );
+  const conversation = useThreadConversation(itemId);
 
   const { data: contact } = useContactByAddress(conversation?.contact_address);
   const { data: contactAddress } = useContactAddress(
@@ -174,9 +173,18 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
   const { data: agents } = useCurrentAgents();
   const isAdmin = ["admin", "owner"].includes(agent?.extra?.role || "");
 
+  // The sidebar only ever holds the thread's most recent message (or whatever
+  // the open conversation loaded), so this list is a preview source, never a
+  // basis for counting.
   const messages: MessageRow[] | undefined = Array.from(
     useBoundStore((state) => state.chat.messages.get(itemId || ""))?.values() ||
       [],
+  );
+
+  // Counted server-side by `conversations_page` over the whole history and kept
+  // live by realtime — the loaded window is far too small to derive it here.
+  const unreadCount = useBoundStore(
+    (state) => state.chat.threads.get(itemId)?.unread ?? 0,
   );
 
   // If the role is not admin, then do not show internal messages.
@@ -202,19 +210,13 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
         } as MessageRow);
 
   const unread = (() => {
-    let count = 0;
     let notification = false;
-    let countBreak = false;
 
-    if (!messages) {
-      return { count, notification };
-    }
-
-    // Messages are sorted by most recent first.
-    for (const msg of messages) {
-      if (msg.direction === "incoming" && !countBreak) {
-        count += 1;
-      } else if (
+    // The @-mention marker still comes from the loaded messages: it only
+    // matters for a thread that has unanswered incoming messages, and those
+    // are exactly the ones whose tail is loaded.
+    for (const msg of messages ?? []) {
+      if (
         msg.direction === "internal" &&
         // @ts-expect-error notification is deprecated (TODO: remove)
         msg.content.kind === "notification"
@@ -229,13 +231,10 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
       ) {
         // Only humans can mark notifications as responded.
         break;
-      } else if (msg.direction === "outgoing") {
-        // Any agent can mark incoming messages as responded.
-        countBreak = true;
       }
     }
 
-    return { count, notification };
+    return { count: unreadCount, notification };
   })();
 
   const tick = useContext(TickContext); // one-minute ticks

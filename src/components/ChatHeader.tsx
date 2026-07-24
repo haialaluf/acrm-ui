@@ -11,15 +11,14 @@ import { useNavigate } from "@tanstack/react-router";
 import { useContactByAddress } from "@/queries/useContacts";
 import { useContactAddress } from "@/queries/useContactsAddresses";
 import type { InstagramContactAddressExtra } from "@/supabase/client";
+import { useActiveConversation } from "@/hooks/useThread";
 
 export default function Header() {
   const navigate = useNavigate();
 
-  const activeConvId = useBoundStore((state) => state.ui.activeConvId);
+  const activeThreadKey = useBoundStore((state) => state.ui.activeThreadKey);
 
-  const conversation = useBoundStore((state) =>
-    state.chat.conversations.get(state.ui.activeConvId || ""),
-  );
+  const conversation = useActiveConversation();
 
   const { data: contact } = useContactByAddress(conversation?.contact_address);
   const { data: contactAddress } = useContactAddress(
@@ -57,7 +56,7 @@ export default function Header() {
 
   const { translate: t } = useTranslation();
 
-  if (!activeConvId) {
+  if (!activeThreadKey) {
     return null;
   }
 

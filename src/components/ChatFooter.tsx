@@ -20,34 +20,33 @@ import { moveCursorToEnd } from "@/utils/UtilityFunctions";
 import { htmlToMarkdown } from "@/utils/htmlToMarkdown";
 import TemplatePicker from "./TemplatePicker";
 import DisabledSection from "./DisabledSection";
+import { useActiveConversation } from "@/hooks/useThread";
 
 export default function ChatFooter() {
-  const activeConvId = useBoundStore((store) => store.ui.activeConvId);
-  const conv = useBoundStore((store) =>
-    store.chat.conversations.get(store.ui.activeConvId || ""),
-  );
+  const activeThreadKey = useBoundStore((store) => store.ui.activeThreadKey);
+  const conv = useActiveConversation();
   const draft: Draft | null | undefined = conv?.extra?.draft;
   const sendAsContact = useBoundStore((store) => store.ui.sendAsContact);
   const setSendAsContact = useBoundStore((store) => store.ui.setSendAsContact);
   const toggle = useBoundStore((store) => store.ui.toggle);
   const templatePicker = useBoundStore((store) => store.ui.templatePicker);
   const message = useBoundStore((store) =>
-    store.chat.textDrafts.get(store.ui.activeConvId || ""),
+    store.chat.textDrafts.get(store.ui.activeThreadKey || ""),
   );
-  const setConversationTextDraft = useBoundStore(
-    (store) => store.chat.setConversationTextDraft,
+  const setThreadTextDraft = useBoundStore(
+    (store) => store.chat.setThreadTextDraft,
   );
   const setMessage = (message: string) =>
-    setConversationTextDraft(activeConvId || "", message);
+    setThreadTextDraft(activeThreadKey || "", message);
 
   const fileDrafts = useBoundStore((store) =>
-    store.chat.fileDrafts.get(store.ui.activeConvId || ""),
+    store.chat.fileDrafts.get(store.ui.activeThreadKey || ""),
   );
-  const setConversationFileDrafts = useBoundStore(
-    (store) => store.chat.setConversationFileDrafts,
+  const setThreadFileDrafts = useBoundStore(
+    (store) => store.chat.setThreadFileDrafts,
   );
   const setFileDrafts = (fileDrafts: FileDraft[]) =>
-    setConversationFileDrafts(activeConvId || "", fileDrafts);
+    setThreadFileDrafts(activeThreadKey || "", fileDrafts);
 
   const { data: agent } = useCurrentAgent();
   const agentId = agent?.id;
@@ -67,7 +66,9 @@ export default function ChatFooter() {
   const tick = useContext(TickContext); // one-minute ticks
 
   const mostRecentIncoming: MessageRow | undefined = useBoundStore((store) => {
-    const msgs = store.chat.messages.get(store.ui.activeConvId || "")?.values();
+    const msgs = store.chat.messages
+      .get(store.ui.activeThreadKey || "")
+      ?.values();
 
     if (!msgs) {
       return;
@@ -111,11 +112,11 @@ export default function ChatFooter() {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeConvId, fileDrafts]);
+  }, [activeThreadKey, fileDrafts]);
 
   // Set send as contact
   useEffect(() => {
-    if (!activeConvId || !conv) {
+    if (!activeThreadKey || !conv) {
       return;
     }
 
@@ -147,10 +148,10 @@ export default function ChatFooter() {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeConvId, draft]);
+  }, [activeThreadKey, draft]);
 
   const sendTextMessage = async () => {
-    if (!activeConvId || !conv || !message) {
+    if (!activeThreadKey || !conv || !message) {
       return;
     }
 
@@ -189,7 +190,7 @@ export default function ChatFooter() {
   }
 
   return (
-    activeConvId &&
+    activeThreadKey &&
     conv && (
       <div className="relative mx-[12px] mb-[12px] mt-[4px] lg:mt-[0px] z-10">
         {templatePicker && <TemplatePicker />}

@@ -7,12 +7,11 @@ import { useContactByAddress } from "@/queries/useContacts";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { TemplateData } from "@/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
+import { useActiveConversation } from "@/hooks/useThread";
 
 export default function TemplatePicker() {
-  const activeConvId = useBoundStore((store) => store.ui.activeConvId);
-  const conv = useBoundStore((store) =>
-    store.chat.conversations.get(store.ui.activeConvId || ""),
-  );
+  const activeThreadKey = useBoundStore((store) => store.ui.activeThreadKey);
+  const conv = useActiveConversation();
   const toggle = useBoundStore((store) => store.ui.toggle);
 
   const orgAddress = conv?.organization_address;
@@ -49,7 +48,7 @@ export default function TemplatePicker() {
   }, [toggle]);
 
   function select(template: TemplateData) {
-    if (!activeConvId || !contact?.id) return;
+    if (!activeThreadKey || !contact?.id) return;
 
     // Hand off to the bulk-send wizard, pre-filled with this contact +
     // template, jumping straight to the Variables step. Keeps the wizard as

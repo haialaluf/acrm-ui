@@ -39,8 +39,8 @@ function AppLayout() {
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
   const { data: agents } = useCurrentAgents();
   const hasAiAgents = agents?.some((a) => a.ai);
-  const activeConvId = useBoundStore((state) => state.ui.activeConvId);
-  const setActiveConv = useBoundStore((state) => state.ui.setActiveConv);
+  const activeThreadKey = useBoundStore((state) => state.ui.activeThreadKey);
+  const setActiveThread = useBoundStore((state) => state.ui.setActiveThread);
   const location = useLocation();
   const pathname = location.pathname;
   const isStatsRoute = pathname.startsWith("/stats");
@@ -69,19 +69,14 @@ function AppLayout() {
     isRtl: isRtl(currentLanguage as Language),
   });
 
-  // Sync fragment identifier with activeConvId
-  // i.e. /conversations#1234
+  // Sync fragment identifier with activeThreadKey
+  // i.e. /conversations#318232498042593~5551000
   useEffect(() => {
-    const convId = location.hash;
-    setActiveConv(convId);
+    setActiveThread(location.hash || null);
   }, [location.hash]);
 
-  console.log("--------");
-  console.log("active org ", activeOrgId);
-  console.log("active conv", activeConvId);
-
   const showCenterPanel =
-    (activeConvId || isStatsDetail || isCalendarBoardRoute) &&
+    (activeThreadKey || isStatsDetail || isCalendarBoardRoute) &&
     !isTemplateEditorRoute;
 
   return (
@@ -122,7 +117,7 @@ function AppLayout() {
                 : " hidden md:flex bg-muted"
               : isCalendarBoardRoute
                 ? " flex bg-background"
-                : activeConvId
+                : activeThreadKey
                   ? " flex bg-chat"
                   : " hidden md:flex bg-muted")
         }
@@ -139,7 +134,7 @@ function AppLayout() {
           </div>
         ) : isCalendarBoardRoute ? (
           <CalendarCenter />
-        ) : activeConvId ? (
+        ) : activeThreadKey ? (
           <>
             {isHoveringFiles && <FilePicker setHovering={setIsHoveringFiles} />}
             <FilePreviewer />

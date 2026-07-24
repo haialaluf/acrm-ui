@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
-import { useInitialDataFetch } from "@/hooks/useInitalDataFetch";
+import { useChatSync } from "@/hooks/useChatSync";
 import useBoundStore from "@/stores/useBoundStore";
 import { redirect } from "@tanstack/react-router";
 import { supabase } from "@/supabase/client";
@@ -11,7 +11,7 @@ function RootLayout() {
   useAuth();
   useSetActiveOrg();
   useRealtimeSubscription();
-  useInitialDataFetch();
+  useChatSync();
 
   return <Outlet />;
 }

@@ -13,6 +13,9 @@ export const useRealtimeSubscription = () => {
     (state) => state.chat.pushConversations,
   );
   const pushMessages = useBoundStore((state) => state.chat.pushMessages);
+  const notifyRealtimeMessage = useBoundStore(
+    (state) => state.chat.notifyRealtimeMessage,
+  );
 
   useEffect(() => {
     if (!activeOrgId) return;
@@ -46,15 +49,35 @@ export const useRealtimeSubscription = () => {
           table: "messages",
           filter,
         },
-        (payload) => {
+        async (payload) => {
           // TODO: https://github.com/supabase/supabase/issues/32817
           if (payload.table !== "messages") return;
 
           const message = payload.new as MessageRow;
 
+          // A brand-new counterpart's first message can beat its conversation
+          // row here (`pushMessages` parks it), and can also belong to a thread
+          // no page has loaded. Fetch the row so the thread exists, gets its
+          // parked messages and shows up in the sidebar right away.
           pushMessages([message]);
 
-          //updateMessagesCache([message]);
+          if (
+            !useBoundStore
+              .getState()
+              .chat.conversations.has(message.conversation_id)
+          ) {
+            const { data } = await supabase
+              .from("conversations")
+              .select()
+              .eq("id", message.conversation_id)
+              .maybeSingle();
+
+            if (data) pushConversations([data]);
+          }
+
+          // Unread is a server-side count the store then tracks; only a live
+          // arrival may move it (a page load must not).
+          notifyRealtimeMessage(message);
         },
       );
 

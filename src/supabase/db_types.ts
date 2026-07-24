@@ -1382,6 +1382,25 @@ export type Database = {
           last_sent_at: string
         }[]
       }
+      conversations_page: {
+        Args: {
+          p_before_id?: string
+          p_before_ts?: string
+          p_filter?: string
+          p_limit?: number
+          p_organization_id: string
+          p_search?: string
+          p_tags?: string[]
+        }
+        Returns: {
+          conversations: Json
+          last_message: Json
+          pinned: boolean
+          pinned_at: string
+          thread_key: string
+          unread_count: number
+        }[]
+      }
       get_authorized_orgs: {
         Args: { role?: Database["public"]["Enums"]["role"] }
         Returns: string[]
