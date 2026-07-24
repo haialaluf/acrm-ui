@@ -435,6 +435,7 @@ export default function Chat() {
         )}
         <div className="min-h-[12px]" />
         <div
+          dir="ltr"
           className="relative w-full"
           style={{ height: virtualizer.getTotalSize() }}
         >
