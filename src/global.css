@@ -261,7 +261,9 @@ button:disabled {
   .resize-handle {
     position: absolute;
     top: 0;
-    right: 0;
+    /* Logical end edge: right in LTR, left in RTL (Hebrew) so the handle
+       always sits on the panel's inner boundary with the chat area. */
+    inset-inline-end: 0;
     width: 4px;
     height: 100%;
     cursor: col-resize;

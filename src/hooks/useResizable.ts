@@ -3,6 +3,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 interface UseResizableOptions {
   minWidth: number;
   getMaxWidth: () => number;
+  // In RTL the panel is mirrored to the right, so the resizable edge is the
+  // panel's left side and width must be measured from its right edge instead.
+  isRtl?: boolean;
 }
 
 interface UseResizableReturn {
@@ -14,6 +17,7 @@ interface UseResizableReturn {
 export function useResizable({
   minWidth,
   getMaxWidth,
+  isRtl = false,
 }: UseResizableOptions): UseResizableReturn {
   const [width, setWidth] = useState<number | null>(null); // null = use CSS default
   const [isResizing, setIsResizing] = useState(false);
@@ -36,7 +40,11 @@ export function useResizable({
       if (!isResizing || !panelRef.current) return;
 
       const panelRect = panelRef.current.getBoundingClientRect();
-      const newWidth = e.clientX - panelRect.left;
+      // LTR: drag the right edge → width grows from the fixed left edge.
+      // RTL: drag the left edge → width grows from the fixed right edge.
+      const newWidth = isRtl
+        ? panelRect.right - e.clientX
+        : e.clientX - panelRect.left;
       const maxWidth = getMaxWidth();
       const clampedWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
       setWidth(clampedWidth);
@@ -59,7 +67,7 @@ export function useResizable({
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     };
-  }, [isResizing, minWidth, getMaxWidth]);
+  }, [isResizing, minWidth, getMaxWidth, isRtl]);
 
   return {
     width,

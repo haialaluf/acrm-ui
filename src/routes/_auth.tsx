@@ -12,6 +12,7 @@ import ActionCard from "@/components/ActionCard";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Bot, Building2, MessageSquarePlus, Settings } from "lucide-react";
 import { useResizable } from "@/hooks/useResizable";
+import { isRtl, type Language } from "@/stores/uiSlice";
 import { useCurrentAgents } from "@/queries/useAgents";
 import StatsCenter from "@/components/stats/StatsCenter";
 import CalendarCenter from "@/components/calendar/CalendarCenter";
@@ -34,7 +35,7 @@ function getMaxPanelWidth() {
 }
 
 function AppLayout() {
-  const { translate: t } = useTranslation();
+  const { translate: t, currentLanguage } = useTranslation();
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
   const { data: agents } = useCurrentAgents();
   const hasAiAgents = agents?.some((a) => a.ai);
@@ -65,6 +66,7 @@ function AppLayout() {
   } = useResizable({
     minWidth: MIN_PANEL_WIDTH,
     getMaxWidth: getMaxPanelWidth,
+    isRtl: isRtl(currentLanguage as Language),
   });
 
   // Sync fragment identifier with activeConvId
