@@ -13,6 +13,7 @@ export default function SectionHeader({
   deleteDisabledReason,
   deleteLoading,
   action,
+  hideBackButton,
 }: {
   title: string;
   closeButton?: boolean;
@@ -21,12 +22,18 @@ export default function SectionHeader({
   deleteDisabledReason?: string;
   deleteLoading?: boolean;
   action?: ReactNode;
+  // Opt out of the depth-based back button. Needed when the header is rendered
+  // from a layout route (e.g. the always-visible Stats list panel) where the
+  // URL is deeper than the header's own route, so `to=".."` would resolve to a
+  // pathless parent and navigate nowhere.
+  hideBackButton?: boolean;
 }) {
   const { translate: t } = useTranslation();
   const location = useLocation();
   const router = useRouter();
 
   const showBackButton =
+    !hideBackButton &&
     location.pathname.split("/").filter(Boolean).length >= 2;
 
   return (

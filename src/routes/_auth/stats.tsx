@@ -22,7 +22,7 @@ function StatsLayout() {
 
   return (
     <>
-      <SectionHeader title={t("Estadísticas")} />
+      <SectionHeader title={t("Estadísticas")} hideBackButton />
       <SectionBody>
         <SectionItem
           title={t("Cuotas")}
