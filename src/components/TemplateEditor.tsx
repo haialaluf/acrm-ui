@@ -296,10 +296,10 @@ export default function TemplateEditor({
             label={t("Idioma")}
             disabled={!!existingTemplate}
             options={[
-              { value: "es", label: "Español" },
               { value: "en", label: "English" },
-              { value: "pt", label: "Português" },
               { value: "he", label: "עברית" },
+              { value: "es", label: "Español" },
+              { value: "pt", label: "Português" },
             ]}
           />
 
