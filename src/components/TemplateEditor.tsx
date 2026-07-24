@@ -315,7 +315,8 @@ export default function TemplateEditor({
                 onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
                   e.target.value = e.target.value
                     .toLowerCase()
-                    .replace(/[^a-z0-9_]+/g, "_");
+                    .replace(/\s+/g, "_") // spaces become underscores
+                    .replace(/[^a-z0-9_]/g, ""); // drop anything else (e.g. Hebrew)
                 },
               })}
             />
