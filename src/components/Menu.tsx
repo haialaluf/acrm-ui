@@ -162,7 +162,7 @@ export default function Menu() {
                 key: "lang",
                 label: t("Idioma"),
                 icon: <Languages className="w-[16px] h-[16px]" />,
-                children: (["es", "en", "pt", "sw", "fr", "he"] as const).map(
+                children: (["en", "he", "es", "pt", "sw", "fr"] as const).map(
                   (lang) => ({
                     key: lang,
                     label: {
