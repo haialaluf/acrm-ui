@@ -54,14 +54,14 @@ export default function BodyField({
     setValue("body", v, { shouldDirty: true, shouldValidate: true });
 
   const { ref: rhfRef, ...bodyReg } = register("body", {
-    required: t("El cuerpo es obligatorio"),
-    maxLength: { value: 1024, message: t("Máximo 1024 caracteres") },
+    required: "El cuerpo es obligatorio",
+    maxLength: { value: 1024, message: "Máximo 1024 caracteres" },
     validate: (v: string) => {
       const trimmed = v.trim();
       if (/^\{\{\d+\}\}/.test(trimmed))
-        return t("El cuerpo no puede empezar con una variable");
+        return "El cuerpo no puede empezar con una variable";
       if (/\{\{\d+\}\}$/.test(trimmed))
-        return t("El cuerpo no puede terminar con una variable");
+        return "El cuerpo no puede terminar con una variable";
       return true;
     },
   });

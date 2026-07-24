@@ -122,7 +122,7 @@ function ContactNew() {
                     validate: (value) =>
                       !value ||
                       isValidPhoneNumber(value) ||
-                      t("Número inválido"),
+                      "Número inválido",
                   })}
                 />
                 <button

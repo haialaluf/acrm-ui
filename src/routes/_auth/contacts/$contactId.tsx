@@ -211,7 +211,7 @@ function ContactDetail() {
                           validate: (value) =>
                             !value ||
                             isValidPhoneNumber(value) ||
-                            t("Número inválido"),
+                            "Número inválido",
                         })}
                       />
                     )}

@@ -311,7 +311,7 @@ export default function TemplateEditor({
               placeholder={t("nombre_de_plantilla")}
               disabled={!!existingTemplate}
               {...register("name", {
-                required: t("El nombre es obligatorio"),
+                required: "El nombre es obligatorio",
                 onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
                   e.target.value = e.target.value
                     .toLowerCase()
