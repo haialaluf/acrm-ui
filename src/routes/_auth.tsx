@@ -43,6 +43,11 @@ function AppLayout() {
   const location = useLocation();
   const pathname = location.pathname;
   const isStatsRoute = pathname.startsWith("/stats");
+  // A specific stats tab (Quotas/Usage). On mobile this opens the center panel
+  // full-screen; bare `/stats` instead stays on the list + menu so the section
+  // is navigable (the list is hidden alongside the center panel on mobile).
+  const isStatsDetail =
+    pathname === "/stats/quotas" || pathname === "/stats/usage";
   // An open calendar (`/calendars/<id>`, but not `/calendars/new`) shows its
   // react-big-calendar board in the wide center panel, master-detail style.
   const isCalendarBoardRoute = /^\/calendars\/(?!new$)[^/]+$/.test(pathname);
@@ -74,7 +79,7 @@ function AppLayout() {
   console.log("active conv", activeConvId);
 
   const showCenterPanel =
-    (activeConvId || isStatsRoute || isCalendarBoardRoute) &&
+    (activeConvId || isStatsDetail || isCalendarBoardRoute) &&
     !isTemplateEditorRoute;
 
   return (
@@ -110,7 +115,9 @@ function AppLayout() {
           (isTemplateEditorRoute
             ? " hidden md:flex bg-muted"
             : isStatsRoute
-              ? " flex bg-muted"
+              ? isStatsDetail
+                ? " flex bg-muted"
+                : " hidden md:flex bg-muted"
               : isCalendarBoardRoute
                 ? " flex bg-background"
                 : activeConvId

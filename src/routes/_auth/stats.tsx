@@ -20,6 +20,10 @@ function StatsLayout() {
   const location = useLocation();
   const pathname = location.pathname;
 
+  // Bare `/stats` defaults to Quotas (matching StatsCenter), so treat it as the
+  // active Quotas tab for highlighting — there is no redirect to `/stats/quotas`.
+  const activeTab = pathname === "/stats/usage" ? "usage" : "quotas";
+
   return (
     <>
       <SectionHeader title={t("Estadísticas")} hideBackButton />
@@ -28,33 +32,33 @@ function StatsLayout() {
           title={t("Cuotas")}
           aside={
             <div
-              className={`p-[8px] rounded-full ${pathname === "/stats/quotas" ? "bg-primary/10" : ""}`}
+              className={`p-[8px] rounded-full ${activeTab === "quotas" ? "bg-primary/10" : ""}`}
             >
               <Gauge
-                className={`w-[24px] h-[24px] ${pathname === "/stats/quotas" ? "text-primary" : "text-muted-foreground"}`}
+                className={`w-[24px] h-[24px] ${activeTab === "quotas" ? "text-primary" : "text-muted-foreground"}`}
               />
             </div>
           }
           onClick={() =>
             navigate({ to: "/stats/quotas", hash: (prev) => prev! })
           }
-          className={pathname === "/stats/quotas" ? "bg-accent" : ""}
+          className={activeTab === "quotas" ? "bg-accent" : ""}
         />
         <SectionItem
           title={t("Uso")}
           aside={
             <div
-              className={`p-[8px] rounded-full ${pathname === "/stats/usage" ? "bg-primary/10" : ""}`}
+              className={`p-[8px] rounded-full ${activeTab === "usage" ? "bg-primary/10" : ""}`}
             >
               <BarChart3
-                className={`w-[24px] h-[24px] ${pathname === "/stats/usage" ? "text-primary" : "text-muted-foreground"}`}
+                className={`w-[24px] h-[24px] ${activeTab === "usage" ? "text-primary" : "text-muted-foreground"}`}
               />
             </div>
           }
           onClick={() =>
             navigate({ to: "/stats/usage", hash: (prev) => prev! })
           }
-          className={pathname === "/stats/usage" ? "bg-accent" : ""}
+          className={activeTab === "usage" ? "bg-accent" : ""}
         />
       </SectionBody>
       <Outlet />
