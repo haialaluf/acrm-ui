@@ -157,6 +157,7 @@
   "El cuerpo no puede empezar con una variable": "The body cannot start with a variable",
   "El cuerpo no puede terminar con una variable": "The body cannot end with a variable",
   "El nombre es obligatorio": "The name is required",
+  "El nombre solo puede tener letras en inglés (minúsculas), números y guiones bajos.": "The name can only contain lowercase English letters, numbers and underscores.",
   "El texto del botón es obligatorio": "Button text is required",
   "Elegir plantilla": "Choose template",
   "Elegí un tipo de botón": "Choose a button type",

@@ -143,6 +143,7 @@
   "El cuerpo no puede empezar con una variable": "Le corps ne peut pas commencer par une variable",
   "El cuerpo no puede terminar con una variable": "Le corps ne peut pas se terminer par une variable",
   "El nombre es obligatorio": "Le nom est obligatoire",
+  "El nombre solo puede tener letras en inglés (minúsculas), números y guiones bajos.": "Le nom ne peut contenir que des lettres anglaises (minuscules), des chiffres et des traits de soulignement.",
   "Elegir plantilla": "Choisir un modèle",
   "Elige fecha y hora": "Choisir date et heure",
   "Elige los destinatarios": "Choisir les destinataires",

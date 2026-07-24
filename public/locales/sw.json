@@ -143,6 +143,7 @@
   "El cuerpo no puede empezar con una variable": "Mwili hauwezi kuanza na kigezo",
   "El cuerpo no puede terminar con una variable": "Mwili hauwezi kumalizia na kigezo",
   "El nombre es obligatorio": "Jina linahitajika",
+  "El nombre solo puede tener letras en inglés (minúsculas), números y guiones bajos.": "Jina linaweza kuwa na herufi za Kiingereza (ndogo), namba na mistari ya chini pekee.",
   "Elegir plantilla": "Chagua kiolezo",
   "Elige fecha y hora": "Chagua tarehe na saa",
   "Elige los destinatarios": "Chagua wapokeaji",

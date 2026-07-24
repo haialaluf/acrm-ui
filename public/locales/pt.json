@@ -157,6 +157,7 @@
   "El cuerpo no puede empezar con una variable": "O corpo não pode começar com uma variável",
   "El cuerpo no puede terminar con una variable": "O corpo não pode terminar com uma variável",
   "El nombre es obligatorio": "O nome é obrigatório",
+  "El nombre solo puede tener letras en inglés (minúsculas), números y guiones bajos.": "O nome só pode conter letras em inglês (minúsculas), números e sublinhados.",
   "El texto del botón es obligatorio": "O texto do botão é obrigatório",
   "Elegir plantilla": "Escolher modelo",
   "Elegí un tipo de botón": "Escolha um tipo de botão",
