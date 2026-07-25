@@ -1,4 +1,12 @@
 {
+  "Book an appointment": "Weka miadi",
+  "Booking link": "Kiungo cha kuweka miadi",
+  "Each customer receives their own booking link.": "Kila mteja hupokea kiungo chake cha kuweka miadi.",
+  "Each recipient gets their own link to this calendar.": "Kila mpokeaji hupata kiungo chake cha kalenda hii.",
+  "Link (set automatically)": "Kiungo (kimewekwa kiotomatiki)",
+  "link buttons": "vitufe vya kiungo",
+  "Opens a personal booking link for each customer": "Hufungua kiungo binafsi cha kuweka miadi kwa kila mteja",
+  "This template sends a booking link, but you have no calendar yet. Create one to send it.": "Kiolezo hiki hutuma kiungo cha kuweka miadi, lakini bado huna kalenda. Tengeneza moja ili kukituma.",
   "— None —": "— Hakuna —",
   "(Untitled)": "(Bila kichwa)",
   "{{1}} minutes": "Dakika {{1}}",

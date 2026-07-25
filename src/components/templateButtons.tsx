@@ -1,4 +1,4 @@
-import { Copy, Link, Phone, Reply } from "lucide-react";
+import { CalendarClock, Copy, Link, Phone, Reply } from "lucide-react";
 import type {
   TemplateButton,
   TemplateButtonDef,
@@ -16,11 +16,22 @@ import type {
      • Visit website (URL) — up to 2, max 25 chars  (any; one can be dynamic)
      • Call phone number   — up to 1, max 25 chars  (any)
      • Copy offer code     — up to 1                (MARKETING only)
+
+   BOOKING is ours, not Meta's: it is a dynamic URL button pinned to the
+   booking site (see "Self-service booking links" below). Meta only ever sees a
+   URL button, so it shares the 2-URL cap and previews exactly like one — the
+   separate kind exists so the editor can hide the URL fields and fill them in.
 */
 
-export type ButtonKind = "QR" | "URL" | "PHONE" | "COPY";
+export type ButtonKind = "QR" | "URL" | "BOOKING" | "PHONE" | "COPY";
 
-export const BUTTON_KINDS: ButtonKind[] = ["QR", "URL", "PHONE", "COPY"];
+export const BUTTON_KINDS: ButtonKind[] = [
+  "QR",
+  "URL",
+  "BOOKING",
+  "PHONE",
+  "COPY",
+];
 
 export const BTN_TOTAL_MAX = 10;
 
@@ -30,14 +41,19 @@ export const BTN_LIMITS: Record<
 > = {
   QR: { max: 3, textMax: 25 },
   URL: { max: 2, textMax: 25 },
+  BOOKING: { max: 1, textMax: 25 },
   PHONE: { max: 1, textMax: 25 },
   COPY: { max: 1, textMax: 25, marketingOnly: true },
 };
+
+// Kinds that Meta stores as URL buttons — together they share BTN_LIMITS.URL.max.
+export const URL_LIKE_KINDS: ButtonKind[] = ["URL", "BOOKING"];
 
 // Spanish source strings (the codebase translates from Spanish via `t()`).
 export const KIND_LABEL: Record<ButtonKind, string> = {
   QR: "Quick reply",
   URL: "Link",
+  BOOKING: "Appointment scheduling",
   PHONE: "Call",
   COPY: "Copy code",
 };
@@ -45,6 +61,7 @@ export const KIND_LABEL: Record<ButtonKind, string> = {
 export const KIND_HINT: Record<ButtonKind, string> = {
   QR: "The customer sends a fixed text when tapping",
   URL: "Opens a link in the customer's browser (can be dynamic)",
+  BOOKING: "Opens a personal booking link for each customer",
   PHONE: "Opens the dialer with your phone number",
   COPY: "Copies a code to the customer's clipboard",
 };
@@ -61,11 +78,40 @@ export function ButtonKindIcon({
       return <Reply className={className} />;
     case "URL":
       return <Link className={className} />;
+    case "BOOKING":
+      return <CalendarClock className={className} />;
     case "PHONE":
       return <Phone className={className} />;
     case "COPY":
       return <Copy className={className} />;
   }
+}
+
+/* ─── Self-service booking links ──────────────────────────────────────────
+   A template sends booking links by pointing a DYNAMIC url button at the
+   booking origin, with `{{1}}` standing in for the per-recipient token. Meta
+   treats that suffix as a per-message parameter, which is what lets one
+   template deliver 500 different links in one broadcast.
+
+   Detection is by base URL alone: a template either points at the booking
+   domain or it doesn't. That keeps it out of the template metadata and out of
+   the send wizard — nothing to configure, nothing to keep in sync. */
+export const BOOKING_ORIGIN: string = (
+  (import.meta.env.VITE_BOOKING_BASE_URL as string | undefined) ||
+  "https://calendar.delacrm.com"
+).replace(/\/+$/, "");
+
+// The URL every BOOKING button carries; `{{1}}` is filled per recipient at send
+// time (see buttonSendComponents / buildMessageRecord).
+export const BOOKING_URL = `${BOOKING_ORIGIN}/{{1}}`;
+
+// Placeholder token submitted as the button's example — Meta requires a sample
+// for every variable, and never resolves it.
+export const BOOKING_TOKEN_EXAMPLE = "tokenexample";
+
+/** True for a URL button def that is really a booking button. */
+export function isBookingUrl(url: string): boolean {
+  return url.includes("{{1}}") && url.startsWith(BOOKING_ORIGIN);
 }
 
 /* ─── editor (form) shape ─────────────────────────────────────────────────
@@ -86,9 +132,11 @@ export function newTemplateButton(kind: ButtonKind): FormTemplateButton {
   return {
     kind,
     text: "",
-    url: "",
-    urlMode: "STATIC",
-    urlExample: "",
+    // A booking button's destination is ours, not the user's — it is filled in
+    // here and never shown as an editable field.
+    url: kind === "BOOKING" ? BOOKING_URL : "",
+    urlMode: kind === "BOOKING" ? "DYNAMIC" : "STATIC",
+    urlExample: kind === "BOOKING" ? BOOKING_TOKEN_EXAMPLE : "",
     countryCode: "+972",
     phone: "",
     code: "",
@@ -102,6 +150,15 @@ export function formButtonToComponent(
   switch (b.kind) {
     case "QR":
       return { type: "QUICK_REPLY", text: b.text };
+    // Meta has no booking button — it goes out as the dynamic URL it is, with
+    // our origin and sample token rather than anything the user typed.
+    case "BOOKING":
+      return {
+        type: "URL",
+        text: b.text,
+        url: BOOKING_URL,
+        example: [BOOKING_URL.replace("{{1}}", BOOKING_TOKEN_EXAMPLE)],
+      };
     case "URL":
       if (b.urlMode === "DYNAMIC") {
         return {
@@ -138,11 +195,14 @@ const KNOWN_DIAL_CODES = ["+972", "+44", "+91", "+55", "+34", "+1"];
 export function componentToFormButton(
   b: TemplateButtonDef,
 ): FormTemplateButton {
-  const base = newTemplateButton(buttonDefKind(b));
+  const base = newTemplateButton(formButtonKind(b));
   switch (b.type) {
     case "QUICK_REPLY":
       return { ...base, text: b.text };
     case "URL": {
+      // A URL pointing at the booking origin round-trips as a BOOKING button:
+      // its url/example are already the canonical ones from `base`.
+      if (isBookingUrl(b.url)) return { ...base, text: b.text };
       const dynamic = b.url.includes("{{1}}");
       let urlExample = "";
       if (dynamic && b.example?.[0]) {
@@ -176,6 +236,13 @@ export function componentToFormButton(
   }
 }
 
+/** Editor kind for a Meta button def — the only place BOOKING is told apart
+    from a plain URL. Everything downstream of the editor (preview, bubbles)
+    wants `buttonDefKind` instead, so booking renders as the link it is. */
+export function formButtonKind(b: TemplateButtonDef): ButtonKind {
+  return b.type === "URL" && isBookingUrl(b.url) ? "BOOKING" : buttonDefKind(b);
+}
+
 /* ─── Meta button def → render info (preview / message bubble) ──────────── */
 export function buttonDefKind(b: TemplateButtonDef): ButtonKind {
   switch (b.type) {
@@ -205,19 +272,6 @@ export function buttonDefToPreview(
   return { kind, text };
 }
 
-/* ─── Self-service booking links ──────────────────────────────────────────
-   A template sends booking links by pointing a DYNAMIC url button at the
-   booking origin, with `{{1}}` standing in for the per-recipient token. Meta
-   treats that suffix as a per-message parameter, which is what lets one
-   template deliver 500 different links in one broadcast.
-
-   Detection is by base URL alone: a template either points at the booking
-   domain or it doesn't. That keeps it out of the template metadata and out of
-   the send wizard — nothing to configure, nothing to keep in sync. */
-export const BOOKING_ORIGIN = (
-  import.meta.env.VITE_BOOKING_BASE_URL || "https://calendar.delacrm.com"
-).replace(/\/+$/, "");
-
 /** Index of the template's booking URL button, or null when it has none. */
 export function bookingButtonIndex(template: TemplateData): number | null {
   const buttons = template.components.find(
@@ -226,10 +280,7 @@ export function bookingButtonIndex(template: TemplateData): number | null {
   if (!buttons) return null;
 
   const index = buttons.findIndex(
-    (b) =>
-      b.type === "URL" &&
-      b.url.includes("{{1}}") &&
-      b.url.startsWith(BOOKING_ORIGIN),
+    (b) => b.type === "URL" && isBookingUrl(b.url),
   );
   return index === -1 ? null : index;
 }

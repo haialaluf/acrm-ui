@@ -11,6 +11,8 @@ import {
   BUTTON_KINDS,
   BTN_LIMITS,
   BTN_TOTAL_MAX,
+  BOOKING_URL,
+  URL_LIKE_KINDS,
   KIND_LABEL,
   KIND_HINT,
   ButtonKindIcon,
@@ -28,6 +30,7 @@ const MONO = " font-mono text-left";
 const CHIP_CLASS: Record<ButtonKind, string> = {
   QR: "bg-primary/10 text-primary",
   URL: "bg-sky-500/10 text-sky-600",
+  BOOKING: "bg-violet-500/10 text-violet-600",
   PHONE: "bg-emerald-500/10 text-emerald-600",
   COPY: "bg-amber-500/10 text-amber-600",
 };
@@ -67,6 +70,13 @@ function AddButtonMenu({
     const cap = BTN_LIMITS[kind].max;
     if ((counts[kind] || 0) >= cap)
       return `${t("Maximum")} ${cap} ${t("of this type")}`;
+    // Booking buttons reach Meta as URL buttons, so they eat into the same cap.
+    if (URL_LIKE_KINDS.includes(kind)) {
+      const urlCap = BTN_LIMITS.URL.max;
+      const used = URL_LIKE_KINDS.reduce((n, k) => n + (counts[k] || 0), 0);
+      if (used >= urlCap)
+        return `${t("Maximum")} ${urlCap} ${t("link buttons")}`;
+    }
     if (BTN_LIMITS[kind].marketingOnly && category !== "MARKETING")
       return t("Only available for the Marketing category");
     return null;
@@ -203,9 +213,7 @@ function ButtonCard({
       <div className={"flex flex-col" + (kind === "QR" ? "" : " mb-[10px]")}>
         <div className="flex items-baseline justify-between">
           <span className="text-[11px] text-muted-foreground mb-[2px]">
-            {kind === "COPY"
-              ? t("Button text (fixed)")
-              : t("Button text")}
+            {kind === "COPY" ? t("Button text (fixed)") : t("Button text")}
           </span>
           {kind !== "COPY" && (
             <span className="text-[11px] text-muted-foreground">
@@ -226,7 +234,9 @@ function ButtonCard({
                 ? t("Yes, I'm interested")
                 : kind === "URL"
                   ? t("More info")
-                  : t("Call us")
+                  : kind === "BOOKING"
+                    ? t("Book an appointment")
+                    : t("Call us")
             }
             {...register(`buttons.${index}.text`, {
               validate: (value) =>
@@ -289,9 +299,7 @@ function ButtonCard({
               }
               {...register(`buttons.${index}.url`, {
                 validate: (value) =>
-                  kind !== "URL" || value?.trim()
-                    ? true
-                    : t("Enter the URL"),
+                  kind !== "URL" || value?.trim() ? true : t("Enter the URL"),
               })}
             />
           </div>
@@ -309,6 +317,25 @@ function ButtonCard({
             </div>
           )}
         </>
+      )}
+
+      {/* BOOKING specifics — the destination is fixed, so it is shown, not asked
+          for. The `{{1}}` suffix becomes each recipient's own booking token. */}
+      {kind === "BOOKING" && (
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground mb-[2px]">
+            {t("Link (set automatically)")}
+          </span>
+          <div
+            className="text-[13px] font-mono text-muted-foreground pb-[4px] truncate"
+            dir="ltr"
+          >
+            {BOOKING_URL}
+          </div>
+          <span className="text-[11px] text-muted-foreground mt-[4px] leading-relaxed">
+            {t("Each customer receives their own booking link.")}
+          </span>
+        </div>
       )}
 
       {/* PHONE specifics */}

@@ -1,4 +1,11 @@
 {
+  "Booking link": "קישור לקביעת פגישה",
+  "Each customer receives their own booking link.": "כל לקוח מקבל קישור אישי לקביעת פגישה.",
+  "Each recipient gets their own link to this calendar.": "כל נמען מקבל קישור אישי ליומן הזה.",
+  "Link (set automatically)": "קישור (נקבע אוטומטית)",
+  "link buttons": "כפתורי קישור",
+  "Opens a personal booking link for each customer": "פותח לכל לקוח קישור אישי לקביעת פגישה",
+  "This template sends a booking link, but you have no calendar yet. Create one to send it.": "התבנית הזו שולחת קישור לקביעת פגישה, אבל עדיין אין לכם יומן. צרו יומן כדי לשלוח אותה.",
   "— None —": "— ללא —",
   "(Untitled)": "(ללא כותרת)",
   "(with {{1}} at the end)": "(עם {{1}} בסוף)",

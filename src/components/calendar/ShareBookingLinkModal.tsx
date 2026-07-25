@@ -3,7 +3,11 @@ import { Button, ConfigProvider, Modal, Select } from "antd";
 import { Check, Copy, Link2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
-import { useMintBookingLinks } from "@/queries/useBookingLinks";
+import {
+  BOOKING_DURATIONS,
+  DEFAULT_BOOKING_DURATION,
+  useMintBookingLinks,
+} from "@/queries/useBookingLinks";
 import { BOOKING_ORIGIN } from "@/components/templateButtons";
 import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import {
@@ -22,10 +26,6 @@ const theme = {
   },
 };
 
-// Discrete rather than free entry, matching the 15-minute stepping the meeting
-// modal's time pickers already use.
-const DURATIONS = [15, 30, 45, 60, 90];
-
 export default function ShareBookingLinkModal({
   open,
   calendarId,
@@ -40,7 +40,7 @@ export default function ShareBookingLinkModal({
   const mint = useMintBookingLinks();
 
   const [contactId, setContactId] = useState<string | null>(null);
-  const [duration, setDuration] = useState(30);
+  const [duration, setDuration] = useState(DEFAULT_BOOKING_DURATION);
   const [token, setToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -49,7 +49,7 @@ export default function ShareBookingLinkModal({
   useEffect(() => {
     if (!open) return;
     setContactId(null);
-    setDuration(30);
+    setDuration(DEFAULT_BOOKING_DURATION);
     setToken(null);
     setCopied(false);
     mint.reset();
@@ -185,7 +185,7 @@ export default function ShareBookingLinkModal({
               <Select
                 value={duration}
                 onChange={setDuration}
-                options={DURATIONS.map((m) => ({
+                options={BOOKING_DURATIONS.map((m) => ({
                   value: m,
                   label: t("{{1}} minutes").replace("{{1}}", String(m)),
                 }))}

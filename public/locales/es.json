@@ -1,4 +1,11 @@
 {
+  "Booking link": "Enlace de reserva",
+  "Each customer receives their own booking link.": "Cada cliente recibe su propio enlace de reserva.",
+  "Each recipient gets their own link to this calendar.": "Cada destinatario recibe su propio enlace a este calendario.",
+  "Link (set automatically)": "Enlace (definido automáticamente)",
+  "link buttons": "botones de enlace",
+  "Opens a personal booking link for each customer": "Abre un enlace de reserva personal para cada cliente",
+  "This template sends a booking link, but you have no calendar yet. Create one to send it.": "Esta plantilla envía un enlace de reserva, pero aún no tienes ningún calendario. Crea uno para poder enviarla.",
   "— None —": "— Ninguno —",
   "(Untitled)": "(Sin título)",
   "(with {{1}} at the end)": "(con {{1}} al final)",

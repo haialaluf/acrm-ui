@@ -2,6 +2,13 @@ import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 
+/** Offered appointment lengths. Discrete rather than free entry, matching the
+ *  15-minute stepping the meeting modal's time pickers already use. */
+export const BOOKING_DURATIONS = [15, 30, 45, 60, 90];
+
+/** Length used when the caller does not pick one (mirrors the RPC default). */
+export const DEFAULT_BOOKING_DURATION = 30;
+
 /**
  * Mint self-service booking links for a set of contacts, returning a
  * `Map<contact_id, token>`.

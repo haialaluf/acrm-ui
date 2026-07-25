@@ -36,7 +36,10 @@ import DoneStep from "@/components/bulkSend/DoneStep";
 import { buildMessageRecord } from "@/components/bulkSend/buildMessageRecord";
 import { bookingButtonIndex } from "@/components/templateButtons";
 import { useCalendars } from "@/queries/useCalendars";
-import { useMintBookingLinks } from "@/queries/useBookingLinks";
+import {
+  DEFAULT_BOOKING_DURATION,
+  useMintBookingLinks,
+} from "@/queries/useBookingLinks";
 import {
   type BatchSchedule,
   batchScheduledIso,
@@ -118,7 +121,7 @@ function BulkSend() {
     () => (templates ?? []).filter((tpl) => tpl.status === "APPROVED"),
     [templates],
   );
-  const { data: calendars } = useCalendars();
+  const { data: calendars, isPending: loadingCalendars } = useCalendars();
   const mintBookingLinks = useMintBookingLinks();
 
   // wizard state
@@ -135,9 +138,14 @@ function BulkSend() {
   // Public URL for a template's mandatory media header (image/video/document).
   // Empty when the chosen template has a text/no header.
   const [headerMedia, setHeaderMedia] = useState("");
-  // Which calendar a booking-link template books against. Only asked for when
-  // the org has more than one; see `bookingCalendarId` below.
+  // Which calendar a booking-link template books against, and how long the
+  // appointment it offers runs. Both are properties of the minted link rather
+  // than of the template, so they are asked for per broadcast — see
+  // `bookingCalendarId` below.
   const [pickedCalendarId, setPickedCalendarId] = useState("");
+  const [bookingDuration, setBookingDuration] = useState(
+    DEFAULT_BOOKING_DURATION,
+  );
   // Default to scheduling for later, pre-filled with the next 9am (local).
   const [scheduling, setScheduling] = useState<Scheduling>("later");
   const [scheduledAt, setScheduledAt] = useState(defaultScheduledAt);
@@ -192,15 +200,16 @@ function BulkSend() {
 
   /* Self-service booking links. A template carries them by pointing a dynamic
    * URL button at the booking site; when one does, every recipient needs their
-   * OWN token in that button's parameter. Minting needs a calendar: with
-   * exactly one there is nothing to ask, so it is chosen silently. */
+   * OWN token in that button's parameter. Minting needs a calendar and an
+   * appointment length, both asked for on the review step — except that a lone
+   * calendar is pre-selected, since there is nothing to choose between. */
   const bookingIndex = template ? bookingButtonIndex(template) : null;
   const bookingCalendarId =
     bookingIndex == null
       ? null
-      : calendars?.length === 1
-        ? calendars[0].id
-        : pickedCalendarId || null;
+      : pickedCalendarId ||
+        (calendars?.length === 1 ? calendars[0].id : "") ||
+        null;
 
   /* Daily-limit batching: split the broadcast into one batch per day when it
    * exceeds the WhatsApp messaging limit fetched from Meta. */
@@ -276,6 +285,7 @@ function BulkSend() {
         bookingTokens = await mintBookingLinks.mutateAsync({
           calendarId: bookingCalendarId,
           contactIds: recipients.map((c) => c.id),
+          durationMinutes: bookingDuration,
         });
       } catch (e) {
         // Without tokens every recipient would receive the template's example
@@ -391,6 +401,7 @@ function BulkSend() {
     setVars({});
     setHeaderMedia("");
     setPickedCalendarId("");
+    setBookingDuration(DEFAULT_BOOKING_DURATION);
     setScheduling("later");
     setScheduledAt(defaultScheduledAt());
     setScheduleMode("auto");
@@ -530,13 +541,21 @@ function BulkSend() {
           setBatchSchedule={setBatchSchedule}
           scheduleMode={scheduleMode}
           setScheduleMode={setScheduleMode}
-          bookingCalendars={
-            bookingIndex != null && (calendars?.length ?? 0) > 1
-              ? (calendars ?? []).map((c) => ({ id: c.id, name: c.name }))
-              : undefined
+          booking={
+            bookingIndex == null
+              ? undefined
+              : {
+                  calendars: (calendars ?? []).map((c) => ({
+                    id: c.id,
+                    name: c.name,
+                  })),
+                  calendarsLoading: loadingCalendars,
+                  calendarId: bookingCalendarId ?? "",
+                  setCalendarId: setPickedCalendarId,
+                  duration: bookingDuration,
+                  setDuration: setBookingDuration,
+                }
           }
-          bookingCalendarId={pickedCalendarId}
-          setBookingCalendarId={setPickedCalendarId}
         />
       )}
 

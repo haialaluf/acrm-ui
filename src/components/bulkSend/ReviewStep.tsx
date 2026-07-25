@@ -23,6 +23,7 @@ import {
   type PreviewButton,
 } from "@/components/templateButtons";
 import { useTranslation } from "@/hooks/useTranslation";
+import { BOOKING_DURATIONS } from "@/queries/useBookingLinks";
 import { isRtl, type Language } from "@/stores/uiSlice";
 import {
   type ContactWithAddressesRow,
@@ -70,9 +71,7 @@ export default function ReviewStep({
   setBatchSchedule,
   scheduleMode,
   setScheduleMode,
-  bookingCalendars,
-  bookingCalendarId,
-  setBookingCalendarId,
+  booking,
 }: {
   template: TemplateData;
   vars: Record<string, VarValue>;
@@ -91,11 +90,18 @@ export default function ReviewStep({
   setBatchSchedule: (s: BatchSchedule) => void;
   scheduleMode: ScheduleMode;
   setScheduleMode: (m: ScheduleMode) => void;
-  /** Set only when this template carries a booking link AND the org has more
-   *  than one calendar — with a single calendar there is nothing to ask. */
-  bookingCalendars?: { id: string; name: string }[];
-  bookingCalendarId: string;
-  setBookingCalendarId: (id: string) => void;
+  /** Set only when this template carries a booking-link button. Every recipient
+   *  gets their own token, minted against one calendar for one duration — both
+   *  are properties of the link, so they are asked for here rather than baked
+   *  into the template. */
+  booking?: {
+    calendars: { id: string; name: string }[];
+    calendarsLoading: boolean;
+    calendarId: string;
+    setCalendarId: (id: string) => void;
+    duration: number;
+    setDuration: (minutes: number) => void;
+  };
 }) {
   const { translate: t } = useTranslation();
   const [idx, setIdx] = useState(0);
@@ -130,8 +136,7 @@ export default function ReviewStep({
     const bodyText = fillTemplate(body?.text, "body", vars, current);
     const footer = foot?.text ?? "";
     const buttons: PreviewButton[] =
-      butt?.buttons?.map((b) => buttonDefToPreview(b, t("Copy code"))) ??
-      [];
+      butt?.buttons?.map((b) => buttonDefToPreview(b, t("Copy code"))) ?? [];
 
     const hasMedia = mediaFmt != null && isValidMediaUrl(headerMedia);
     return {
@@ -158,7 +163,7 @@ export default function ReviewStep({
     (effective !== "later" || !!scheduledAt) &&
     // A booking template with no calendar chosen would send everyone the
     // template's example link instead of their own.
-    (!bookingCalendars?.length || !!bookingCalendarId);
+    (!booking || !!booking.calendarId);
 
   return (
     <>
@@ -360,8 +365,8 @@ export default function ReviewStep({
                         color: "oklch(from var(--warning) calc(l - 0.15) c h)",
                       }}
                     >
-                      {t("Exceeds the limit — messages above")}{" "}
-                      {dailyLimit} {t("could be blocked")}
+                      {t("Exceeds the limit — messages above")} {dailyLimit}{" "}
+                      {t("could be blocked")}
                     </div>
                   </div>
                   <TriangleAlert
@@ -421,9 +426,7 @@ export default function ReviewStep({
                     <Radio checked={scheduling === "later"} />
                   </div>
                   <div className="flex-1">
-                    <div className="text-[14px]">
-                      {t("Schedule for later")}
-                    </div>
+                    <div className="text-[14px]">{t("Schedule for later")}</div>
                     {scheduling === "later" ? (
                       <div
                         onClick={(e) => e.stopPropagation()}
@@ -463,23 +466,52 @@ export default function ReviewStep({
         </div>
       </div>
 
-      {!!bookingCalendars?.length && (
+      {booking && (
         <div className="px-[16px] pb-[12px]">
-          <div className="text-[12px] text-muted-foreground mb-[6px]">
-            {t("Calendar for the booking link")}
+          <div className="flex items-center gap-[6px] text-[12px] text-muted-foreground mb-[6px]">
+            <CalendarClock className="w-[14px] h-[14px]" />
+            {t("Booking link")}
           </div>
-          <select
-            className="w-full h-[38px] px-[10px] rounded-[8px] border border-input bg-card text-[14px]"
-            value={bookingCalendarId}
-            onChange={(e) => setBookingCalendarId(e.target.value)}
-          >
-            <option value="">{t("Choose a calendar")}</option>
-            {bookingCalendars.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          {booking.calendars.length === 0 && !booking.calendarsLoading ? (
+            <div className="text-[12px] text-destructive">
+              {t(
+                "This template sends a booking link, but you have no calendar yet. Create one to send it.",
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="flex gap-[8px]">
+                <select
+                  className="grow min-w-0 h-[38px] px-[10px] rounded-[8px] border border-input bg-card text-[14px]"
+                  value={booking.calendarId}
+                  onChange={(e) => booking.setCalendarId(e.target.value)}
+                  aria-label={t("Calendar for the booking link")}
+                >
+                  <option value="">{t("Choose a calendar")}</option>
+                  {booking.calendars.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="w-[130px] shrink-0 h-[38px] px-[10px] rounded-[8px] border border-input bg-card text-[14px]"
+                  value={booking.duration}
+                  onChange={(e) => booking.setDuration(Number(e.target.value))}
+                  aria-label={t("Appointment duration")}
+                >
+                  {BOOKING_DURATIONS.map((m) => (
+                    <option key={m} value={m}>
+                      {t("{{1}} minutes").replace("{{1}}", String(m))}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="text-[11px] text-muted-foreground mt-[6px]">
+                {t("Each recipient gets their own link to this calendar.")}
+              </div>
+            </>
+          )}
         </div>
       )}
 

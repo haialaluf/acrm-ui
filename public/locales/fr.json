@@ -1,4 +1,12 @@
 {
+  "Book an appointment": "Prendre rendez-vous",
+  "Booking link": "Lien de réservation",
+  "Each customer receives their own booking link.": "Chaque client reçoit son propre lien de réservation.",
+  "Each recipient gets their own link to this calendar.": "Chaque destinataire reçoit son propre lien vers ce calendrier.",
+  "Link (set automatically)": "Lien (défini automatiquement)",
+  "link buttons": "boutons de lien",
+  "Opens a personal booking link for each customer": "Ouvre un lien de réservation personnel pour chaque client",
+  "This template sends a booking link, but you have no calendar yet. Create one to send it.": "Ce modèle envoie un lien de réservation, mais vous n’avez pas encore de calendrier. Créez-en un pour l’envoyer.",
   "— None —": "— Aucun —",
   "(Untitled)": "(Sans titre)",
   "{{1}} minutes": "{{1}} minutes",
