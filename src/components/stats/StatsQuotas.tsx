@@ -6,6 +6,7 @@ import {
   usePlanProducts,
 } from "@/queries/useBilling";
 import QuotaBar from "./QuotaBar";
+import StatsPanel from "./StatsPanel";
 
 export default function StatsQuotas() {
   const { translate: t } = useTranslation();
@@ -35,34 +36,35 @@ export default function StatsQuotas() {
   const visibleProducts = products?.filter((p) => tierMap.has(p.id));
 
   return (
-    <div className="flex flex-col gap-[16px] p-[24px] max-w-[600px] mx-auto w-full">
-      <h2 className="text-[20px] font-medium">{t("Quotas")}</h2>
-      {visibleProducts?.map((product) => {
-        const tier = tierMap.get(product.id)!;
-        const plan = planMap.get(product.id);
-        const isLifetime = tier.interval === "lifetime";
-        const used = isLifetime
-          ? (lifetimeMap.get(product.id) ?? 0)
-          : (monthMap.get(product.id) ?? 0);
+    <StatsPanel title={t("Quotas")}>
+      <div className="flex flex-col gap-[16px]">
+        {visibleProducts?.map((product) => {
+          const tier = tierMap.get(product.id)!;
+          const plan = planMap.get(product.id);
+          const isLifetime = tier.interval === "lifetime";
+          const used = isLifetime
+            ? (lifetimeMap.get(product.id) ?? 0)
+            : (monthMap.get(product.id) ?? 0);
 
-        return (
-          <QuotaBar
-            key={product.id}
-            productName={product.name}
-            kind={product.kind}
-            unit={product.unit}
-            interval={tier.interval}
-            used={used}
-            included={plan?.included ?? null}
-            cap={tier.cap}
-          />
-        );
-      })}
-      {!visibleProducts?.length && (
-        <div className="text-muted-foreground text-center py-[40px]">
-          {t("No quotas configured")}
-        </div>
-      )}
-    </div>
+          return (
+            <QuotaBar
+              key={product.id}
+              productName={product.name}
+              kind={product.kind}
+              unit={product.unit}
+              interval={tier.interval}
+              used={used}
+              included={plan?.included ?? null}
+              cap={tier.cap}
+            />
+          );
+        })}
+        {!visibleProducts?.length && (
+          <div className="text-muted-foreground text-center py-[40px]">
+            {t("No quotas configured")}
+          </div>
+        )}
+      </div>
+    </StatsPanel>
   );
 }

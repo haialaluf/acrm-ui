@@ -1,6 +1,7 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { useProducts, useUsage, useTierLimits } from "@/queries/useBilling";
 import UsageChart from "./UsageChart";
+import StatsPanel from "./StatsPanel";
 
 function translateProductName(name: string, t: (s: string) => string) {
   switch (name) {
@@ -96,46 +97,49 @@ export default function StatsUsage() {
   const months = last12Months();
 
   return (
-    <div className="flex flex-col gap-[32px] p-[24px] w-full">
-      <h2 className="text-[20px] font-medium">{t("Usage")}</h2>
-      {visibleProducts?.map((product) => {
-        const name = translateProductName(product.name, t);
-        const carry = product.kind === "balance" || product.kind === "gauge";
-        return (
-          <div key={product.id} className="flex flex-col gap-[8px]">
-            <h3 className="text-[16px] font-medium text-foreground">{name}</h3>
-            <div className="grid grid-cols-2 gap-[16px]">
-              <div className="flex flex-col gap-[4px]">
-                <span className="text-[13px] text-muted-foreground">
-                  {t("Last 12 months")}
-                </span>
-                <UsageChart
-                  data={fillSeries(months, monthUsage, product.id, carry)}
-                  unit={product.unit}
-                  periodLabel={t("Month")}
-                  formatLabel={(p) => formatMonth(p, t)}
-                />
-              </div>
-              <div className="flex flex-col gap-[4px]">
-                <span className="text-[13px] text-muted-foreground">
-                  {t("Last 14 days")}
-                </span>
-                <UsageChart
-                  data={fillSeries(days, dayUsage, product.id, carry)}
-                  unit={product.unit}
-                  periodLabel={t("Day")}
-                  formatLabel={formatDay}
-                />
+    <StatsPanel title={t("Usage")}>
+      <div className="flex flex-col gap-[32px]">
+        {visibleProducts?.map((product) => {
+          const name = translateProductName(product.name, t);
+          const carry = product.kind === "balance" || product.kind === "gauge";
+          return (
+            <div key={product.id} className="flex flex-col gap-[8px]">
+              <h3 className="text-[16px] font-medium text-foreground">
+                {name}
+              </h3>
+              <div className="grid grid-cols-2 gap-[16px]">
+                <div className="flex flex-col gap-[4px]">
+                  <span className="text-[13px] text-muted-foreground">
+                    {t("Last 12 months")}
+                  </span>
+                  <UsageChart
+                    data={fillSeries(months, monthUsage, product.id, carry)}
+                    unit={product.unit}
+                    periodLabel={t("Month")}
+                    formatLabel={(p) => formatMonth(p, t)}
+                  />
+                </div>
+                <div className="flex flex-col gap-[4px]">
+                  <span className="text-[13px] text-muted-foreground">
+                    {t("Last 14 days")}
+                  </span>
+                  <UsageChart
+                    data={fillSeries(days, dayUsage, product.id, carry)}
+                    unit={product.unit}
+                    periodLabel={t("Day")}
+                    formatLabel={formatDay}
+                  />
+                </div>
               </div>
             </div>
+          );
+        })}
+        {!visibleProducts?.length && (
+          <div className="text-muted-foreground text-center py-[40px]">
+            {t("No usage data")}
           </div>
-        );
-      })}
-      {!visibleProducts?.length && (
-        <div className="text-muted-foreground text-center py-[40px]">
-          {t("No usage data")}
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </StatsPanel>
   );
 }
