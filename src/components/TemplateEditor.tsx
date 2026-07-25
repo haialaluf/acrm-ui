@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Alert } from "antd";
+import { Alert, ConfigProvider, Modal } from "antd";
 import { type TemplateData } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "@tanstack/react-router";
+import { modalTokens } from "@/components/antdTokens";
 import SectionBody from "./SectionBody";
 import SectionFooter from "./SectionFooter";
 import Button from "./Button";
@@ -52,6 +53,9 @@ export default function TemplateEditor({
   const updateMutation = useUpdateTemplate();
   const isPending = createMutation.isPending || updateMutation.isPending;
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [utilityWarning, setUtilityWarning] = useState<TemplateFormData | null>(
+    null,
+  );
 
   const existingHeader = existingTemplate?.components.find(
     (c) => c.type === "HEADER",
@@ -214,6 +218,14 @@ export default function TemplateEditor({
   }
 
   function onSubmit(data: TemplateFormData) {
+    if (!existingTemplate && data.category === "UTILITY") {
+      setUtilityWarning(data);
+      return;
+    }
+    submitTemplate(data);
+  }
+
+  function submitTemplate(data: TemplateFormData) {
     const { text: renumberedBody, ordered } = renumberVars(data.body);
     const reorderedVars = ordered.map(
       (_, i) => data.bodyVariables[i]?.value || "",
@@ -245,6 +257,7 @@ export default function TemplateEditor({
     };
 
     setSubmitError(null);
+    setUtilityWarning(null);
     const mutation = existingTemplate ? updateMutation : createMutation;
     mutation.mutate(
       { template, organizationAddress },
@@ -426,6 +439,58 @@ export default function TemplateEditor({
           {t("Submit for review")}
         </Button>
       </SectionFooter>
+
+      <ConfigProvider
+        theme={{
+          token: { colorPrimary: "var(--primary)", borderRadius: 10 },
+          components: { Modal: modalTokens },
+        }}
+      >
+        <Modal
+          open={!!utilityWarning}
+          onCancel={() => setUtilityWarning(null)}
+          title={t("Meta decides the final category")}
+          width={420}
+          destroyOnHidden
+          footer={
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                className="text-[16px] px-[16px] py-[8px] rounded-full text-muted-foreground hover:text-foreground"
+                onClick={() => setUtilityWarning(null)}
+              >
+                {t("Cancel")}
+              </Button>
+              <Button
+                type="button"
+                className="primary px-[20px]"
+                loading={isPending}
+                onClick={() => utilityWarning && submitTemplate(utilityWarning)}
+              >
+                {t("Submit anyway")}
+              </Button>
+            </div>
+          }
+        >
+          <div className="py-1 space-y-3 text-[14px] text-muted-foreground">
+            <p>
+              {t(
+                "You're requesting Utility, but Meta's automated review reads your message content and assigns the category itself. If it decides this looks promotional, the template is approved as Marketing.",
+              )}
+            </p>
+            <p>
+              {t(
+                "Utility templates must relate to something the customer already has: an order, a booking, an account, or a payment. Offers, promotions and general updates count as Marketing.",
+              )}
+            </p>
+            <p>
+              {t(
+                "Meta can also re-categorise a template later, after it has been approved.",
+              )}
+            </p>
+          </div>
+        </Modal>
+      </ConfigProvider>
     </>
   );
 }

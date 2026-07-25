@@ -724,5 +724,10 @@
   "Your organization is the workspace where you collaborate with your team.": "Sua organização é o espaço de trabalho onde você colabora com sua equipe.",
   "your spreadsheets": "suas planilhas",
   "your video": "seu vídeo",
-  "Your WhatsApp number was connected successfully.": "Seu número do WhatsApp foi conectado com sucesso."
+  "Your WhatsApp number was connected successfully.": "Seu número do WhatsApp foi conectado com sucesso.",
+  "Submit anyway": "Enviar mesmo assim",
+  "Meta decides the final category": "A Meta decide a categoria final",
+  "You're requesting Utility, but Meta's automated review reads your message content and assigns the category itself. If it decides this looks promotional, the template is approved as Marketing.": "Está a pedir Utilidade, mas a revisão automática da Meta lê o conteúdo da sua mensagem e atribui a categoria por si própria. Se considerar que isto parece promocional, o modelo é aprovado como Marketing.",
+  "Utility templates must relate to something the customer already has: an order, a booking, an account, or a payment. Offers, promotions and general updates count as Marketing.": "Os modelos de Utilidade têm de estar relacionados com algo que o cliente já tem: uma encomenda, uma marcação, uma conta ou um pagamento. Ofertas, promoções e novidades gerais contam como Marketing.",
+  "Meta can also re-categorise a template later, after it has been approved.": "A Meta também pode recategorizar um modelo mais tarde, depois de já ter sido aprovado."
 }
