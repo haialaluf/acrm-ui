@@ -187,7 +187,14 @@ export default function Menu() {
               {
                 key: "logout",
                 label: t("Logout"),
-                icon: <LogOut className="w-[16px] h-[16px]" />,
+                icon: (
+                  <LogOut
+                    className={
+                      "w-[16px] h-[16px]" +
+                      (currentLanguage === "he" ? " -scale-x-100" : "")
+                    }
+                  />
+                ),
                 onClick: () => {
                   supabase.auth.signOut();
                   resetAuthorizedCache();
