@@ -12,6 +12,13 @@ interface UseResizableReturn {
   width: number | null;
   panelRef: React.RefObject<HTMLDivElement | null>;
   handleMouseDown: (e: React.MouseEvent) => void;
+  // True only while a drag is in progress. Callers use it to suppress width
+  // transitions, so dragging tracks the cursor 1:1 while programmatic resizes
+  // still animate.
+  isResizing: boolean;
+  // Programmatic resize (e.g. a route that wants the panel at full width).
+  // `null` hands the width back to the CSS default.
+  setWidth: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 export function useResizable({
@@ -73,5 +80,7 @@ export function useResizable({
     width,
     panelRef,
     handleMouseDown,
+    setWidth,
+    isResizing,
   };
 }

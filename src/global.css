@@ -257,6 +257,18 @@ button:disabled {
     }
   }
 
+  /* Programmatic panel resizes (a screen asking for max width) glide; the class
+     is dropped mid-drag so the handle still tracks the cursor exactly. */
+  .app-grid.animate-columns {
+    transition: grid-template-columns 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app-grid.animate-columns {
+      transition: none;
+    }
+  }
+
   /* Resize Handle for panels */
   .resize-handle {
     position: absolute;

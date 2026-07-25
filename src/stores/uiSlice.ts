@@ -78,6 +78,10 @@ export type UIState = {
   tagsFilter: string[];
   isLoading: boolean;
   language: Language;
+  /** Request that the resizable left panel snap to its maximum width. Set by
+   *  screens that need the room (e.g. the template editor rendered inside the
+   *  panel), cleared when they close — the previous width is then restored. */
+  panelExpanded: boolean;
 };
 
 export type UIActions = {
@@ -116,6 +120,7 @@ export const createUISlice: StateCreator<Partial<AppState>> = (
   tagsFilter: [],
   isLoading: false,
   language: detectDefaultLanguage(),
+  panelExpanded: false,
   toggle: (component: keyof UIState, value?: boolean) =>
     set((state) => ({
       ui: {

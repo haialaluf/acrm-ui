@@ -4,7 +4,7 @@ import Menu from "@/components/Menu";
 import Chat from "@/components/Chat";
 import ChatHeader from "@/components/ChatHeader";
 import ChatFooter from "@/components/ChatFooter";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import FilePicker from "@/components/FileUploader/FilePicker";
 import FilePreviewer from "@/components/FilePreviewer";
@@ -40,6 +40,7 @@ function AppLayout() {
   const { data: agents } = useCurrentAgents();
   const hasAiAgents = agents?.some((a) => a.ai);
   const activeThreadKey = useBoundStore((state) => state.ui.activeThreadKey);
+  const panelExpanded = useBoundStore((state) => state.ui.panelExpanded);
   const setActiveThread = useBoundStore((state) => state.ui.setActiveThread);
   const location = useLocation();
   const pathname = location.pathname;
@@ -63,11 +64,33 @@ function AppLayout() {
     width: panelWidth,
     panelRef,
     handleMouseDown,
+    setWidth: setPanelWidth,
+    isResizing,
   } = useResizable({
     minWidth: MIN_PANEL_WIDTH,
     getMaxWidth: getMaxPanelWidth,
     isRtl: isRtl(currentLanguage as Language),
   });
+
+  // The template editor is a wide form next to a narrow phone preview, so it
+  // snaps the panel to the widest the drag handle allows; leaving restores
+  // whatever width was in effect before. Two ways in: the standalone editor
+  // route, or `panelExpanded` — set by editors rendered *inside* the panel
+  // (ManageTemplatesOverlay), which change no route at all.
+  const shouldExpandPanel = isTemplateEditorRoute || panelExpanded;
+  const wasExpandedRef = useRef(false);
+  const widthBeforeExpandRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (shouldExpandPanel === wasExpandedRef.current) return;
+    wasExpandedRef.current = shouldExpandPanel;
+
+    if (shouldExpandPanel) {
+      widthBeforeExpandRef.current = panelWidth;
+      setPanelWidth(getMaxPanelWidth());
+    } else {
+      setPanelWidth(widthBeforeExpandRef.current);
+    }
+  }, [shouldExpandPanel, panelWidth, setPanelWidth]);
 
   // Sync fragment identifier with activeThreadKey
   // i.e. /conversations#318232498042593~5551000
@@ -81,7 +104,7 @@ function AppLayout() {
 
   return (
     <div
-      className="app-grid"
+      className={"app-grid" + (isResizing ? "" : " animate-columns")}
       style={
         panelWidth !== null
           ? { gridTemplateColumns: `${getMenuWidth()}px ${panelWidth}px 1fr` }

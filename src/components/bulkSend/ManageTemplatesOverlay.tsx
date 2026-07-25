@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   LayoutTemplate,
@@ -14,6 +14,7 @@ import LiveMessagePreview from "@/components/messagePreview/LiveMessagePreview";
 import SectionBody from "@/components/SectionBody";
 import SectionItem from "@/components/SectionItem";
 import Spinner from "@/components/Spinner";
+import useBoundStore from "@/stores/useBoundStore";
 
 /**
  * Templates management (list / create / edit) rendered as an overlay ON TOP of
@@ -47,6 +48,17 @@ export default function ManageTemplatesOverlay({
     | { mode: "new"; root?: boolean }
     | { mode: "edit"; template: TemplateData }
   >(initialMode === "new" ? { mode: "new", root: true } : { mode: "list" });
+
+  // The editor form + its 320px preview column need far more room than the
+  // list does, so widen the host panel while a form is open and hand the width
+  // back when returning to the list or closing the overlay.
+  const toggle = useBoundStore((state) => state.ui.toggle);
+  const isEditing = view.mode !== "list";
+  useEffect(() => {
+    if (!isEditing) return;
+    toggle("panelExpanded", true);
+    return () => toggle("panelExpanded", false);
+  }, [isEditing, toggle]);
 
   const title =
     view.mode === "new"
