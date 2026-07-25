@@ -458,6 +458,7 @@
   "Options": "Opções",
   "Order number": "Número do pedido",
   "Organization": "Organização",
+  "Organizations": "Organizações",
   "Organization name": "Nome da organização",
   "Overriding the callback URL is useful to bypass DelaCRM and receive raw webhooks at the endpoint you specify. DelaCRM will keep receiving account and template events (these cannot be redirected), but it will not receive any messages.": "Sobrescrever a URL de callback é útil para contornar o DelaCRM e receber os webhooks brutos no endpoint que você indicar. O DelaCRM continuará recebendo os eventos de conta e templates (não podem ser redirecionados), mas não receberá as mensagens.",
   "Owner": "Proprietário",

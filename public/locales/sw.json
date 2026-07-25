@@ -431,6 +431,7 @@
   "Options": "Chaguo",
   "Order number": "Nambari ya oda",
   "Organization": "Shirika",
+  "Organizations": "Mashirika",
   "Organization name": "Jina la shirika",
   "Overriding the callback URL is useful to bypass DelaCRM and receive raw webhooks at the endpoint you specify. DelaCRM will keep receiving account and template events (these cannot be redirected), but it will not receive any messages.": "Kuandika juu ya URL ya callback ni muhimu ili kuepuka DelaCRM na kupokea webhooks ghafi kwenye endpoint utakayoonyesha. DelaCRM itaendelea kupokea matukio ya akaunti na violezo (haviwezi kuelekezwa upya), lakini haitapokea ujumbe.",
   "Owner": "Mmiliki",

@@ -137,7 +137,7 @@ export default function Menu() {
               {
                 key: "orgs",
                 type: "group",
-                label: "Organizaciones",
+                label: t("Organizations"),
                 children: [
                   ...(organizations?.map((org) => ({
                     key: org.id,

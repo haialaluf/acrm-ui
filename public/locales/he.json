@@ -450,6 +450,7 @@
   "Options": "אפשרויות",
   "Order number": "מספר הזמנה",
   "Organization": "ארגון",
+  "Organizations": "ארגונים",
   "Organization name": "שם הארגון",
   "Overriding the callback URL is useful to bypass DelaCRM and receive raw webhooks at the endpoint you specify. DelaCRM will keep receiving account and template events (these cannot be redirected), but it will not receive any messages.": "דריסת כתובת ה-callback שימושית כדי לעקוף את DelaCRM ולקבל את ה-webhooks הגולמיים בנקודת הקצה שתציין. DelaCRM ימשיך לקבל את אירועי החשבון והתבניות (לא ניתן להפנותם), אך לא יקבל את ההודעות.",
   "Owner": "בעלים",
