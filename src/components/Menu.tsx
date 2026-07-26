@@ -12,6 +12,7 @@ import {
   Languages,
   Plus,
   NotebookTabs,
+  LayoutTemplate,
   CalendarDays,
   ChevronRight,
 } from "lucide-react";
@@ -79,6 +80,16 @@ export default function Menu() {
           className="mt-[10px]"
         >
           <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
+        </LinkButton>
+
+        {/* Templates button */}
+        <LinkButton
+          to="/templates"
+          title={t("Templates")}
+          isActive={pathname.startsWith("/templates")}
+          className="mt-[10px]"
+        >
+          <LayoutTemplate className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
 
         {/* Calendars button */}

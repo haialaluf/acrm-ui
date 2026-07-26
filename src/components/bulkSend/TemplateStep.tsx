@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageCircle, Plus } from "lucide-react";
+import { LayoutTemplate, Plus } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { type TemplateData } from "@/supabase/client";
 
@@ -134,7 +134,7 @@ export default function TemplateStep({
             onClick={onManage}
             className="mt-[8px] w-full flex items-center justify-center gap-[6px] rounded-[14px] py-[12px] text-[13px] font-medium text-muted-foreground border border-dashed border-border hover:bg-accent transition-colors"
           >
-            <MessageCircle className="w-[14px] h-[14px]" />
+            <LayoutTemplate className="w-[14px] h-[14px]" />
             {t("Manage templates")}
           </button>
         )}

@@ -1,18 +1,11 @@
 import { useEffect, useState } from "react";
-import {
-  ArrowLeft,
-  LayoutTemplate,
-  LoaderCircle,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { type TemplateData } from "@/supabase/client";
 import { useTemplates, useDeleteTemplate } from "@/queries/useTemplates";
 import TemplateEditor from "@/components/TemplateEditor";
 import LiveMessagePreview from "@/components/messagePreview/LiveMessagePreview";
-import SectionBody from "@/components/SectionBody";
-import SectionItem from "@/components/SectionItem";
+import TemplatesList from "@/components/templates/TemplatesList";
 import Spinner from "@/components/Spinner";
 import useBoundStore from "@/stores/useBoundStore";
 
@@ -21,7 +14,8 @@ import useBoundStore from "@/stores/useBoundStore";
  * the bulk-send wizard, so the wizard is never unmounted. Closing the overlay
  * returns the user to exactly where they were (the "Choose a template" step)
  * with all wizard state intact — unlike navigating to the standalone
- * `/integrations/whatsapp/$id/templates` route, which throws the wizard away.
+ * `/templates` or `/integrations/whatsapp/$id/templates` routes, which throw
+ * the wizard away.
  */
 export default function ManageTemplatesOverlay({
   organizationAddress,
@@ -108,54 +102,12 @@ export default function ManageTemplatesOverlay({
       </div>
 
       {view.mode === "list" ? (
-        <SectionBody>
-          <SectionItem
-            title={t("Create template")}
-            aside={
-              <div className="p-[8px] bg-primary/10 rounded-full">
-                <Plus className="w-[24px] h-[24px] text-primary" />
-              </div>
-            }
-            onClick={() => setView({ mode: "new" })}
-          />
-
-          {isLoading && (
-            <div className="flex justify-center p-4">
-              <LoaderCircle className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
-          )}
-
-          {templates?.map((template) => (
-            <SectionItem
-              key={template.id}
-              title={template.name}
-              description={
-                <div className="flex gap-2 items-center">
-                  <span className="capitalize">
-                    {template.category.toLowerCase()}
-                  </span>
-                  {template.status !== "APPROVED" && (
-                    <span className="text-xs bg-destructive/20 text-destructive px-2 py-0.5 rounded-full capitalize">
-                      {template.status.toLowerCase()}
-                    </span>
-                  )}
-                </div>
-              }
-              aside={
-                <div className="p-[8px] bg-muted rounded-full">
-                  <LayoutTemplate className="w-[24px] h-[24px] text-muted-foreground" />
-                </div>
-              }
-              onClick={() => setView({ mode: "edit", template })}
-            />
-          ))}
-
-          {!isLoading && templates?.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground text-sm">
-              {t("No templates available.")}
-            </div>
-          )}
-        </SectionBody>
+        <TemplatesList
+          templates={templates}
+          isLoading={isLoading}
+          onCreate={() => setView({ mode: "new" })}
+          onSelect={(template) => setView({ mode: "edit", template })}
+        />
       ) : (
         <div className="flex flex-1 min-h-0">
           <div className="flex flex-col flex-1 min-w-0">
