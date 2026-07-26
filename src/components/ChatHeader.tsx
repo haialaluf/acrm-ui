@@ -56,6 +56,21 @@ export default function Header() {
 
   const { translate: t } = useTranslation();
 
+  // Opens the contact in the left panel, next to the still-open chat. On mobile
+  // that panel is hidden while a thread is active, so the hash (= the thread) is
+  // dropped there to bring the panel back on screen.
+  const openContactDetails = () => {
+    if (!contact?.id) return;
+
+    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+
+    void navigate({
+      to: "/contacts/$contactId",
+      params: { contactId: contact.id },
+      hash: isDesktop ? (prevHash: string | undefined) => prevHash! : undefined,
+    });
+  };
+
   if (!activeThreadKey) {
     return null;
   }
@@ -71,29 +86,40 @@ export default function Header() {
         <ArrowLeft className="w-[24px] h-[24px] text-foreground" />
       </button>
 
-      {/* Contact info */}
-      <div className="profile-picture pr-[15px]">
-        <Avatar
-          src={igExtra?.profile_picture_url}
-          fallback={convInitials}
-          size={40}
-          className="bg-accent text-accent-foreground border border-border text-[16px]"
-        />
-      </div>
-      <div className="info flex flex-col justify-center mr-[12px] truncate">
-        <div className="text-[16px] text-foreground truncate">
-          {displayName}
+      {/* Contact info - opens the contact details panel */}
+      <button
+        type="button"
+        className={
+          "flex items-center min-w-0 text-start rounded-lg -m-[4px] p-[4px] " +
+          (contact?.id ? "hover:bg-muted cursor-pointer" : "cursor-default")
+        }
+        title={contact?.id ? t("Contact details") : undefined}
+        disabled={!contact?.id}
+        onClick={openContactDetails}
+      >
+        <div className="profile-picture pr-[15px]">
+          <Avatar
+            src={igExtra?.profile_picture_url}
+            fallback={convInitials}
+            size={40}
+            className="bg-accent text-accent-foreground border border-border text-[16px]"
+          />
         </div>
-        <div className="text-[13px] text-muted-foreground truncate">
-          {service === "local" && t("Test contact")}
-          {service === "whatsapp" &&
-            address &&
-            ltrIsolate(formatPhoneNumber(address))}
-          {service === "instagram" &&
-            igExtra?.username &&
-            `@${igExtra.username}`}
+        <div className="info flex flex-col justify-center mr-[12px] truncate">
+          <div className="text-[16px] text-foreground truncate">
+            {displayName}
+          </div>
+          <div className="text-[13px] text-muted-foreground truncate">
+            {service === "local" && t("Test contact")}
+            {service === "whatsapp" &&
+              address &&
+              ltrIsolate(formatPhoneNumber(address))}
+            {service === "instagram" &&
+              igExtra?.username &&
+              `@${igExtra.username}`}
+          </div>
         </div>
-      </div>
+      </button>
 
       {/* Options button - Hidden, does nothing yet. */}
       <div className="options flex justify-end w-full hidden">
