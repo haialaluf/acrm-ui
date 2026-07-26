@@ -21,6 +21,11 @@ import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
 import PersonaSection from "@/components/PersonaSection";
 import SkillsSection from "@/components/SkillsSection";
+import {
+  DEFAULT_AGENT_MODEL,
+  MODEL_OPTIONS,
+  modelLabel,
+} from "@/models/catalog";
 
 export const Route = createFileRoute("/_auth/agents/$agentId")({
   component: AgentDetail,
@@ -153,6 +158,13 @@ function AgentDetail() {
                   control={control}
                   label={t("Additional instructions")}
                   placeholder={t("You are a helpful assistant...")}
+                />
+                <SelectField
+                  name="extra.model"
+                  control={control}
+                  label={t("Model")}
+                  options={MODEL_OPTIONS}
+                  placeholder={modelLabel(DEFAULT_AGENT_MODEL)}
                 />
               </SectionField>
             </fieldset>

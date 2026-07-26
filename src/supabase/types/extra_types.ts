@@ -167,6 +167,9 @@ export type SkillInstance = {
   id: string; // registry id, e.g. "meeting_scheduling"
   config?: Record<string, SkillConfigValue>;
   connections?: Record<string, SkillConnection>; // keyed by configSpec field key
+  // Model the nested skill runner uses. Undefined => DEFAULT_SKILL_MODEL, so
+  // instances track the platform default instead of freezing today's value.
+  model?: string;
 };
 
 // Per-agent identity — what makes the leads agent differ from the support agent.

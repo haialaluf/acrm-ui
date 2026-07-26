@@ -18,8 +18,13 @@ import {
 import { useTranslation } from "@/hooks/useTranslation";
 import SectionField from "@/components/SectionField";
 import SectionBody from "@/components/SectionBody";
-import SelectField from "@/components/SelectField";
+import SelectField, { type SelectOption } from "@/components/SelectField";
 import Switch from "@/components/Switch";
+import {
+  DEFAULT_SKILL_MODEL,
+  MODEL_OPTIONS,
+  modelLabel,
+} from "@/models/catalog";
 import {
   type SkillCatalogEntry,
   type SkillConfigField,
@@ -55,6 +60,17 @@ export default function SkillsSection<T extends FieldValues>({
 }: SkillsSectionProps<T>) {
   const { translate: t } = useTranslation();
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // "" is the explicit "use the platform default" choice — the API reads it as
+  // falsy and falls back to DEFAULT_SKILL_MODEL.
+  const defaultSkillModelLabel = `${t("Default")} (${modelLabel(
+    DEFAULT_SKILL_MODEL,
+  )})`;
+
+  const skillModelOptions: SelectOption[] = [
+    { value: "", label: defaultSkillModelLabel },
+    ...MODEL_OPTIONS,
+  ];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { append, remove } = useFieldArray({
@@ -96,9 +112,7 @@ export default function SkillsSection<T extends FieldValues>({
   return (
     <SectionField
       label={t("Skills")}
-      description={
-        enabledCount ? `${enabledCount} ${t("active")}` : t("None")
-      }
+      description={enabledCount ? `${enabledCount} ${t("active")}` : t("None")}
       disabled={disabled}
     >
       {SKILL_CATALOG.map((entry) => {
@@ -161,6 +175,20 @@ export default function SkillsSection<T extends FieldValues>({
                 disabled={disabled}
               />
             ))}
+
+            {/* The skill runs as a nested sub-agent on its own model, which is
+                independent of the root agent's. Leaving this unset ("") keeps
+                the instance on the platform default, so it tracks future
+                changes instead of freezing today's value. */}
+            <SelectField
+              name={`extra.skills.${editingIndex}.model` as Path<T>}
+              control={control}
+              label={t("Model")}
+              options={skillModelOptions}
+              placeholder={defaultSkillModelLabel}
+              disabled={disabled}
+              modalClassName="bottom-0"
+            />
           </SectionBody>
         </div>
       )}

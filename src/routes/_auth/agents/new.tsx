@@ -12,6 +12,11 @@ import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
 import PersonaSection from "@/components/PersonaSection";
 import SkillsSection from "@/components/SkillsSection";
+import {
+  DEFAULT_AGENT_MODEL,
+  MODEL_OPTIONS,
+  modelLabel,
+} from "@/models/catalog";
 
 export const Route = createFileRoute("/_auth/agents/new")({
   component: AddAgent,
@@ -31,15 +36,14 @@ function AddAgent() {
     control,
     formState: { isValid, isDirty },
   } = useForm<AIAgentInsert>({
-    // Provider/model are platform-managed (no client UI). Seed sensible
-    // defaults so the runtime works; the platform can tune per-agent via a
-    // direct jsonb edit.
+    // `api_url` is deliberately unset: the API derives the provider from the
+    // model (see _shared/models.ts), and setting it here would pin the agent to
+    // one provider and override that derivation.
     defaultValues: {
       extra: {
         mode: "active",
-        api_url: "groq",
         protocol: "chat_completions",
-        model: "openai/gpt-oss-20b",
+        model: DEFAULT_AGENT_MODEL,
         skills: [],
       },
     },
@@ -120,6 +124,13 @@ function AddAgent() {
                 control={control}
                 label={t("Additional instructions")}
                 placeholder={t("You are a helpful assistant...")}
+              />
+              <SelectField
+                name="extra.model"
+                control={control}
+                label={t("Model")}
+                options={MODEL_OPTIONS}
+                placeholder={modelLabel(DEFAULT_AGENT_MODEL)}
               />
             </SectionField>
           </fieldset>
