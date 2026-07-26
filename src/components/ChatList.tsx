@@ -67,10 +67,21 @@ const ChatList = () => {
     // a first-time contact, or one that sat below the loaded window. It is
     // newer than everything on screen, so it belongs at the top; anything
     // older stays hidden until the next refetch places it properly.
-    const newestLoadedAt = loaded.reduce(
-      (max, row) => Math.max(max, +new Date(row.thread?.lastMessageAt ?? 0)),
-      0,
-    );
+    //
+    // Only while the list is unnarrowed, though: search and tags are RPC-side
+    // predicates with no local equivalent, so admitting a thread the server did
+    // not return would show a non-matching chat. With the store still holding
+    // the unfiltered list, that leaked every thread newer than the newest hit —
+    // i.e. search looked like it filtered nothing at all.
+    const narrowed = !!searchPattern || tagsFilter.length > 0;
+
+    const newestLoadedAt = narrowed
+      ? 0
+      : loaded.reduce(
+          (max, row) =>
+            Math.max(max, +new Date(row.thread?.lastMessageAt ?? 0)),
+          0,
+        );
 
     const arrived = newestLoadedAt
       ? [...threads.values()]
@@ -96,7 +107,16 @@ const ChatList = () => {
           timestampDescending(a.mostRecentMsg, b.mostRecentMsg),
       )
       .map((row) => row.key);
-  }, [threadKeys, threads, conversations, messages, filterName, activeOrgId]);
+  }, [
+    threadKeys,
+    threads,
+    conversations,
+    messages,
+    filterName,
+    activeOrgId,
+    searchPattern,
+    tagsFilter,
+  ]);
 
   // One extra row at the tail: the loading sentinel that pulls the next page.
   const count = itemIds.length + (hasNextPage ? 1 : 0);

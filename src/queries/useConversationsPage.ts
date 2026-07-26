@@ -54,8 +54,10 @@ export function useConversationsPage() {
   const tagsFilter = useBoundStore((state) => state.ui.tagsFilter);
   const pushThreadPage = useBoundStore((state) => state.chat.pushThreadPage);
 
-  // Typing must not fire one RPC per keystroke.
-  const search = useDebounced(searchPattern, SEARCH_DEBOUNCE_MS);
+  // Typing must not fire one RPC per keystroke. Trimmed because the pattern
+  // goes to the RPC as `%value%` — a pasted number with a trailing space would
+  // otherwise match nothing.
+  const search = useDebounced(searchPattern, SEARCH_DEBOUNCE_MS).trim();
 
   const query = useInfiniteQuery({
     queryKey: queryKeys.conversations.page(orgId, filter, search, tagsFilter),
