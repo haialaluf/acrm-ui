@@ -93,7 +93,10 @@ export default function TemplateEditor({
             ? t("Current sample")
             : "",
         body: existingBody?.text || "",
-        bodyVariables: (existingBody?.example?.body_text[0] || []).map(
+        // Templates authored with named variables (parameter_format NAMED, e.g.
+        // created in WhatsApp Manager) carry `body_text_named_params` instead —
+        // no positional samples to prefill, so fall back to an empty list.
+        bodyVariables: (existingBody?.example?.body_text?.[0] || []).map(
           (v: string) => ({ value: v }),
         ),
         footer:
