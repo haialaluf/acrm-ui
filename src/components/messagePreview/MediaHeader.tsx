@@ -1,5 +1,6 @@
 import { FileText, Play } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import VideoThumb from "@/components/media/VideoThumb";
 import type { PreviewHeaderType } from "./types";
 
 /** The media block at the top of a bubble: image / video / document. */
@@ -32,7 +33,7 @@ export default function MediaHeader({
     return (
       <div className="wa-media wa-video">
         {url ? (
-          <video src={url} muted />
+          <VideoThumb url={url} />
         ) : (
           <div className="wa-media-ph">
             <span className="mono">{t("your video")}</span>

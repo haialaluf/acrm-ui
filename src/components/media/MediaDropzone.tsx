@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { uploadMediaToBucket } from "@/utils/uploadMediaToBucket";
+import VideoThumb from "./VideoThumb";
 
 type MediaType = "IMAGE" | "VIDEO" | "DOCUMENT";
 
@@ -78,7 +79,7 @@ export default function MediaDropzone({
           {type === "IMAGE" ? (
             <img src={url} alt="" />
           ) : type === "VIDEO" ? (
-            <video src={url} muted />
+            <VideoThumb url={url} />
           ) : (
             <span className="media-doc-ic">
               <FileText size={20} />

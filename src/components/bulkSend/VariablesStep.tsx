@@ -1,7 +1,8 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText, Play } from "lucide-react";
 
 import Button from "@/components/Button";
 import SectionFooter from "@/components/SectionFooter";
+import VideoThumb from "@/components/media/VideoThumb";
 import { useTranslation } from "@/hooks/useTranslation";
 import { type TemplateData } from "@/supabase/client";
 
@@ -177,12 +178,48 @@ export default function VariablesStep({
               whiteSpace: "pre-wrap",
             }}
           >
-            {mediaFormat === "IMAGE" && isValidMediaUrl(headerMedia) && (
-              <img
-                src={headerMedia.trim()}
-                alt={t("Preview")}
-                className="w-full max-h-[160px] object-cover rounded-[8px] mb-[10px] block"
-              />
+            {/* The header file is part of what gets sent, so every format —
+                not just images — belongs in the summary. Each is sized to the
+                file's own aspect ratio rather than cropped to the card's
+                width: a portrait video (a story, an invitation) loses its top
+                and bottom under `object-cover`. */}
+            {mediaFormat && isValidMediaUrl(headerMedia) && (
+              <div className="mb-[10px]">
+                {mediaFormat === "IMAGE" && (
+                  <img
+                    src={headerMedia.trim()}
+                    alt={t("Preview")}
+                    className="mx-auto block w-auto max-w-full max-h-[220px] rounded-[8px]"
+                  />
+                )}
+                {mediaFormat === "VIDEO" && (
+                  <div className="relative flex justify-center">
+                    <VideoThumb
+                      url={headerMedia}
+                      className="block w-auto max-w-full max-h-[220px] rounded-[8px]"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <span
+                        className="w-[38px] h-[38px] rounded-full inline-flex items-center justify-center"
+                        style={{ background: "rgba(0,0,0,0.45)" }}
+                      >
+                        <Play size={18} fill="#fff" stroke="none" />
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {mediaFormat === "DOCUMENT" && (
+                  <div
+                    className="flex items-center gap-[8px] rounded-[8px] p-[10px]"
+                    style={{ background: "var(--muted)" }}
+                  >
+                    <FileText className="w-[16px] h-[16px] text-destructive shrink-0" />
+                    <span className="text-[13px] truncate">
+                      {headerMediaName || t("Document")}
+                    </span>
+                  </div>
+                )}
+              </div>
             )}
             {head?.text && (
               <div className="font-semibold mb-[8px]">
