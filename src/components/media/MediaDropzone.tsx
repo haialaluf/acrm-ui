@@ -36,22 +36,31 @@ function TypeIcon({ type, size = 22 }: { type: MediaType; size?: number }) {
   return <FileText size={size} />;
 }
 
-/** Sample media picker for the header. Meta requires a sample asset to review a
-    media-header template, so the chosen file is uploaded to our `media` bucket
-    and its signed URL is submitted as the template's example (the edge function
-    converts it into a Meta asset handle). At send time the real per-message file
-    is attached separately (see bulk-send). */
+/** Media picker for a WhatsApp media header, shared by the template editor and
+    the bulk-send wizard. The chosen file is uploaded to our private `media`
+    bucket and the caller receives its signed URL.
+
+    In the template editor the file is the *sample asset* Meta requires to review
+    a media-header template (the edge function converts the signed URL into a
+    Meta asset handle). In bulk-send it is the actual file delivered to every
+    recipient, which Meta fetches from the signed URL at send time.
+
+    `name` and `subLabel` are optional because bulk-send can hold a URL with no
+    known filename (the "use the template's sample file" shortcut); the format
+    tag stands in for whichever is missing. */
 export default function MediaDropzone({
   type,
   url,
   name,
+  subLabel,
   orgId,
   onFile,
   onClear,
 }: {
   type: MediaType;
   url: string;
-  name: string;
+  name?: string;
+  subLabel?: string;
   orgId?: string;
   onFile: (url: string, name: string) => void;
   onClear: () => void;
@@ -62,6 +71,7 @@ export default function MediaDropzone({
   const [error, setError] = useState<string | null>(null);
 
   if (url) {
+    const sub = [name ? spec.tag : null, subLabel].filter(Boolean).join(" · ");
     return (
       <div className="media-picked">
         <div className="media-thumb">
@@ -76,10 +86,10 @@ export default function MediaDropzone({
           )}
         </div>
         <div className="media-picked-meta">
-          <div className="media-picked-name">{name}</div>
-          <div className="media-picked-sub">
-            {spec.tag} · {t("sample for review")}
-          </div>
+          <div className="media-picked-name">{name || spec.tag}</div>
+          {/* The format tag moves down here only when the filename occupies the
+              line above it, so it is never shown twice. */}
+          {sub && <div className="media-picked-sub">{sub}</div>}
         </div>
         <button
           type="button"

@@ -135,9 +135,15 @@ function BulkSend() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [vars, setVars] = useState<Record<string, VarValue>>({});
-  // Public URL for a template's mandatory media header (image/video/document).
-  // Empty when the chosen template has a text/no header.
+  // Signed URL for a template's mandatory media header (image/video/document),
+  // plus the picked file's name for display only. Empty when the chosen
+  // template has a text/no header. Always set together — see `pickHeaderMedia`.
   const [headerMedia, setHeaderMedia] = useState("");
+  const [headerMediaName, setHeaderMediaName] = useState("");
+  const pickHeaderMedia = (url: string, name: string) => {
+    setHeaderMedia(url);
+    setHeaderMediaName(name);
+  };
   // Which calendar a booking-link template books against, and how long the
   // appointment it offers runs. Both are properties of the minted link rather
   // than of the template, so they are asked for per broadcast — see
@@ -399,7 +405,7 @@ function BulkSend() {
     setSelectedIds(new Set());
     setTemplate(null);
     setVars({});
-    setHeaderMedia("");
+    pickHeaderMedia("", "");
     setPickedCalendarId("");
     setBookingDuration(DEFAULT_BOOKING_DURATION);
     setScheduling("later");
@@ -501,7 +507,7 @@ function BulkSend() {
               tpl.components.find((c) => c.type === "BODY")?.text,
             );
             setVars(initVars(headN, bodyN));
-            setHeaderMedia("");
+            pickHeaderMedia("", "");
             setStage("variables");
           }}
         />
@@ -513,7 +519,8 @@ function BulkSend() {
           vars={vars}
           setVars={setVars}
           headerMedia={headerMedia}
-          setHeaderMedia={setHeaderMedia}
+          headerMediaName={headerMediaName}
+          setHeaderMedia={pickHeaderMedia}
           onNext={() => setStage("review")}
         />
       )}

@@ -4,8 +4,8 @@ import { Ban, Type, Image as ImageIcon, Video, FileText } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { isRtl, type Language } from "@/stores/uiSlice";
 import type { HeaderType } from "@/components/templateEditorTypes";
+import MediaDropzone from "@/components/media/MediaDropzone";
 import FormatToolbar from "./FormatToolbar";
-import MediaDropzone from "./MediaDropzone";
 import { insertAtCursor } from "./formatHelpers";
 
 const segmentedTheme = {
@@ -165,6 +165,7 @@ export default function HeaderTypeField({
             type={headerType}
             url={mediaUrl}
             name={mediaName}
+            subLabel={t("sample for review")}
             orgId={orgId}
             onFile={onMedia}
             onClear={onClearMedia}

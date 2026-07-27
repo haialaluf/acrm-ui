@@ -26,6 +26,7 @@ export default function VariablesStep({
   vars,
   setVars,
   headerMedia,
+  headerMediaName,
   setHeaderMedia,
   onNext,
 }: {
@@ -33,7 +34,8 @@ export default function VariablesStep({
   vars: Record<string, VarValue>;
   setVars: (v: Record<string, VarValue>) => void;
   headerMedia: string;
-  setHeaderMedia: (url: string) => void;
+  headerMediaName: string;
+  setHeaderMedia: (url: string, name: string) => void;
   onNext: () => void;
 }) {
   const { translate: t } = useTranslation();
@@ -163,6 +165,7 @@ export default function VariablesStep({
             <HeaderMediaCard
               format={mediaFormat}
               value={headerMedia}
+              name={headerMediaName}
               example={mediaExample}
               onChange={setHeaderMedia}
             />
