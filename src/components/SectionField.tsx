@@ -8,6 +8,9 @@ interface SectionFieldProps {
   description?: string;
   children: ReactNode;
   disabled?: boolean;
+  // Nested inside another absolute panel (e.g. the skill editor), the default
+  // `bottom-[80px]` insets twice and leaves a gap — pass "bottom-0" there.
+  modalClassName?: string;
 }
 
 export default function SectionField({
@@ -15,6 +18,7 @@ export default function SectionField({
   description,
   children,
   disabled,
+  modalClassName,
 }: SectionFieldProps) {
   const { translate: t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +45,11 @@ export default function SectionField({
 
       {/* Modal with section content */}
       {isOpen && (
-        <div className="absolute inset-0 bottom-[80px] z-50 bg-background flex flex-col">
+        <div
+          className={`absolute inset-0 z-50 bg-background flex flex-col ${
+            modalClassName ?? "bottom-[80px]"
+          }`}
+        >
           {/* Header */}
           <div className="header items-center truncate shrink-0">
             <button

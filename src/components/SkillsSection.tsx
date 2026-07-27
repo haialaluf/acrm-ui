@@ -15,11 +15,14 @@ import {
   ChevronRight,
   Database,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "@/hooks/useTranslation";
 import SectionField from "@/components/SectionField";
 import SectionBody from "@/components/SectionBody";
 import SelectField, { type SelectOption } from "@/components/SelectField";
+import TextAreaField from "@/components/TextAreaField";
 import Switch from "@/components/Switch";
+import { useCalendars } from "@/queries/useCalendars";
 import {
   DEFAULT_SKILL_MODEL,
   MODEL_OPTIONS,
@@ -49,8 +52,9 @@ const ICONS: Record<string, typeof Calendar> = {
  * Skills gallery + per-skill editor over `useFieldArray({name: "extra.skills"})`.
  * Skills are platform-defined (mirrored from `@/skills/catalog`); enabling one
  * appends a `SkillInstance`, disabling removes it. Each configSpec field is
- * rendered generically; `google_oauth`/`acrm_api_key` fields use the flows
- * extracted from the former ToolsSection.
+ * rendered generically: `acrm_api_key`/`google_oauth` fields use the connection
+ * flows extracted from the former ToolsSection, and `calendar_select` fills its
+ * options from the org's calendars.
  */
 export default function SkillsSection<T extends FieldValues>({
   control,
@@ -176,19 +180,27 @@ export default function SkillsSection<T extends FieldValues>({
               />
             ))}
 
-            {/* The skill runs as a nested sub-agent on its own model, which is
-                independent of the root agent's. Leaving this unset ("") keeps
-                the instance on the platform default, so it tracks future
-                changes instead of freezing today's value. */}
-            <SelectField
-              name={`extra.skills.${editingIndex}.model` as Path<T>}
-              control={control}
-              label={t("Model")}
-              options={skillModelOptions}
-              placeholder={defaultSkillModelLabel}
+            {/* Mirrors the root agent's Advanced section (see
+                routes/_auth/agents/$agentId.tsx). The skill runs as a nested
+                sub-agent on its own model, independent of the root agent's;
+                leaving it unset ("") keeps the instance on the platform
+                default, so it tracks future changes instead of freezing
+                today's value. */}
+            <SectionField
+              label={t("Advanced")}
               disabled={disabled}
               modalClassName="bottom-0"
-            />
+            >
+              <SelectField
+                name={`extra.skills.${editingIndex}.model` as Path<T>}
+                control={control}
+                label={t("Model")}
+                options={skillModelOptions}
+                placeholder={defaultSkillModelLabel}
+                disabled={disabled}
+                modalClassName="bottom-0"
+              />
+            </SectionField>
           </SectionBody>
         </div>
       )}
@@ -213,6 +225,8 @@ function SkillConfigFieldInput<T extends FieldValues>({
 }) {
   const { translate: t } = useTranslation();
   const acrm = useAcrmMcpKey();
+  // Options the static catalog cannot enumerate — the org's own calendars.
+  const calendars = useCalendars().data ?? [];
 
   const configPath = `extra.skills.${index}.config.${field.key}` as Path<T>;
   const connectionPath =
@@ -267,16 +281,14 @@ function SkillConfigFieldInput<T extends FieldValues>({
 
     case "textarea":
       return (
-        <label>
-          <div className="label">{t(field.label)}</div>
-          <textarea
-            className="text"
-            rows={3}
-            placeholder={field.placeholder ? t(field.placeholder) : undefined}
-            disabled={disabled}
-            {...register(configPath, { required: field.required })}
-          />
-        </label>
+        <TextAreaField
+          name={configPath}
+          control={control}
+          label={t(field.label)}
+          placeholder={field.placeholder ? t(field.placeholder) : undefined}
+          disabled={disabled}
+          modalClassName="bottom-0"
+        />
       );
 
     case "boolean":
@@ -304,6 +316,43 @@ function SkillConfigFieldInput<T extends FieldValues>({
           required={field.required}
           disabled={disabled}
         />
+      );
+
+    case "calendar_select":
+      return (
+        <div>
+          {calendars.length > 0 ? (
+            <SelectField
+              name={configPath}
+              control={control}
+              label={t(field.label)}
+              options={calendars.map((calendar) => ({
+                value: calendar.id,
+                label: calendar.name,
+              }))}
+              required={field.required}
+              disabled={disabled}
+              modalClassName="bottom-0"
+            />
+          ) : (
+            <>
+              <div className="label">{t(field.label)}</div>
+              <p className="text-muted-foreground text-[14px]">
+                {t("No calendars yet.")}
+              </p>
+            </>
+          )}
+
+          {/* Leaves the agent form, so unsaved edits are lost — the same
+              trade-off as the organization settings link on the agent page. */}
+          <Link
+            to="/calendars/new"
+            className="underline text-[14px] inline-block mt-[8px]"
+            hash={(prevHash) => prevHash!}
+          >
+            {t("Create a new calendar")}
+          </Link>
+        </div>
       );
 
     case "multiselect":

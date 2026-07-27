@@ -10,6 +10,7 @@ export type SkillConfigFieldType =
   | "boolean"
   | "select"
   | "multiselect"
+  | "calendar_select"
   | "google_oauth"
   | "acrm_api_key";
 
@@ -38,41 +39,27 @@ export const SKILL_CATALOG: SkillCatalogEntry[] = [
     id: "meeting_scheduling",
     title: "Appointment scheduling",
     description:
-      "Lets the agent schedule, reschedule, and cancel appointments in a Google calendar.",
+      "Lets the agent schedule, reschedule, and cancel appointments in one of the organization's calendars.",
     icon: "calendar",
     configSpec: [
       {
-        key: "google",
-        label: "Google Calendar",
-        type: "google_oauth",
-        product: "calendar",
+        key: "acrm",
+        label: "Calendar connection",
+        type: "acrm_api_key",
         required: true,
       },
       {
         key: "calendar_id",
-        label: "Calendar ID",
-        type: "text",
-        default: "primary",
-        placeholder: "primary",
-      },
-      {
-        key: "meeting_duration_minutes",
-        label: "Appointment duration (minutes)",
-        type: "number",
-        default: 30,
-      },
-      {
-        key: "working_hours",
-        label: "Working hours",
-        type: "textarea",
+        label: "Calendar",
+        type: "calendar_select",
         required: true,
-        placeholder: "Mon-Fri 9:00-18:00",
       },
       {
-        key: "buffer_minutes",
-        label: "Buffer between appointments (minutes)",
-        type: "number",
-        default: 0,
+        key: "additional_instructions",
+        label: "Additional instructions",
+        type: "textarea",
+        placeholder:
+          "Appointments are 45 minutes. Ask which service the client wants...",
       },
     ],
   },

@@ -15,6 +15,9 @@ interface TextAreaFieldProps<T extends FieldValues> {
   label: string;
   placeholder?: string;
   disabled?: boolean;
+  // Nested inside another absolute panel (e.g. the skill editor), the default
+  // `bottom-[80px]` insets twice and leaves a gap — pass "bottom-0" there.
+  modalClassName?: string;
 }
 
 export default function TextAreaField<T extends FieldValues>({
@@ -23,6 +26,7 @@ export default function TextAreaField<T extends FieldValues>({
   label,
   placeholder,
   disabled,
+  modalClassName,
 }: TextAreaFieldProps<T>) {
   const { translate: t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -55,7 +59,11 @@ export default function TextAreaField<T extends FieldValues>({
 
             {/* Modal with textarea */}
             {isOpen && (
-              <div className="absolute inset-0 bottom-[80px] z-50 bg-background flex flex-col">
+              <div
+                className={`absolute inset-0 z-50 bg-background flex flex-col ${
+                  modalClassName ?? "bottom-[80px]"
+                }`}
+              >
                 {/* Header */}
                 <div className="header items-center truncate shrink-0">
                   <button
