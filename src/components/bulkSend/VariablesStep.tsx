@@ -108,9 +108,9 @@ export default function VariablesStep({
   return (
     <>
       <div className="grow overflow-y-auto">
-        <div className="px-[16px] pt-[14px] pb-[8px]">
+        <div className="px-[16px] pt-[14px] pb-[16px]">
           {hasInputs && (
-            <div className="text-[12px] mb-[12px] text-muted-foreground">
+            <div className="text-[14px] leading-[20px] mb-[16px]">
               {mediaFormat && !hasVars
                 ? t(
                     "This template requires a file in the header — it is mandatory to send it.",
@@ -120,6 +120,55 @@ export default function VariablesStep({
                   )}
             </div>
           )}
+
+          {hasInputs && (
+            <div className="text-[12px] font-semibold mb-[8px] text-muted-foreground">
+              {t("Variables")}
+            </div>
+          )}
+          <div className="flex flex-col gap-[8px]">
+            {mediaFormat && (
+              <HeaderMediaCard
+                format={mediaFormat}
+                value={headerMedia}
+                name={headerMediaName}
+                example={mediaExample}
+                onChange={setHeaderMedia}
+              />
+            )}
+            {keys.map((key) => {
+              const [scope, n] = key.split(".");
+              const example =
+                scope === "head"
+                  ? headExamples[Number(n) - 1]
+                  : bodyExamples[Number(n) - 1];
+              return (
+                <VarCard
+                  key={key}
+                  scope={scope as Scope}
+                  num={n}
+                  value={vars[key]}
+                  example={example}
+                  onUpdate={(patch) => update(key, patch)}
+                />
+              );
+            })}
+            {!hasInputs && (
+              <div
+                className="rounded-[12px] p-[16px] text-[13px] text-center text-muted-foreground"
+                style={{
+                  background: "var(--background)",
+                  border: "1px dashed var(--border)",
+                }}
+              >
+                {t("This template has no variables — you can continue")}
+              </div>
+            )}
+          </div>
+
+          <div className="text-[12px] font-semibold mt-[20px] mb-[8px] text-muted-foreground">
+            {t("Variables Summary")}
+          </div>
           <div
             className="rounded-[14px] p-[14px] text-[14px] leading-[22px]"
             style={{
@@ -158,46 +207,6 @@ export default function VariablesStep({
               </div>
             )}
           </div>
-        </div>
-
-        <div className="px-[16px] pb-[16px] flex flex-col gap-[8px] mt-[8px]">
-          {mediaFormat && (
-            <HeaderMediaCard
-              format={mediaFormat}
-              value={headerMedia}
-              name={headerMediaName}
-              example={mediaExample}
-              onChange={setHeaderMedia}
-            />
-          )}
-          {keys.map((key) => {
-            const [scope, n] = key.split(".");
-            const example =
-              scope === "head"
-                ? headExamples[Number(n) - 1]
-                : bodyExamples[Number(n) - 1];
-            return (
-              <VarCard
-                key={key}
-                scope={scope as Scope}
-                num={n}
-                value={vars[key]}
-                example={example}
-                onUpdate={(patch) => update(key, patch)}
-              />
-            );
-          })}
-          {!hasInputs && (
-            <div
-              className="rounded-[12px] p-[16px] text-[13px] text-center text-muted-foreground"
-              style={{
-                background: "var(--background)",
-                border: "1px dashed var(--border)",
-              }}
-            >
-              {t("This template has no variables — you can continue")}
-            </div>
-          )}
         </div>
       </div>
 
