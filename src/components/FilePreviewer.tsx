@@ -222,7 +222,7 @@ const FilePreviewer = () => {
           {isImage(previewDraft.file.type) ? (
             <img
               src={URL.createObjectURL(previewDraft.file)}
-              className="max-h-[25vw] max-w-[25hw] shadow"
+              className="max-h-[40vh] max-w-full object-contain shadow"
             /> // TODO: not to memoize URL.createObjectURL could be potentially *stupid* - cabra 30/05/2024
           ) : (
             <>
@@ -244,7 +244,7 @@ const FilePreviewer = () => {
         </div>
 
         {/* Caption input */}
-        <div className="shrink-0 py-[8px] mx-[80px] flex justify-center items-center">
+        <div className="shrink-0 py-[8px] mx-[16px] md:mx-[80px] flex justify-center items-center">
           <div className="relative grow max-w-[650px]">
             <div
               ref={editableDiv}

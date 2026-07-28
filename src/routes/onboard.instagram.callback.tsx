@@ -57,7 +57,7 @@ function OnboardInstagramCallback() {
         Open BSP
       </div>
 
-      <div className="flex flex-col gap-4 w-[320px] text-center">
+      <div className="flex flex-col gap-4 w-[320px] max-w-[90vw] text-center">
         {result.status === "working" && (
           <p className="text-muted-foreground">
             {t("Connecting your Instagram account...")}

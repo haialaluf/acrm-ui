@@ -192,7 +192,7 @@ export default function ChatFooter() {
   return (
     activeThreadKey &&
     conv && (
-      <div className="relative mx-[12px] mb-[12px] mt-[4px] lg:mt-[0px] z-10">
+      <div className="relative mx-[12px] mb-[calc(12px+env(safe-area-inset-bottom))] mt-[4px] lg:mt-[0px] z-10">
         {templatePicker && <TemplatePicker />}
         <DisabledSection
           disabled={isRemoved}

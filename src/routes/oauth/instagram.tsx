@@ -66,7 +66,7 @@ function InstagramOAuthCallback() {
         Open BSP
       </div>
 
-      <div className="flex flex-col items-center gap-4 w-[320px] text-center">
+      <div className="flex flex-col items-center gap-4 w-[320px] max-w-[90vw] text-center">
         {failed ? (
           <>
             <p className="text-destructive font-medium">

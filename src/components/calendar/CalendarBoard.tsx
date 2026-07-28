@@ -60,7 +60,11 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
   const updateAppointment = useUpdateAppointment();
   const deleteAppointment = useDeleteAppointment();
 
-  const [view, setView] = useState<View>(Views.WEEK);
+  // Week view is fine on desktop but shows 7 columns in a ~375px phone panel,
+  // so open on the roomier Day view when the board first loads on mobile.
+  const [view, setView] = useState<View>(() =>
+    window.matchMedia("(min-width: 768px)").matches ? Views.WEEK : Views.DAY,
+  );
   const [date, setDate] = useState(() => new Date());
   const [modal, setModal] = useState<{
     mode: "new" | "edit";
@@ -210,7 +214,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
       </div>
 
       {/* nav row */}
-      <div className="px-5 py-3 flex items-center gap-3 shrink-0">
+      <div className="px-5 py-3 flex flex-wrap items-center gap-3 shrink-0">
         <button
           className="text-[13px] rounded-full px-4 py-[6px] border border-border bg-card text-foreground hover:bg-accent"
           onClick={() => setDate(new Date())}
@@ -243,14 +247,14 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
           onClick={() => setSharing(true)}
         >
           <Link2 className="w-[16px] h-[16px]" />
-          {t("Share link")}
+          <span className="hidden sm:inline">{t("Share link")}</span>
         </button>
         <button
           className="primary text-[14px] px-4 flex items-center gap-1"
           onClick={newMeeting}
         >
           <Plus className="w-[16px] h-[16px]" />
-          {t("New appointment")}
+          <span className="hidden sm:inline">{t("New appointment")}</span>
         </button>
       </div>
 

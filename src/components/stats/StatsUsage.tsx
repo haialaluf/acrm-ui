@@ -107,7 +107,7 @@ export default function StatsUsage() {
               <h3 className="text-[16px] font-medium text-foreground">
                 {name}
               </h3>
-              <div className="grid grid-cols-2 gap-[16px]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
                 <div className="flex flex-col gap-[4px]">
                   <span className="text-[13px] text-muted-foreground">
                     {t("Last 12 months")}
