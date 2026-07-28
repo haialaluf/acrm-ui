@@ -76,7 +76,7 @@ export default function HeaderMediaCard({
     setRehosting(true);
     setRehostError(null);
     try {
-      const url = await rehostTemplateExample(example, activeOrgId);
+      const url = await rehostTemplateExample(example, activeOrgId, format);
       onChange(url, basenameOf(example));
     } catch (err) {
       setRehostError(
