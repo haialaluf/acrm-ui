@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, ConfigProvider, Modal, Select } from "antd";
+import type { RefSelectProps } from "antd";
 import { Check, Copy, Link2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
@@ -40,15 +41,19 @@ export default function ShareBookingLinkModal({
   const mint = useMintBookingLinks();
 
   const [contactId, setContactId] = useState<string | null>(null);
+  const [contactOpen, setContactOpen] = useState(false);
   const [duration, setDuration] = useState(DEFAULT_BOOKING_DURATION);
   const [token, setToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const contactRef = useRef<RefSelectProps>(null);
 
   // Every open starts clean — a link left on screen from the previous contact
   // is the one mistake worth designing out.
   useEffect(() => {
     if (!open) return;
     setContactId(null);
+    setContactOpen(false);
     setDuration(DEFAULT_BOOKING_DURATION);
     setToken(null);
     setCopied(false);
@@ -153,10 +158,20 @@ export default function ShareBookingLinkModal({
                 {t("Contact")}
               </span>
               <Select
+                ref={contactRef}
                 autoFocus
                 showSearch
                 value={contactId}
-                onChange={setContactId}
+                // On touch devices, the tap that picks an option keeps focus on
+                // the search box and immediately reopens the list. Close it and
+                // blur so the residual focus can't re-open it.
+                open={contactOpen}
+                onOpenChange={setContactOpen}
+                onChange={(v) => {
+                  setContactId(v);
+                  setContactOpen(false);
+                  contactRef.current?.blur();
+                }}
                 loading={loadingContacts}
                 placeholder={t("Search for a contact")}
                 notFoundContent={t("No results")}
