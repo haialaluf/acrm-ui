@@ -376,6 +376,21 @@ input[type="range"]::-moz-range-track {
   inset-inline-start: 0;
 }
 
+/*
+ Appointment TimePicker (MeetingModal). The minute column has only 4 steps
+ (00/15/30/45), but antd still renders its scroll region + a bottom spacer so
+ the last option can scroll to the top — which makes selecting a value jump.
+ Drop the spacer and the scroll on the minute column so it just shows the 4
+ options. Unlayered so it wins over Ant Design's runtime styles.
+*/
+.meeting-time-popup .ant-picker-time-panel-column:last-child {
+  overflow-y: hidden !important;
+}
+
+.meeting-time-popup .ant-picker-time-panel-column:last-child::after {
+  display: none;
+}
+
 /* Firefox */
 * {
   scrollbar-width: thin;

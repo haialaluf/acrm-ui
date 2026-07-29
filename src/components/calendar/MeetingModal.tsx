@@ -17,7 +17,13 @@ import {
 } from "@/components/antdTokens";
 
 const theme = {
-  token: { colorPrimary: "var(--primary)", borderRadius: 10 },
+  token: {
+    colorPrimary: "var(--primary)",
+    borderRadius: 10,
+    // antd can't derive a light tint from the var(--primary) string, so the
+    // selected time/date cell falls back to a near-black bg. Set it explicitly.
+    controlItemBgActive: "oklch(from var(--primary) l c h / 0.10)",
+  },
   components: {
     Modal: modalTokens,
     Input: inputTokens,
@@ -164,6 +170,7 @@ export default function MeetingModal({
                 needConfirm={false}
                 allowClear={false}
                 className="w-full"
+                classNames={{ popup: { root: "meeting-time-popup" } }}
               />
             </label>
             <label className="flex flex-col gap-[6px] grow">
@@ -178,6 +185,7 @@ export default function MeetingModal({
                 needConfirm={false}
                 allowClear={false}
                 className="w-full"
+                classNames={{ popup: { root: "meeting-time-popup" } }}
               />
             </label>
           </div>
