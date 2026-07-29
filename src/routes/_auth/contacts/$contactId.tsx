@@ -14,6 +14,7 @@ import ContactTagSelect from "@/components/ContactTagSelect";
 import { Plus, X } from "lucide-react";
 import { useMemo } from "react";
 import type {
+  ContactExtra,
   ContactWithAddressesUpdate,
   InstagramContactAddressExtra,
 } from "@/supabase/client";
@@ -50,6 +51,17 @@ function ContactDetail() {
   // the contact record.
   const igExtra = contact?.addresses.find((a) => a.service === "instagram")
     ?.extra as InstagramContactAddressExtra | null | undefined;
+
+  // Custom questions captured by a Meta Instant Form, kept as question ->
+  // answer on the contact's `extra`. The full submission lives on the `leads`
+  // row; this is the flattened view worth showing next to the contact.
+  const leadFields = useMemo(
+    () =>
+      Object.entries(
+        (contact?.extra as ContactExtra | null)?.lead_fields ?? {},
+      ),
+    [contact],
+  );
 
   const {
     register,
@@ -162,9 +174,7 @@ function ContactDetail() {
                 | { synced?: { action?: string }; username?: string }
                 | undefined;
               const syncedSuffix =
-                extra?.synced?.action === "add"
-                  ? " (" + t("Synced") + ")"
-                  : "";
+                extra?.synced?.action === "add" ? " (" + t("Synced") + ")" : "";
 
               // Instagram addresses are internal IG-scoped ids (igsid), not
               // phone numbers. Show the @username (or the raw id) read-only
@@ -238,6 +248,26 @@ function ContactDetail() {
               <Plus className="w-4 h-4" />
               {t("Add phone")}
             </button>
+
+            {/* Answers to an Instant Form's custom questions. Name, email and
+                phone already have their own fields above; only the
+                advertiser's own questions land here. */}
+            {leadFields.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <div className="label">{t("Lead form answers")}</div>
+                {leadFields.map(([question, answer]) => (
+                  <label key={question}>
+                    <div className="label">{question}</div>
+                    <input
+                      type="text"
+                      className="text"
+                      value={answer}
+                      readOnly
+                    />
+                  </label>
+                ))}
+              </div>
+            )}
           </form>
         </SectionBody>
 

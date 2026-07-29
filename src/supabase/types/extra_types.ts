@@ -64,11 +64,39 @@ export type InstagramOrganizationAddressExtra = {
   needs_reauth?: string; // ISO; set when a refresh failed and re-login is required
 };
 
-// Union — the column accepts either shape; consumers narrow via the row's
-// `service` column (or via a cast at WA-/IG-specific read sites).
+export type FacebookOrganizationAddressExtra = {
+  page_id?: string;
+  page_name?: string;
+  // App-scoped id of the user who connected the Page. Stored so Meta's data
+  // deletion callback — which identifies a user, never a Page — has something
+  // to match on.
+  fb_user_id?: string;
+  // The Page token — named `access_token` to match the WhatsApp/Instagram
+  // shapes, which keeps a common member on the OrganizationAddressExtra union
+  // (read sites narrow on the row's `service`, but several read
+  // `extra?.access_token` off the bare union). Used for every lead read.
+  // Derived from a long-lived user token, so it carries no expiry of its own —
+  // but it still dies when the connecting user changes their password or
+  // revokes the app, hence `needs_reauth`.
+  access_token?: string;
+  // Long-lived user token, kept so the Page token can be re-derived without
+  // sending the customer through OAuth again.
+  user_access_token?: string;
+  user_token_expires_at?: string; // ISO; ~60 days from issue
+  scopes?: string[]; // granted permissions
+  leadgen_subscribed_at?: string; // ISO; last successful /subscribed_apps POST
+  // ISO; the created_time of the newest lead we have imported for this Page.
+  // The reconciliation cron pages forward from here.
+  leads_synced_through?: string;
+  needs_reauth?: string; // ISO; set when a Graph call rejected the token
+};
+
+// Union — the column accepts any of these shapes; consumers narrow via the
+// row's `service` column (or via a cast at service-specific read sites).
 export type OrganizationAddressExtra =
   | WhatsAppOrganizationAddressExtra
-  | InstagramOrganizationAddressExtra;
+  | InstagramOrganizationAddressExtra
+  | FacebookOrganizationAddressExtra;
 
 export type ConversationExtra = {
   memory?: Memory;
@@ -85,7 +113,14 @@ export type ConversationExtra = {
   } | null;
 };
 
-export type ContactExtra = Record<PropertyKey, never>;
+export type ContactExtra = {
+  // Answers to the custom questions on a Meta Instant Form. The standard
+  // fields (name / email / phone) are projected onto real columns and the
+  // contacts_addresses row; anything the advertiser asked beyond those has no
+  // column to live in, so it is flattened here as question -> answer. The
+  // complete, unflattened submission is always on the `leads` row.
+  lead_fields?: Record<string, string>;
+};
 
 export type WhatsAppContactAddressExtra = {
   name?: string;

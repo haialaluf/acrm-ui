@@ -10,7 +10,7 @@ import { useCurrentAgent } from "@/queries/useAgents";
 import { useForm } from "react-hook-form";
 
 export const Route = createFileRoute(
-  "/_auth/integrations/instagram/onboarding/new",
+  "/_auth/integrations/facebook/onboarding/new",
 )({
   component: NewOnboardingToken,
 });
@@ -23,7 +23,7 @@ type FormValues = {
 function NewOnboardingToken() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const createToken = useCreateOnboardingToken("instagram");
+  const createToken = useCreateOnboardingToken("facebook");
   const { data: currentAgent } = useCurrentAgent();
   const isOwner = currentAgent?.extra?.role === "owner";
 
@@ -50,7 +50,7 @@ function NewOnboardingToken() {
               {
                 onSuccess: (token) =>
                   navigate({
-                    to: "/integrations/instagram/onboarding/$tokenId",
+                    to: "/integrations/facebook/onboarding/$tokenId",
                     params: { tokenId: token.id },
                     hash: (prevHash) => prevHash!,
                   }),
@@ -61,7 +61,7 @@ function NewOnboardingToken() {
           <fieldset disabled={!isOwner} className="contents">
             <p className="text-muted-foreground text-[14px]">
               {t(
-                "Generate a link so a third party can connect their Instagram account to your organization. They don't need an DelaCRM account or to be a member of your organization.",
+                "Generate a link so a third party can connect their Facebook Page to your organization. They don't need an DelaCRM account or to be a member of your organization.",
               )}
             </p>
 

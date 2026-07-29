@@ -6,11 +6,12 @@ import { queryKeys } from "./queryKeys";
 export type OnboardingTokenRow =
   Database["public"]["Tables"]["onboarding_tokens"]["Row"];
 
-// The `service` enum also includes "local"; onboarding links only target the
-// two external channels.
+// The `service` enum also covers internal channels (local/slack/discord/teams);
+// onboarding links only target the three the customer connects themselves.
+// "facebook" here means a Facebook Page connected for Lead Ads, not messaging.
 export type OnboardingService = Extract<
   Database["public"]["Enums"]["service"],
-  "whatsapp" | "instagram"
+  "whatsapp" | "instagram" | "facebook"
 >;
 
 export function useOnboardingTokens(service: OnboardingService) {

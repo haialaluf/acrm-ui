@@ -1,0 +1,84 @@
+import SectionBody from "@/components/SectionBody";
+import SectionHeader from "@/components/SectionHeader";
+import SectionItem from "@/components/SectionItem";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useOnboardingTokens } from "@/queries/useOnboardingTokens";
+import { useCurrentAgent } from "@/queries/useAgents";
+import { Link, Plus } from "lucide-react";
+import type { JSX } from "react";
+
+export const Route = createFileRoute(
+  "/_auth/integrations/facebook/onboarding/",
+)({
+  component: OnboardingIndex,
+});
+
+function OnboardingIndex() {
+  const { translate: t } = useTranslation();
+  const navigate = useNavigate();
+  const { data: tokens } = useOnboardingTokens("facebook");
+  const { data: currentAgent } = useCurrentAgent();
+  const isOwner = currentAgent?.extra?.role === "owner";
+
+  function getStatus(token: {
+    status: string;
+    expires_at: string;
+  }): string | JSX.Element {
+    if (token.status === "used") return t("Used");
+    if (token.status === "expired" || new Date(token.expires_at) < new Date()) {
+      return t("Expired");
+    }
+    return <span className="text-primary">{t("Active")}</span>;
+  }
+
+  return (
+    <>
+      <SectionHeader title={t("Onboarding links")} />
+
+      <SectionBody>
+        <SectionItem
+          title={t("Generate link")}
+          aside={
+            <div className="p-[8px] bg-primary/10 rounded-full">
+              <Plus className="w-[24px] h-[24px] text-primary" />
+            </div>
+          }
+          onClick={() =>
+            navigate({
+              to: "/integrations/facebook/onboarding/new",
+              hash: (prevHash) => prevHash!,
+            })
+          }
+          disabled={!isOwner}
+          disabledReason={t("Requires owner permissions")}
+        />
+        {tokens?.map((token) => (
+          <SectionItem
+            key={token.id}
+            aside={
+              <div className="p-[8px]">
+                <Link className="w-[24px] h-[24px] text-muted-foreground" />
+              </div>
+            }
+            title={token.name}
+            description={
+              <span>
+                {getStatus(token)}
+                {" · "}
+                {t("Expires")} {new Date(token.expires_at).toLocaleDateString()}
+              </span>
+            }
+            onClick={() =>
+              navigate({
+                to: "/integrations/facebook/onboarding/$tokenId",
+                params: { tokenId: token.id },
+                hash: (prevHash) => prevHash!,
+              })
+            }
+          />
+        ))}
+      </SectionBody>
+    </>
+  );
+}

@@ -995,6 +995,72 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          ad_id: string | null
+          adset_id: string | null
+          campaign_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_time: string
+          field_data: Json
+          form_id: string | null
+          form_name: string | null
+          leadgen_id: string
+          organization_id: string
+          page_id: string
+          platform: string | null
+          updated_at: string
+        }
+        Insert: {
+          ad_id?: string | null
+          adset_id?: string | null
+          campaign_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_time: string
+          field_data: Json
+          form_id?: string | null
+          form_name?: string | null
+          leadgen_id: string
+          organization_id: string
+          page_id: string
+          platform?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ad_id?: string | null
+          adset_id?: string | null
+          campaign_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_time?: string
+          field_data?: Json
+          form_id?: string | null
+          form_name?: string | null
+          leadgen_id?: string
+          organization_id?: string
+          page_id?: string
+          platform?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logs: {
         Row: {
           category: string
@@ -1458,6 +1524,7 @@ export type Database = {
       service:
         | "whatsapp"
         | "instagram"
+        | "facebook"
         | "local"
         | "slack"
         | "discord"
@@ -2149,7 +2216,15 @@ export const Constants = {
       direction: ["incoming", "outgoing", "internal"],
       log_level: ["info", "warning", "error"],
       role: ["owner", "admin", "member"],
-      service: ["whatsapp", "instagram", "local", "slack", "discord", "teams"],
+      service: [
+        "whatsapp",
+        "instagram",
+        "facebook",
+        "local",
+        "slack",
+        "discord",
+        "teams",
+      ],
       webhook_operation: ["insert", "update"],
       webhook_table: [
         "messages",

@@ -4,7 +4,11 @@ import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { FileText } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { InstagramOutlined, WhatsAppOutlined } from "@ant-design/icons";
+import {
+  FacebookFilled,
+  InstagramOutlined,
+  WhatsAppOutlined,
+} from "@ant-design/icons";
 
 export const Route = createFileRoute("/_auth/integrations/")({
   component: IntegrationsIndex,
@@ -47,6 +51,23 @@ function IntegrationsIndex() {
             onClick={() =>
               navigate({
                 to: "/integrations/instagram",
+                hash: (prevHash) => prevHash!,
+              })
+            }
+          />
+          <SectionItem
+            aside={
+              <div className="p-[8px]">
+                <FacebookFilled
+                  style={{ fontSize: "24px", color: "#1877F2" }}
+                />
+              </div>
+            }
+            title={t("Facebook Leads")}
+            description={t("Instant Form leads become contacts automatically")}
+            onClick={() =>
+              navigate({
+                to: "/integrations/facebook",
                 hash: (prevHash) => prevHash!,
               })
             }

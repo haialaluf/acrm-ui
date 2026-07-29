@@ -2,29 +2,29 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import Button from "@/components/Button";
-import { getInstagramAuthorizeUrl } from "@/queries/useInstagramSignup";
+import { getFacebookAuthorizeUrl } from "@/queries/useFacebookSignup";
 
-export const Route = createFileRoute("/onboard/instagram/$token")({
-  component: OnboardInstagram,
+export const Route = createFileRoute("/onboard/facebook/$token")({
+  component: OnboardFacebook,
 });
 
 // Fixed public callback (must be registered in the Meta app dashboard); the
 // onboarding token rides in `state`, not the path.
-export const IG_ONBOARD_REDIRECT_PATH = "/onboard/instagram/callback";
+export const FB_ONBOARD_REDIRECT_PATH = "/onboard/facebook/callback";
 
 type TokenValidation =
   | { status: "loading" }
   | { status: "valid"; organization_name: string }
   | { status: "invalid" };
 
-function OnboardInstagram() {
+function OnboardFacebook() {
   const { token } = Route.useParams();
   const { translate: t } = useTranslation();
   const [state, setState] = useState<TokenValidation>({ status: "loading" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/instagram-management/onboard?token=${token}`;
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-management/onboard?token=${token}`;
     fetch(url, {
       headers: {
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
@@ -47,8 +47,8 @@ function OnboardInstagram() {
   const handleConnect = async () => {
     setLoading(true);
     try {
-      const redirect_uri = `${window.location.origin}${IG_ONBOARD_REDIRECT_PATH}`;
-      const url = await getInstagramAuthorizeUrl(redirect_uri, token);
+      const redirect_uri = `${window.location.origin}${FB_ONBOARD_REDIRECT_PATH}`;
+      const url = await getFacebookAuthorizeUrl(redirect_uri, token);
       window.location.assign(url);
     } catch {
       setLoading(false);
@@ -61,7 +61,7 @@ function OnboardInstagram() {
         DelaCRM
       </div>
 
-      <div className="flex flex-col gap-4 w-[320px] max-w-[90vw] text-center">
+      <div className="flex flex-col gap-4 w-[380px] max-w-[90vw] text-center">
         {state.status === "loading" && (
           <p className="text-muted-foreground">{t("Validating link...")}</p>
         )}
@@ -80,24 +80,37 @@ function OnboardInstagram() {
         {state.status === "valid" && (
           <div className="flex flex-col gap-4">
             <p className="text-foreground">
-              {t("Connect your Instagram account to")}{" "}
+              {t("Connect your Facebook Page to")}{" "}
               <strong>{state.organization_name}</strong>
             </p>
 
-            <div className="instructions text-left text-[14px] text-muted-foreground">
+            <div className="instructions text-left text-[14px] text-muted-foreground flex flex-col gap-2">
               <p>
                 {t(
-                  "Log in with the professional Instagram account (business or creator) you want to connect. You will be redirected to Instagram to authorize.",
+                  "New leads from your Instant Forms will be added to your contacts automatically. Leads from ads shown on Instagram are included — they belong to the same Facebook Page.",
+                )}
+              </p>
+              <p>
+                {t(
+                  "Log in with an account that can advertise on the Page, then choose the Page to connect.",
+                )}
+              </p>
+              {/* Leads Access Manager is the single most common reason a
+                  connection succeeds but no leads ever arrive: once a business
+                  customizes lead access, apps must be granted it explicitly. */}
+              <p>
+                {t(
+                  "If your business uses Leads Access Manager, grant this app lead access there as well — otherwise the connection succeeds but no leads are delivered.",
                 )}
               </p>
             </div>
 
             <Button
               loading={loading}
-              className="primary bg-[#E1306C] hover:bg-[#E1306C]/90 text-white w-full"
+              className="primary bg-[#1877F2] hover:bg-[#1877F2]/90 text-white w-full"
               onClick={handleConnect}
             >
-              {t("Continue with Instagram")}
+              {t("Continue with Facebook")}
             </Button>
           </div>
         )}

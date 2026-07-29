@@ -295,7 +295,7 @@
   "Full name": "Nombre completo",
   "Generate": "Generar",
   "Generate a link for a third party to connect their WhatsApp number to your organization. They don't need an DelaCRM account or to be a member of your organization.": "Generá un enlace para que un tercero conecte su número de WhatsApp a tu organización. No necesita tener cuenta en DelaCRM ni ser miembro de tu organización.",
-  "Generate a link so a third party can connect their Instagram account to your organization. They don't need an Open BSP account or to be a member of your organization.": "Generá un enlace para que un tercero conecte su cuenta de Instagram a tu organización. No necesita tener cuenta en Open BSP ni ser miembro de tu organización.",
+  "Generate a link so a third party can connect their Instagram account to your organization. They don't need an DelaCRM account or to be a member of your organization.": "Generá un enlace para que un tercero conecte su cuenta de Instagram a tu organización. No necesita tener cuenta en DelaCRM ni ser miembro de tu organización.",
   "Generate API Key": "Generar clave API",
   "Generate link": "Generar enlace",
   "Get an API key in Settings > API Keys": "Obtén una API key en Configuración > API Keys",
