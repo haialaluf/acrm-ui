@@ -40,6 +40,59 @@ export type MeetingDraft = {
   end: Date;
 };
 
+// An HH:mm picker is a multi-column ("complex") picker, so antd deliberately
+// keeps its popup open after a cell click — `needConfirm={false}` only hides
+// the confirm button, it doesn't auto-close. So we control `open` ourselves and
+// close once the user clicks a minute (the last column, which completes the
+// time). We listen for the click on the minute cell itself rather than reacting
+// to a value change, so re-selecting the same minute (e.g. after only changing
+// the hour) still closes the popup.
+function TimeField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: Dayjs;
+  onChange: (d: Dayjs) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.closest(
+          ".meeting-time-popup .ant-picker-time-panel-column:last-child .ant-picker-time-panel-cell"
+        )
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [open]);
+
+  return (
+    <label className="flex flex-col gap-[6px] grow">
+      <span className="text-[12px] text-muted-foreground">{label}</span>
+      <TimePicker
+        value={value}
+        open={open}
+        onOpenChange={setOpen}
+        onChange={(d) => d && onChange(d)}
+        format="HH:mm"
+        minuteStep={15}
+        needConfirm={false}
+        allowClear={false}
+        className="w-full"
+        classNames={{ popup: { root: "meeting-time-popup" } }}
+      />
+    </label>
+  );
+}
+
 export default function MeetingModal({
   open,
   mode,
@@ -158,36 +211,8 @@ export default function MeetingModal({
           </label>
 
           <div className="flex items-end gap-3">
-            <label className="flex flex-col gap-[6px] grow">
-              <span className="text-[12px] text-muted-foreground">
-                {t("From")}
-              </span>
-              <TimePicker
-                value={from}
-                onChange={(d) => d && setFrom(d)}
-                format="HH:mm"
-                minuteStep={15}
-                needConfirm={false}
-                allowClear={false}
-                className="w-full"
-                classNames={{ popup: { root: "meeting-time-popup" } }}
-              />
-            </label>
-            <label className="flex flex-col gap-[6px] grow">
-              <span className="text-[12px] text-muted-foreground">
-                {t("To")}
-              </span>
-              <TimePicker
-                value={to}
-                onChange={(d) => d && setTo(d)}
-                format="HH:mm"
-                minuteStep={15}
-                needConfirm={false}
-                allowClear={false}
-                className="w-full"
-                classNames={{ popup: { root: "meeting-time-popup" } }}
-              />
-            </label>
+            <TimeField label={t("From")} value={from} onChange={setFrom} />
+            <TimeField label={t("To")} value={to} onChange={setTo} />
           </div>
         </div>
       </Modal>
