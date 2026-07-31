@@ -1,3 +1,4 @@
+import { useState } from "react";
 import ReadMoreText from "./ReadMoreText";
 import MediaHeader from "./MediaHeader";
 import BubbleButtons from "./BubbleButtons";
@@ -22,17 +23,36 @@ export default function WhatsAppBubble({
     data.headerType === "VIDEO" ||
     data.headerType === "DOCUMENT";
 
+  // An image header reports its display width so the bubble shrinks to hug it
+  // and the caption wraps underneath, exactly like the real client.
+  const [mediaWidth, setMediaWidth] = useState<number | null>(null);
+
   return (
     <div className="wa-msg">
-      <div className={"wa-bubble" + (hasMedia ? " has-media" : "")}>
-        <span className="wa-tail" />
-        {hasMedia && (
-          <MediaHeader
-            type={data.headerType}
-            url={data.mediaUrl}
-            fileName={data.mediaName}
-          />
-        )}
+      {/* Tail sits outside the bubble so the bubble's overflow clip can't eat it. */}
+      <span className="wa-tail" />
+      <div
+        className={"wa-bubble" + (hasMedia ? " has-media" : "")}
+        style={mediaWidth ? { width: mediaWidth } : undefined}
+      >
+        {hasMedia &&
+          (data.headerType === "DOCUMENT" ? (
+            // Documents carry their own inset; image/video get the 3px frame.
+            <MediaHeader
+              type={data.headerType}
+              url={data.mediaUrl}
+              fileName={data.mediaName}
+            />
+          ) : (
+            <div className="wa-media-frame">
+              <MediaHeader
+                type={data.headerType}
+                url={data.mediaUrl}
+                fileName={data.mediaName}
+                onSize={setMediaWidth}
+              />
+            </div>
+          ))}
         <div className="wa-bubble-pad">
           {hasText && (
             <div className="wa-htext" dir="auto">

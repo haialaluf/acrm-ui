@@ -1,6 +1,8 @@
+import { type ReactEventHandler, useState } from "react";
 import { FileText, Play } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import VideoThumb from "@/components/media/VideoThumb";
+import { whatsappImageSize } from "@/components/Message/media";
 import type { PreviewHeaderType } from "./types";
 
 /** The media block at the top of a bubble: image / video / document. */
@@ -8,18 +10,42 @@ export default function MediaHeader({
   type,
   url,
   fileName,
+  onSize,
 }: {
   type: PreviewHeaderType;
   url: string;
   fileName: string;
+  /** Reports the image's display width so the bubble can shrink to match it. */
+  onSize?: (width: number) => void;
 }) {
   const { translate: t } = useTranslation();
+  const [box, setBox] = useState<{ width: number; height: number } | null>(
+    null,
+  );
+
+  const onImgLoad: ReactEventHandler<HTMLImageElement> = (e) => {
+    const img = e.currentTarget;
+    const size = whatsappImageSize(img.naturalWidth, img.naturalHeight);
+    setBox(size);
+    onSize?.(size.width);
+  };
 
   if (type === "IMAGE") {
+    // Shape the box to the image's natural ratio (like the real chat) so the
+    // preview matches what recipients see, instead of cropping to a fixed
+    // landscape frame. The image fills the bubble width, which the parent
+    // shrinks to `box.width` so the caption wraps under it with no side gap.
     return (
-      <div className="wa-media">
+      <div
+        className="wa-media"
+        style={
+          box
+            ? { aspectRatio: `${box.width} / ${box.height}`, width: "100%" }
+            : undefined
+        }
+      >
         {url ? (
-          <img src={url} alt="" />
+          <img src={url} alt="" onLoad={onImgLoad} />
         ) : (
           <div className="wa-media-ph">
             <span className="mono">{t("your image")}</span>

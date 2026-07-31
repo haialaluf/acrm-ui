@@ -15,13 +15,13 @@ import {
 import styles from "./ImageMessagePreviewer.module.css";
 import { type MessageRow, type OutgoingStatus } from "@/supabase/client";
 import { Markdown } from "./Message";
-import { mediaCategory } from "./media";
+import {
+  mediaCategory,
+  whatsappImageSize,
+  PORTRAIT_WIDTH,
+  MAX_PORTRAIT_HEIGHT,
+} from "./media";
 import { useTranslation } from "@/hooks/useTranslation";
-
-const PORTRAIT_WIDTH = 240;
-const LANDSCAPE_WIDTH = 320;
-const MAX_PORTRAIT_HEIGHT = (PORTRAIT_WIDTH * 4) / 3;
-const MAX_LANDSCAPE_HEIGHT = (LANDSCAPE_WIDTH * 3) / 4;
 
 export default function ImageMessage(message: MessageRow) {
   if (!(message.direction === "incoming" || message.direction === "outgoing")) {
@@ -69,16 +69,13 @@ export default function ImageMessage(message: MessageRow) {
 
     const img = event.target;
 
-    const isPortrait = img.naturalHeight >= img.naturalWidth; // or squared
-
-    const width = isPortrait ? PORTRAIT_WIDTH : LANDSCAPE_WIDTH;
-    const maxHeight = isPortrait ? MAX_PORTRAIT_HEIGHT : MAX_LANDSCAPE_HEIGHT;
-
-    const factor = img.naturalWidth / width;
-    const height = img.naturalHeight / factor;
+    const { width, height } = whatsappImageSize(
+      img.naturalWidth,
+      img.naturalHeight,
+    );
 
     setWidth(width);
-    setHeight(Math.min(maxHeight, height));
+    setHeight(height);
   };
 
   return (

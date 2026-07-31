@@ -784,7 +784,9 @@ select.mapping:focus {
   min-height: 0;
   overflow-y: auto;
   padding: 12px 8px 8px;
-  background: #efeae2;
+  /* Reuse the app's real chat wallpaper (green tint + doodle tile) so the
+     preview matches the live conversation, not WhatsApp's default beige. */
+  background: var(--color-muted);
   position: relative;
 }
 .wa-chat::before {
@@ -794,14 +796,16 @@ select.mapping:focus {
   background-image: url("/bg-chat-tile-dark.png");
   background-repeat: repeat;
   background-size: 360px;
-  opacity: 0.05;
+  opacity: 0.06;
+  filter: invert(1);
   pointer-events: none;
 }
 .wa-chat.dark {
   background: #0b141a;
 }
 .wa-chat.dark::before {
-  opacity: 0.06;
+  opacity: 0.12;
+  filter: none;
 }
 .wa-daypill {
   width: max-content;
@@ -846,7 +850,9 @@ select.mapping:focus {
   overflow: hidden;
   margin-inline-start: 8px;
 }
-[dir="rtl"] .wa-bubble {
+/* Scope RTL to the chat surface's own dir (set from message content), not the
+   outer app — otherwise a Hebrew UI flips an English-content preview. */
+.wa-chat[dir="rtl"] .wa-bubble {
   border-radius: 8px 0 8px 8px;
 }
 .wa-chat.dark .wa-bubble {
@@ -855,15 +861,16 @@ select.mapping:focus {
 .wa-tail {
   position: absolute;
   top: 0;
-  inset-inline-start: -8px;
+  inset-inline-start: 0;
   width: 9px;
   height: 13px;
   background: #fff;
   clip-path: polygon(100% 0, 0 0, 100% 100%);
+  z-index: 1;
 }
-[dir="rtl"] .wa-tail {
-  inset-inline-start: auto;
-  inset-inline-end: -8px;
+/* `inset-inline-start` already flips with the surface's dir; only the physical
+   clip-path needs mirroring for an RTL chat surface. */
+.wa-chat[dir="rtl"] .wa-tail {
   clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 .wa-chat.dark .wa-tail {
@@ -886,12 +893,23 @@ select.mapping:focus {
   color: #e9edef;
 }
 
+/* 3px white frame around image/video media, mirroring the real chat bubble's
+   `p-[3px]` + rounded media. Document headers have their own inset. */
+.wa-media-frame {
+  padding: 3px 3px 0;
+}
 .wa-media {
   width: 100%;
   background: #d9d3ca;
   position: relative;
-  aspect-ratio: 1.7 / 1;
   overflow: hidden;
+  border-radius: 6px;
+}
+/* Video thumbs and the empty placeholder keep a framed landscape box; measured
+   images override this with an inline aspect-ratio matching the real photo. */
+.wa-video,
+.wa-media:not([style*="aspect-ratio"]) {
+  aspect-ratio: 1.7 / 1;
 }
 .wa-media img,
 .wa-media video {
