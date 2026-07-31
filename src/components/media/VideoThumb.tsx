@@ -8,9 +8,12 @@
 export default function VideoThumb({
   url,
   className,
+  onMeta,
 }: {
   url: string;
   className?: string;
+  /** Natural pixel dimensions of the video, once metadata has loaded. */
+  onMeta?: (width: number, height: number) => void;
 }) {
   return (
     <video
@@ -23,6 +26,7 @@ export default function VideoThumb({
       className={className}
       onLoadedMetadata={(e) => {
         const video = e.currentTarget;
+        onMeta?.(video.videoWidth, video.videoHeight);
         if (Number.isFinite(video.duration) && video.duration > 0) {
           video.currentTime = video.duration * 0.25;
         }

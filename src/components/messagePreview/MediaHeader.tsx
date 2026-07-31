@@ -25,10 +25,20 @@ export default function MediaHeader({
 
   const onImgLoad: ReactEventHandler<HTMLImageElement> = (e) => {
     const img = e.currentTarget;
-    const size = whatsappImageSize(img.naturalWidth, img.naturalHeight);
+    applySize(img.naturalWidth, img.naturalHeight);
+  };
+
+  // Shape the media box to the file's natural ratio (like the real chat) and
+  // report the width so the parent bubble hugs it — shared by image & video.
+  const applySize = (naturalWidth: number, naturalHeight: number) => {
+    const size = whatsappImageSize(naturalWidth, naturalHeight);
     setBox(size);
     onSize?.(size.width);
   };
+
+  const mediaStyle = box
+    ? { aspectRatio: `${box.width} / ${box.height}`, width: "100%" as const }
+    : undefined;
 
   if (type === "IMAGE") {
     // Shape the box to the image's natural ratio (like the real chat) so the
@@ -36,14 +46,7 @@ export default function MediaHeader({
     // landscape frame. The image fills the bubble width, which the parent
     // shrinks to `box.width` so the caption wraps under it with no side gap.
     return (
-      <div
-        className="wa-media"
-        style={
-          box
-            ? { aspectRatio: `${box.width} / ${box.height}`, width: "100%" }
-            : undefined
-        }
-      >
+      <div className="wa-media" style={mediaStyle}>
         {url ? (
           <img src={url} alt="" onLoad={onImgLoad} />
         ) : (
@@ -57,9 +60,9 @@ export default function MediaHeader({
 
   if (type === "VIDEO") {
     return (
-      <div className="wa-media wa-video">
+      <div className="wa-media wa-video" style={mediaStyle}>
         {url ? (
-          <VideoThumb url={url} />
+          <VideoThumb url={url} onMeta={applySize} />
         ) : (
           <div className="wa-media-ph">
             <span className="mono">{t("your video")}</span>
