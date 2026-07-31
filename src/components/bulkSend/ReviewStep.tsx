@@ -146,7 +146,8 @@ export default function ReviewStep({
       mediaUrl: hasMedia ? headerMedia.trim() : "",
       mediaName:
         mediaFmt === "DOCUMENT"
-          ? (headerMedia.trim().split("/").pop() ?? "")
+          ? // Last path segment, minus any `?token=…` query string.
+            (headerMedia.trim().split("/").pop()?.split("?")[0] ?? "")
           : "",
       body: bodyText,
       bodyVars: [],

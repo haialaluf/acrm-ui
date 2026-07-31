@@ -1,8 +1,12 @@
 import { type ReactEventHandler, useState } from "react";
-import { FileText, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import VideoThumb from "@/components/media/VideoThumb";
-import { whatsappImageSize } from "@/components/Message/media";
+import {
+  whatsappImageSize,
+  extension,
+  iconName,
+} from "@/components/Message/media";
 import type { PreviewHeaderType } from "./types";
 
 /** The media block at the top of a bubble: image / video / document. */
@@ -76,15 +80,21 @@ export default function MediaHeader({
   }
 
   if (type === "DOCUMENT") {
+    const name = fileName || "document.pdf";
+    const ext = extension(name);
     return (
       <div className="wa-doc">
-        <div className="wa-doc-ic">
-          <FileText size={20} className="text-destructive" />
-        </div>
+        <img className="wa-doc-ic" src={iconName(name)} alt="" />
         <div className="wa-doc-meta">
-          <div className="wa-doc-name">{fileName || "document.pdf"}</div>
-          <div className="wa-doc-sub">{t("PDF · tap to open")}</div>
+          <div className="wa-doc-name">{name}</div>
+          <div className="wa-doc-sub">
+            {ext ? ext.toUpperCase() : t("Document")}
+          </div>
         </div>
+        {/* Same download glyph (circle + arrow) the real chat uses. */}
+        <svg className="wa-doc-dl">
+          <use href="/icons.svg#download" />
+        </svg>
       </div>
     );
   }

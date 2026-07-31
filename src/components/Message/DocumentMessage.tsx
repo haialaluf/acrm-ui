@@ -6,24 +6,11 @@ import dayjs from "dayjs";
 import { Markdown } from "./Message";
 import { useTranslation } from "@/hooks/useTranslation";
 
-export function extension(filename: string | undefined) {
-  return filename?.split(".").slice(-1)[0]?.toLowerCase();
-}
-
-export function iconName(filename: string | undefined) {
-  switch (extension(filename)) {
-    case "pdf":
-      return "/pdf.png";
-    case "doc":
-    case "docx":
-      return "/doc.png";
-    case "xls":
-    case "xlsx":
-      return "/xls.png";
-    default:
-      return "/file.png";
-  }
-}
+// Pure helpers now live in ./media (so lightweight consumers like the message
+// preview can reuse them without importing this component). Re-exported here to
+// keep existing import paths working.
+export { extension, iconName } from "./media";
+import { extension, iconName } from "./media";
 
 export function fileSize(size: number) {
   if (isNaN(size)) {

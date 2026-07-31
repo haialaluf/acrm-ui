@@ -46,6 +46,27 @@ export const LANDSCAPE_WIDTH = 320;
 export const MAX_PORTRAIT_HEIGHT = (PORTRAIT_WIDTH * 4) / 3; // 320
 export const MAX_LANDSCAPE_HEIGHT = (LANDSCAPE_WIDTH * 3) / 4; // 240
 
+/** Lowercased file extension, e.g. "report.PDF" → "pdf". */
+export function extension(filename: string | undefined) {
+  return filename?.split(".").slice(-1)[0]?.toLowerCase();
+}
+
+/** Path to the document-type icon asset for a filename. */
+export function iconName(filename: string | undefined) {
+  switch (extension(filename)) {
+    case "pdf":
+      return "/pdf.png";
+    case "doc":
+    case "docx":
+      return "/doc.png";
+    case "xls":
+    case "xlsx":
+      return "/xls.png";
+    default:
+      return "/file.png";
+  }
+}
+
 /** Display box (px) for an image given its natural pixel size. */
 export function whatsappImageSize(naturalWidth: number, naturalHeight: number) {
   const isPortrait = naturalHeight >= naturalWidth; // square counts as portrait

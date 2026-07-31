@@ -965,19 +965,22 @@ select.mapping:focus {
   background: rgba(255, 255, 255, 0.06);
 }
 .wa-doc-ic {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 26px;
+  height: 30px;
+  object-fit: contain;
   flex-shrink: 0;
+}
+.wa-doc-meta {
+  flex: 1;
+  min-width: 0;
 }
 .wa-doc-name {
   font-size: 13px;
   font-weight: 600;
   color: #111b21;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .wa-chat.dark .wa-doc-name {
   color: #e9edef;
@@ -986,6 +989,13 @@ select.mapping:focus {
   font-size: 11px;
   color: #667781;
   margin-top: 1px;
+}
+.wa-doc-dl {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  /* Match the real chat, whose download glyph inherits --foreground. */
+  color: var(--color-foreground);
 }
 
 .wa-textwrap {
