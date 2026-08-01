@@ -18,6 +18,7 @@ import {
   defaultWorkingHours,
   detectRegion,
   detectTimezone,
+  hasWorkingHoursIssues,
   regionLabel,
   resolveTimezone,
   WEEKDAYS,
@@ -63,8 +64,9 @@ export default function CalendarForm({ calendar }: { calendar?: CalendarRow }) {
     return list;
   }, [currentLanguage, detected.region]);
 
-  const activeDays = WEEKDAYS.filter((d) => hours[d.key]).length;
-  const canSave = name.trim().length > 0 && activeDays > 0;
+  const activeDays = WEEKDAYS.filter((d) => hours[d.key]?.length).length;
+  const canSave =
+    name.trim().length > 0 && activeDays > 0 && !hasWorkingHoursIssues(hours);
   // The browser-detected hint only makes sense while creating; on edit the
   // region already reflects a saved choice.
   const showDetected = !isEdit && !touchedRegion && region === detected.region;
@@ -137,7 +139,7 @@ export default function CalendarForm({ calendar }: { calendar?: CalendarRow }) {
               )}
             </div>
             <SelectField
-              label={t("Country")}
+              label={""}
               value={region}
               onChange={(value) => {
                 setRegion(value);

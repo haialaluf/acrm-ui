@@ -35,26 +35,25 @@ export const DAY_INDEX: Record<Weekday, number> = {
 export function workingDayIndexSet(hours: CalendarWorkingHours): Set<number> {
   const set = new Set<number>();
   for (const d of WEEKDAYS) {
-    if (hours[d.key]) set.add(DAY_INDEX[d.key]);
+    if (hours[d.key]?.length) set.add(DAY_INDEX[d.key]);
   }
   return set;
 }
 
-// Earliest "from" and latest "to" across all active days, as Date times on an
-// arbitrary day — react-big-calendar only reads the hour/minute for its
-// `min`/`max` time-grid bounds. Falls back to 09:00–17:00 when empty.
+// Earliest "from" and latest "to" across every window of every active day, as
+// Date times on an arbitrary day — react-big-calendar only reads the
+// hour/minute for its `min`/`max` time-grid bounds. Falls back to 09:00–17:00
+// when empty.
 export function workingHoursBounds(hours: CalendarWorkingHours): {
   min: Date;
   max: Date;
 } {
-  const active = WEEKDAYS.map((d) => hours[d.key]).filter(
-    (h): h is WorkingHoursDay => !!h,
-  );
+  const windows = WEEKDAYS.flatMap((d) => hours[d.key] ?? []);
   let min = "09:00";
   let max = "17:00";
-  if (active.length) {
-    min = active.reduce((m, h) => (h.from < m ? h.from : m), active[0].from);
-    max = active.reduce((m, h) => (h.to > m ? h.to : m), active[0].to);
+  if (windows.length) {
+    min = windows.reduce((m, w) => (w.from < m ? w.from : m), windows[0].from);
+    max = windows.reduce((m, w) => (w.to > m ? w.to : m), windows[0].to);
   }
   return { min: timeToDate(min), max: timeToDate(max) };
 }
@@ -66,10 +65,80 @@ function timeToDate(hhmm: string): Date {
   return d;
 }
 
+// "HH:MM" ↔ minutes past local midnight, for window math (validation,
+// sorting, and the "add window" suggestion).
+export function toMin(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + (m || 0);
+}
+
+export function toHHMM(v: number): string {
+  return `${String(Math.floor(v / 60)).padStart(2, "0")}:${
+    String(v % 60).padStart(2, "0")
+  }`;
+}
+
+// Windows on a day, earliest first.
+export function sortWindows(windows: WorkingHoursDay[]): WorkingHoursDay[] {
+  return [...windows].sort((a, b) => toMin(a.from) - toMin(b.from));
+}
+
+// Structural equality of two (already-sorted) window lists.
+export function sameWindows(
+  a: WorkingHoursDay[],
+  b: WorkingHoursDay[],
+): boolean {
+  return (
+    a.length === b.length &&
+    a.every((w, i) => w.from === b[i].from && w.to === b[i].to)
+  );
+}
+
+export type WindowIssue = "order" | "overlap" | null;
+
+// Per-window problems within one day: "order" when a window's end isn't
+// after its start, "overlap" when it overlaps another window on the same
+// day.
+export function windowIssues(windows: WorkingHoursDay[]): WindowIssue[] {
+  const issues: WindowIssue[] = windows.map(() => null);
+  windows.forEach((w, i) => {
+    if (toMin(w.to) <= toMin(w.from)) issues[i] = "order";
+  });
+  const sorted = windows
+    .map((w, i) => ({ i, s: toMin(w.from), e: toMin(w.to) }))
+    .sort((a, b) => a.s - b.s);
+  for (let k = 1; k < sorted.length; k++) {
+    if (sorted[k].s < sorted[k - 1].e) {
+      if (!issues[sorted[k].i]) issues[sorted[k].i] = "overlap";
+      if (!issues[sorted[k - 1].i]) issues[sorted[k - 1].i] = "overlap";
+    }
+  }
+  return issues;
+}
+
+// Whether any active day in `hours` has a window problem — gates saving.
+export function hasWorkingHoursIssues(hours: CalendarWorkingHours): boolean {
+  return WEEKDAYS.some((d) => {
+    const windows = hours[d.key];
+    return !!windows && windowIssues(windows).some(Boolean);
+  });
+}
+
+// Suggest the next window when a day already has some: an hour after the
+// latest end, two hours long, clamped so it stays within the day.
+export function nextWindowSuggestion(
+  windows: WorkingHoursDay[],
+): WorkingHoursDay {
+  const last = windows.reduce((mx, w) => Math.max(mx, toMin(w.to)), 0);
+  const from = Math.min(last + 60, 22 * 60);
+  const to = Math.min(from + 120, 23 * 60 + 59);
+  return { from: toHHMM(from), to: toHHMM(to) };
+}
+
 // Sun–Thu 09:00–17:00, Fri/Sat closed — a sensible default business week.
 export function defaultWorkingHours(): CalendarWorkingHours {
   const hours: CalendarWorkingHours = {};
-  for (const day of WORKDAYS) hours[day] = { from: "09:00", to: "17:00" };
+  for (const day of WORKDAYS) hours[day] = [{ from: "09:00", to: "17:00" }];
   return hours;
 }
 
@@ -219,9 +288,9 @@ export function daysSummary(
   hours: CalendarWorkingHours,
   t: (s: string) => string,
 ): string {
-  const activeIdx = WEEKDAYS.map((d, i) => (hours[d.key] ? i : -1)).filter(
-    (i) => i >= 0,
-  );
+  const activeIdx = WEEKDAYS.map((d, i) =>
+    hours[d.key]?.length ? i : -1
+  ).filter((i) => i >= 0);
   if (activeIdx.length === 0) return t("No days");
   const initial = (i: number) => t(WEEKDAYS[i].label);
   const contiguous = activeIdx.every(
@@ -233,19 +302,23 @@ export function daysSummary(
   return activeIdx.map(initial).join(", ");
 }
 
-// Single "HH:MM–HH:MM" when every active day shares the same interval, else a
-// "variable hours" label.
+// Windows joined "HH:MM–HH:MM, HH:MM–HH:MM" (up to 2, "+N" beyond that) when
+// every active day shares the same window list, else a "variable hours"
+// label.
 export function hoursSummary(
   hours: CalendarWorkingHours,
   t: (s: string) => string,
 ): string {
   const active = WEEKDAYS.map((d) => hours[d.key]).filter(
-    (h): h is WorkingHoursDay => !!h,
+    (h): h is WorkingHoursDay[] => !!h && h.length > 0,
   );
   if (active.length === 0) return "";
-  const [first] = active;
-  const uniform = active.every(
-    (h) => h.from === first.from && h.to === first.to,
-  );
-  return uniform ? `${first.from} – ${first.to}` : t("Variable hours");
+  const first = sortWindows(active[0]);
+  const uniform = active.every((h) => sameWindows(sortWindows(h), first));
+  if (!uniform) return t("Variable hours");
+  const shown = first
+    .slice(0, 2)
+    .map((w) => `${w.from} – ${w.to}`)
+    .join(", ");
+  return first.length > 2 ? `${shown} +${first.length - 2}` : shown;
 }

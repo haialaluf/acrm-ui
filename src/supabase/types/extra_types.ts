@@ -253,9 +253,12 @@ export type Weekday = "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
 // One working interval, "HH:MM" 24h strings in the calendar's `timezone`.
 export type WorkingHoursDay = { from: string; to: string };
 
-// Per-weekday working hours. A missing day means the calendar is closed that
-// day (the agent treats an absent/empty day as "business closed").
-export type CalendarWorkingHours = Partial<Record<Weekday, WorkingHoursDay>>;
+// Per-weekday working hours, as one or more non-overlapping intervals (e.g. a
+// lunch-break split: [{from:"08:00",to:"12:00"},{from:"13:00",to:"16:00"}]).
+// A missing day, or an empty array, means the calendar is closed that day
+// (the agent treats it as "business closed"); gaps between windows are
+// closed too.
+export type CalendarWorkingHours = Partial<Record<Weekday, WorkingHoursDay[]>>;
 
 // public.booking_links.extra — per-link overrides for the public booking page.
 export type BookingLinkExtra = {

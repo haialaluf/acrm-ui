@@ -28,7 +28,12 @@ import {
   useDeleteAppointment,
   useUpdateAppointment,
 } from "@/queries/useAppointments";
-import { workingDayIndexSet, workingHoursBounds } from "@/utils/calendar";
+import {
+  toMin,
+  WEEKDAYS,
+  workingDayIndexSet,
+  workingHoursBounds,
+} from "@/utils/calendar";
 import { LinkButton } from "@/components/LinkButton";
 import MeetingModal, { type MeetingDraft } from "./MeetingModal";
 import ShareBookingLinkModal from "./ShareBookingLinkModal";
@@ -116,6 +121,18 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
     () => workingHoursBounds(calendar?.working_hours ?? {}),
     [calendar],
   );
+
+  // Grey out the gap between two working-hour windows on an otherwise-open
+  // day (e.g. a lunch break) — dayPropGetter only handles fully-closed days.
+  function slotPropGetter(slot: Date) {
+    const windows = calendar?.working_hours?.[WEEKDAYS[slot.getDay()].key];
+    if (!windows?.length) return {};
+    const minutes = slot.getHours() * 60 + slot.getMinutes();
+    const inside = windows.some(
+      (w) => minutes >= toMin(w.from) && minutes < toMin(w.to),
+    );
+    return inside ? {} : { style: { background: "var(--muted)" } };
+  }
 
   function openNew(start: Date, end: Date) {
     setModal({
@@ -294,6 +311,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
               ? { style: { background: "var(--muted)" } }
               : {}
           }
+          slotPropGetter={slotPropGetter}
           style={{ height: "100%" }}
         />
       </div>
