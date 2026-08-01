@@ -42,6 +42,7 @@ export default function WhatsAppBubble({
               type={data.headerType}
               url={data.mediaUrl}
               fileName={data.mediaName}
+              size={data.mediaSize}
             />
           ) : (
             <div className="wa-media-frame">

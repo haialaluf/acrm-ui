@@ -976,7 +976,7 @@ select.mapping:focus {
 }
 .wa-doc-name {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   color: #111b21;
   white-space: nowrap;
   overflow: hidden;

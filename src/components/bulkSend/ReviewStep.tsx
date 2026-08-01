@@ -57,6 +57,7 @@ export default function ReviewStep({
   template,
   vars,
   headerMedia,
+  headerMediaSize,
   recipients,
   onRemove,
   scheduling,
@@ -76,6 +77,7 @@ export default function ReviewStep({
   template: TemplateData;
   vars: Record<string, VarValue>;
   headerMedia: string;
+  headerMediaSize?: number;
   recipients: ContactWithAddressesRow[];
   onRemove: (id: string) => void;
   scheduling: Scheduling;
@@ -149,6 +151,7 @@ export default function ReviewStep({
           ? // Last path segment, minus any `?token=…` query string.
             (headerMedia.trim().split("/").pop()?.split("?")[0] ?? "")
           : "",
+      mediaSize: mediaFmt === "DOCUMENT" ? headerMediaSize : undefined,
       body: bodyText,
       bodyVars: [],
       footer,
@@ -157,7 +160,7 @@ export default function ReviewStep({
         detectRtl(bodyText, headerText, footer) ||
         isRtl(template.language as Language),
     };
-  }, [template, vars, current, headerMedia, t]);
+  }, [template, vars, current, headerMedia, headerMediaSize, t]);
 
   const canSend =
     recipients.length > 0 &&

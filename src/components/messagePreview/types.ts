@@ -21,6 +21,8 @@ export interface MessagePreviewData {
   /** Local object URL for a sample image/video/document (preview only). */
   mediaUrl: string;
   mediaName: string;
+  /** Byte size of the document, shown as "PDF · 21 KB". Undefined when unknown. */
+  mediaSize?: number;
   body: string;
   /** Sample values for body {{n}} placeholders. */
   bodyVars: string[];

@@ -1,4 +1,4 @@
-import { type ReactEventHandler, useState } from "react";
+import { type ReactEventHandler, useEffect, useState } from "react";
 import { Play } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import VideoThumb from "@/components/media/VideoThumb";
@@ -9,16 +9,27 @@ import {
 } from "@/components/Message/media";
 import type { PreviewHeaderType } from "./types";
 
+/** WhatsApp-style size label (no decimals): "512 B", "21 KB", "1 MB". */
+function waBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${Math.round(kb)} KB`;
+  return `${Math.round(kb / 1024)} MB`;
+}
+
 /** The media block at the top of a bubble: image / video / document. */
 export default function MediaHeader({
   type,
   url,
   fileName,
+  size,
   onSize,
 }: {
   type: PreviewHeaderType;
   url: string;
   fileName: string;
+  /** Document byte size, rendered next to the type ("PDF · 21 KB"). */
+  size?: number;
   /** Reports the image's display width so the bubble can shrink to match it. */
   onSize?: (width: number) => void;
 }) {
@@ -26,6 +37,28 @@ export default function MediaHeader({
   const [box, setBox] = useState<{ width: number; height: number } | null>(
     null,
   );
+
+  // The size is known immediately for a freshly-uploaded file (`size` prop). For
+  // a document that came from a URL (e.g. the template example), read it from
+  // the response's Content-Length via a HEAD request. Degrades to just the type
+  // when neither is available (CORS, missing header).
+  const [fetchedSize, setFetchedSize] = useState<number | null>(null);
+  useEffect(() => {
+    if (type !== "DOCUMENT" || size != null || !url) {
+      setFetchedSize(null);
+      return;
+    }
+    let alive = true;
+    fetch(url, { method: "HEAD" })
+      .then((res) => {
+        const len = Number(res.headers.get("content-length"));
+        if (alive && Number.isFinite(len) && len > 0) setFetchedSize(len);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [type, size, url]);
 
   const onImgLoad: ReactEventHandler<HTMLImageElement> = (e) => {
     const img = e.currentTarget;
@@ -82,6 +115,7 @@ export default function MediaHeader({
   if (type === "DOCUMENT") {
     const name = fileName || "document.pdf";
     const ext = extension(name);
+    const bytes = size ?? fetchedSize;
     return (
       <div className="wa-doc">
         <img className="wa-doc-ic" src={iconName(name)} alt="" />
@@ -89,6 +123,7 @@ export default function MediaHeader({
           <div className="wa-doc-name">{name}</div>
           <div className="wa-doc-sub">
             {ext ? ext.toUpperCase() : t("Document")}
+            {bytes != null && bytes > 0 ? ` · ${waBytes(bytes)}` : ""}
           </div>
         </div>
         {/* Same download glyph (circle + arrow) the real chat uses. */}

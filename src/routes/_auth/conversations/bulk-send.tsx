@@ -140,9 +140,13 @@ function BulkSend() {
   // template has a text/no header. Always set together — see `pickHeaderMedia`.
   const [headerMedia, setHeaderMedia] = useState("");
   const [headerMediaName, setHeaderMediaName] = useState("");
-  const pickHeaderMedia = (url: string, name: string) => {
+  // Byte size of the picked document, for the preview's "PDF · 21 KB" sub-line.
+  // Undefined when unknown (e.g. the "use template example" shortcut).
+  const [headerMediaSize, setHeaderMediaSize] = useState<number | undefined>();
+  const pickHeaderMedia = (url: string, name: string, size?: number) => {
     setHeaderMedia(url);
     setHeaderMediaName(name);
+    setHeaderMediaSize(size);
   };
   // Which calendar a booking-link template books against, and how long the
   // appointment it offers runs. Both are properties of the minted link rather
@@ -530,6 +534,7 @@ function BulkSend() {
           template={template}
           vars={vars}
           headerMedia={headerMedia}
+          headerMediaSize={headerMediaSize}
           recipients={recipients}
           onRemove={(id) => {
             const next = new Set(selectedIds);

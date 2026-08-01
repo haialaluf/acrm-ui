@@ -58,7 +58,7 @@ export default function HeaderMediaCard({
   value: string;
   name: string;
   example?: string;
-  onChange: (url: string, name: string) => void;
+  onChange: (url: string, name: string, size?: number) => void;
 }) {
   const { translate: t } = useTranslation();
   const meta = FORMAT_META[format];

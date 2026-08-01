@@ -36,7 +36,7 @@ export default function VariablesStep({
   setVars: (v: Record<string, VarValue>) => void;
   headerMedia: string;
   headerMediaName: string;
-  setHeaderMedia: (url: string, name: string) => void;
+  setHeaderMedia: (url: string, name: string, size?: number) => void;
   onNext: () => void;
 }) {
   const { translate: t } = useTranslation();

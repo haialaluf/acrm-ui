@@ -63,7 +63,7 @@ export default function MediaDropzone({
   name?: string;
   subLabel?: string;
   orgId?: string;
-  onFile: (url: string, name: string) => void;
+  onFile: (url: string, name: string, size?: number) => void;
   onClear: () => void;
 }) {
   const { translate: t } = useTranslation();
@@ -117,7 +117,7 @@ export default function MediaDropzone({
           setError(null);
           setUploading(true);
           uploadMediaToBucket(file, orgId, file.name)
-            .then((signedUrl) => onFile(signedUrl, file.name))
+            .then((signedUrl) => onFile(signedUrl, file.name, file.size))
             .catch((e) =>
               setError(
                 e instanceof Error
