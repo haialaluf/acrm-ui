@@ -172,32 +172,6 @@ function EditOrganization() {
               placeholder={t("Haircut 30min $20\nColor 60min $50 ...")}
               disabled={!isOwner}
             />
-
-            <TextAreaField
-              control={control}
-              name="extra.business_profile.working_hours"
-              label={t("Working hours")}
-              placeholder={t("Mon-Fri 9:00-18:00")}
-              disabled={!isOwner}
-            />
-
-            <label>
-              <div className="label">{t("Language")}</div>
-              <input
-                className="text"
-                placeholder={t("Spanish")}
-                disabled={!isOwner}
-                {...register("extra.business_profile.language")}
-              />
-            </label>
-
-            <TextAreaField
-              control={control}
-              name="extra.business_profile.notes"
-              label={t("Notes")}
-              placeholder={t("Any additional details for the agents")}
-              disabled={!isOwner}
-            />
           </SectionField>
         </form>
       </SectionBody>

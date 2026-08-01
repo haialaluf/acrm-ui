@@ -26,9 +26,6 @@ export type BusinessProfile = {
   business_name?: string; // defaults from organization.name in the UI
   description?: string;
   services?: string; // freeform multiline ("Corte 30min $20 …")
-  working_hours?: string;
-  language?: string;
-  notes?: string;
 };
 
 export type OrganizationExtra = {
