@@ -9,24 +9,8 @@ import { useTranslation } from "@/hooks/useTranslation";
 // Pure helpers now live in ./media (so lightweight consumers like the message
 // preview can reuse them without importing this component). Re-exported here to
 // keep existing import paths working.
-export { extension, iconName } from "./media";
-import { extension, iconName } from "./media";
-
-export function fileSize(size: number) {
-  if (isNaN(size)) {
-    return;
-  }
-
-  const KB = Math.round(size / 1000);
-
-  if (KB < 1000) {
-    return `${KB} KB`;
-  }
-
-  const MB = Math.round(KB / 1000);
-
-  return `${MB} MB`;
-}
+export { extension, iconName, fileSize } from "./media";
+import { extension, iconName, fileSize } from "./media";
 
 export function mediaType(type: string) {
   switch (type.split("/")[0]) {

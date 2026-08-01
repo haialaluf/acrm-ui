@@ -534,6 +534,7 @@ function BulkSend() {
           template={template}
           vars={vars}
           headerMedia={headerMedia}
+          headerMediaName={headerMediaName}
           headerMediaSize={headerMediaSize}
           recipients={recipients}
           onRemove={(id) => {

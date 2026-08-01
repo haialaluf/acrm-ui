@@ -46,6 +46,26 @@ export const LANDSCAPE_WIDTH = 320;
 export const MAX_PORTRAIT_HEIGHT = (PORTRAIT_WIDTH * 4) / 3; // 320
 export const MAX_LANDSCAPE_HEIGHT = (LANDSCAPE_WIDTH * 3) / 4; // 240
 
+/** Human-readable file size, e.g. "21 KB", "1 MB". Uses decimal (÷1000) units
+ *  to match how the OS file browser and WhatsApp itself report sizes — a binary
+ *  (÷1024) KB would render a 21 KB file as "20 KB". Shared by the chat's media
+ *  bubbles and the send preview so both always agree on the number. */
+export function fileSize(size: number) {
+  if (isNaN(size)) {
+    return;
+  }
+
+  const KB = Math.round(size / 1000);
+
+  if (KB < 1000) {
+    return `${KB} KB`;
+  }
+
+  const MB = Math.round(KB / 1000);
+
+  return `${MB} MB`;
+}
+
 /** Lowercased file extension, e.g. "report.PDF" → "pdf". */
 export function extension(filename: string | undefined) {
   return filename?.split(".").slice(-1)[0]?.toLowerCase();

@@ -6,16 +6,9 @@ import {
   whatsappImageSize,
   extension,
   iconName,
+  fileSize,
 } from "@/components/Message/media";
 import type { PreviewHeaderType } from "./types";
-
-/** WhatsApp-style size label (no decimals): "512 B", "21 KB", "1 MB". */
-function waBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  const kb = bytes / 1024;
-  if (kb < 1024) return `${Math.round(kb)} KB`;
-  return `${Math.round(kb / 1024)} MB`;
-}
 
 /** The media block at the top of a bubble: image / video / document. */
 export default function MediaHeader({
@@ -123,7 +116,7 @@ export default function MediaHeader({
           <div className="wa-doc-name">{name}</div>
           <div className="wa-doc-sub">
             {ext ? ext.toUpperCase() : t("Document")}
-            {bytes != null && bytes > 0 ? ` · ${waBytes(bytes)}` : ""}
+            {bytes != null && bytes > 0 ? ` · ${fileSize(bytes)}` : ""}
           </div>
         </div>
         {/* Same download glyph (circle + arrow) the real chat uses. */}

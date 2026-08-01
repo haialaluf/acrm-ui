@@ -57,6 +57,7 @@ export default function ReviewStep({
   template,
   vars,
   headerMedia,
+  headerMediaName,
   headerMediaSize,
   recipients,
   onRemove,
@@ -77,6 +78,7 @@ export default function ReviewStep({
   template: TemplateData;
   vars: Record<string, VarValue>;
   headerMedia: string;
+  headerMediaName: string;
   headerMediaSize?: number;
   recipients: ContactWithAddressesRow[];
   onRemove: (id: string) => void;
@@ -148,8 +150,13 @@ export default function ReviewStep({
       mediaUrl: hasMedia ? headerMedia.trim() : "",
       mediaName:
         mediaFmt === "DOCUMENT"
-          ? // Last path segment, minus any `?token=…` query string.
-            (headerMedia.trim().split("/").pop()?.split("?")[0] ?? "")
+          ? // The picked file's real name. Falling back to the URL's last path
+            // segment would show the storage object's random UUID, not the
+            // document the user chose. Kept only as a last resort for a URL
+            // with no known name.
+            (headerMediaName ||
+              headerMedia.trim().split("/").pop()?.split("?")[0] ||
+              "")
           : "",
       mediaSize: mediaFmt === "DOCUMENT" ? headerMediaSize : undefined,
       body: bodyText,
@@ -160,7 +167,7 @@ export default function ReviewStep({
         detectRtl(bodyText, headerText, footer) ||
         isRtl(template.language as Language),
     };
-  }, [template, vars, current, headerMedia, headerMediaSize, t]);
+  }, [template, vars, current, headerMedia, headerMediaName, headerMediaSize, t]);
 
   const canSend =
     recipients.length > 0 &&
