@@ -1127,6 +1127,75 @@ export type Database = {
           },
         ]
       }
+      message_templates: {
+        Row: {
+          category: string | null
+          components: Json | null
+          created_at: string
+          disable_date: string | null
+          id: string
+          language: string
+          last_synced_at: string | null
+          name: string
+          organization_address: string | null
+          organization_id: string
+          quality_score: string | null
+          rejected_reason: string | null
+          status: string | null
+          updated_at: string
+          waba_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          components?: Json | null
+          created_at?: string
+          disable_date?: string | null
+          id: string
+          language: string
+          last_synced_at?: string | null
+          name: string
+          organization_address?: string | null
+          organization_id: string
+          quality_score?: string | null
+          rejected_reason?: string | null
+          status?: string | null
+          updated_at?: string
+          waba_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          components?: Json | null
+          created_at?: string
+          disable_date?: string | null
+          id?: string
+          language?: string
+          last_synced_at?: string | null
+          name?: string
+          organization_address?: string | null
+          organization_id?: string
+          quality_score?: string | null
+          rejected_reason?: string | null
+          status?: string | null
+          updated_at?: string
+          waba_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_templates_organization_address_fkey"
+            columns: ["organization_id", "organization_address"]
+            isOneToOne: false
+            referencedRelation: "organizations_addresses"
+            referencedColumns: ["organization_id", "address"]
+          },
+          {
+            foreignKeyName: "message_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           agent_id: string | null
@@ -1391,6 +1460,84 @@ export type Database = {
           },
         ]
       }
+      whatsapp_health_snapshots: {
+        Row: {
+          account_review_status: string | null
+          business_verification_status: string | null
+          can_send_message: string | null
+          created_at: string
+          event_type: string | null
+          health_status: Json | null
+          id: string
+          messaging_limit: number | null
+          messaging_limit_tier: string | null
+          name_status: string | null
+          organization_address: string | null
+          organization_id: string
+          quality_rating: string | null
+          raw: Json
+          restriction_info: Json | null
+          source: string
+          violation_type: string | null
+          waba_id: string | null
+        }
+        Insert: {
+          account_review_status?: string | null
+          business_verification_status?: string | null
+          can_send_message?: string | null
+          created_at?: string
+          event_type?: string | null
+          health_status?: Json | null
+          id?: string
+          messaging_limit?: number | null
+          messaging_limit_tier?: string | null
+          name_status?: string | null
+          organization_address?: string | null
+          organization_id: string
+          quality_rating?: string | null
+          raw: Json
+          restriction_info?: Json | null
+          source: string
+          violation_type?: string | null
+          waba_id?: string | null
+        }
+        Update: {
+          account_review_status?: string | null
+          business_verification_status?: string | null
+          can_send_message?: string | null
+          created_at?: string
+          event_type?: string | null
+          health_status?: Json | null
+          id?: string
+          messaging_limit?: number | null
+          messaging_limit_tier?: string | null
+          name_status?: string | null
+          organization_address?: string | null
+          organization_id?: string
+          quality_rating?: string | null
+          raw?: Json
+          restriction_info?: Json | null
+          source?: string
+          violation_type?: string | null
+          waba_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_health_snapshots_organization_address_fkey"
+            columns: ["organization_id", "organization_address"]
+            isOneToOne: false
+            referencedRelation: "organizations_addresses"
+            referencedColumns: ["organization_id", "address"]
+          },
+          {
+            foreignKeyName: "whatsapp_health_snapshots_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1596,6 +1743,27 @@ export type Database = {
       try_claim_dispatch_lock: {
         Args: { p_ttl_seconds?: number }
         Returns: boolean
+      }
+      whatsapp_daily_metrics: {
+        Args: { p_days?: number; p_organization_id: string }
+        Returns: {
+          cold_recipient_count: number
+          cold_recipient_ratio: number
+          day: string
+          delivered_count: number
+          delivered_rate: number
+          error_codes: Json
+          failed_count: number
+          inbound_outbound_ratio: number
+          incoming_count: number
+          messaging_limit: number
+          organization_address: string
+          outgoing_count: number
+          read_count: number
+          read_rate: number
+          recipient_count: number
+          volume_pinned_to_ceiling: boolean
+        }[]
       }
     }
     Enums: {
