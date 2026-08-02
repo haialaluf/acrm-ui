@@ -1,7 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/supabase/client";
+import { type Database, supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 import { queryKeys } from "./queryKeys";
+
+/** One row of useBroadcastBatches — a single day-batch of a broadcast. */
+export type BroadcastBatchRow =
+  Database["public"]["Functions"]["list_broadcast_batches"]["Returns"][number];
 
 /**
  * One row per batch — a distinct sending day within one broadcast "campaign".

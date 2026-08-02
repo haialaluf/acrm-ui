@@ -1,102 +1,225 @@
-import { LoaderCircle, Megaphone } from "lucide-react";
+import { useState } from "react";
+import { CalendarClock, LoaderCircle, Plus } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import SectionBody from "@/components/SectionBody";
+import ConfirmModal from "@/components/ConfirmModal";
 import SectionHeader from "@/components/SectionHeader";
-import SectionItem from "@/components/SectionItem";
-import StatusBadge from "@/components/StatusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useBroadcastBatches } from "@/queries/useBroadcasts";
-import { batchStatus, batchStatusLabel, batchStatusTone } from "./batchStatus";
+import {
+  type BroadcastBatchRow,
+  useBroadcastBatches,
+  useCancelBroadcastBatch,
+} from "@/queries/useBroadcasts";
+import { batchStatus, isUpcomingBatch } from "./batchStatus";
 import { encodeBatchKey } from "./batchKey";
-import { formatScheduledDate } from "./formatScheduledDate";
+import BroadcastCard from "./BroadcastCard";
 
-// Master list of the org's broadcast batches — one row per day-batch, not per
-// campaign (a 5-day split send shows as 5 rows). Rendered in the left panel
+type Tab = "upcoming" | "history";
+
+// Master list of the org's broadcast batches — one card per day-batch, not per
+// campaign (a 5-day split send shows as 5 cards). Rendered in the left panel
 // for both `/broadcasts` and `/broadcasts/$batchKey`; the detail fills the
 // center panel (see BroadcastCenter, the broadcasts analogue of
 // CalendarCenter/StatsCenter).
 export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
-  const { translate: t, currentLanguage } = useTranslation();
+  const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { data: batches, isLoading } = useBroadcastBatches();
+  const cancelBatch = useCancelBroadcastBatch();
+
+  // null until the user picks a tab, so the default can follow the data (and
+  // the open batch) instead of being frozen at first render.
+  const [tab, setTab] = useState<Tab | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<BroadcastBatchRow | null>(
+    null,
+  );
+
+  const rows = (batches ?? [])
+    .filter((b) => b.created_at && b.scheduled_date)
+    .map((b) => ({
+      batch: b,
+      key: encodeBatchKey(b.created_at, b.scheduled_date),
+      upcoming: isUpcomingBatch(
+        batchStatus({
+          scheduled_date: b.scheduled_date,
+          recipient_count: b.recipient_count ?? 0,
+          pending_count: b.pending_count ?? 0,
+          failed_count: b.failed_count ?? 0,
+          cancelled_count: b.cancelled_count ?? 0,
+        }),
+      ),
+    }));
+
+  // Soonest first for what is still coming, most recent first for what is done.
+  const upcoming = rows
+    .filter((r) => r.upcoming)
+    .sort((a, b) =>
+      a.batch.scheduled_date.localeCompare(b.batch.scheduled_date),
+    );
+  const history = rows
+    .filter((r) => !r.upcoming)
+    .sort((a, b) =>
+      b.batch.scheduled_date.localeCompare(a.batch.scheduled_date),
+    );
+
+  const activeRow = activeKey ? rows.find((r) => r.key === activeKey) : null;
+  const activeTab: Tab =
+    tab ??
+    (activeRow
+      ? activeRow.upcoming
+        ? "upcoming"
+        : "history"
+      : upcoming.length > 0 || history.length === 0
+        ? "upcoming"
+        : "history");
+
+  const list = activeTab === "upcoming" ? upcoming : history;
+
+  function confirmCancel() {
+    if (!cancelTarget) return;
+    cancelBatch.mutate(
+      {
+        createdAt: cancelTarget.created_at,
+        scheduledDate: cancelTarget.scheduled_date,
+      },
+      { onSuccess: () => setCancelTarget(null) },
+    );
+  }
 
   return (
     <>
       <SectionHeader title={t("Broadcasts")} />
 
-      <SectionBody>
+      {/* Upcoming / history split */}
+      <div className="shrink-0 px-[12px] pb-[10px] flex gap-[6px]">
+        <SubTab
+          active={activeTab === "upcoming"}
+          onClick={() => setTab("upcoming")}
+        >
+          {t("Upcoming")}
+          {upcoming.length > 0 && (
+            <span
+              className={
+                "rounded-full px-[6px] text-[11px] " +
+                (activeTab === "upcoming"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground")
+              }
+            >
+              {upcoming.length}
+            </span>
+          )}
+        </SubTab>
+        <SubTab
+          active={activeTab === "history"}
+          onClick={() => setTab("history")}
+        >
+          {t("History")}
+        </SubTab>
+      </div>
+
+      <div className="overflow-y-auto [scrollbar-gutter:stable] grow px-[12px] pb-[12px] flex flex-col gap-[8px]">
         {isLoading && (
           <div className="flex justify-center p-4">
             <LoaderCircle className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
         )}
 
-        {batches?.sort((a, b) => new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime()).map((batch) => {
-          if (!batch.created_at || !batch.scheduled_date) return null;
-          const key = encodeBatchKey(batch.created_at, batch.scheduled_date);
-          const status = batchStatus({
-            scheduled_date: batch.scheduled_date,
-            recipient_count: batch.recipient_count ?? 0,
-            pending_count: batch.pending_count ?? 0,
-            failed_count: batch.failed_count ?? 0,
-            cancelled_count: batch.cancelled_count ?? 0,
-          });
+        {list.map((row) => (
+          <BroadcastCard
+            key={row.key}
+            batch={row.batch}
+            selected={row.key === activeKey}
+            onOpen={() =>
+              navigate({
+                to: "/broadcasts/$batchKey",
+                params: { batchKey: row.key },
+                hash: (prevHash: string | undefined) => prevHash!,
+              })
+            }
+            onCancel={() => setCancelTarget(row.batch)}
+          />
+        ))}
 
-          return (
-            <SectionItem
-              key={key}
-              title={batch.template_name ?? t("Broadcast")}
-              selected={key === activeKey}
-              // Kept to 2 segments deliberately: SectionItem's description is
-              // a single non-wrapping line (`truncate`), and under RTL an
-              // overflowing flex row clips silently (no ellipsis, no
-              // console warning) — a 3rd segment here previously pushed the
-              // recipient count off the visible edge, which looked like a
-              // missing translation but was actually a width overflow.
-              description={
-                <div className="flex items-center gap-2">
-                  <span>
-                    {formatScheduledDate(
-                      batch.scheduled_date,
-                      t,
-                      currentLanguage,
-                    )}
-                  </span>
-                  <span>·</span>
-                  <span>
-                    {t("Batch")} {(batch.batch_index ?? 0) + 1}/
-                    {batch.batches_total}
-                  </span>
-                </div>
-              }
-              aside={
-                <div className="p-[8px] bg-muted rounded-full">
-                  <Megaphone className="w-[24px] h-[24px] text-muted-foreground" />
-                </div>
-              }
-              actions={
-                <StatusBadge
-                  label={batchStatusLabel(status, t)}
-                  tone={batchStatusTone(status)}
-                />
-              }
-              onClick={() =>
-                navigate({
-                  to: "/broadcasts/$batchKey",
-                  params: { batchKey: key },
-                  hash: (prevHash: string | undefined) => prevHash!,
-                })
-              }
-            />
-          );
-        })}
-
-        {!isLoading && batches?.length === 0 && (
-          <div className="p-8 text-center text-muted-foreground text-sm">
-            {t("No broadcasts sent yet.")}
+        {!isLoading && list.length === 0 && (
+          <div className="grow flex flex-col items-center justify-center text-center py-[60px] px-[24px]">
+            <div className="rounded-full flex items-center justify-center mb-[14px] w-[66px] h-[66px] bg-primary/8">
+              <CalendarClock className="w-[28px] h-[28px] text-primary" />
+            </div>
+            <div className="text-[15px] mb-[5px]">
+              {activeTab === "upcoming"
+                ? t("No scheduled broadcasts")
+                : t("No past broadcasts")}
+            </div>
+            <div className="text-[12px] text-muted-foreground max-w-[260px] leading-[18px]">
+              {activeTab === "upcoming"
+                ? t(
+                    "Every broadcast you schedule shows up here — you can cancel it up until it goes out.",
+                  )
+                : t(
+                    "Broadcasts that finished or were cancelled show up here with their delivery stats.",
+                  )}
+            </div>
           </div>
         )}
-      </SectionBody>
+      </div>
+
+      <div className="shrink-0 px-[16px] py-[12px] border-t border-border">
+        <button
+          className="primary w-full h-[44px] flex items-center justify-center gap-[8px] text-[14px]"
+          onClick={() =>
+            navigate({
+              to: "/conversations/bulk-send",
+              hash: (prevHash: string | undefined) => prevHash!,
+            })
+          }
+        >
+          <Plus className="w-[17px] h-[17px]" />
+          {t("New broadcast")}
+        </button>
+      </div>
+
+      <ConfirmModal
+        open={!!cancelTarget}
+        title={t("Cancel this batch?")}
+        confirmLabel={t("Cancel batch")}
+        loading={cancelBatch.isPending}
+        onConfirm={confirmCancel}
+        onCancel={() => setCancelTarget(null)}
+        body={
+          <>
+            <p className="text-[15px] text-foreground">
+              {t("This will cancel the still-pending messages in this batch.")}
+            </p>
+            <p className="text-[13px] text-muted-foreground mt-2">
+              {t("This action cannot be undone.")}
+            </p>
+          </>
+        }
+      />
     </>
+  );
+}
+
+function SubTab({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      className={
+        "flex items-center justify-center gap-[6px] flex-1 px-[12px] py-[7px] rounded-full text-[13px] border transition-colors " +
+        (active
+          ? "bg-primary/10 border-primary text-primary"
+          : "bg-background border-border text-foreground hover:bg-accent/50")
+      }
+      onClick={onClick}
+    >
+      {children}
+    </button>
   );
 }

@@ -22,16 +22,19 @@ export function batchStatus(row: {
     const today = new Date().toISOString().slice(0, 10);
     return row.scheduled_date <= today ? "sending" : "scheduled";
   }
-  if (
-    row.cancelled_count > 0 &&
-    row.cancelled_count === row.recipient_count
-  ) {
+  if (row.cancelled_count > 0 && row.cancelled_count === row.recipient_count) {
     return "cancelled";
   }
   if (row.failed_count > 0 && row.failed_count === row.recipient_count) {
     return "failed";
   }
   return "sent";
+}
+
+/** Splits the two list tabs: a batch is "upcoming" while it still has
+ *  messages that can go out (or be cancelled), and history once it doesn't. */
+export function isUpcomingBatch(status: BatchStatus): boolean {
+  return status === "scheduled" || status === "sending";
 }
 
 export function batchStatusTone(

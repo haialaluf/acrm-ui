@@ -125,7 +125,7 @@ export default function BroadcastBatchDetail({
   ];
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden bg-muted">
       <SectionHeader
         title={batch.template_name ?? t("Broadcast")}
         hideBackButton
@@ -185,7 +185,7 @@ export default function BroadcastBatchDetail({
             </div>
           )}
 
-          <div className="flex flex-col rounded-xl border border-border overflow-hidden">
+          <div className="flex flex-col rounded-xl border border-border overflow-hidden bg-card">
             {filteredMessages?.map((m) => (
               <div
                 key={m.message_id}
