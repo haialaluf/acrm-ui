@@ -995,6 +995,21 @@ export type Database = {
           },
         ]
       }
+      dispatch_scheduler_lock: {
+        Row: {
+          id: boolean
+          locked_until: string
+        }
+        Insert: {
+          id?: boolean
+          locked_until?: string
+        }
+        Update: {
+          id?: boolean
+          locked_until?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           ad_id: string | null
@@ -1454,6 +1469,27 @@ export type Database = {
         }
         Returns: boolean
       }
+      claim_dispatch_batch: {
+        Args: { p_limit?: number }
+        Returns: {
+          agent_id: string
+          contact_address: string
+          content: Json
+          conversation_id: string
+          created_at: string
+          direction: Database["public"]["Enums"]["direction"]
+          external_id: string
+          group_address: string
+          id: string
+          organization_address: string
+          organization_id: string
+          service: Database["public"]["Enums"]["service"]
+          status: Json
+          thread_id: string
+          timestamp: string
+          updated_at: string
+        }[]
+      }
       contact_address_update_rules: {
         Args: {
           p_address: string
@@ -1552,9 +1588,14 @@ export type Database = {
         Args: { p_id: string; p_name: string }
         Returns: boolean
       }
+      release_dispatch_lock: { Args: never; Returns: undefined }
       send_broadcast: {
         Args: { _conversations?: Json; _messages?: Json }
         Returns: number
+      }
+      try_claim_dispatch_lock: {
+        Args: { p_ttl_seconds?: number }
+        Returns: boolean
       }
     }
     Enums: {
