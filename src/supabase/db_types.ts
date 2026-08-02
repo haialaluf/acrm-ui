@@ -1421,6 +1421,30 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      broadcast_batch_messages: {
+        Args: {
+          p_created_at: string
+          p_organization_id: string
+          p_scheduled_date: string
+        }
+        Returns: {
+          contact_address: string
+          contact_id: string
+          contact_name: string
+          conversation_id: string
+          message_id: string
+          status: Json
+          timestamp: string
+        }[]
+      }
+      cancel_broadcast_batch: {
+        Args: {
+          p_created_at: string
+          p_organization_id: string
+          p_scheduled_date: string
+        }
+        Returns: number
+      }
       claim_conversation: {
         Args: {
           _conversation_id: string
@@ -1480,6 +1504,23 @@ export type Database = {
           p_until?: string
         }
         Returns: Json
+      }
+      list_broadcast_batches: {
+        Args: { p_organization_id: string }
+        Returns: {
+          batch_index: number
+          batches_total: number
+          cancelled_count: number
+          created_at: string
+          delivered_count: number
+          failed_count: number
+          pending_count: number
+          read_count: number
+          recipient_count: number
+          scheduled_date: string
+          sent_count: number
+          template_name: string
+        }[]
       }
       member_self_update_rules: {
         Args: {

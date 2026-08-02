@@ -57,6 +57,24 @@ export const queryKeys = {
     detail: (orgId: NullableId, id: NullableId) =>
       [orgId, "calendars", id] as const,
   },
+  broadcasts: {
+    /** One row per batch (list_broadcast_batches). */
+    batches: (orgId: NullableId) => [orgId, "broadcasts", "batches"] as const,
+    /** Recipient list of one batch (broadcast_batch_messages). */
+    batchMessages: (
+      orgId: NullableId,
+      createdAt: NullableId,
+      scheduledDate: NullableId,
+    ) =>
+      [
+        orgId,
+        "broadcasts",
+        "batches",
+        createdAt,
+        scheduledDate,
+        "messages",
+      ] as const,
+  },
   appointments: {
     all: (orgId: NullableId, calendarId: NullableId) =>
       [orgId, "appointments", calendarId] as const,

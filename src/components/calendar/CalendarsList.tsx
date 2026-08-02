@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { CalendarDays, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { Button, ConfigProvider, Dropdown, Modal } from "antd";
+import { Dropdown } from "antd";
+import ConfirmModal from "@/components/ConfirmModal";
 import SectionBody from "@/components/SectionBody";
 import SectionHeader from "@/components/SectionHeader";
 import SectionItem from "@/components/SectionItem";
-import { modalTokens } from "@/components/antdTokens";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
   type CalendarRow,
@@ -131,38 +131,15 @@ export default function CalendarsList({ activeId }: { activeId?: string }) {
         })}
       </SectionBody>
 
-      <ConfigProvider
-        theme={{
-          token: { colorPrimary: "var(--primary)", borderRadius: 10 },
-          components: {
-            Modal: modalTokens,
-            Button: { colorText: "var(--foreground)" },
-          },
-        }}
-      >
-        <Modal
-          open={!!confirm}
-          onCancel={() => setConfirm(null)}
-          title={t("Delete calendar")}
-          width={380}
-          destroyOnHidden
-          footer={
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <Button type="text" onClick={() => setConfirm(null)}>
-                {t("Cancel")}
-              </Button>
-              <Button
-                danger
-                type="primary"
-                loading={deleteCalendar.isPending}
-                onClick={confirmDelete}
-              >
-                {t("Delete")}
-              </Button>
-            </div>
-          }
-        >
-          <div className="py-1">
+      <ConfirmModal
+        open={!!confirm}
+        onCancel={() => setConfirm(null)}
+        title={t("Delete calendar")}
+        confirmLabel={t("Delete")}
+        loading={deleteCalendar.isPending}
+        onConfirm={confirmDelete}
+        body={
+          <>
             <p className="text-[15px] text-foreground">
               {t("Delete this calendar?")}
             </p>
@@ -174,9 +151,9 @@ export default function CalendarsList({ activeId }: { activeId?: string }) {
             <p className="text-[13px] text-muted-foreground mt-2">
               {t("This action cannot be undone.")}
             </p>
-          </div>
-        </Modal>
-      </ConfigProvider>
+          </>
+        }
+      />
     </>
   );
 }

@@ -734,5 +734,20 @@
   "Meta decides the final category": "הקטגוריה הסופית נקבעת על ידי Meta",
   "You're requesting Utility, but Meta's automated review reads your message content and assigns the category itself. If it decides this looks promotional, the template is approved as Marketing.": "בחרת שירות, אבל הבדיקה האוטומטית של Meta קוראת את תוכן ההודעה ומשייכת את הקטגוריה בעצמה. אם היא תחליט שזה נראה שיווקי, התבנית תאושר כשיווק.",
   "Utility templates must relate to something the customer already has: an order, a booking, an account, or a payment. Offers, promotions and general updates count as Marketing.": "תבניות שירות חייבות להתייחס למשהו שכבר יש ללקוח: הזמנה, תור, חשבון או תשלום. מבצעים, קידומי מכירות ועדכונים כלליים נחשבים שיווק.",
-  "Meta can also re-categorise a template later, after it has been approved.": "ייתכן ש-Meta תשנה את הקטגוריה של תבנית גם מאוחר יותר, אחרי שכבר אושרה."
+  "Meta can also re-categorise a template later, after it has been approved.": "ייתכן ש-Meta תשנה את הקטגוריה של תבנית גם מאוחר יותר, אחרי שכבר אושרה.",
+  "Broadcasts": "שליחות",
+  "Broadcast": "שליחה",
+  "Batch": "מנה",
+  "Delivered": "נמסרו",
+  "Read": "נקראו",
+  "Cancelled": "בוטלו",
+  "Scheduled": "מתוזמן",
+  "Sending": "בשליחה",
+  "Yesterday": "אתמול",
+  "No broadcasts sent yet.": "עדיין לא נשלחו הודעות.",
+  "Cancel this batch": "ביטול המנה",
+  "Cancel this batch?": "לבטל את המנה?",
+  "Cancel batch": "בטל מנה",
+  "This will cancel the still-pending messages in this batch.": "ההודעות שטרם נשלחו במנה זו יבוטלו.",
+  "Clear filter": "נקה סינון"
 }

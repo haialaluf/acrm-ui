@@ -1,5 +1,5 @@
 import { useTranslation } from "@/hooks/useTranslation";
-import StatTile from "./StatTile";
+import StatTile from "@/components/StatTile";
 
 /** Step 5 — in-flight stage. SVG ring with percentage + 3-up stat tiles. */
 export default function SendingStep({

@@ -70,7 +70,7 @@ export default function SectionItem({
       {/* Trailing actions (e.g. an options menu) */}
       {actions && (
         <div
-          className="flex items-center pr-[10px]"
+          className="flex items-center px-[10px]"
           onClick={(e) => e.stopPropagation()}
         >
           {actions}

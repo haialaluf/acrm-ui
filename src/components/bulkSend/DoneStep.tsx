@@ -2,10 +2,10 @@ import { AlertTriangle, Check, MessageSquare, RotateCcw } from "lucide-react";
 
 import Button from "@/components/Button";
 import SectionFooter from "@/components/SectionFooter";
+import StatTile from "@/components/StatTile";
 import { useTranslation } from "@/hooks/useTranslation";
 
 import ActionRow from "./ActionRow";
-import StatTile from "./StatTile";
 
 /** Step 6 — result screen: success, or the failure that actually happened. */
 export default function DoneStep({
