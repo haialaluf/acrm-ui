@@ -13,6 +13,7 @@ export default function Checkbox({
       type="button"
       onClick={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         onChange();
       }}
       className="inline-flex items-center justify-center rounded-[6px] shrink-0 transition-all"
