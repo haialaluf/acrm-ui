@@ -1765,6 +1765,15 @@ export type Database = {
           volume_pinned_to_ceiling: boolean
         }[]
       }
+      whatsapp_template_sends: {
+        Args: { p_days?: number; p_organization_id: string }
+        Returns: {
+          organization_address: string
+          sends: number
+          template_language: string
+          template_name: string
+        }[]
+      }
     }
     Enums: {
       appointment_status: "scheduled" | "confirmed" | "cancelled" | "completed"

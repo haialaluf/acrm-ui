@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import StatsQuotas from "./StatsQuotas";
 import StatsUsage from "./StatsUsage";
+import AccountHealth from "./health/AccountHealth";
 
 export default function StatsCenter() {
   const pathname = useLocation({ select: (l) => l.pathname });
@@ -10,6 +11,7 @@ export default function StatsCenter() {
   const { translate: t } = useTranslation();
 
   const isUsage = pathname === "/stats/usage";
+  const isHealth = pathname === "/stats/health";
 
   return (
     <>
@@ -25,11 +27,17 @@ export default function StatsCenter() {
           <ArrowLeft className="w-[24px] h-[24px] text-foreground" />
         </button>
         <div className="flex items-center text-[16px] text-foreground">
-          {isUsage ? t("Usage") : t("Quotas")}
+          {isHealth ? t("Account health") : isUsage ? t("Usage") : t("Quotas")}
         </div>
       </div>
 
-      {isUsage ? <StatsUsage /> : <StatsQuotas />}
+      {isHealth ? (
+        <AccountHealth />
+      ) : isUsage ? (
+        <StatsUsage />
+      ) : (
+        <StatsQuotas />
+      )}
     </>
   );
 }

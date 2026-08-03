@@ -33,6 +33,14 @@
 
   --success: oklch(0.65 0.14 150);
   --warning: oklch(0.72 0.16 75);
+
+  /* Readable foregrounds for tinted status chips and large stat numbers.
+     `--success` and especially `--warning` are mid-lightness hues chosen to
+     work as *fills*; used as text on a pale tint they fall below contrast.
+     Light mode darkens them, dark mode lightens them (see .dark). */
+  --success-strong: oklch(from var(--success) calc(l - 0.12) c h);
+  --warning-strong: oklch(from var(--warning) calc(l - 0.28) c h);
+  --destructive-strong: var(--destructive);
 }
 
 .dark {
@@ -68,6 +76,10 @@
 
   --success: oklch(0.7 0.14 150);
   --warning: oklch(0.78 0.16 75);
+
+  --success-strong: oklch(from var(--success) calc(l + 0.06) c h);
+  --warning-strong: oklch(from var(--warning) calc(l + 0.04) c h);
+  --destructive-strong: oklch(from var(--destructive) calc(l + 0.08) c h);
 }
 
 @theme inline {
@@ -103,6 +115,9 @@
 
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-success-strong: var(--success-strong);
+  --color-warning-strong: var(--warning-strong);
+  --color-destructive-strong: var(--destructive-strong);
 }
 
 html,

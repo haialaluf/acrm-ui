@@ -8,7 +8,7 @@ import SectionHeader from "@/components/SectionHeader";
 import SectionBody from "@/components/SectionBody";
 import SectionItem from "@/components/SectionItem";
 import { useTranslation } from "@/hooks/useTranslation";
-import { BarChart3, Gauge } from "lucide-react";
+import { Activity, BarChart3, Gauge } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/stats")({
   component: StatsLayout,
@@ -22,7 +22,12 @@ function StatsLayout() {
 
   // Bare `/stats` defaults to Quotas (matching StatsCenter), so treat it as the
   // active Quotas tab for highlighting — there is no redirect to `/stats/quotas`.
-  const activeTab = pathname === "/stats/usage" ? "usage" : "quotas";
+  const activeTab =
+    pathname === "/stats/usage"
+      ? "usage"
+      : pathname === "/stats/health"
+        ? "health"
+        : "quotas";
 
   return (
     <>
@@ -59,6 +64,22 @@ function StatsLayout() {
             navigate({ to: "/stats/usage", hash: (prev) => prev! })
           }
           className={activeTab === "usage" ? "bg-accent" : ""}
+        />
+        <SectionItem
+          title={t("Account health")}
+          aside={
+            <div
+              className={`p-[8px] rounded-full ${activeTab === "health" ? "bg-primary/10" : ""}`}
+            >
+              <Activity
+                className={`w-[24px] h-[24px] ${activeTab === "health" ? "text-primary" : "text-muted-foreground"}`}
+              />
+            </div>
+          }
+          onClick={() =>
+            navigate({ to: "/stats/health", hash: (prev) => prev! })
+          }
+          className={activeTab === "health" ? "bg-accent" : ""}
         />
       </SectionBody>
       <Outlet />

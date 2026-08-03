@@ -83,6 +83,23 @@ export const queryKeys = {
     all: (orgId: NullableId, service: string) =>
       [orgId, "onboarding_tokens", service] as const,
   },
+  whatsappHealth: {
+    /** Poll + webhook snapshots for one number, newest first. */
+    snapshots: (orgId: NullableId, address: NullableId) =>
+      [orgId, "whatsapp_health", "snapshots", address] as const,
+    /** Per-day sending behaviour for every number (whatsapp_daily_metrics). */
+    metrics: (orgId: NullableId, days: number) =>
+      [orgId, "whatsapp_health", "metrics", days] as const,
+    /** The `message_templates` mirror, not the live Graph fetch in useTemplates. */
+    templates: (orgId: NullableId, address: NullableId) =>
+      [orgId, "whatsapp_health", "templates", address] as const,
+    /** Meta health events from `logs`. */
+    events: (orgId: NullableId, address: NullableId) =>
+      [orgId, "whatsapp_health", "events", address] as const,
+    /** Send counts per template (whatsapp_template_sends). */
+    templateSends: (orgId: NullableId, days: number) =>
+      [orgId, "whatsapp_health", "template_sends", days] as const,
+  },
   billing: {
     products: () => ["billing", "products"] as const,
     usage: (orgId: NullableId, interval: string) =>

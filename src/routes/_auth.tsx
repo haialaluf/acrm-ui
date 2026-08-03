@@ -50,7 +50,9 @@ function AppLayout() {
   // full-screen; bare `/stats` instead stays on the list + menu so the section
   // is navigable (the list is hidden alongside the center panel on mobile).
   const isStatsDetail =
-    pathname === "/stats/quotas" || pathname === "/stats/usage";
+    pathname === "/stats/quotas" ||
+    pathname === "/stats/usage" ||
+    pathname === "/stats/health";
   // An open calendar (`/calendars/<id>`, but not `/calendars/new`) shows its
   // react-big-calendar board in the wide center panel, master-detail style.
   const isCalendarBoardRoute = /^\/calendars\/(?!new$)[^/]+$/.test(pathname);
