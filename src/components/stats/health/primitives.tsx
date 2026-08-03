@@ -207,6 +207,20 @@ export const formatNumber = (n: number) => n.toLocaleString();
 export const formatPercent = (x: number, digits = 0) =>
   `${(x * 100).toFixed(digits)}%`;
 
+/** Falls back to a plain number when Meta hasn't reported a currency yet. */
+export function formatCurrency(amount: number, currency: string | null) {
+  if (!currency) return formatNumber(Math.round(amount));
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: amount < 100 ? 2 : 0,
+    }).format(amount);
+  } catch {
+    return `${formatNumber(Math.round(amount))} ${currency}`;
+  }
+}
+
 /** Meta ids, phone numbers and template names must not be bidi-reordered. */
 export function Ltr({
   children,

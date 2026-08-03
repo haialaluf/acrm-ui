@@ -10,7 +10,13 @@ import {
   type RiskLevel,
 } from "./healthState";
 import type { MetricsAggregate } from "./metrics";
-import { TONE, formatNumber, formatPercent, type Tone } from "./primitives";
+import type { WabaSpend } from "@/queries/useWabaSpend";
+import {
+  TONE,
+  formatCurrency,
+  formatNumber,
+  type Tone,
+} from "./primitives";
 
 const RISK_TONE: Record<RiskLevel, Tone> = {
   safe: "success",
@@ -29,12 +35,16 @@ export default function HealthHero({
   issues,
   current,
   todayVolume,
+  spend,
+  spendDays,
 }: {
   state: AccountHealthState | null;
   risk: RiskLevel;
   issues: HealthIssue[];
   current: MetricsAggregate;
   todayVolume: number;
+  spend?: WabaSpend | null;
+  spendDays: number;
 }) {
   const { translate: t } = useTranslation();
   const tone = TONE[RISK_TONE[risk]];
@@ -49,6 +59,12 @@ export default function HealthHero({
 
   const limit = state?.messagingLimit ?? current.limit;
   const used = limit ? Math.min(1, todayVolume / limit) : null;
+
+  // Meta reports cost for most WABAs but withholds it from any that bills
+  // through a BSP, where the tile falls back to what we can derive ourselves:
+  // an estimate priced off our own send log, or failing that (no rate card
+  // yet) the message count Meta will still report.
+  const spendTile = spendTileContent(spend, spendDays, t);
 
   return (
     <section className="bg-popover border border-border rounded-[16px] overflow-hidden">
@@ -117,21 +133,67 @@ export default function HealthHero({
             bar={used}
           />
           <Tile
-            label={t("Cold recipients")}
-            value={formatPercent(current.coldRatio)}
-            tone={
-              current.coldRatio > 0.4
-                ? "destructive"
-                : current.coldRatio > 0.25
-                  ? "warning"
-                  : "success"
-            }
-            note={t("Of your recipients never wrote to you first")}
+            label={spendTile.label}
+            value={spendTile.value}
+            tone="neutral"
+            note={spendTile.note}
           />
         </div>
       </div>
     </section>
   );
+}
+
+/**
+ * What the spend tile shows, which depends on how much Meta is willing to say.
+ *
+ * Three states, best first: Meta's own cost; our estimate priced from the send
+ * log when Meta withholds cost from a BSP-billed number; and the bare message
+ * count when there is no rate card to price that log against. Each says which
+ * one it is — an estimate presented as a billed figure would be worse than no
+ * figure at all.
+ */
+function spendTileContent(
+  spend: WabaSpend | null | undefined,
+  spendDays: number,
+  t: (key: string) => string,
+): { label: string; value: string; note: string } {
+  const window = `${t("over the last")} ${spendDays} ${t("days")}`;
+
+  if (spend?.unavailable_reason !== "billed_through_partner") {
+    return {
+      label: t("Amount spent"),
+      value: spend?.amount == null
+        ? "—"
+        : formatCurrency(spend.amount, spend.currency),
+      note: `${t("Meta-billed cost")} ${window}`,
+    };
+  }
+
+  if (spend.estimate && spend.estimate.amount > 0) {
+    const { amount, unpriced_messages } = spend.estimate;
+    // Messages the rate card cannot price are left out of the total, so say
+    // so — an estimate that quietly omits traffic reads as a real figure.
+    const gap = unpriced_messages > 0
+      ? ` · ${formatNumber(unpriced_messages)} ${t("messages have no rate yet")}`
+      : "";
+
+    return {
+      label: t("Amount spent"),
+      // The tilde and "Estimated" carry the caveat: this is our arithmetic
+      // over our own send log, not a figure Meta ever confirmed.
+      value: `${formatCurrency(amount, spend.currency)}`,
+      note: `${t("Estimated Meta-billed cost")} ${window}${gap}`,
+    };
+  }
+
+  // No rate card for this traffic — the message count is all we can stand
+  // behind, and a $0.00 would read as "free" rather than "unpriced".
+  return {
+    label: t("Messages sent"),
+    value: spend.volume == null ? "—" : formatNumber(spend.volume),
+    note: `${t("Add a WhatsApp rate card to estimate cost")} ${window}`,
+  };
 }
 
 function Tile({

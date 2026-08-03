@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { LoaderCircle, ShieldAlert } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
+import { useWabaSpend } from "@/queries/useWabaSpend";
 import {
   useHealthEvents,
   useHealthSnapshots,
@@ -60,6 +61,7 @@ export default function AccountHealth() {
   const { data: templates } = useMessageTemplatesMirror(address);
   const { data: events } = useHealthEvents(address);
   const { data: templateSends } = useTemplateSends(TEMPLATE_SEND_DAYS);
+  const { data: spend } = useWabaSpend(address ?? undefined, range);
 
   const { current, currentAgg, previousAgg } = useMemo(() => {
     const rows = filterByAddress(metricRows ?? [], address);
@@ -173,10 +175,12 @@ export default function AccountHealth() {
               issues={issues}
               current={currentAgg}
               todayVolume={todayVolume}
+              spend={spend}
+              spendDays={range}
             />
           )}
 
-          <div className="grid gap-[14px] items-start grid-cols-1 @3xl:grid-cols-[320px_minmax(0,1fr)]">
+          <div className="grid gap-[14px] items-start grid-cols-1">
             <aside className="flex flex-col gap-[14px] order-2 @3xl:order-1">
               {!hasNeverBeenChecked && <AccountFacts state={state} />}
               <EventsTimeline events={events ?? []} />

@@ -46,6 +46,8 @@ export const queryKeys = {
       [orgId, "organizations_addresses", address] as const,
     messagingLimit: (orgId: NullableId, address: NullableId) =>
       [orgId, "organizations_addresses", address, "messaging_limit"] as const,
+    spend: (orgId: NullableId, address: NullableId, days: number) =>
+      [orgId, "organizations_addresses", address, "spend", days] as const,
   },
   webhooks: {
     all: (orgId: NullableId) => [orgId, "webhooks"] as const,

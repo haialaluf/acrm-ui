@@ -1765,6 +1765,25 @@ export type Database = {
           volume_pinned_to_ceiling: boolean
         }[]
       }
+      whatsapp_message_spend: {
+        Args: {
+          p_countries_by_code?: Json
+          p_days?: number
+          p_organization_address?: string
+          p_organization_id: string
+        }
+        Returns: {
+          billable_messages: number
+          category: string
+          cost: number
+          country: string
+          messages: number
+          organization_address: string
+          pricing_type: string
+          source: string
+          unpriced_messages: number
+        }[]
+      }
       whatsapp_template_sends: {
         Args: { p_days?: number; p_organization_id: string }
         Returns: {
