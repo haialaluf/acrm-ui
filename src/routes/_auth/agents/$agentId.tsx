@@ -21,6 +21,7 @@ import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
 import PersonaSection from "@/components/PersonaSection";
 import SkillsSection from "@/components/SkillsSection";
+import SwitchField from "@/components/SwitchField";
 import {
   DEFAULT_AGENT_MODEL,
   MODEL_OPTIONS,
@@ -46,7 +47,10 @@ function AgentDetail() {
     (address) => address.service === "local",
   );
 
-  // Normalize agent data so the skills field array always has an array.
+  // Normalize agent data so the skills field array always has an array, and so
+  // the scope guard reads as on for agents saved before it existed (the API
+  // treats undefined as on too). Normalizing here also keeps it out of the
+  // dirty check: `values` is the baseline the form compares against.
   const normalizedAgent = useMemo(() => {
     if (!agent) return undefined;
     return {
@@ -54,6 +58,7 @@ function AgentDetail() {
       extra: {
         ...agent.extra,
         skills: agent.extra?.skills ?? [],
+        on_topic_only: agent.extra?.on_topic_only ?? true,
       },
     };
   }, [agent]);
@@ -137,6 +142,16 @@ function AgentDetail() {
                 control={control}
                 register={register}
                 setValue={setValue}
+                disabled={!isAdmin}
+              />
+
+              <SwitchField
+                name="extra.on_topic_only"
+                control={control}
+                label={t("Only reply when relevant")}
+                description={t(
+                  "Stay silent on small talk and anything outside the business's services and this agent's skills.",
+                )}
                 disabled={!isAdmin}
               />
 

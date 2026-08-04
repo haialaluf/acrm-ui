@@ -891,5 +891,7 @@
   "Media upload failed": "Upakiaji wa media umeshindwa",
   "Meta could not fetch or process the attached media. Check the file size, format and that the URL is publicly reachable.": "Meta haikuweza kupata au kuchakata media iliyoambatishwa. Angalia ukubwa wa faili, umbizo na kwamba URL inapatikana hadharani.",
   "Required parameter is missing": "Kigezo kinachohitajika hakipo",
-  "The send request left out a field Meta requires. Check the message payload against the template.": "Ombi la kutuma liliacha sehemu inayohitajika na Meta. Linganisha maudhui ya ujumbe na kiolezo."
+  "The send request left out a field Meta requires. Check the message payload against the template.": "Ombi la kutuma liliacha sehemu inayohitajika na Meta. Linganisha maudhui ya ujumbe na kiolezo.",
+  "Only reply when relevant": "Jibu tu inapohusika",
+  "Stay silent on small talk and anything outside the business's services and this agent's skills.": "Nyamaza kwenye mazungumzo ya kawaida na chochote kilicho nje ya huduma za biashara na ujuzi wa wakala huyu."
 }

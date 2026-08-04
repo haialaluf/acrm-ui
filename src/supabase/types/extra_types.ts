@@ -236,6 +236,9 @@ export type AIAgentExtra = {
   max_tokens?: number;
   thinking?: "minimal" | "low" | "medium" | "high";
   instructions?: string;
+  // Reply only when the message is business this agent can handle — see the
+  // API's `renderReplyScope`. Undefined ⇒ on: the guard is the default posture.
+  on_topic_only?: boolean;
   send_inline_files_up_to_size_mb?: number;
   tools?: ToolConfig[];
   persona?: AgentPersona;

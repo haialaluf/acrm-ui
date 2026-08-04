@@ -12,6 +12,7 @@ import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
 import PersonaSection from "@/components/PersonaSection";
 import SkillsSection from "@/components/SkillsSection";
+import SwitchField from "@/components/SwitchField";
 import {
   DEFAULT_AGENT_MODEL,
   MODEL_OPTIONS,
@@ -45,6 +46,7 @@ function AddAgent() {
         protocol: "chat_completions",
         model: DEFAULT_AGENT_MODEL,
         skills: [],
+        on_topic_only: true,
       },
     },
   });
@@ -104,6 +106,16 @@ function AddAgent() {
               control={control}
               register={register}
               setValue={setValue}
+            />
+
+            <SwitchField
+              name="extra.on_topic_only"
+              control={control}
+              label={t("Only reply when relevant")}
+              description={t(
+                "Stay silent on small talk and anything outside the business's services and this agent's skills.",
+              )}
+              disabled={!isAdmin}
             />
 
             <p className="text-muted-foreground text-[14px]">
