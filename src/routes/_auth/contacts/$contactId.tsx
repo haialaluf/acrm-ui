@@ -143,6 +143,21 @@ function ContactDetail() {
               />
             </label>
 
+            {/* Shared with the AI agent, in both directions: what is typed
+                here reaches the agent's prompt on every message, and the agent
+                appends its own dated lines through `update_contact`. Kept
+                inline rather than behind a TextAreaField nav row — the point of
+                the field is that you see what the agent learned on open. */}
+            <label>
+              <div className="label">{t("Notes")}</div>
+              <textarea
+                className="text"
+                rows={3}
+                placeholder={t("Anything worth knowing about this contact")}
+                {...register("notes")}
+              />
+            </label>
+
             <label>
               <div className="label">{t("Source")}</div>
               <input

@@ -93,6 +93,18 @@ function ContactNew() {
             />
           </label>
 
+          {/* Reaches the AI agent's prompt on every message, and the agent
+              appends its own dated lines here — see $contactId.tsx. */}
+          <label>
+            <div className="label">{t("Notes")}</div>
+            <textarea
+              className="text"
+              rows={3}
+              placeholder={t("Anything worth knowing about this contact")}
+              {...register("notes")}
+            />
+          </label>
+
           <div>
             <div className="label">{t("Tags")}</div>
             <Controller

@@ -97,7 +97,9 @@ export function applyContactFilter<T extends ContactWithAddressesRow>(
     f.notSentSince != null;
   return contacts.filter((c) => {
     if (q) {
-      const hay = `${c.name ?? ""} ${c.email ?? ""} ${(c.addresses ?? [])
+      const hay = `${c.name ?? ""} ${c.email ?? ""} ${c.notes ?? ""} ${(
+        c.addresses ?? []
+      )
         .map((a) => a.address)
         .join(" ")}`
         .toLowerCase()

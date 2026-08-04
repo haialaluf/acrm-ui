@@ -840,6 +840,7 @@ export type Database = {
           extra: Json | null
           id: string
           name: string | null
+          notes: string | null
           organization_id: string
           source: string
           status: string
@@ -853,6 +854,7 @@ export type Database = {
           extra?: Json | null
           id?: string
           name?: string | null
+          notes?: string | null
           organization_id: string
           source?: string
           status?: string
@@ -866,6 +868,7 @@ export type Database = {
           extra?: Json | null
           id?: string
           name?: string | null
+          notes?: string | null
           organization_id?: string
           source?: string
           status?: string
@@ -1655,6 +1658,7 @@ export type Database = {
           last_sent_at: string
         }[]
       }
+      contact_tags: { Args: { p_organization_id: string }; Returns: string[] }
       conversations_page: {
         Args: {
           p_before_id?: string
