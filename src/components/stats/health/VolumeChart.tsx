@@ -34,9 +34,16 @@ export default function VolumeChart({ days }: { days: DayMetrics[] }) {
     label: dayLabel(d.day),
     day: d.day,
     read: d.read_count,
-    // "Delivered but not read" is the remainder, so the three segments always
-    // sum to the day's outgoing count instead of double-counting read messages.
+    // Each segment is the remainder of the one above it — `status` accumulates,
+    // so a read message also carries `delivered` and stacking the raw counts
+    // would double-count it. Messages Meta never sent a receipt for get their
+    // own segment rather than being dropped, so the stack really does sum to
+    // the day's outgoing count as the card title claims.
     deliveredNotRead: Math.max(0, d.delivered_count - d.read_count),
+    noReceipt: Math.max(
+      0,
+      d.outgoing_count - d.delivered_count - d.failed_count,
+    ),
     failed: d.failed_count,
     outgoing: d.outgoing_count,
     deliveredRate: d.delivered_rate,
@@ -100,6 +107,11 @@ export default function VolumeChart({ days }: { days: DayMetrics[] }) {
                         {formatPercent(d.deliveredRate)} {t("delivered")} ·{" "}
                         {formatPercent(d.readRate)} {t("read")}
                       </div>
+                      {d.noReceipt > 0 && (
+                        <div className="text-muted-foreground mt-[2px]">
+                          {formatNumber(d.noReceipt)} {t("with no receipt")}
+                        </div>
+                      )}
                       {d.failed > 0 && (
                         <div className="text-destructive-strong mt-[2px]">
                           {formatNumber(d.failed)} {t("failed")}
@@ -115,6 +127,12 @@ export default function VolumeChart({ days }: { days: DayMetrics[] }) {
                 }}
               />
               <Bar dataKey="failed" stackId="v" fill="var(--destructive)" />
+              <Bar
+                dataKey="noReceipt"
+                stackId="v"
+                fill="var(--muted-foreground)"
+                fillOpacity={0.35}
+              />
               <Bar
                 dataKey="deliveredNotRead"
                 stackId="v"
@@ -144,6 +162,10 @@ export default function VolumeChart({ days }: { days: DayMetrics[] }) {
         <Legend
           color="color-mix(in oklab, var(--primary) 28%, transparent)"
           label={t("Delivered, not read")}
+        />
+        <Legend
+          color="color-mix(in oklab, var(--muted-foreground) 35%, transparent)"
+          label={t("No receipt")}
         />
         <Legend color="var(--destructive)" label={t("Failed")} />
       </div>
