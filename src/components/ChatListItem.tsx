@@ -413,10 +413,12 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                     </span>
                   </div>
                 )}
-                {/* Dropdown menu */}
+                {/* Dropdown menu. Touch devices have no hover, so the chevron
+                    (and with it pause/resume) would be unreachable there —
+                    always show it when the pointer is coarse. */}
                 <ItemActions trigger={["click"]} itemId={itemId}>
                   <svg
-                    className="h-[20px] w-[19px] ml-[6px] text-muted-foreground hidden group-hover:block"
+                    className="h-[20px] w-[19px] ml-[6px] text-muted-foreground hidden group-hover:block pointer-coarse:block"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <use href="/icons.svg#down" />
