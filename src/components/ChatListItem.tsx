@@ -376,9 +376,14 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                   )}
                 <div className="truncate text-[14px]">
                   {preview?.content.type === "text" && preview.content.text}
+                  {/* A data part that was rendered for display (a template, for
+                      one) carries the flattened text the recipient sees — show
+                      that rather than the raw payload. The JSON stays as the
+                      fallback for parts with nothing human-readable. */}
                   {preview?.content.type === "data" &&
                     preview.content.kind !== "media_placeholder" &&
-                    JSON.stringify(preview.content.data)}
+                    (preview.content.text ||
+                      JSON.stringify(preview.content.data))}
                   {(preview?.content.type === "file" ||
                     (preview?.content.type === "data" &&
                       preview.content.kind === "media_placeholder")) &&
