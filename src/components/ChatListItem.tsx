@@ -1,6 +1,9 @@
 import { type ReactNode, useContext } from "react";
 import Avatar from "./Avatar";
-import { getHighestStatus, getStatusIcon } from "@/utils/MessageStatusUtils";
+import {
+  getHighestStatus,
+  getStatusPresentation,
+} from "@/utils/MessageStatusUtils";
 import useBoundStore from "@/stores/useBoundStore";
 import {
   type Draft,
@@ -127,8 +130,8 @@ function mediaPreview(t: (content: string) => ReactNode, message?: MessageRow) {
   return { mediaIcon, mediaPreviewContent };
 }
 
-function statusIcon(status: OutgoingStatus) {
-  const { icon, color } = getStatusIcon(getHighestStatus(status));
+function statusIcon(status: OutgoingStatus, t: (text: string) => string) {
+  const { icon, color, title } = getStatusPresentation(status);
 
   return (
     <div>
@@ -138,6 +141,7 @@ function statusIcon(status: OutgoingStatus) {
           (icon === "clock" ? " w-[14px]" : " w-[18px]")
         }
       >
+        {title && <title>{t(title)}</title>}
         <use href={`/icons.svg#chat-${icon}`} />
       </svg>
     </div>
@@ -354,7 +358,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
             <div className="flex justify-between mt-[2px] items-start">
               <div className="min-w-0 flex items-start text-muted-foreground">
                 {preview?.direction === "outgoing" &&
-                  statusIcon(preview.status)}
+                  statusIcon(preview.status, t)}
                 {preview?.agent_id && preview.agent_id !== agent?.id && (
                   <div className="text-primary text-[14px] mr-1 shrink-0">
                     {agents?.find((a) => a.id === preview.agent_id)?.name ||
@@ -418,9 +422,6 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                     </span>
                   </div>
                 )}
-                {/* Dropdown menu. Touch devices have no hover, so the chevron
-                    (and with it pause/resume) would be unreachable there —
-                    always show it when the pointer is coarse. */}
                 <ItemActions trigger={["click"]} itemId={itemId}>
                   <svg
                     className="h-[20px] w-[19px] ml-[6px] text-muted-foreground hidden group-hover:block pointer-coarse:block"

@@ -1765,6 +1765,7 @@ export type Database = {
           outgoing_count: number
           read_count: number
           read_rate: number
+          receipt_eligible_count: number
           recipient_count: number
           volume_pinned_to_ceiling: boolean
         }[]

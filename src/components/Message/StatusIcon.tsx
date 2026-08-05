@@ -1,8 +1,10 @@
 import { type OutgoingStatus } from "@/supabase/client";
-import { getHighestStatus, getStatusIcon } from "@/utils/MessageStatusUtils";
+import { useTranslation } from "@/hooks/useTranslation";
+import { getStatusPresentation } from "@/utils/MessageStatusUtils";
 
 export default function StatusIcon(status: OutgoingStatus) {
-  const { icon, color } = getStatusIcon(getHighestStatus(status));
+  const { translate: t } = useTranslation();
+  const { icon, color, title } = getStatusPresentation(status);
 
   return (
     <svg
@@ -11,6 +13,7 @@ export default function StatusIcon(status: OutgoingStatus) {
         (icon === "clock" ? " h-[15px]" : " h-[11px]")
       }
     >
+      {title && <title>{t(title)}</title>}
       <use href={`/icons.svg#msg-${icon}`} />
     </svg>
   );

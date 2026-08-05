@@ -22,6 +22,7 @@ export type OutgoingStatus = {
   sent?: string;
   delivered?: string;
   read?: string;
+  played?: string; // recipient listened to a voice note
   edited?: string; // sender edited the message (Instagram, WhatsApp coexistence)
   deleted?: string; // sender deleted/revoked the message (Instagram, WhatsApp coexistence)
   failed?: string;

@@ -422,7 +422,12 @@ export function buildHealthIssues(
     });
   }
 
-  if (recent.outgoing > 0 && recent.readRate < READ_RATE_WARN) {
+  // Gated on receiptEligible, not outgoing: readRate divides by the messages
+  // Meta actually reports on, so an account that sends only from the WhatsApp
+  // Business app has a zero denominator and a 0% rate that means "we cannot
+  // know", not "nobody reads these". Gating on outgoing would show it a
+  // permanent "Only 0% of your messages get read" it could never act on.
+  if (recent.receiptEligible > 0 && recent.readRate < READ_RATE_WARN) {
     issues.push({
       key: "read",
       severity: "medium",

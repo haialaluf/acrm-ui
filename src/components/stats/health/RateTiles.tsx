@@ -40,33 +40,50 @@ export default function RateTiles({
 }) {
   const { translate: t } = useTranslation();
 
+  // Messages sent from the WhatsApp Business app. Meta reports no delivery or
+  // read status for those, so both receipt-based rates are measured over
+  // `receiptEligible` instead and these are called out rather than counted as
+  // undelivered. With none of them the two are equal and nothing below changes.
+  const appSent = Math.max(0, current.outgoing - current.receiptEligible);
+  // Nothing Meta reports on means the rates have no denominator — show that
+  // they are unknown rather than rendering a red 0.0% the account cannot act on.
+  const measurable = current.receiptEligible > 0;
+
   const tiles: Tile[] = [
     {
       label: t("Delivered rate"),
-      value: formatPercent(current.deliveredRate, 1),
+      value: measurable ? formatPercent(current.deliveredRate, 1) : "—",
       now: current.deliveredRate,
       prev: previous?.deliveredRate ?? null,
       series: days.map((d) => d.delivered_rate),
-      tone: current.deliveredRate > 0.93 ? "success" : "warning",
+      tone: !measurable
+        ? "neutral"
+        : current.deliveredRate > 0.93
+          ? "success"
+          : "warning",
       invert: false,
       asPercentagePoints: true,
-      sub: `${formatNumber(current.delivered)} ${t("of")} ${formatNumber(current.outgoing)} ${t("sent")}`,
+      sub: `${formatNumber(current.delivered)} ${t("of")} ${formatNumber(current.receiptEligible)} ${t("sent from the CRM")}`,
     },
     {
       label: t("Read rate"),
-      value: formatPercent(current.readRate, 1),
+      value: measurable ? formatPercent(current.readRate, 1) : "—",
       now: current.readRate,
       prev: previous?.readRate ?? null,
       series: days.map((d) => d.read_rate),
-      tone:
-        current.readRate > 0.5
+      tone: !measurable
+        ? "neutral"
+        : current.readRate > 0.5
           ? "success"
           : current.readRate > 0.35
             ? "warning"
             : "destructive",
       invert: false,
       asPercentagePoints: true,
-      sub: t("A low read rate feeds quality drops"),
+      sub:
+        appSent > 0
+          ? `${formatNumber(appSent)} ${t("app-sent messages excluded — Meta reports no receipts for those")}`
+          : t("A low read rate feeds quality drops"),
     },
     {
       label: t("Failure rate"),

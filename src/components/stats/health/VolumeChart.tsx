@@ -46,6 +46,10 @@ export default function VolumeChart({ days }: { days: DayMetrics[] }) {
     ),
     failed: d.failed_count,
     outgoing: d.outgoing_count,
+    // Sent from the WhatsApp Business app. These make up most of the noReceipt
+    // segment on a coexistence account and are the reason it exists: Meta sends
+    // no status webhooks for them, so they can never move out of it.
+    appSent: Math.max(0, d.outgoing_count - d.receipt_eligible_count),
     deliveredRate: d.delivered_rate,
     readRate: d.read_rate,
     pinned: d.volume_pinned_to_ceiling,
@@ -110,6 +114,8 @@ export default function VolumeChart({ days }: { days: DayMetrics[] }) {
                       {d.noReceipt > 0 && (
                         <div className="text-muted-foreground mt-[2px]">
                           {formatNumber(d.noReceipt)} {t("with no receipt")}
+                          {d.appSent > 0 &&
+                            ` · ${formatNumber(d.appSent)} ${t("sent from the WhatsApp app")}`}
                         </div>
                       )}
                       {d.failed > 0 && (

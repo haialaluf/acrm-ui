@@ -22,6 +22,14 @@ export type DayMetrics = {
   read_count: number;
   read_rate: number;
   failed_count: number;
+  /**
+   * Outgoing messages a receipt could ever arrive for — the ones the CRM sent.
+   * Meta reports no delivery or read status for messages sent from the WhatsApp
+   * Business app, so `delivered_rate` and `read_rate` divide by this rather
+   * than by `outgoing_count`. The difference between the two is the day's
+   * app-sent volume.
+   */
+  receipt_eligible_count: number;
   error_codes: Record<string, number>;
   messaging_limit: number | null;
   volume_pinned_to_ceiling: boolean;
@@ -35,6 +43,13 @@ export type MetricsAggregate = {
   delivered: number;
   read: number;
   failed: number;
+  /**
+   * Outgoing messages that could earn a receipt, i.e. everything except what
+   * was sent from the WhatsApp Business app. `deliveredRate` and `readRate`
+   * divide by this, so gate on it — not on `outgoing` — before reading either,
+   * or a window sent entirely from the phone reports 0% rather than "unknown".
+   */
+  receiptEligible: number;
   coldRatio: number;
   deliveredRate: number;
   readRate: number;
@@ -73,6 +88,7 @@ function normalize(row: DailyMetricRow): DayMetrics {
     read_count: num(row.read_count),
     read_rate: num(row.read_rate),
     failed_count: num(row.failed_count),
+    receipt_eligible_count: num(row.receipt_eligible_count),
     error_codes: toErrorMap(row.error_codes),
     messaging_limit:
       typeof row.messaging_limit === "number" ? row.messaging_limit : null,
@@ -94,6 +110,7 @@ function emptyDay(day: string, limit: number | null): DayMetrics {
     read_count: 0,
     read_rate: 0,
     failed_count: 0,
+    receipt_eligible_count: 0,
     error_codes: {},
     messaging_limit: limit,
     volume_pinned_to_ceiling: false,
@@ -181,6 +198,7 @@ export function aggregate(days: DayMetrics[]): MetricsAggregate {
   const delivered = sum((d) => d.delivered_count);
   const read = sum((d) => d.read_count);
   const failed = sum((d) => d.failed_count);
+  const receiptEligible = sum((d) => d.receipt_eligible_count);
   const incoming = sum((d) => d.incoming_count);
 
   const errors: Record<string, number> = {};
@@ -198,9 +216,16 @@ export function aggregate(days: DayMetrics[]): MetricsAggregate {
     delivered,
     read,
     failed,
+    receiptEligible,
     coldRatio: ratio(cold, recipients),
-    deliveredRate: ratio(delivered, outgoing),
-    readRate: ratio(read, outgoing),
+    // Not `outgoing`: messages sent from the WhatsApp Business app never get a
+    // receipt from Meta, so counting them here charged the account for a
+    // delivery failure that never happened and pushed both rates down by
+    // whatever share of the traffic came from the phone.
+    deliveredRate: ratio(delivered, receiptEligible),
+    readRate: ratio(read, receiptEligible),
+    // Failures are reported for everything we dispatched, and an app-sent
+    // message cannot fail from our side, so this one stays on `outgoing`.
     failedRate: ratio(failed, outgoing),
     ioRatio: ratio(incoming, outgoing),
     pinnedDays: days.filter((d) => d.volume_pinned_to_ceiling).length,
