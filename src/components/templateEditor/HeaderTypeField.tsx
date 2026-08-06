@@ -88,9 +88,14 @@ export default function HeaderTypeField({
             return {
               value: o.value,
               label: (
-                <span className="inline-flex items-center gap-[6px] py-[2px]">
+                <span
+                  className="inline-flex items-center justify-center gap-[6px] py-[2px]"
+                  title={o.label}
+                  aria-label={o.label}
+                >
                   <Icon size={15} />
-                  <span className="text-[13px]">{o.label}</span>
+                  {/* Labels would overflow on phones — icons only below md. */}
+                  <span className="hidden md:inline text-[13px]">{o.label}</span>
                 </span>
               ),
             };
