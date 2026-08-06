@@ -10,8 +10,7 @@ import { BOOKING_ORIGIN } from "@/components/templateButtons";
    Left untranslated on purpose: the card shows what the recipient's WhatsApp
    actually rendered, and the crawler only ever sees this English markup. */
 const OG_TITLE = "Book an appointment";
-const OG_DESCRIPTION =
-  "Pick a time that works for you — no calls, no back and forth.";
+const OG_DESCRIPTION = "Pick a time that works for you.";
 /* Byte-identical to the `og:image` the crawler fetched (`booking/public/` and
    `public/` ship the same file), so serving it from our own origin costs no
    cross-origin request. */
