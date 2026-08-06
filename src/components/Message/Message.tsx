@@ -24,10 +24,12 @@ import { useAgent } from "@/queries/useAgents";
 import { AVATAR_BG_COLORS, AVATAR_TEXT_COLORS } from "@/utils/colors";
 import type { Json } from "@/supabase/db_types";
 import {
+  bookingLinkIn,
   ButtonKindIcon,
   type PreviewButton,
 } from "@/components/templateButtons";
 import TemplateMessage from "./TemplateMessage";
+import BookingLinkPreview from "./BookingLinkPreview";
 
 const md = new Remarkable({
   breaks: true,
@@ -107,6 +109,7 @@ export function TextMessage({
   body,
   footer,
   buttons,
+  preview,
   timestamp,
   status,
   onInput,
@@ -118,6 +121,8 @@ export function TextMessage({
   body: string | Json;
   footer?: string;
   buttons?: PreviewButton[];
+  /** Link card shown above the text, the way WhatsApp stacks one. */
+  preview?: ReactNode;
   timestamp?: string;
   status?: OutgoingStatus;
   onInput?: FormEventHandler<HTMLDivElement>;
@@ -145,6 +150,9 @@ export function TextMessage({
             (fixedWidth ? " w-[320px]" : "")
           }
         >
+          {/* Link preview */}
+          {preview}
+
           {/* Header */}
           {header && (
             <div
@@ -184,7 +192,7 @@ export function TextMessage({
                 </span>
               )}
             </>
-          ) : (
+          ) : body ? (
             <div
               className={
                 "scrollbar-hide overflow-x-auto " +
@@ -200,6 +208,12 @@ export function TextMessage({
                 withoutEndingSpace={!!footer}
               />
             </div>
+          ) : (
+            /* Nothing but a link card. The timestamp is positioned against the
+               bubble's bottom edge, so reserve just its own height — a full
+               text line (the bubble's 19px leading) would leave it floating
+               well clear of the card. */
+            <div className="h-[15px]" />
           )}
 
           {isTooLong && (
@@ -411,10 +425,20 @@ type MessageContentProps = {
 
 function TextContent({ message, header, fixedWidth }: MessageContentProps) {
   if (message.content.type !== "text") return null;
+  // A booking link is sent with `preview_url: true`, so WhatsApp shows a card
+  // for it — draw the same card here rather than leaving a bare URL. When the
+  // message is nothing but the link, WhatsApp drops the URL text too: the card
+  // already carries it, so all that is left is the raw token.
+  const text = message.content.text;
+  const bookingLink = bookingLinkIn(text);
+  const body = text.trim() === bookingLink ? "" : text;
   return (
     <TextMessage
       header={header}
-      body={message.content.text}
+      body={body}
+      preview={
+        bookingLink ? <BookingLinkPreview url={bookingLink} /> : undefined
+      }
       type="markdown"
       direction={message.direction}
       timestamp={message.timestamp}

@@ -114,6 +114,25 @@ export function isBookingUrl(url: string): boolean {
   return url.includes("{{1}}") && url.startsWith(BOOKING_ORIGIN);
 }
 
+/** The first resolved booking link inside a message body, or `null`.
+ *
+ *  WhatsApp builds a link card from the first URL in the text (the send sets
+ *  `preview_url: true`), so the chat mirrors that and previews the first one
+ *  only. Matched by plain scanning rather than a regex so the origin — which
+ *  carries `.` and `:` — needs no escaping. */
+export function bookingLinkIn(text: string): string | null {
+  const at = text.indexOf(`${BOOKING_ORIGIN}/`);
+  if (at < 0) return null;
+
+  const rest = text.slice(at);
+  const end = rest.search(/[\s<>"']/);
+  const url = end < 0 ? rest : rest.slice(0, end);
+
+  // A mark closing the surrounding sentence is punctuation, not part of the
+  // token — "…/abc." links to "…/abc".
+  return url.replace(/[.,;:!?)\]]+$/, "");
+}
+
 /* ─── editor (form) shape ─────────────────────────────────────────────────
    All fields are always present (empty by default) so react-hook-form's
    `register` paths stay stable across button kinds. */
