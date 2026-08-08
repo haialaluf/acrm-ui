@@ -12,6 +12,7 @@ export * from "./types/whatsapp_webhook_payload_types";
 export * from "./types/whatsapp_endpoint_types";
 export * from "./types/whatsapp_template_types";
 export * from "./types/whatsapp_webhook_message_types";
+export * from "./types/email_template_types";
 export * from "./types/instagram_webhook_payload_types";
 export * from "./types/status_types";
 export * from "./types/message_types";

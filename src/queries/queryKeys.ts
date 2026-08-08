@@ -49,6 +49,13 @@ export const queryKeys = {
     spend: (orgId: NullableId, address: NullableId, days: number) =>
       [orgId, "organizations_addresses", address, "spend", days] as const,
   },
+  emailTemplates: {
+    /** List for the org — summaries only, without the project/html payloads. */
+    all: (orgId: NullableId) => [orgId, "email_templates"] as const,
+    /** One template with its builder project, for the editor. */
+    detail: (orgId: NullableId, id: NullableId) =>
+      [orgId, "email_templates", id] as const,
+  },
   webhooks: {
     all: (orgId: NullableId) => [orgId, "webhooks"] as const,
     detail: (orgId: NullableId, id: NullableId) =>

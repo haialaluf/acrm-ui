@@ -14,6 +14,7 @@
     "preview:booking": "wrangler pages dev dist-booking"
   },
   "dependencies": {
+    "@grapesjs/studio-sdk": "^1.1.1",
     "@supabase/supabase-js": "^2.81.1",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-query": "^5.90.8",

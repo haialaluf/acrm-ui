@@ -1070,6 +1070,72 @@ export type Database = {
         }
         Relationships: []
       }
+      email_templates: {
+        Row: {
+          category: string | null
+          created_at: string
+          extra: Json | null
+          html: string | null
+          id: string
+          name: string
+          organization_address: string | null
+          organization_id: string
+          preheader: string | null
+          project: Json | null
+          status: string
+          subject: string
+          updated_at: string
+          variables: Json
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          extra?: Json | null
+          html?: string | null
+          id?: string
+          name: string
+          organization_address?: string | null
+          organization_id: string
+          preheader?: string | null
+          project?: Json | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          variables?: Json
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          extra?: Json | null
+          html?: string | null
+          id?: string
+          name?: string
+          organization_address?: string | null
+          organization_id?: string
+          preheader?: string | null
+          project?: Json | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          variables?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_templates_organization_address_fkey"
+            columns: ["organization_id", "organization_address"]
+            isOneToOne: false
+            referencedRelation: "organizations_addresses"
+            referencedColumns: ["organization_id", "address"]
+          },
+          {
+            foreignKeyName: "email_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           ad_id: string | null

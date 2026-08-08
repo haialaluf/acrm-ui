@@ -59,10 +59,19 @@ function AppLayout() {
   // An open broadcast batch (`/broadcasts/<batchKey>`) shows its stats +
   // recipient list in the center panel, master-detail style like calendars.
   const isBroadcastDetailRoute = /^\/broadcasts\/[^/]+$/.test(pathname);
-  // Create/edit template routes (.../templates/new or .../templates/$id, but
-  // not the list at .../templates). The live phone preview fills the otherwise
-  // empty center panel on desktop; on mobile it stacks inside the form panel.
-  const isTemplateEditorRoute = /\/templates\/[^/]+$/.test(pathname);
+  // Create/edit WhatsApp template routes (.../templates/new or
+  // .../templates/$id, but not the list at .../templates). The live phone
+  // preview fills the otherwise empty center panel on desktop; on mobile it
+  // stacks inside the form panel.
+  //
+  // The email builder's paths carry an extra segment (/templates/email/<id>),
+  // which is what keeps them out of this regex — do not loosen it to `.*`, or
+  // an email builder gets a WhatsApp phone preview bolted to its side.
+  const isTemplateEditorRoute = /\/templates\/(?!email\/)[^/]+$/.test(pathname);
+  // The email builder is a three-column app of its own (our panel, canvas, the
+  // vendor's sidebar) and has no use for a center panel, so it takes the whole
+  // width to the right of the menu instead of living in the left panel.
+  const isEmailBuilderRoute = /^\/templates\/email\/[^/]+$/.test(pathname);
 
   const [isHoveringFiles, setIsHoveringFiles] = useState(false);
 
@@ -109,15 +118,21 @@ function AppLayout() {
       isStatsDetail ||
       isCalendarBoardRoute ||
       isBroadcastDetailRoute) &&
-    !isTemplateEditorRoute;
+    !isTemplateEditorRoute &&
+    !isEmailBuilderRoute;
 
   return (
     <div
       className={"app-grid" + (isResizing ? "" : " animate-columns")}
       style={
-        panelWidth !== null
-          ? { gridTemplateColumns: `${getMenuWidth()}px ${panelWidth}px 1fr` }
-          : undefined
+        isEmailBuilderRoute
+          ? // Two columns: the menu, then the builder across the rest. The
+            // third track is collapsed rather than removed so the grid keeps
+            // animating between shapes instead of snapping.
+            { gridTemplateColumns: `${getMenuWidth()}px 1fr 0px` }
+          : panelWidth !== null
+            ? { gridTemplateColumns: `${getMenuWidth()}px ${panelWidth}px 1fr` }
+            : undefined
       }
     >
       {/* Menu - Fixed width */}
@@ -128,32 +143,41 @@ function AppLayout() {
       <div
         ref={panelRef}
         className={
-          "flex-col overflow-hidden md:border-r border-border bg-background text-foreground col-span-2 md:col-span-1 relative " +
+          "flex-col overflow-hidden border-border bg-background text-foreground col-span-2 md:col-span-1 relative " +
+          // No divider when this column is the last one on screen.
+          (isEmailBuilderRoute ? "" : "md:border-r ") +
           (showCenterPanel ? "hidden md:flex" : "flex")
         }
       >
         <Outlet />
-        {/* Resize Handle */}
-        <div className="resize-handle z-[60]" onMouseDown={handleMouseDown} />
+        {/* Resize Handle — the email builder owns its whole column, so there is
+            no boundary to drag. */}
+        {!isEmailBuilderRoute && (
+          <div className="resize-handle z-[60]" onMouseDown={handleMouseDown} />
+        )}
       </div>
 
       {/* Center Panel */}
       <div
         className={
           "flex-col min-w-0 relative overflow-hidden col-span-full md:col-span-1" +
-          (isTemplateEditorRoute
-            ? " hidden md:flex bg-muted"
-            : isStatsRoute
-              ? isStatsDetail
-                ? " flex bg-muted"
-                : " hidden md:flex bg-muted"
-              : isCalendarBoardRoute
-                ? " flex bg-background"
-                : isBroadcastDetailRoute
+          (isEmailBuilderRoute
+            ? // Its column is 0px wide; keep it out of the layout entirely so a
+              // stray open conversation cannot paint a sliver beside the canvas.
+              " hidden"
+            : isTemplateEditorRoute
+              ? " hidden md:flex bg-muted"
+              : isStatsRoute
+                ? isStatsDetail
+                  ? " flex bg-muted"
+                  : " hidden md:flex bg-muted"
+                : isCalendarBoardRoute
                   ? " flex bg-background"
-                  : activeThreadKey
-                    ? " flex bg-chat"
-                    : " hidden md:flex bg-muted")
+                  : isBroadcastDetailRoute
+                    ? " flex bg-background"
+                    : activeThreadKey
+                      ? " flex bg-chat"
+                      : " hidden md:flex bg-muted")
         }
         onDragEnter={() => setIsHoveringFiles(true)}
         onDrop={() => setIsHoveringFiles(false)}
