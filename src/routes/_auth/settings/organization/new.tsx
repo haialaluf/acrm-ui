@@ -33,12 +33,15 @@ function NewOrganization() {
         <form
           id="create-organization-form"
           onSubmit={handleSubmit((data) =>
-            createOrg.mutate(data, {
-              onSuccess: (org) => {
-                setActiveOrg(org.id);
-                navigate({ to: "/conversations" });
+            createOrg.mutate(
+              { ...data, address: data.address.trim() },
+              {
+                onSuccess: (org) => {
+                  setActiveOrg(org.id);
+                  navigate({ to: "/conversations" });
+                },
               },
-            }),
+            ),
           )}
         >
           <p>
@@ -53,6 +56,23 @@ function NewOrganization() {
               className="text"
               placeholder={t("Organization name")}
               {...register("name", { required: true })}
+            />
+          </label>
+
+          {/* Mandatory: public.organizations.address is not null with no
+              default, so an insert without it is rejected by the database.
+              `validate` rather than a bare `required` so a whitespace-only
+              entry cannot satisfy the constraint. */}
+          <label>
+            <div className="label">{t("Address")}</div>
+            <textarea
+              className="text"
+              rows={3}
+              placeholder={t("Street, city, postal code, country")}
+              {...register("address", {
+                required: true,
+                validate: (value) => (value ?? "").trim().length > 0,
+              })}
             />
           </label>
         </form>

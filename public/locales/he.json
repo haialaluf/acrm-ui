@@ -1,4 +1,5 @@
 {
+  "Address": "כתובת",
   "Appointments are 45 minutes. Ask which service the client wants...": "הפגישות נמשכות 45 דקות. שאל איזה שירות הלקוח רוצה...",
   "Booking link": "קישור לקביעת פגישה",
   "Calendar": "יומן",
@@ -11,6 +12,7 @@
   "link buttons": "כפתורי קישור",
   "No calendars yet.": "אין עדיין יומנים.",
   "Opens a personal booking link for each customer": "פותח לכל לקוח קישור אישי לקביעת פגישה",
+  "Street, city, postal code, country": "רחוב, עיר, מיקוד, מדינה",
   "This template sends a booking link, but you have no calendar yet. Create one to send it.": "התבנית הזו שולחת קישור לקביעת פגישה, אבל עדיין אין לכם יומן. צרו יומן כדי לשלוח אותה.",
   "— None —": "— ללא —",
   "(Untitled)": "(ללא כותרת)",

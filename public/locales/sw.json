@@ -1,4 +1,5 @@
 {
+  "Address": "Anwani",
   "Appointments are 45 minutes. Ask which service the client wants...": "Miadi huchukua dakika 45. Uliza mteja anataka huduma gani...",
   "Book an appointment": "Weka miadi",
   "Booking link": "Kiungo cha kuweka miadi",
@@ -12,6 +13,7 @@
   "link buttons": "vitufe vya kiungo",
   "No calendars yet.": "Bado hakuna kalenda.",
   "Opens a personal booking link for each customer": "Hufungua kiungo binafsi cha kuweka miadi kwa kila mteja",
+  "Street, city, postal code, country": "Mtaa, jiji, msimbo wa posta, nchi",
   "This template sends a booking link, but you have no calendar yet. Create one to send it.": "Kiolezo hiki hutuma kiungo cha kuweka miadi, lakini bado huna kalenda. Tengeneza moja ili kukituma.",
   "— None —": "— Hakuna —",
   "(Untitled)": "(Bila kichwa)",

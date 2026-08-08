@@ -1450,6 +1450,7 @@ export type Database = {
       }
       organizations: {
         Row: {
+          address: string
           created_at: string
           extra: Json | null
           id: string
@@ -1457,6 +1458,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          address: string
           created_at?: string
           extra?: Json | null
           id?: string
@@ -1464,6 +1466,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          address?: string
           created_at?: string
           extra?: Json | null
           id?: string

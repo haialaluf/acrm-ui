@@ -1,4 +1,5 @@
 {
+  "Address": "Adresse",
   "Appointments are 45 minutes. Ask which service the client wants...": "Les rendez-vous durent 45 minutes. Demandez quel service souhaite le client...",
   "Book an appointment": "Prendre rendez-vous",
   "Booking link": "Lien de réservation",
@@ -12,6 +13,7 @@
   "link buttons": "boutons de lien",
   "No calendars yet.": "Aucun calendrier pour l'instant.",
   "Opens a personal booking link for each customer": "Ouvre un lien de réservation personnel pour chaque client",
+  "Street, city, postal code, country": "Rue, ville, code postal, pays",
   "This template sends a booking link, but you have no calendar yet. Create one to send it.": "Ce modèle envoie un lien de réservation, mais vous n’avez pas encore de calendrier. Créez-en un pour l’envoyer.",
   "— None —": "— Aucun —",
   "(Untitled)": "(Sans titre)",

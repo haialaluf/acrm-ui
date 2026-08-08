@@ -82,7 +82,9 @@ function EditOrganization() {
       <SectionBody>
         <form
           id="org-form"
-          onSubmit={handleSubmit((data) => updateOrg.mutate(data))}
+          onSubmit={handleSubmit((data) =>
+            updateOrg.mutate({ ...data, address: data.address?.trim() }),
+          )}
         >
           <label>
             <div className="label">{t("Name")}</div>
@@ -91,6 +93,19 @@ function EditOrganization() {
               placeholder={t("Organization name")}
               disabled={!isOwner}
               {...register("name", { required: true })}
+            />
+          </label>
+          <label>
+            <div className="label">{t("Address")}</div>
+            <textarea
+              className="text"
+              rows={3}
+              placeholder={t("Street, city, postal code, country")}
+              disabled={!isOwner}
+              {...register("address", {
+                required: true,
+                validate: (value) => (value ?? "").trim().length > 0,
+              })}
             />
           </label>
 
