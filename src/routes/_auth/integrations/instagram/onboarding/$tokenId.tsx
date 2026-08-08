@@ -7,8 +7,7 @@ import {
   useOnboardingTokens,
 } from "@/queries/useOnboardingTokens";
 import { useCurrentAgent } from "@/queries/useAgents";
-import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import CopyButton from "@/components/CopyButton";
 
 export const Route = createFileRoute(
   "/_auth/integrations/instagram/onboarding/$tokenId",
@@ -24,7 +23,6 @@ function OnboardingTokenDetail() {
   const { data: currentAgent } = useCurrentAgent();
   const deleteToken = useDeleteOnboardingToken("instagram");
   const isOwner = currentAgent?.extra?.role === "owner";
-  const [copied, setCopied] = useState(false);
 
   const token = tokens?.find((tk) => tk.id === tokenId);
   const isActive =
@@ -40,12 +38,6 @@ function OnboardingTokenDetail() {
       return t("Expired");
     }
     return t("Active");
-  }
-
-  function copyLink() {
-    navigator.clipboard.writeText(onboardUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   }
 
   return (
@@ -99,18 +91,7 @@ function OnboardingTokenDetail() {
                   value={onboardUrl}
                 />
                 {isActive && (
-                  <button
-                    type="button"
-                    className="p-[8px] hover:bg-muted rounded-full shrink-0"
-                    title={t("Copy link")}
-                    onClick={copyLink}
-                  >
-                    {copied ? (
-                      <Check className="w-[20px] h-[20px] text-primary" />
-                    ) : (
-                      <Copy className="w-[20px] h-[20px] text-muted-foreground" />
-                    )}
-                  </button>
+                  <CopyButton value={onboardUrl} title={t("Copy link")} />
                 )}
               </div>
             </label>

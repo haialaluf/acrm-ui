@@ -69,9 +69,10 @@ export type FacebookOrganizationAddressExtra = {
   // to match on.
   fb_user_id?: string;
   // The Page token — named `access_token` to match the WhatsApp/Instagram
-  // shapes, which keeps a common member on the OrganizationAddressExtra union
-  // (read sites narrow on the row's `service`, but several read
-  // `extra?.access_token` off the bare union). Used for every lead read.
+  // shapes. Note that `access_token` is no longer a common member of the
+  // OrganizationAddressExtra union: `EmailOrganizationAddressExtra` has no token
+  // (SES authenticates with account-level AWS credentials), so every read site
+  // must narrow to the service-specific shape first. Used for every lead read.
   // Derived from a long-lived user token, so it carries no expiry of its own —
   // but it still dies when the connecting user changes their password or
   // revokes the app, hence `needs_reauth`.
@@ -88,12 +89,89 @@ export type FacebookOrganizationAddressExtra = {
   needs_reauth?: string; // ISO; set when a Graph call rejected the token
 };
 
+// One row of the DNS table we show the customer after they connect a domain.
+// Precomputed server-side at connect time rather than derived in the UI: the
+// DKIM host/value suffixes and the MAIL FROM MX target are SES/region facts, and
+// keeping them out of the frontend means a region change is a backend concern.
+// `name` and `value` are what the customer literally pastes into their DNS
+// provider, already fully qualified.
+export type EmailDnsRecord = {
+  type: "CNAME" | "MX" | "TXT";
+  name: string; // e.g. "abc123._domainkey.acme.com"
+  value: string; // e.g. "abc123.dkim.amazonses.com"
+  priority?: number; // MX only
+  purpose: "dkim" | "mail_from_mx" | "mail_from_spf" | "dmarc";
+  // DKIM and MAIL FROM records are required to verify and send. The DMARC record
+  // is a suggestion — the UI renders it separately, because replacing a domain's
+  // existing _dmarc record with our permissive default would weaken it.
+  required: boolean;
+};
+
+// What our own resolver saw for one of those records, refreshed on every check
+// (see `email-management/lookup.ts` in acrm-api). Advisory: SES verifies against
+// its own resolvers, so `found` is not "verified" and — importantly — `unknown`
+// (our lookup failed) is not "missing".
+export type EmailDnsCheck = {
+  type: EmailDnsRecord["type"];
+  name: string; // matches EmailDnsRecord.name; how the UI pairs the two
+  purpose: EmailDnsRecord["purpose"];
+  state:
+    | "found" // published and matching
+    | "missing" // nothing of this type at this name
+    | "mismatch" // something else is there — typo, proxy, another provider
+    | "unknown"; // the lookup itself failed; say nothing rather than accuse
+  // Only on `mismatch`, so the customer can see what to correct without
+  // leaving the page.
+  found?: string[];
+};
+
+// A sending domain connected to our SES account. Outbound only — SES is not
+// configured for email receiving, so no inbound path reads this.
+export type EmailOrganizationAddressExtra = {
+  domain?: string; // mirrors `address`; present so the union stays self-describing
+  region?: string; // SES region the identity/tenant live in
+  // Each organization gets its own SES tenant so bounce/complaint reputation is
+  // isolated per customer. Sending requires every referenced resource (identity
+  // AND configuration set) to be associated with the tenant.
+  ses_tenant_name?: string; // "org-<uuid, dashes stripped>"
+  ses_tenant_id?: string;
+  ses_tenant_arn?: string;
+  ses_identity_arn?: string;
+  configuration_set?: string;
+  dkim_tokens?: string[];
+  dns_records?: EmailDnsRecord[];
+  // Paired to `dns_records` by name+type. Rewritten wholesale on every check.
+  dns_check?: EmailDnsCheck[];
+  dns_checked_at?: string; // ISO; when dns_check was last resolved
+  mail_from_domain?: string; // "mail.acme.com"
+  // Mirrors SES GetEmailIdentity. `verification_status` is the identity as a
+  // whole; the DKIM and MAIL FROM statuses are surfaced separately because a
+  // domain can be verified and sending while its MAIL FROM MX is still
+  // propagating.
+  verification_status?:
+    | "PENDING"
+    | "SUCCESS"
+    | "FAILED"
+    | "TEMPORARY_FAILURE"
+    | "NOT_STARTED";
+  dkim_status?: string;
+  mail_from_status?: string;
+  verification_error?: string; // VerificationInfo.ErrorType
+  verified_at?: string; // ISO
+  last_checked_at?: string; // ISO; advanced by the verify-poll cron
+  // The sender a future send path defaults to. Set by the customer after the
+  // domain verifies; must be an address at `domain`.
+  default_from_address?: string;
+  default_from_name?: string;
+};
+
 // Union — the column accepts any of these shapes; consumers narrow via the
 // row's `service` column (or via a cast at service-specific read sites).
 export type OrganizationAddressExtra =
   | WhatsAppOrganizationAddressExtra
   | InstagramOrganizationAddressExtra
-  | FacebookOrganizationAddressExtra;
+  | FacebookOrganizationAddressExtra
+  | EmailOrganizationAddressExtra;
 
 export type ConversationExtra = {
   memory?: Memory;

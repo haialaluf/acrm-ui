@@ -53,6 +53,7 @@ import { Route as AuthSettingsApiKeysIndexRouteImport } from './routes/_auth/set
 import { Route as AuthIntegrationsWhatsappIndexRouteImport } from './routes/_auth/integrations/whatsapp/index'
 import { Route as AuthIntegrationsInstagramIndexRouteImport } from './routes/_auth/integrations/instagram/index'
 import { Route as AuthIntegrationsFacebookIndexRouteImport } from './routes/_auth/integrations/facebook/index'
+import { Route as AuthIntegrationsEmailIndexRouteImport } from './routes/_auth/integrations/email/index'
 import { Route as AuthSettingsWebhooksNewRouteImport } from './routes/_auth/settings/webhooks/new'
 import { Route as AuthSettingsWebhooksWebhookIdRouteImport } from './routes/_auth/settings/webhooks/$webhookId'
 import { Route as AuthSettingsOrganizationNewRouteImport } from './routes/_auth/settings/organization/new'
@@ -63,6 +64,7 @@ import { Route as AuthSettingsApiKeysApiKeyIdRouteImport } from './routes/_auth/
 import { Route as AuthIntegrationsWhatsappNewRouteImport } from './routes/_auth/integrations/whatsapp/new'
 import { Route as AuthIntegrationsInstagramNewRouteImport } from './routes/_auth/integrations/instagram/new'
 import { Route as AuthIntegrationsFacebookNewRouteImport } from './routes/_auth/integrations/facebook/new'
+import { Route as AuthIntegrationsEmailNewRouteImport } from './routes/_auth/integrations/email/new'
 import { Route as AuthCalendarsEditCalendarIdRouteImport } from './routes/_auth/calendars/edit/$calendarId'
 import { Route as AuthIntegrationsWhatsappOnboardingIndexRouteImport } from './routes/_auth/integrations/whatsapp/onboarding/index'
 import { Route as AuthIntegrationsWhatsappOrgAddressIdIndexRouteImport } from './routes/_auth/integrations/whatsapp/$orgAddressId/index'
@@ -70,6 +72,7 @@ import { Route as AuthIntegrationsInstagramOnboardingIndexRouteImport } from './
 import { Route as AuthIntegrationsInstagramOrgAddressIdIndexRouteImport } from './routes/_auth/integrations/instagram/$orgAddressId/index'
 import { Route as AuthIntegrationsFacebookOnboardingIndexRouteImport } from './routes/_auth/integrations/facebook/onboarding/index'
 import { Route as AuthIntegrationsFacebookOrgAddressIdIndexRouteImport } from './routes/_auth/integrations/facebook/$orgAddressId/index'
+import { Route as AuthIntegrationsEmailOrgAddressIdIndexRouteImport } from './routes/_auth/integrations/email/$orgAddressId/index'
 import { Route as AuthIntegrationsWhatsappOnboardingNewRouteImport } from './routes/_auth/integrations/whatsapp/onboarding/new'
 import { Route as AuthIntegrationsWhatsappOnboardingTokenIdRouteImport } from './routes/_auth/integrations/whatsapp/onboarding/$tokenId'
 import { Route as AuthIntegrationsInstagramOnboardingNewRouteImport } from './routes/_auth/integrations/instagram/onboarding/new'
@@ -309,6 +312,12 @@ const AuthIntegrationsFacebookIndexRoute =
     path: '/integrations/facebook/',
     getParentRoute: () => AuthRoute,
   } as any)
+const AuthIntegrationsEmailIndexRoute =
+  AuthIntegrationsEmailIndexRouteImport.update({
+    id: '/integrations/email/',
+    path: '/integrations/email/',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthSettingsWebhooksNewRoute = AuthSettingsWebhooksNewRouteImport.update({
   id: '/settings/webhooks/new',
   path: '/settings/webhooks/new',
@@ -366,6 +375,12 @@ const AuthIntegrationsFacebookNewRoute =
     path: '/integrations/facebook/new',
     getParentRoute: () => AuthRoute,
   } as any)
+const AuthIntegrationsEmailNewRoute =
+  AuthIntegrationsEmailNewRouteImport.update({
+    id: '/integrations/email/new',
+    path: '/integrations/email/new',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthCalendarsEditCalendarIdRoute =
   AuthCalendarsEditCalendarIdRouteImport.update({
     id: '/calendars/edit/$calendarId',
@@ -406,6 +421,12 @@ const AuthIntegrationsFacebookOrgAddressIdIndexRoute =
   AuthIntegrationsFacebookOrgAddressIdIndexRouteImport.update({
     id: '/integrations/facebook/$orgAddressId/',
     path: '/integrations/facebook/$orgAddressId/',
+    getParentRoute: () => AuthRoute,
+  } as any)
+const AuthIntegrationsEmailOrgAddressIdIndexRoute =
+  AuthIntegrationsEmailOrgAddressIdIndexRouteImport.update({
+    id: '/integrations/email/$orgAddressId/',
+    path: '/integrations/email/$orgAddressId/',
     getParentRoute: () => AuthRoute,
   } as any)
 const AuthIntegrationsWhatsappOnboardingNewRoute =
@@ -501,6 +522,7 @@ export interface FileRoutesByFullPath {
   '/stats/': typeof AuthStatsIndexRoute
   '/templates': typeof AuthTemplatesIndexRoute
   '/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
+  '/integrations/email/new': typeof AuthIntegrationsEmailNewRoute
   '/integrations/facebook/new': typeof AuthIntegrationsFacebookNewRoute
   '/integrations/instagram/new': typeof AuthIntegrationsInstagramNewRoute
   '/integrations/whatsapp/new': typeof AuthIntegrationsWhatsappNewRoute
@@ -511,6 +533,7 @@ export interface FileRoutesByFullPath {
   '/settings/organization/new': typeof AuthSettingsOrganizationNewRoute
   '/settings/webhooks/$webhookId': typeof AuthSettingsWebhooksWebhookIdRoute
   '/settings/webhooks/new': typeof AuthSettingsWebhooksNewRoute
+  '/integrations/email': typeof AuthIntegrationsEmailIndexRoute
   '/integrations/facebook': typeof AuthIntegrationsFacebookIndexRoute
   '/integrations/instagram': typeof AuthIntegrationsInstagramIndexRoute
   '/integrations/whatsapp': typeof AuthIntegrationsWhatsappIndexRoute
@@ -524,6 +547,7 @@ export interface FileRoutesByFullPath {
   '/integrations/instagram/onboarding/new': typeof AuthIntegrationsInstagramOnboardingNewRoute
   '/integrations/whatsapp/onboarding/$tokenId': typeof AuthIntegrationsWhatsappOnboardingTokenIdRoute
   '/integrations/whatsapp/onboarding/new': typeof AuthIntegrationsWhatsappOnboardingNewRoute
+  '/integrations/email/$orgAddressId': typeof AuthIntegrationsEmailOrgAddressIdIndexRoute
   '/integrations/facebook/$orgAddressId': typeof AuthIntegrationsFacebookOrgAddressIdIndexRoute
   '/integrations/facebook/onboarding': typeof AuthIntegrationsFacebookOnboardingIndexRoute
   '/integrations/instagram/$orgAddressId': typeof AuthIntegrationsInstagramOrgAddressIdIndexRoute
@@ -571,6 +595,7 @@ export interface FileRoutesByTo {
   '/stats': typeof AuthStatsIndexRoute
   '/templates': typeof AuthTemplatesIndexRoute
   '/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
+  '/integrations/email/new': typeof AuthIntegrationsEmailNewRoute
   '/integrations/facebook/new': typeof AuthIntegrationsFacebookNewRoute
   '/integrations/instagram/new': typeof AuthIntegrationsInstagramNewRoute
   '/integrations/whatsapp/new': typeof AuthIntegrationsWhatsappNewRoute
@@ -581,6 +606,7 @@ export interface FileRoutesByTo {
   '/settings/organization/new': typeof AuthSettingsOrganizationNewRoute
   '/settings/webhooks/$webhookId': typeof AuthSettingsWebhooksWebhookIdRoute
   '/settings/webhooks/new': typeof AuthSettingsWebhooksNewRoute
+  '/integrations/email': typeof AuthIntegrationsEmailIndexRoute
   '/integrations/facebook': typeof AuthIntegrationsFacebookIndexRoute
   '/integrations/instagram': typeof AuthIntegrationsInstagramIndexRoute
   '/integrations/whatsapp': typeof AuthIntegrationsWhatsappIndexRoute
@@ -594,6 +620,7 @@ export interface FileRoutesByTo {
   '/integrations/instagram/onboarding/new': typeof AuthIntegrationsInstagramOnboardingNewRoute
   '/integrations/whatsapp/onboarding/$tokenId': typeof AuthIntegrationsWhatsappOnboardingTokenIdRoute
   '/integrations/whatsapp/onboarding/new': typeof AuthIntegrationsWhatsappOnboardingNewRoute
+  '/integrations/email/$orgAddressId': typeof AuthIntegrationsEmailOrgAddressIdIndexRoute
   '/integrations/facebook/$orgAddressId': typeof AuthIntegrationsFacebookOrgAddressIdIndexRoute
   '/integrations/facebook/onboarding': typeof AuthIntegrationsFacebookOnboardingIndexRoute
   '/integrations/instagram/$orgAddressId': typeof AuthIntegrationsInstagramOrgAddressIdIndexRoute
@@ -644,6 +671,7 @@ export interface FileRoutesById {
   '/_auth/stats/': typeof AuthStatsIndexRoute
   '/_auth/templates/': typeof AuthTemplatesIndexRoute
   '/_auth/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
+  '/_auth/integrations/email/new': typeof AuthIntegrationsEmailNewRoute
   '/_auth/integrations/facebook/new': typeof AuthIntegrationsFacebookNewRoute
   '/_auth/integrations/instagram/new': typeof AuthIntegrationsInstagramNewRoute
   '/_auth/integrations/whatsapp/new': typeof AuthIntegrationsWhatsappNewRoute
@@ -654,6 +682,7 @@ export interface FileRoutesById {
   '/_auth/settings/organization/new': typeof AuthSettingsOrganizationNewRoute
   '/_auth/settings/webhooks/$webhookId': typeof AuthSettingsWebhooksWebhookIdRoute
   '/_auth/settings/webhooks/new': typeof AuthSettingsWebhooksNewRoute
+  '/_auth/integrations/email/': typeof AuthIntegrationsEmailIndexRoute
   '/_auth/integrations/facebook/': typeof AuthIntegrationsFacebookIndexRoute
   '/_auth/integrations/instagram/': typeof AuthIntegrationsInstagramIndexRoute
   '/_auth/integrations/whatsapp/': typeof AuthIntegrationsWhatsappIndexRoute
@@ -667,6 +696,7 @@ export interface FileRoutesById {
   '/_auth/integrations/instagram/onboarding/new': typeof AuthIntegrationsInstagramOnboardingNewRoute
   '/_auth/integrations/whatsapp/onboarding/$tokenId': typeof AuthIntegrationsWhatsappOnboardingTokenIdRoute
   '/_auth/integrations/whatsapp/onboarding/new': typeof AuthIntegrationsWhatsappOnboardingNewRoute
+  '/_auth/integrations/email/$orgAddressId/': typeof AuthIntegrationsEmailOrgAddressIdIndexRoute
   '/_auth/integrations/facebook/$orgAddressId/': typeof AuthIntegrationsFacebookOrgAddressIdIndexRoute
   '/_auth/integrations/facebook/onboarding/': typeof AuthIntegrationsFacebookOnboardingIndexRoute
   '/_auth/integrations/instagram/$orgAddressId/': typeof AuthIntegrationsInstagramOrgAddressIdIndexRoute
@@ -717,6 +747,7 @@ export interface FileRouteTypes {
     | '/stats/'
     | '/templates'
     | '/calendars/edit/$calendarId'
+    | '/integrations/email/new'
     | '/integrations/facebook/new'
     | '/integrations/instagram/new'
     | '/integrations/whatsapp/new'
@@ -727,6 +758,7 @@ export interface FileRouteTypes {
     | '/settings/organization/new'
     | '/settings/webhooks/$webhookId'
     | '/settings/webhooks/new'
+    | '/integrations/email'
     | '/integrations/facebook'
     | '/integrations/instagram'
     | '/integrations/whatsapp'
@@ -740,6 +772,7 @@ export interface FileRouteTypes {
     | '/integrations/instagram/onboarding/new'
     | '/integrations/whatsapp/onboarding/$tokenId'
     | '/integrations/whatsapp/onboarding/new'
+    | '/integrations/email/$orgAddressId'
     | '/integrations/facebook/$orgAddressId'
     | '/integrations/facebook/onboarding'
     | '/integrations/instagram/$orgAddressId'
@@ -787,6 +820,7 @@ export interface FileRouteTypes {
     | '/stats'
     | '/templates'
     | '/calendars/edit/$calendarId'
+    | '/integrations/email/new'
     | '/integrations/facebook/new'
     | '/integrations/instagram/new'
     | '/integrations/whatsapp/new'
@@ -797,6 +831,7 @@ export interface FileRouteTypes {
     | '/settings/organization/new'
     | '/settings/webhooks/$webhookId'
     | '/settings/webhooks/new'
+    | '/integrations/email'
     | '/integrations/facebook'
     | '/integrations/instagram'
     | '/integrations/whatsapp'
@@ -810,6 +845,7 @@ export interface FileRouteTypes {
     | '/integrations/instagram/onboarding/new'
     | '/integrations/whatsapp/onboarding/$tokenId'
     | '/integrations/whatsapp/onboarding/new'
+    | '/integrations/email/$orgAddressId'
     | '/integrations/facebook/$orgAddressId'
     | '/integrations/facebook/onboarding'
     | '/integrations/instagram/$orgAddressId'
@@ -859,6 +895,7 @@ export interface FileRouteTypes {
     | '/_auth/stats/'
     | '/_auth/templates/'
     | '/_auth/calendars/edit/$calendarId'
+    | '/_auth/integrations/email/new'
     | '/_auth/integrations/facebook/new'
     | '/_auth/integrations/instagram/new'
     | '/_auth/integrations/whatsapp/new'
@@ -869,6 +906,7 @@ export interface FileRouteTypes {
     | '/_auth/settings/organization/new'
     | '/_auth/settings/webhooks/$webhookId'
     | '/_auth/settings/webhooks/new'
+    | '/_auth/integrations/email/'
     | '/_auth/integrations/facebook/'
     | '/_auth/integrations/instagram/'
     | '/_auth/integrations/whatsapp/'
@@ -882,6 +920,7 @@ export interface FileRouteTypes {
     | '/_auth/integrations/instagram/onboarding/new'
     | '/_auth/integrations/whatsapp/onboarding/$tokenId'
     | '/_auth/integrations/whatsapp/onboarding/new'
+    | '/_auth/integrations/email/$orgAddressId/'
     | '/_auth/integrations/facebook/$orgAddressId/'
     | '/_auth/integrations/facebook/onboarding/'
     | '/_auth/integrations/instagram/$orgAddressId/'
@@ -1217,6 +1256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIntegrationsFacebookIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/integrations/email/': {
+      id: '/_auth/integrations/email/'
+      path: '/integrations/email'
+      fullPath: '/integrations/email'
+      preLoaderRoute: typeof AuthIntegrationsEmailIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/settings/webhooks/new': {
       id: '/_auth/settings/webhooks/new'
       path: '/settings/webhooks/new'
@@ -1287,6 +1333,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIntegrationsFacebookNewRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/integrations/email/new': {
+      id: '/_auth/integrations/email/new'
+      path: '/integrations/email/new'
+      fullPath: '/integrations/email/new'
+      preLoaderRoute: typeof AuthIntegrationsEmailNewRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/calendars/edit/$calendarId': {
       id: '/_auth/calendars/edit/$calendarId'
       path: '/calendars/edit/$calendarId'
@@ -1334,6 +1387,13 @@ declare module '@tanstack/react-router' {
       path: '/integrations/facebook/$orgAddressId'
       fullPath: '/integrations/facebook/$orgAddressId'
       preLoaderRoute: typeof AuthIntegrationsFacebookOrgAddressIdIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/integrations/email/$orgAddressId/': {
+      id: '/_auth/integrations/email/$orgAddressId/'
+      path: '/integrations/email/$orgAddressId'
+      fullPath: '/integrations/email/$orgAddressId'
+      preLoaderRoute: typeof AuthIntegrationsEmailOrgAddressIdIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/integrations/whatsapp/onboarding/new': {
@@ -1444,6 +1504,7 @@ interface AuthRouteChildren {
   AuthSettingsIndexRoute: typeof AuthSettingsIndexRoute
   AuthTemplatesIndexRoute: typeof AuthTemplatesIndexRoute
   AuthCalendarsEditCalendarIdRoute: typeof AuthCalendarsEditCalendarIdRoute
+  AuthIntegrationsEmailNewRoute: typeof AuthIntegrationsEmailNewRoute
   AuthIntegrationsFacebookNewRoute: typeof AuthIntegrationsFacebookNewRoute
   AuthIntegrationsInstagramNewRoute: typeof AuthIntegrationsInstagramNewRoute
   AuthIntegrationsWhatsappNewRoute: typeof AuthIntegrationsWhatsappNewRoute
@@ -1454,6 +1515,7 @@ interface AuthRouteChildren {
   AuthSettingsOrganizationNewRoute: typeof AuthSettingsOrganizationNewRoute
   AuthSettingsWebhooksWebhookIdRoute: typeof AuthSettingsWebhooksWebhookIdRoute
   AuthSettingsWebhooksNewRoute: typeof AuthSettingsWebhooksNewRoute
+  AuthIntegrationsEmailIndexRoute: typeof AuthIntegrationsEmailIndexRoute
   AuthIntegrationsFacebookIndexRoute: typeof AuthIntegrationsFacebookIndexRoute
   AuthIntegrationsInstagramIndexRoute: typeof AuthIntegrationsInstagramIndexRoute
   AuthIntegrationsWhatsappIndexRoute: typeof AuthIntegrationsWhatsappIndexRoute
@@ -1467,6 +1529,7 @@ interface AuthRouteChildren {
   AuthIntegrationsInstagramOnboardingNewRoute: typeof AuthIntegrationsInstagramOnboardingNewRoute
   AuthIntegrationsWhatsappOnboardingTokenIdRoute: typeof AuthIntegrationsWhatsappOnboardingTokenIdRoute
   AuthIntegrationsWhatsappOnboardingNewRoute: typeof AuthIntegrationsWhatsappOnboardingNewRoute
+  AuthIntegrationsEmailOrgAddressIdIndexRoute: typeof AuthIntegrationsEmailOrgAddressIdIndexRoute
   AuthIntegrationsFacebookOrgAddressIdIndexRoute: typeof AuthIntegrationsFacebookOrgAddressIdIndexRoute
   AuthIntegrationsFacebookOnboardingIndexRoute: typeof AuthIntegrationsFacebookOnboardingIndexRoute
   AuthIntegrationsInstagramOrgAddressIdIndexRoute: typeof AuthIntegrationsInstagramOrgAddressIdIndexRoute
@@ -1503,6 +1566,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthSettingsIndexRoute: AuthSettingsIndexRoute,
   AuthTemplatesIndexRoute: AuthTemplatesIndexRoute,
   AuthCalendarsEditCalendarIdRoute: AuthCalendarsEditCalendarIdRoute,
+  AuthIntegrationsEmailNewRoute: AuthIntegrationsEmailNewRoute,
   AuthIntegrationsFacebookNewRoute: AuthIntegrationsFacebookNewRoute,
   AuthIntegrationsInstagramNewRoute: AuthIntegrationsInstagramNewRoute,
   AuthIntegrationsWhatsappNewRoute: AuthIntegrationsWhatsappNewRoute,
@@ -1513,6 +1577,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthSettingsOrganizationNewRoute: AuthSettingsOrganizationNewRoute,
   AuthSettingsWebhooksWebhookIdRoute: AuthSettingsWebhooksWebhookIdRoute,
   AuthSettingsWebhooksNewRoute: AuthSettingsWebhooksNewRoute,
+  AuthIntegrationsEmailIndexRoute: AuthIntegrationsEmailIndexRoute,
   AuthIntegrationsFacebookIndexRoute: AuthIntegrationsFacebookIndexRoute,
   AuthIntegrationsInstagramIndexRoute: AuthIntegrationsInstagramIndexRoute,
   AuthIntegrationsWhatsappIndexRoute: AuthIntegrationsWhatsappIndexRoute,
@@ -1532,6 +1597,8 @@ const AuthRouteChildren: AuthRouteChildren = {
     AuthIntegrationsWhatsappOnboardingTokenIdRoute,
   AuthIntegrationsWhatsappOnboardingNewRoute:
     AuthIntegrationsWhatsappOnboardingNewRoute,
+  AuthIntegrationsEmailOrgAddressIdIndexRoute:
+    AuthIntegrationsEmailOrgAddressIdIndexRoute,
   AuthIntegrationsFacebookOrgAddressIdIndexRoute:
     AuthIntegrationsFacebookOrgAddressIdIndexRoute,
   AuthIntegrationsFacebookOnboardingIndexRoute:

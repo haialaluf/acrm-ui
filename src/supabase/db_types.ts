@@ -1866,6 +1866,7 @@ export type Database = {
         | "whatsapp"
         | "instagram"
         | "facebook"
+        | "email"
         | "local"
         | "slack"
         | "discord"
@@ -2561,6 +2562,7 @@ export const Constants = {
         "whatsapp",
         "instagram",
         "facebook",
+        "email",
         "local",
         "slack",
         "discord",

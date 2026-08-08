@@ -2,7 +2,7 @@ import SectionBody from "@/components/SectionBody";
 import SectionHeader from "@/components/SectionHeader";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { FileText } from "lucide-react";
+import { FileText, Mail } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
   FacebookFilled,
@@ -68,6 +68,21 @@ function IntegrationsIndex() {
             onClick={() =>
               navigate({
                 to: "/integrations/facebook",
+                hash: (prevHash) => prevHash!,
+              })
+            }
+          />
+          <SectionItem
+            aside={
+              <div className="p-[8px]">
+                <Mail className="w-[24px] h-[24px] text-muted-foreground" />
+              </div>
+            }
+            title={t("Email")}
+            description={t("Send from your own domain")}
+            onClick={() =>
+              navigate({
+                to: "/integrations/email",
                 hash: (prevHash) => prevHash!,
               })
             }
