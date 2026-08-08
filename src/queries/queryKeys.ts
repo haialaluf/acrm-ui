@@ -58,6 +58,9 @@ export const queryKeys = {
     all: (orgId: NullableId) => [orgId, "calendars"] as const,
     detail: (orgId: NullableId, id: NullableId) =>
       [orgId, "calendars", id] as const,
+    /** Phones/CalDAV clients connected to one calendar. */
+    devices: (orgId: NullableId, calendarId: NullableId) =>
+      [orgId, "calendars", calendarId, "devices"] as const,
   },
   broadcasts: {
     /** One row per batch (list_broadcast_batches). */

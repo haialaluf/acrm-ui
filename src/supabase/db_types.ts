@@ -668,6 +668,7 @@ export type Database = {
           created_at: string
           ends_at: string
           extra: Json | null
+          ical_uid: string | null
           id: string
           organization_id: string
           starts_at: string
@@ -681,6 +682,7 @@ export type Database = {
           created_at?: string
           ends_at: string
           extra?: Json | null
+          ical_uid?: string | null
           id?: string
           organization_id: string
           starts_at: string
@@ -694,6 +696,7 @@ export type Database = {
           created_at?: string
           ends_at?: string
           extra?: Json | null
+          ical_uid?: string | null
           id?: string
           organization_id?: string
           starts_at?: string
@@ -785,6 +788,60 @@ export type Database = {
           },
           {
             foreignKeyName: "booking_links_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_devices: {
+        Row: {
+          calendar_id: string
+          created_at: string
+          id: string
+          label: string | null
+          last_used_at: string | null
+          organization_id: string
+          revoked_at: string | null
+          secret: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          calendar_id: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          last_used_at?: string | null
+          organization_id: string
+          revoked_at?: string | null
+          secret?: string
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          calendar_id?: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          last_used_at?: string | null
+          organization_id?: string
+          revoked_at?: string | null
+          secret?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_devices_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "calendars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_devices_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -1572,6 +1629,7 @@ export type Database = {
           created_at: string
           ends_at: string
           extra: Json | null
+          ical_uid: string | null
           id: string
           organization_id: string
           starts_at: string

@@ -9,10 +9,14 @@
  * string, and the page sends `Referrer-Policy: no-referrer`.
  */
 
-const API_BASE = `${(import.meta.env.VITE_BOOKING_API_URL || "").replace(
-  /\/+$/,
-  "",
-)}/booking`;
+const FUNCTIONS_BASE = String(
+  import.meta.env.VITE_BOOKING_API_URL ?? "",
+).replace(/\/+$/, "");
+
+const API_BASE = `${FUNCTIONS_BASE}/booking`;
+
+/** The `caldav` function, which serves the /sync/<token> page's context. */
+const CALDAV_BASE = `${FUNCTIONS_BASE}/caldav`;
 
 /** What the visitor may know about their own appointment. Nothing else on the
  *  calendar is ever exposed — not titles, not who booked, not busy times. */
@@ -55,8 +59,9 @@ export class BookingError extends Error {
 async function request<T>(
   path: string,
   init?: Omit<RequestInit, "body"> & { body?: unknown },
+  base: string = API_BASE,
 ): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${base}${path}`, {
     ...init,
     headers: init?.body ? { "content-type": "application/json" } : undefined,
     body: init?.body ? JSON.stringify(init.body) : undefined,
@@ -81,6 +86,36 @@ export async function getLink(
 ): Promise<BookingLinkContext | InvalidLink> {
   try {
     return await request<BookingLinkContext>(`/${token}`);
+  } catch (e) {
+    if (e instanceof BookingError && e.status === 404) return { valid: false };
+    throw e;
+  }
+}
+
+/** What the /sync/<token> page needs to offer a device the right settings. */
+export type SyncContext = {
+  valid: true;
+  organization_name: string;
+  calendar_name: string;
+  timezone: string;
+  /** Apple configuration profile — one tap on iOS. */
+  profile_url: string;
+  /** CalDAV server URL, for clients configured by hand. */
+  server_url: string;
+  username: string;
+  password: string;
+};
+
+/**
+ * Context for a calendar sync link. Like `getLink`, an unusable token is a page
+ * state rather than an error — and unknown, revoked and malformed are all the
+ * same 404, so this cannot be used to probe which tokens exist.
+ */
+export async function getSyncContext(
+  token: string,
+): Promise<SyncContext | InvalidLink> {
+  try {
+    return await request<SyncContext>(`/connect/${token}`, undefined, CALDAV_BASE);
   } catch (e) {
     if (e instanceof BookingError && e.status === 404) return { valid: false };
     throw e;

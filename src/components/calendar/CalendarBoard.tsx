@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Link2,
   Plus,
+  Smartphone,
 } from "lucide-react";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendarBoard.css";
@@ -37,6 +38,7 @@ import {
 import { LinkButton } from "@/components/LinkButton";
 import MeetingModal, { type MeetingDraft } from "./MeetingModal";
 import ShareBookingLinkModal from "./ShareBookingLinkModal";
+import SyncToPhoneModal from "./SyncToPhoneModal";
 
 type CalEvent = {
   id: string;
@@ -76,6 +78,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
     draft: MeetingDraft;
   } | null>(null);
   const [sharing, setSharing] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   // dayjs is the shared instance the localizer formats through; align it with
   // the active UI language so weekday/month labels are localized.
@@ -267,6 +270,14 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
           <span className="hidden sm:inline">{t("Share link")}</span>
         </button>
         <button
+          className="text-[14px] rounded-full px-4 py-[6px] border border-border bg-card text-foreground hover:bg-accent flex items-center gap-1"
+          title={t("Sync with iPhone calendar")}
+          onClick={() => setSyncing(true)}
+        >
+          <Smartphone className="w-[16px] h-[16px]" />
+          <span className="hidden sm:inline">{t("Sync")}</span>
+        </button>
+        <button
           className="primary text-[14px] px-4 flex items-center gap-1"
           onClick={newMeeting}
         >
@@ -331,6 +342,12 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
         open={sharing}
         calendarId={calendarId}
         onClose={() => setSharing(false)}
+      />
+
+      <SyncToPhoneModal
+        open={syncing}
+        calendarId={calendarId}
+        onClose={() => setSyncing(false)}
       />
     </div>
   );

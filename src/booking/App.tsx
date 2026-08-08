@@ -8,6 +8,7 @@ import {
   type BookingLinkContext,
 } from "./api";
 import Confirmation from "./Confirmation";
+import Sync from "./Sync";
 import Scheduler from "./Scheduler";
 import {
   canChooseLanguage,
@@ -45,17 +46,23 @@ export default function App({ initialLang }: { initialLang: Language }) {
   const [rescheduleOf, setRescheduleOf] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
 
-  // The token IS the route: no router, just the first path segment.
-  const token = window.location.pathname.split("/").filter(Boolean)[0] ?? "";
+  // The token IS the route: no router, just the path segments. `/sync/<token>`
+  // is the one prefixed route — a calendar-sync link rather than a booking one.
+  const segments = window.location.pathname.split("/").filter(Boolean);
+  const isSync = segments[0] === "sync";
+  const token = (isSync ? segments[1] : segments[0]) ?? "";
 
   useEffect(() => {
     document.documentElement.dir = isRtl(lang) ? "rtl" : "ltr";
     document.documentElement.lang = lang;
-    document.title = t("Book an appointment");
-  }, [lang, t]);
+    document.title = isSync ? t("Add to your calendar") : t("Book an appointment");
+  }, [lang, t, isSync]);
 
   useEffect(() => {
     let cancelled = false;
+
+    // The sync page fetches its own context from a different endpoint.
+    if (isSync) return;
 
     if (!token) {
       setState({ kind: "invalid" });
@@ -81,7 +88,7 @@ export default function App({ initialLang }: { initialLang: Language }) {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, isSync]);
 
   function chooseLanguage(next: Language) {
     setLang(next);
@@ -112,13 +119,15 @@ export default function App({ initialLang }: { initialLang: Language }) {
       )}
 
       <div className="w-full max-w-[960px]">
-        {state.kind === "loading" && (
+        {isSync && <Sync token={token} t={t} />}
+
+        {!isSync && state.kind === "loading" && (
           <div className="flex justify-center py-[64px] text-muted-foreground">
             <Spinner size={28} />
           </div>
         )}
 
-        {state.kind === "invalid" && (
+        {!isSync && state.kind === "invalid" && (
           <Card
             icon={<LinkIcon className="h-[22px] w-[22px]" />}
             title={t("This link is no longer valid")}
@@ -128,7 +137,7 @@ export default function App({ initialLang }: { initialLang: Language }) {
           />
         )}
 
-        {state.kind === "error" && (
+        {!isSync && state.kind === "error" && (
           <Card
             icon={<LinkIcon className="h-[22px] w-[22px]" />}
             title={t("We couldn't load your booking")}
@@ -136,7 +145,7 @@ export default function App({ initialLang }: { initialLang: Language }) {
           />
         )}
 
-        {state.kind === "ready" && (
+        {!isSync && state.kind === "ready" && (
           <div
             className={`grid overflow-hidden rounded-[22px] border border-border bg-card shadow-[0_1px_2px_rgba(0,0,0,.04),0_12px_40px_rgba(0,0,0,.10)] max-md:min-h-dvh max-md:rounded-none max-md:border-0 ${
               booked
