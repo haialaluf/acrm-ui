@@ -1,9 +1,9 @@
-/* The email template builder: our chrome around the vendor canvas.
+/* The email template builder: our chrome around the editing surface.
  *
  * Layout mirrors the design's "split" shell — our own panel in its own column
- * on the left, the builder (canvas + its blocks/styles sidebar) filling the
- * rest. The alternative was injecting our tabs into the vendor's sidebar; a
- * separate column keeps our surface ours and survives an SDK upgrade.
+ * on the left, the document filling the rest. Maily has no sidebar of its own to
+ * inject into and no palette to compete with: blocks come from `/` and variables
+ * from `@`, so this column is the only panel on screen and all of it is ours.
  *
  * `use no memo` because the editor is an imperative instance held in a ref
  * across renders — the same reason TemplateEditor opts out. */
@@ -19,7 +19,7 @@ import {
   LoaderCircle,
   SlidersHorizontal,
 } from "lucide-react";
-import type { Editor } from "grapesjs";
+import type { Editor, JSONContent } from "@tiptap/core";
 import { useTranslation } from "@/hooks/useTranslation";
 import { isRtl, type Language } from "@/stores/uiSlice";
 import type {
@@ -29,12 +29,13 @@ import type {
   EmailTemplateVariable,
 } from "@/supabase/client";
 import ContactPreview from "./ContactPreview";
-import EmailStudio from "./EmailStudio";
+import MailyCanvas from "./MailyCanvas";
 import MediaTab from "./MediaTab";
 import SetupTab from "./SetupTab";
 import VariablesTab from "./VariablesTab";
 import { auditVariables } from "./renderTemplate";
-import { exportHtml, insertToken } from "./editorBridge";
+import { insertVariable } from "./mailyVariables";
+import { renderMaily } from "./renderMaily";
 
 type Tab = "setup" | "vars" | "media";
 
@@ -82,30 +83,59 @@ export default function EmailTemplateBuilder({
   // actually placed in the design. Refreshed whenever we export anyway.
   const [placedHtml, setPlacedHtml] = useState("");
 
+  // The live document, in a ref rather than state: it changes on every
+  // keystroke and nothing in this shell renders from it, so putting it in state
+  // would re-render the whole builder — panels, canvas and all — per character.
+  const contentRef = useRef<JSONContent | null>(project);
+
   const dir =
     draft.extra.dir ?? (isRtl(currentLanguage as Language) ? "rtl" : "ltr");
 
   const audit = auditVariables(placedHtml, draft.variables);
 
+  /** Compile the document, remember it, and hand it back. */
+  const compile = useCallback(async () => {
+    const html = await renderMaily(contentRef.current, {
+      dir,
+      preheader: draft.preheader,
+      extra: draft.extra,
+    });
+    setPlacedHtml(html);
+    return html;
+  }, [dir, draft.preheader, draft.extra]);
+
+  // The callbacks below are handed to MailyCanvas, which builds the editor once
+  // and holds them for its lifetime — so they have to stay referentially stable
+  // while still reaching whatever `compile`/`save` is current. A ref is the seam.
+  const compileRef = useRef(compile);
+  compileRef.current = compile;
+
+  const save = useCallback(async () => {
+    const html = await compile();
+    await onSave({ project: contentRef.current ?? undefined, html });
+  }, [compile, onSave]);
+
+  const saveRef = useRef(save);
+  saveRef.current = save;
+
   const handleEditor = useCallback((instance: Editor) => {
     editorRef.current = instance;
     setEditor(instance);
+    // The document exists from here on, so this is where the first compile
+    // lands: the Variables panel can then flag the slots a starter already
+    // places (an Announcement arrives with {{1}} and {{2}} in it) instead of
+    // staying silent until the first save.
+    contentRef.current = instance.getJSON();
+    void compileRef.current();
   }, []);
 
-  /** Compile the canvas, remember it, and hand it back. */
-  const compile = useCallback(async () => {
-    const html = await exportHtml(editorRef.current);
-    setPlacedHtml(html);
-    return html;
+  const handleChange = useCallback((content: JSONContent) => {
+    contentRef.current = content;
   }, []);
 
-  const save = useCallback(
-    async (projectData?: EmailProjectData) => {
-      const html = await compile();
-      await onSave({ project: projectData, html });
-    },
-    [compile, onSave],
-  );
+  const handleAutosave = useCallback(() => {
+    void saveRef.current();
+  }, []);
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-background">
@@ -215,6 +245,7 @@ export default function EmailTemplateBuilder({
                 onExtra={(patch) =>
                   onDraft({ extra: { ...draft.extra, ...patch } })
                 }
+                dir={dir}
                 domain={domain}
                 domainExtra={domainExtra}
               />
@@ -226,7 +257,7 @@ export default function EmailTemplateBuilder({
                 unplaced={audit.unplaced}
                 undefinedSlots={audit.undefinedSlots}
                 onInsert={(n) => {
-                  insertToken(editorRef.current, `{{${n}}}`);
+                  insertVariable(editorRef.current, n);
                   void compile();
                 }}
               />
@@ -235,18 +266,14 @@ export default function EmailTemplateBuilder({
           </div>
         </aside>
 
-        <EmailStudio
-          project={project}
+        <MailyCanvas
+          content={project}
           dir={dir}
+          extra={draft.extra}
+          variables={draft.variables}
           onEditor={handleEditor}
-          // Compile once the canvas actually holds the document, so the
-          // Variables panel can flag slots the starter already places (an
-          // Announcement arrives with {{1}} and {{2}} in it) instead of staying
-          // silent until the first save.
-          onReady={() => void compile()}
-          onSave={async (projectData) => {
-            await save(projectData);
-          }}
+          onChange={handleChange}
+          onAutosave={handleAutosave}
         />
 
         {preview && (

@@ -1,15 +1,16 @@
+import type { JSONContent } from "@tiptap/core";
 import type { EmailProjectData } from "@/supabase/client";
 
 /* Starter layouts for the "Start a new email" gallery.
  *
- * Each is a plain MJML document handed to the builder as the project's initial
- * page — MJML rather than HTML because that is what an `email` project speaks,
- * and because MJML is what makes the export survive Outlook.
+ * Each is a Tiptap document in Maily's node vocabulary — the same shape the
+ * editor saves, so a starter is just a template someone already wrote, and
+ * there is no second authoring format to keep in step with the editor.
  *
  * No compliance footer here, deliberately. CAN-SPAM requires a physical address
  * and a working opt-out on commercial mail, and SES checks for both before
- * raising a tenant's sending quota — a footer seeded into an editable canvas is
- * one deleted section away from getting a domain throttled. The send path
+ * raising a tenant's sending quota — a footer seeded into an editable document
+ * is one deleted block away from getting a domain throttled. The send path
  * appends a fixed one instead (`complianceFooter` in email_render.ts), so a
  * starter carries the design and nothing legal. */
 
@@ -19,8 +20,7 @@ import type { EmailProjectData } from "@/supabase/client";
  * Deliberately not a hosted placeholder service: those go down (via.placeholder
  * .com already has), and a starter that hotlinks one hands every new template a
  * broken image plus a live dependency on someone else's server — which then goes
- * out to real recipients if nobody swaps the image. Single quotes inside so the
- * whole thing drops into a double-quoted MJML attribute unescaped.
+ * out to real recipients if nobody swaps the image.
  */
 function placeholder(width: number, height: number): string {
   const svg =
@@ -32,148 +32,129 @@ function placeholder(width: number, height: number): string {
   return `data:image/svg+xml,${svg.replace(/</g, "%3C").replace(/>/g, "%3E").replace(/#/g, "%23")}`;
 }
 
-/** Wrap body sections in the shared document chrome. 600px is the width that
- *  renders intact in every major client without horizontal scrolling. */
-function doc(body: string): string {
-  return `<mjml>
-  <mj-body background-color="#eceee9" width="600px">
-${body}
-  </mj-body>
-</mjml>`;
+/* ── node helpers ────────────────────────────────────────────────────────── */
+
+/** A `{{n}}` slot. Stored as a real node, not as text: the editor can then draw
+ *  it as a pill and nobody can half-delete it into `{{1}`. */
+function slot(n: number): JSONContent {
+  return { type: "variable", attrs: { id: String(n) } };
 }
 
-const BLANK = doc(`
-  <mj-section background-color="#ffffff" padding="24px">
-    <mj-column>
-      <mj-text font-size="15px" line-height="1.65" color="#2b312d">
-        Start writing, or drag a block in from the right.
-      </mj-text>
-    </mj-column>
-  </mj-section>`);
+function text(value: string): JSONContent {
+  return { type: "text", text: value };
+}
 
-const ANNOUNCEMENT = doc(`
-  <mj-section background-color="#ffffff" padding="0">
-    <mj-column>
-      <mj-image src="${placeholder(1200, 640)}" alt="" padding="0" />
-    </mj-column>
-  </mj-section>
-  <mj-section background-color="#ffffff" padding="24px 24px 8px">
-    <mj-column>
-      <mj-text font-size="26px" font-weight="700" line-height="1.3" color="#2b312d">
-        Hello {{1}}, something new
-      </mj-text>
-      <mj-text font-size="15px" line-height="1.65" color="#2b312d" padding-top="12px">
-        One paragraph is usually enough. Say what changed and why it matters,
-        then get out of the way.
-      </mj-text>
-    </mj-column>
-  </mj-section>
-  <mj-section background-color="#ffffff" padding="8px 24px 24px">
-    <mj-column>
-      <mj-button background-color="#1f7a45" color="#ffffff" border-radius="8px" font-size="15px" font-weight="600" padding="13px 30px" href="{{2}}">
-        Read more
-      </mj-button>
-    </mj-column>
-  </mj-section>`);
+function paragraph(...content: JSONContent[]): JSONContent {
+  return { type: "paragraph", content };
+}
 
-const NEWSLETTER = doc(`
-  <mj-section background-color="#ffffff" padding="24px 24px 8px">
-    <mj-column>
-      <mj-text font-size="24px" font-weight="700" color="#2b312d">
-        What we're reading
-      </mj-text>
-      <mj-text font-size="14px" color="#5a635c" padding-top="6px">
-        Hi {{1}} — three things worth your time this month.
-      </mj-text>
-    </mj-column>
-  </mj-section>
-  <mj-section background-color="#ffffff" padding="8px 24px">
-    <mj-column>
-      <mj-text font-size="17px" font-weight="600" color="#2b312d">One</mj-text>
-      <mj-text font-size="15px" line-height="1.65" color="#2b312d">A sentence or two, then a link.</mj-text>
-      <mj-divider border-width="1px" border-color="#e2e6e2" padding="16px 0" />
-      <mj-text font-size="17px" font-weight="600" color="#2b312d">Two</mj-text>
-      <mj-text font-size="15px" line-height="1.65" color="#2b312d">A sentence or two, then a link.</mj-text>
-      <mj-divider border-width="1px" border-color="#e2e6e2" padding="16px 0" />
-      <mj-text font-size="17px" font-weight="600" color="#2b312d">Three</mj-text>
-      <mj-text font-size="15px" line-height="1.65" color="#2b312d">A sentence or two, then a link.</mj-text>
-    </mj-column>
-  </mj-section>`);
+function heading(level: 1 | 2 | 3, ...content: JSONContent[]): JSONContent {
+  return { type: "heading", attrs: { level }, content };
+}
 
-const RECEIPT = doc(`
-  <mj-section background-color="#ffffff" padding="24px 24px 8px">
-    <mj-column>
-      <mj-text font-size="22px" font-weight="700" color="#2b312d">
-        Order {{1}} is on its way
-      </mj-text>
-      <mj-text font-size="15px" line-height="1.65" color="#2b312d" padding-top="8px">
-        Thanks {{2}} — here is what you ordered.
-      </mj-text>
-    </mj-column>
-  </mj-section>
-  <mj-section background-color="#ffffff" padding="8px 24px">
-    <mj-column width="70%">
-      <mj-text font-size="15px" color="#2b312d">Item</mj-text>
-    </mj-column>
-    <mj-column width="30%">
-      <mj-text font-size="15px" color="#2b312d" align="right">{{3}}</mj-text>
-    </mj-column>
-  </mj-section>
-  <mj-section background-color="#ffffff" padding="8px 24px 24px">
-    <mj-column>
-      <mj-divider border-width="1px" border-color="#e2e6e2" padding="0 0 16px" />
-      <mj-button background-color="#1f7a45" color="#ffffff" border-radius="8px" font-size="15px" font-weight="600" href="{{4}}">
-        Track your order
-      </mj-button>
-    </mj-column>
-  </mj-section>`);
+function image(width: number, height: number): JSONContent {
+  return {
+    type: "image",
+    attrs: { src: placeholder(width, height), alt: "", alignment: "center" },
+  };
+}
 
-const INVITE = doc(`
-  <mj-section background-color="#ffffff" padding="24px 24px 8px">
-    <mj-column>
-      <mj-text font-size="26px" font-weight="700" line-height="1.3" color="#2b312d">
-        {{1}}, you're invited
-      </mj-text>
-      <mj-text font-size="15px" line-height="1.65" color="#2b312d" padding-top="10px">
-        {{2}} — save the date.
-      </mj-text>
-    </mj-column>
-  </mj-section>
-  <mj-section background-color="#ffffff" padding="8px 24px">
-    <mj-column width="50%">
-      <mj-image src="${placeholder(560, 560)}" alt="" />
-    </mj-column>
-    <mj-column width="50%">
-      <mj-image src="${placeholder(560, 560)}" alt="" />
-    </mj-column>
-  </mj-section>
-  <mj-section background-color="#ffffff" padding="8px 24px 24px">
-    <mj-column>
-      <mj-button background-color="#1f7a45" color="#ffffff" border-radius="8px" font-size="15px" font-weight="600" href="{{3}}">
-        RSVP
-      </mj-button>
-    </mj-column>
-  </mj-section>`);
+/** `urlSlot` puts a `{{n}}` in the href rather than the label — Maily keeps the
+ *  slot number in `url` and flags it, and the renderer formats it back out. */
+function button(label: string, urlSlot: number): JSONContent {
+  return {
+    type: "button",
+    attrs: {
+      text: label,
+      url: String(urlSlot),
+      isUrlVariable: true,
+      alignment: "center",
+      variant: "filled",
+      borderRadius: "smooth",
+      buttonColor: "#1f7a45",
+      textColor: "#ffffff",
+    },
+  };
+}
 
-const LETTER = doc(`
-  <mj-section background-color="#ffffff" padding="28px 24px">
-    <mj-column>
-      <mj-text font-size="16px" line-height="1.7" color="#2b312d">
-        Hi {{1}},<br /><br />
-        No images, no buttons, no columns — just a letter. Plain text-shaped mail
-        clears spam filters more reliably than anything else you can send.
-        <br /><br />
-        Best,<br />
-        The team
-      </mj-text>
-    </mj-column>
-  </mj-section>`);
+const divider: JSONContent = { type: "horizontalRule" };
+
+function columns(...cells: JSONContent[][]): JSONContent {
+  return {
+    type: "columns",
+    content: cells.map((content) => ({
+      type: "column",
+      attrs: { width: `${Math.round(100 / cells.length)}%` },
+      content,
+    })),
+  };
+}
+
+function doc(...content: JSONContent[]): JSONContent {
+  return { type: "doc", content };
+}
+
+/* ── the layouts ─────────────────────────────────────────────────────────── */
+
+const BLANK = doc(
+  paragraph(text("Start writing, or press / to add a block.")),
+);
+
+const ANNOUNCEMENT = doc(
+  image(1200, 640),
+  heading(1, text("Hello "), slot(1), text(", something new")),
+  paragraph(
+    text(
+      "One paragraph is usually enough. Say what changed and why it matters, then get out of the way.",
+    ),
+  ),
+  button("Read more", 2),
+);
+
+const NEWSLETTER = doc(
+  heading(1, text("What we're reading")),
+  paragraph(text("Hi "), slot(1), text(" — three things worth your time this month.")),
+  heading(2, text("One")),
+  paragraph(text("A sentence or two, then a link.")),
+  divider,
+  heading(2, text("Two")),
+  paragraph(text("A sentence or two, then a link.")),
+  divider,
+  heading(2, text("Three")),
+  paragraph(text("A sentence or two, then a link.")),
+);
+
+const RECEIPT = doc(
+  heading(1, text("Order "), slot(1), text(" is on its way")),
+  paragraph(text("Thanks "), slot(2), text(" — here is what you ordered.")),
+  columns([paragraph(text("Item"))], [paragraph(slot(3))]),
+  divider,
+  button("Track your order", 4),
+);
+
+const INVITE = doc(
+  heading(1, slot(1), text(", you're invited")),
+  paragraph(slot(2), text(" — save the date.")),
+  columns([image(560, 560)], [image(560, 560)]),
+  button("RSVP", 3),
+);
+
+const LETTER = doc(
+  paragraph(text("Hi "), slot(1), text(",")),
+  paragraph(
+    text(
+      "No images, no buttons, no columns — just a letter. Plain text-shaped mail clears spam filters more reliably than anything else you can send.",
+    ),
+  ),
+  paragraph(text("Best,")),
+  paragraph(text("The team")),
+);
 
 export type Starter = {
   id: string;
   name: string;
   description: string;
-  mjml: string;
+  content: JSONContent;
   /** Rough shape of the layout, drawn as the gallery thumbnail. */
   preview: "blank" | "hero" | "list" | "table" | "gallery" | "text";
 };
@@ -183,47 +164,49 @@ export const STARTERS: Starter[] = [
     id: "blank",
     name: "Blank canvas",
     description: "Start from an empty 600px body",
-    mjml: BLANK,
+    content: BLANK,
     preview: "blank",
   },
   {
     id: "announcement",
     name: "Announcement",
     description: "Hero image, headline, one call to action",
-    mjml: ANNOUNCEMENT,
+    content: ANNOUNCEMENT,
     preview: "hero",
   },
   {
     id: "newsletter",
     name: "Newsletter",
     description: "Three-story layout with dividers",
-    mjml: NEWSLETTER,
+    content: NEWSLETTER,
     preview: "list",
   },
   {
     id: "receipt",
     name: "Order receipt",
     description: "Line items, totals, tracking button",
-    mjml: RECEIPT,
+    content: RECEIPT,
     preview: "table",
   },
   {
     id: "invite",
     name: "Event invite",
     description: "Date block, two-column gallery, RSVP",
-    mjml: INVITE,
+    content: INVITE,
     preview: "gallery",
   },
   {
     id: "letter",
     name: "Plain letter",
     description: "Text-only, high deliverability",
-    mjml: LETTER,
+    content: LETTER,
     preview: "text",
   },
 ];
 
-/** The builder's project shape for a single-page email seeded with `mjml`. */
-export function projectFor(mjml: string): EmailProjectData {
-  return { pages: [{ name: "Email", component: mjml }] };
+/** The stored project *is* the document — there is no wrapper to build, unlike
+ *  the previous builder's `{ pages: [...] }`. Kept as a named function anyway so
+ *  the two call sites read the same as before. */
+export function projectFor(content: JSONContent): EmailProjectData {
+  return content;
 }

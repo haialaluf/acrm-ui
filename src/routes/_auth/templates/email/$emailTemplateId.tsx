@@ -18,9 +18,9 @@ export const Route = createFileRoute("/_auth/templates/email/$emailTemplateId")(
   { component: EditEmailTemplate },
 );
 
-/** A row saved before its first canvas export has no project yet; fall back to
- *  the blank starter so the builder always has something to mount on. */
-const BLANK = projectFor(STARTERS[0].mjml);
+/** A row saved before its first export has no document yet; fall back to the
+ *  blank starter so the builder always has something to mount on. */
+const BLANK = projectFor(STARTERS[0].content);
 
 function EditEmailTemplate() {
   const { translate: t } = useTranslation();

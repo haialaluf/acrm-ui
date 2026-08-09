@@ -124,7 +124,7 @@ function NewEmailTemplate() {
     <EmailTemplateBuilder
       draft={draft}
       onDraft={onDraft}
-      project={projectFor(starter.mjml)}
+      project={projectFor(starter.content)}
       saving={create.isPending || update.isPending}
       saveError={saveError}
       onSave={onSave}

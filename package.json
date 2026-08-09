@@ -16,12 +16,15 @@
     "preview:unsubscribe": "wrangler pages dev dist-unsubscribe"
   },
   "dependencies": {
-    "@grapesjs/studio-sdk": "^1.1.1",
+    "@maily-to/core": "^0.3.7",
+    "@maily-to/render": "^0.2.3",
     "@supabase/supabase-js": "^2.81.1",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-query": "^5.90.8",
     "@tanstack/react-router": "^1.136.8",
     "@tanstack/react-virtual": "^3.14.8",
+    "@tiptap/core": "^2.27.2",
+    "@tiptap/react": "^2.27.2",
     "@types/he": "^1.2.3",
     "@types/turndown": "^5.0.6",
     "antd": "^6.0.0",

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
-import { ImageIcon, LoaderCircle, Upload } from "lucide-react";
-import type { Editor } from "grapesjs";
+import { LoaderCircle, Upload } from "lucide-react";
+import type { Editor } from "@tiptap/core";
 import { useTranslation } from "@/hooks/useTranslation";
 import useBoundStore from "@/stores/useBoundStore";
 import { uploadMediaToBucket } from "@/utils/uploadMediaToBucket";
@@ -9,16 +9,22 @@ import { uploadMediaToBucket } from "@/utils/uploadMediaToBucket";
  *  because animated GIFs are still the only motion that works in email. */
 const ACCEPT = "image/png,image/jpeg,image/gif";
 
+type Upload = { src: string; name: string };
+
 /**
  * Our side of image handling.
  *
- * The builder ships a perfectly good asset browser, so this does not rebuild
- * one — it uploads into the org's private `media` bucket (via the same
- * `uploadMediaToBucket` the WhatsApp editor uses), hands the result to the
- * builder's asset manager, and explains where the file actually lives. That
- * last part is the point: an image in a marketing email is fetched by the
- * recipient's client months later, so *whose* CDN serves it is a decision worth
- * making explicitly rather than inheriting from the vendor's default.
+ * The previous builder shipped an asset browser, so this panel used to defer to
+ * it. Maily has none — an image block is just a node with a `src` — so the whole
+ * job is ours now: upload into the org's private `media` bucket (via the same
+ * `uploadMediaToBucket` the WhatsApp editor uses), drop the result into the
+ * document, and explain where the file actually lives. That last part is the
+ * point: an image in a marketing email is fetched by the recipient's client
+ * months later, so *whose* server hosts it is a decision worth making explicitly
+ * rather than inheriting from a vendor's default.
+ *
+ * Dragging a file straight onto the document works too, and lands in the same
+ * bucket — MailyCanvas wires the editor's own upload hook to this same helper.
  */
 export default function MediaTab({ editor }: { editor: Editor | null }) {
   const { translate: t } = useTranslation();
@@ -26,9 +32,17 @@ export default function MediaTab({ editor }: { editor: Editor | null }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // This session's uploads only. Listing the bucket would need a storage query
+  // this app does not have yet, and the common case — upload it, then place it
+  // twice — is served without one.
+  const [uploads, setUploads] = useState<Upload[]>([]);
+
+  const place = (src: string) => {
+    editor?.chain().focus().setImage({ src }).run();
+  };
 
   const upload = async (files: FileList | null) => {
-    if (!files?.length || !orgId || !editor) return;
+    if (!files?.length || !orgId) return;
 
     setUploading(true);
     setError(null);
@@ -36,11 +50,9 @@ export default function MediaTab({ editor }: { editor: Editor | null }) {
     try {
       for (const file of Array.from(files)) {
         const src = await uploadMediaToBucket(file, orgId, file.name);
-        // Registering it here is what makes the upload show up in the
-        // builder's own asset panel, so both routes in end up in one place.
-        editor.AssetManager.add({ src, name: file.name });
+        setUploads((previous) => [{ src, name: file.name }, ...previous]);
+        place(src);
       }
-      editor.AssetManager.open();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -90,15 +102,34 @@ export default function MediaTab({ editor }: { editor: Editor | null }) {
         </div>
       )}
 
-      <button
-        type="button"
-        className="inline-flex items-center justify-center gap-[6px] rounded-full border border-border bg-card p-[9px] text-[13px] hover:bg-muted disabled:opacity-60"
-        onClick={() => editor?.AssetManager.open()}
-        disabled={!editor}
-      >
-        <ImageIcon size={15} />
-        {t("Open image library")}
-      </button>
+      {uploads.length > 0 && (
+        <section className="flex flex-col gap-[10px]">
+          <div className="text-[11px] tracking-[0.06em] uppercase text-muted-foreground">
+            {t("Uploaded in this session")}
+          </div>
+          <div className="grid grid-cols-2 gap-[9px]">
+            {uploads.map((item) => (
+              <button
+                key={item.src}
+                type="button"
+                className="rounded-[10px] border border-border bg-card p-[5px] text-start overflow-hidden hover:border-primary disabled:opacity-60"
+                title={t("Place in the email")}
+                disabled={!editor}
+                onClick={() => place(item.src)}
+              >
+                <img
+                  src={item.src}
+                  alt=""
+                  className="w-full h-[62px] object-cover rounded-[6px]"
+                />
+                <span className="block text-[11px] mt-[6px] truncate">
+                  {item.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="flex flex-col gap-[10px]">
         <div className="text-[11px] tracking-[0.06em] uppercase text-muted-foreground">

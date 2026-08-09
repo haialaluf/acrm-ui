@@ -38,6 +38,7 @@ export default function SetupTab({
   onPreheader,
   extra,
   onExtra,
+  dir,
   domain,
   domainExtra,
 }: {
@@ -47,6 +48,11 @@ export default function SetupTab({
   onPreheader: (value: string) => void;
   extra: EmailTemplateExtra;
   onExtra: (patch: Partial<EmailTemplateExtra>) => void;
+  /** The direction actually in force, resolved by the builder — which falls
+   *  back to the UI language, not to `ltr`. Passed in rather than re-derived
+   *  here: while this control derived its own default, an untouched template in
+   *  a Hebrew workspace composed right-to-left while this said left-to-right. */
+  dir: "ltr" | "rtl";
   domain?: string;
   domainExtra: EmailOrganizationAddressExtra | null;
 }) {
@@ -133,8 +139,8 @@ export default function SetupTab({
         <ConfigProvider theme={segmentedTheme}>
           <Segmented<"ltr" | "rtl">
             block
-            value={extra.dir ?? "ltr"}
-            onChange={(dir) => onExtra({ dir })}
+            value={dir}
+            onChange={(next) => onExtra({ dir: next })}
             options={[
               { value: "ltr", label: t("Left to right") },
               { value: "rtl", label: t("Right to left") },

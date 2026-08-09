@@ -1,8 +1,9 @@
+import type { JSONContent } from "@tiptap/core";
 import type { Tables } from "../db_types";
 
 // EMAIL TEMPLATES
 //
-// Templates authored in the visual builder (GrapesJS Studio SDK) and stored in
+// Templates authored in the visual builder (Maily, on Tiptap) and stored in
 // public.email_templates. Unlike the WhatsApp templates, nothing external owns
 // these — the row is the source of truth.
 
@@ -63,9 +64,11 @@ export type EmailTemplateCategory =
   | "Newsletter"
   | "Lifecycle";
 
-/** The builder's own project JSON. Opaque to everything but the builder — the
- *  send path reads `html` instead. */
-export type EmailProjectData = Record<string, unknown>;
+// @ui-divergence: the API types this as `Record<string, unknown>` — it stores
+// and returns the column without ever looking inside it. The UI *is* the
+// builder, so it names the real shape: the editor's Tiptap document. The send
+// path reads `html`, never this.
+export type EmailProjectData = JSONContent;
 
 /** A row of public.email_templates with the jsonb columns narrowed. */
 export type EmailTemplateRow = Omit<

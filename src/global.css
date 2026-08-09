@@ -1,3 +1,9 @@
+/* Maily's editor styles. FIRST on purpose: the file is a compiled Tailwind v4
+   build of its own, preflight included, and its `@layer base` resets `html`'s
+   font-family among other things. Importing it above ours puts our base rules
+   later in the same layer, so the app wins every tie. Its utilities are prefixed
+   `mly-`/`--mly-`, so nothing else collides. */
+@import "@maily-to/core/style.css";
 @import "tailwindcss";
 
 :root {
@@ -1435,4 +1441,32 @@ select.mapping:focus {
   padding: 0;
   overflow: hidden;
   border-radius: 12px;
+}
+
+/* ── Maily editing surface ─────────────────────────────────────────────────
+   The editor renders into our DOM rather than an iframe, so these rules reach
+   its own markup directly. Kept to the minimum: Maily styles its blocks well,
+   and the only real job here is to stop its default card chrome from nesting a
+   second sheet of paper inside the one MailyCanvas already draws. */
+.maily-body {
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+
+/* The paper sets the email's own font and colour (Setup → Body); the editor
+   content has to inherit them or the canvas lies about what will be sent. */
+.maily-content {
+  font-family: inherit;
+  color: inherit;
+  outline: none;
+}
+
+/* The `/` and `@` menus and the selection bubble are portalled to the end of
+   the document, above our own panels but below modals (ContactPreview sits at
+   z-30, the scrim at z-80). */
+.tippy-box {
+  z-index: 40;
 }
