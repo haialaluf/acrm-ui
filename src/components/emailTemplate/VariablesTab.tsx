@@ -40,14 +40,6 @@ export function fieldSample(value: EmailVariableField): string {
   return EMAIL_VAR_FIELDS.find((f) => f.value === value)?.sample || "";
 }
 
-/** Tokens the send path fills in. Listed read-only so people know they exist
- *  and do not try to model them as variables of their own. */
-const SYSTEM_VARS: [string, string][] = [
-  ["{{unsubscribe_url}}", "One-click opt-out, filled at send time"],
-  ["{{sender_identity}}", "Your verified from-address block"],
-  ["{{view_in_browser}}", "Hosted copy of this send"],
-];
-
 const selectTheme = {
   components: {
     Select: {
@@ -226,27 +218,6 @@ export default function VariablesTab({
             )}
           </div>
         )}
-      </section>
-
-      <section className="flex flex-col gap-[10px]">
-        <div className="text-[11px] tracking-[0.06em] uppercase text-muted-foreground">
-          {t("System variables")}
-        </div>
-        <div className="flex flex-col gap-[8px]">
-          {SYSTEM_VARS.map(([token, description]) => (
-            <div key={token} className="flex flex-col gap-[4px] items-start">
-              <span
-                className="rounded-[5px] bg-muted text-secondary-foreground px-[7px] py-[3px] font-mono text-[11.5px]"
-                dir="ltr"
-              >
-                {token}
-              </span>
-              <span className="text-[11.5px] text-muted-foreground">
-                {t(description)}
-              </span>
-            </div>
-          ))}
-        </div>
       </section>
 
       {variables.length > 0 &&

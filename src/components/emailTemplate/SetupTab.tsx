@@ -193,9 +193,9 @@ export default function SetupTab({
         <div className="flex flex-col gap-[12px]">
           <ComplianceRow
             icon={<Lock size={14} />}
-            title={t("Every layout ends with a footer")}
+            title={t("Every email ends with the same footer")}
             body={t(
-              "Physical address and unsubscribe link, required by CAN-SPAM and by SES before it raises your sending quota.",
+              "Your business name, address and an unsubscribe link are added at send time. It is not part of the design and cannot be edited — check Preview to see it.",
             )}
           />
           <ComplianceRow

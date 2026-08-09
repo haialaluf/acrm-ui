@@ -12,14 +12,12 @@ import type {
  * more than sharing code — a preview that lies is worse than no preview.
  *
  * TWIN FILE: ../acrm-api/supabase/functions/_shared/email_render.ts. `VAR_RE`,
- * `contactValues` and `escapeHtml` below must stay identical to their
- * counterparts there; that file's `email_render.test.ts` pins the shared
- * behaviour, since `npm run types:sync-check` only covers `src/supabase/types`
- * and will not catch drift here. */
+ * `contactValues`, `escapeHtml` and `complianceFooter` below must stay identical
+ * to their counterparts there; that file's `email_render.test.ts` pins the
+ * shared behaviour, since `npm run types:sync-check` only covers
+ * `src/supabase/types` and will not catch drift here. */
 
-/** Matches a numbered slot `{{n}}`, tolerating inner whitespace. System tokens
- *  (`{{unsubscribe_url}}`, `{{sender_identity}}`, `{{view_in_browser}}`) are
- *  deliberately excluded: they are filled at send time, not from a contact. */
+/** Matches a numbered slot `{{n}}`, tolerating inner whitespace. */
 const VAR_RE = /\{\{\s*(\d+)\s*\}\}/g;
 
 export type Resolution = {
@@ -131,6 +129,51 @@ export function renderHtml(
   });
 
   return { html: out, resolutions };
+}
+
+/**
+ * The compliance footer the send path appends to every email.
+ *
+ * Drawn here so the preview shows what the recipient actually gets. It is not
+ * part of the canvas and nothing in the builder can restyle or delete it — the
+ * business name, the postal address CAN-SPAM requires and the opt-out link are
+ * added at send time, from the organization record.
+ *
+ * TWIN: `complianceFooter` in
+ * ../acrm-api/supabase/functions/_shared/email_render.ts. The markup must stay
+ * identical; only the href differs, because the real opt-out link is minted per
+ * recipient and does not exist yet at preview time.
+ */
+export function complianceFooter(ctx: {
+  organizationName: string;
+  organizationAddress: string;
+  /** Dead in the preview. Real sends get the recipient's own token URL. */
+  unsubscribeHref?: string;
+}): string {
+  const href = escapeHtml(ctx.unsubscribeHref || "#");
+
+  return (
+    `<table role="presentation" width="100%" cellpadding="0" ` +
+    `cellspacing="0" border="0" style="border-collapse:collapse">` +
+    `<tr><td align="center" style="padding:26px 24px 30px;` +
+    `font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.7;` +
+    `color:#8b938d">` +
+    `<div>This message is sent to you by:</div>` +
+    `<div style="color:#5f6a62">${escapeHtml(ctx.organizationName)} ` +
+    `&middot; ${escapeHtml(ctx.organizationAddress)}</div>` +
+    `<div style="padding-top:8px"><a href="${href}" ` +
+    `style="color:#8b938d;text-decoration:underline">Unsubscribe</a></div>` +
+    `</td></tr></table>`
+  );
+}
+
+/** Insert before `</body>` when there is one, else append — exactly how the send
+ *  path attaches the footer. TWIN: `appendToBody` in email_render.ts. */
+export function appendToBody(html: string, block: string): string {
+  const idx = html.toLowerCase().lastIndexOf("</body>");
+  return idx === -1
+    ? html + block
+    : html.slice(0, idx) + block + html.slice(idx);
 }
 
 /** Which slots are placed in the design but have no variable defined, and which

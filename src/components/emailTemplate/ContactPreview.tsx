@@ -2,8 +2,15 @@ import { useMemo, useState } from "react";
 import { Eye, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
+import { useCurrentOrganization } from "@/queries/useOrganizations";
 import type { EmailTemplateVariable } from "@/supabase/client";
-import { contactValues, renderHtml, renderText } from "./renderTemplate";
+import {
+  appendToBody,
+  complianceFooter,
+  contactValues,
+  renderHtml,
+  renderText,
+} from "./renderTemplate";
 
 /**
  * "Preview as" — the compiled email with a real contact's data substituted in.
@@ -16,6 +23,10 @@ import { contactValues, renderHtml, renderText } from "./renderTemplate";
  * The tinting is the reason this exists at all. A grey wall of resolved text
  * tells you nothing; green-vs-amber tells you at a glance that `{{2}}` is
  * quietly falling back for half your list.
+ *
+ * The compliance footer is drawn here too, below the design: it is appended at
+ * send time and cannot be edited, so this is the only place someone sees it
+ * before a recipient does.
  */
 export default function ContactPreview({
   html,
@@ -35,6 +46,7 @@ export default function ContactPreview({
 }) {
   const { translate: t } = useTranslation();
   const { data: contacts } = useContacts();
+  const { data: organization } = useCurrentOrganization();
   const [contactId, setContactId] = useState<string>("");
 
   const contact = contacts?.find((c) => c.id === contactId);
@@ -44,6 +56,13 @@ export default function ContactPreview({
     () => renderHtml(html, variables, values),
     [html, variables, values],
   );
+
+  // `name` and `address` are NOT NULL on organizations, so the placeholders only
+  // ever show while the record is still loading.
+  const footer = complianceFooter({
+    organizationName: organization?.name || t("Your business name"),
+    organizationAddress: organization?.address || t("Your business address"),
+  });
 
   const fallbackCount = rendered.resolutions.filter(
     (r) => !r.fromContact,
@@ -116,7 +135,10 @@ export default function ContactPreview({
             title={t("Email preview")}
             className="w-full h-[70vh] bg-white border-0"
             sandbox=""
-            srcDoc={`<!doctype html><html dir="${dir}"><body style="margin:0">${rendered.html}</body></html>`}
+            srcDoc={`<!doctype html><html dir="${dir}"><body style="margin:0">${appendToBody(
+              rendered.html,
+              footer,
+            )}</body></html>`}
           />
         </div>
       </div>

@@ -52,10 +52,9 @@ function Thumb({ preview }: { preview: Starter["preview"] }) {
 /**
  * "Start a new email" — the first screen of the create flow.
  *
- * A blank 600px body is a bad place to start for most people, and every starter
- * here already carries the compliance footer, so picking one is also how the
- * legally-required parts get into the design without anyone having to know
- * they were required.
+ * A blank 600px body is a bad place to start for most people. None of these
+ * carry the compliance footer — it is appended at send time and is not part of
+ * the design, so nobody has to know it was required or keep it intact.
  */
 export default function StarterGallery({
   onPick,
@@ -71,7 +70,7 @@ export default function StarterGallery({
       </h2>
       <p className="mt-[5px] mb-[20px] text-[13.5px] text-muted-foreground max-w-[56ch]">
         {t(
-          "Every layout is responsive, works right-to-left, and ends with the compliance footer.",
+          "Every layout is responsive and works right-to-left. The unsubscribe footer is added automatically to every send.",
         )}
       </p>
 

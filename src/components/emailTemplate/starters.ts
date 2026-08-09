@@ -6,22 +6,12 @@ import type { EmailProjectData } from "@/supabase/client";
  * page — MJML rather than HTML because that is what an `email` project speaks,
  * and because MJML is what makes the export survive Outlook.
  *
- * Every layout ends with the same compliance footer. CAN-SPAM requires a
- * physical address and a working opt-out on commercial mail, and SES checks for
- * them before raising a tenant's sending quota, so shipping a starter without
- * one would hand people a template that gets their domain throttled. The
- * `{{unsubscribe_url}}` and `{{sender_identity}}` tokens are filled at send
- * time and are not part of the numbered `{{n}}` variables. */
-
-const FOOTER = `
-  <mj-section background-color="#f6f7f5" padding="18px 24px">
-    <mj-column>
-      <mj-text align="center" font-size="12px" color="#7c857e" line-height="1.8">
-        {{sender_identity}}<br />
-        <a href="{{unsubscribe_url}}" style="color:#5c6a61;text-decoration:underline">Unsubscribe</a>
-      </mj-text>
-    </mj-column>
-  </mj-section>`;
+ * No compliance footer here, deliberately. CAN-SPAM requires a physical address
+ * and a working opt-out on commercial mail, and SES checks for both before
+ * raising a tenant's sending quota — a footer seeded into an editable canvas is
+ * one deleted section away from getting a domain throttled. The send path
+ * appends a fixed one instead (`complianceFooter` in email_render.ts), so a
+ * starter carries the design and nothing legal. */
 
 /**
  * A hatched grey placeholder, inline as a data URI.
@@ -48,7 +38,6 @@ function doc(body: string): string {
   return `<mjml>
   <mj-body background-color="#eceee9" width="600px">
 ${body}
-${FOOTER}
   </mj-body>
 </mjml>`;
 }

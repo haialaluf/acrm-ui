@@ -28,7 +28,7 @@ npx supabase db push
 # 2. The public edge function (verify_jwt = false is already in config.toml)
 npx supabase functions deploy unsubscribe
 
-# 3. The base URL the send path uses when it fills {{unsubscribe_url}}
+# 3. The base URL the send path builds the footer's opt-out link from
 npx supabase secrets set UNSUBSCRIBE_BASE_URL=https://unsubscribe.delacrm.com
 ```
 
