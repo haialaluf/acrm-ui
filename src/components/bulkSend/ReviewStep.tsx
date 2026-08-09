@@ -29,6 +29,7 @@ import {
   type ContactWithAddressesRow,
   type TemplateData,
 } from "@/supabase/client";
+import { contactPhone } from "@/utils/ContactAddressUtils";
 import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 
 import NavBtn from "./NavBtn";
@@ -221,14 +222,12 @@ export default function ReviewStep({
                 <div className="text-[13px] truncate">
                   {current?.name || "—"}
                 </div>
-                {current?.addresses?.[0]?.address && (
+                {current && contactPhone(current) && (
                   <div
                     className="text-[11px] truncate text-muted-foreground"
                     style={{ direction: "ltr", textAlign: "start" }}
                   >
-                    {ltrIsolate(
-                      formatPhoneNumber(current.addresses[0].address),
-                    )}
+                    {ltrIsolate(formatPhoneNumber(contactPhone(current)!))}
                   </div>
                 )}
               </div>
@@ -256,7 +255,7 @@ export default function ReviewStep({
                 className="inline-flex items-center gap-[5px] rounded-full px-[8px] py-[3px] text-[12px]"
                 style={{ background: "var(--muted)" }}
               >
-                {c.name || c.addresses?.[0]?.address}
+                {c.name || contactPhone(c)}
                 <button
                   type="button"
                   onClick={() => onRemove(c.id)}

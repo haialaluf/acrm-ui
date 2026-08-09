@@ -13,13 +13,14 @@ import ContactFilter, {
 } from "@/components/ContactFilter";
 
 import { type ContactWithAddressesRow } from "@/supabase/client";
+import { contactPhone, contactPhoneStatus } from "@/utils/ContactAddressUtils";
 
 import ContactRow from "./ContactRow";
 import LinkBtn from "./LinkBtn";
 import QuotaMeter from "./QuotaMeter";
 
 const isRemoved = (c: ContactWithAddressesRow) =>
-  c.status === "removed" || c.addresses?.[0]?.status === "removed";
+  c.status === "removed" || contactPhoneStatus(c) === "removed";
 
 /** Step 1 — pick recipients with the unified filter (search + tags + source + date). */
 export default function RecipientsStep({
@@ -41,7 +42,7 @@ export default function RecipientsStep({
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
 
   const withAddress = useMemo(
-    () => (contacts ?? []).filter((c) => c.addresses?.[0]?.address),
+    () => (contacts ?? []).filter((c) => contactPhone(c)),
     [contacts],
   );
 

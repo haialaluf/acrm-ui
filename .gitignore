@@ -26,3 +26,6 @@ dist/
 # Booking site build output + wrangler's local state (vite.booking.config.ts)
 dist-booking/
 .wrangler/
+
+# Unsubscribe site build output (vite.unsubscribe.config.ts)
+dist-unsubscribe/

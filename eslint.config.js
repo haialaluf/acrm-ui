@@ -16,8 +16,10 @@ export default defineConfig([
     "src/supabase/messages-v0.ts", // legacy v0 compat module (@ts-nocheck'd)
     "vite.config.ts",
     "vite.booking.config.ts",
+    "vite.unsubscribe.config.ts",
     "eslint.config.js",
     "dist-booking", // booking site build output
+    "dist-unsubscribe", // unsubscribe site build output
     ".wrangler", // wrangler's local dev scratch dir
   ]),
   ...pluginQuery.configs["flat/recommended"],

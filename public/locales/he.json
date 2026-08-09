@@ -1083,5 +1083,15 @@
   "live": "פעילה",
   "draft": "טיוטה",
   "paused": "מושהית",
-  "Couldn't load your email templates.": "לא הצלחנו לטעון את תבניות האימייל שלכם."
+  "Couldn't load your email templates.": "לא הצלחנו לטעון את תבניות האימייל שלכם.",
+  "Unsubscribe": "הסרה מרשימת התפוצה",
+  "Unsubscribe from these emails?": "להסיר את הכתובת מרשימת התפוצה?",
+  "{{1}} will stop sending marketing emails to this address:": "‏{{1}} יפסיקו לשלוח הודעות שיווקיות לכתובת הזו:",
+  "You've been unsubscribed": "הכתובת הוסרה מרשימת התפוצה",
+  "You won't receive further emails from {{1}}.": "לא יישלחו אליכם עוד הודעות מ־{{1}}.",
+  "Working…": "רגע…",
+  "Undo — I clicked by mistake": "ביטול — לחצתי בטעות",
+  "That undo window has closed. Reply to any message from us if you'd like to start receiving emails again.": "חלון הביטול נסגר. אם תרצו לחזור לקבל הודעות, השיבו לכל הודעה שקיבלתם מאיתנו.",
+  "We couldn't load this page": "לא הצלחנו לטעון את הדף",
+  "It may have been replaced by a newer one. If you still want to stop receiving these emails, reply to any message from us and we'll take care of it.": "ייתכן שהוחלף בקישור חדש יותר. אם עדיין תרצו להפסיק לקבל את ההודעות האלה, השיבו לכל הודעה שקיבלתם מאיתנו ונטפל בזה."
 }

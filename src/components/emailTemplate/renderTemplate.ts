@@ -9,7 +9,13 @@ import type {
  * The real substitution happens on the server when the email goes out; this
  * mirrors it so someone can see, before sending, exactly which slots resolve
  * from a contact's record and which fall back. Keeping the two in step matters
- * more than sharing code — a preview that lies is worse than no preview. */
+ * more than sharing code — a preview that lies is worse than no preview.
+ *
+ * TWIN FILE: ../acrm-api/supabase/functions/_shared/email_render.ts. `VAR_RE`,
+ * `contactValues` and `escapeHtml` below must stay identical to their
+ * counterparts there; that file's `email_render.test.ts` pins the shared
+ * behaviour, since `npm run types:sync-check` only covers `src/supabase/types`
+ * and will not catch drift here. */
 
 /** Matches a numbered slot `{{n}}`, tolerating inner whitespace. System tokens
  *  (`{{unsubscribe_url}}`, `{{sender_identity}}`, `{{view_in_browser}}`) are

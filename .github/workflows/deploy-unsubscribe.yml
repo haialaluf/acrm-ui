@@ -1,0 +1,44 @@
+name: Deploy unsubscribe site to Cloudflare Pages
+
+# The public email opt-out page (unsubscribe.delacrm.com/<token>).
+#
+# Same arrangement as deploy-booking.yml: it lives in this repo but not on
+# GitHub Pages, since Pages allows one custom domain per repository and this one
+# already spends it on app.delacrm.com. Cloudflare Pages by direct upload needs
+# no Git integration, so no second repository.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/unsubscribe/**"
+      - "unsubscribe/**"
+      - "vite.unsubscribe.config.ts"
+      - "src/global.css"
+      - "public/locales/**"
+      - ".github/workflows/deploy-unsubscribe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unsubscribe-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25
+          cache: npm
+      - run: npm ci
+      - run: npm run build:unsubscribe
+        env:
+          VITE_UNSUBSCRIBE_API_URL: ${{ secrets.VITE_UNSUBSCRIBE_API_URL }}
+      - run: npx wrangler pages deploy dist-unsubscribe --project-name=acrm-unsubscribe
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

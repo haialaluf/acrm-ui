@@ -1,5 +1,6 @@
 import Avatar from "@/components/Avatar";
 import { type ContactWithAddressesRow } from "@/supabase/client";
+import { contactPhone } from "@/utils/ContactAddressUtils";
 import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import Checkbox from "./Checkbox";
 
@@ -20,7 +21,7 @@ export default function ContactRow({
   disabled?: boolean;
   disabledReason?: string;
 }) {
-  const phone = contact.addresses?.[0]?.address;
+  const phone = contactPhone(contact);
   return (
     <label
       className={

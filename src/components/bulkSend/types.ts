@@ -2,6 +2,7 @@ import {
   type ContactWithAddressesRow,
   type TemplateData,
 } from "@/supabase/client";
+import { contactPhone } from "@/utils/ContactAddressUtils";
 
 /* Shared types, constants, and pure helpers for the bulk-send wizard. */
 
@@ -319,7 +320,7 @@ export function contactField(
   if (field === "name") return c.name || "";
   if (field === "surname") return c.surname || "";
   if (field === "email") return c.email || "";
-  if (field === "phone") return c.addresses?.[0]?.address || "";
+  if (field === "phone") return contactPhone(c) || "";
   return "";
 }
 

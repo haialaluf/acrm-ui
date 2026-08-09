@@ -23,6 +23,7 @@ import {
   supabase,
   type TemplateData,
 } from "@/supabase/client";
+import { contactPhone } from "@/utils/ContactAddressUtils";
 import { formatPhoneNumber } from "@/utils/FormatUtils";
 
 import WizardHeader from "@/components/bulkSend/WizardHeader";
@@ -204,7 +205,7 @@ function BulkSend() {
   /* Resolved recipients (contacts with at least one address). */
   const recipients = useMemo<ContactWithAddressesRow[]>(() => {
     return (contacts ?? []).filter(
-      (c) => selectedIds.has(c.id) && c.addresses?.[0]?.address,
+      (c) => selectedIds.has(c.id) && contactPhone(c),
     );
   }, [contacts, selectedIds]);
 
@@ -312,7 +313,7 @@ function BulkSend() {
     const storeConvs = useBoundStore.getState().chat.conversations;
 
     for (const { contact, scheduledIso } of items) {
-      const phone = contact.addresses?.[0]?.address;
+      const phone = contactPhone(contact);
       if (!phone) {
         skipped.push(contact);
         continue;

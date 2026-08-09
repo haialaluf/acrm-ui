@@ -1,0 +1,24 @@
+<!doctype html>
+<!-- The page ships Hebrew and English; `main.tsx` sets `lang`/`dir` from the
+     visitor's choice or browser before the first paint. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#cb6441" />
+    <!-- An unsubscribe URL is a bearer credential: keep it out of search
+         results and out of the Referer header of anything the page links to. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
+    />
+    <title>Unsubscribe</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="../src/unsubscribe/main.tsx"></script>
+  </body>
+</html>

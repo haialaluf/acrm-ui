@@ -10,6 +10,7 @@ import {
   useMintBookingLinks,
 } from "@/queries/useBookingLinks";
 import { BOOKING_ORIGIN } from "@/components/templateButtons";
+import { contactPhone } from "@/utils/ContactAddressUtils";
 import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import {
   inputTokens,
@@ -65,7 +66,7 @@ export default function ShareBookingLinkModal({
   const options = useMemo(
     () =>
       (contacts ?? []).map((c) => {
-        const phone = c.addresses?.[0]?.address;
+        const phone = contactPhone(c);
         const pretty = phone ? ltrIsolate(formatPhoneNumber(phone)) : "";
         return {
           value: c.id,

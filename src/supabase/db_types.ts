@@ -1548,6 +1548,69 @@ export type Database = {
           },
         ]
       }
+      unsubscribe_links: {
+        Row: {
+          address: string
+          contact_id: string | null
+          created_at: string
+          expires_at: string | null
+          extra: Json | null
+          id: string
+          last_used_at: string | null
+          organization_id: string
+          resubscribed_at: string | null
+          revoked_at: string | null
+          token: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          contact_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          extra?: Json | null
+          id?: string
+          last_used_at?: string | null
+          organization_id: string
+          resubscribed_at?: string | null
+          revoked_at?: string | null
+          token?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          contact_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          extra?: Json | null
+          id?: string
+          last_used_at?: string | null
+          organization_id?: string
+          resubscribed_at?: string | null
+          revoked_at?: string | null
+          token?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unsubscribe_links_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unsubscribe_links_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhooks: {
         Row: {
           created_at: string
@@ -1681,6 +1744,10 @@ export type Database = {
           p_user_id: string
         }
         Returns: boolean
+      }
+      apply_unsubscribe: {
+        Args: { p_link_id: string; p_undo?: boolean }
+        Returns: undefined
       }
       book_slot: {
         Args: {
@@ -1862,6 +1929,15 @@ export type Database = {
           token: string
         }[]
       }
+      mint_unsubscribe_links: {
+        Args: { p_contact_ids: string[]; p_organization_id: string }
+        Returns: {
+          address: string
+          contact_id: string
+          token: string
+        }[]
+      }
+      normalize_email: { Args: { p_email: string }; Returns: string }
       org_update_by_admin_rules: {
         Args: { p_id: string; p_name: string }
         Returns: boolean

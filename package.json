@@ -11,7 +11,9 @@
     "prepare": "husky",
     "types:sync-check": "bash scripts/check-type-sync.sh",
     "build:booking": "vite build --config vite.booking.config.ts",
-    "preview:booking": "wrangler pages dev dist-booking"
+    "preview:booking": "wrangler pages dev dist-booking",
+    "build:unsubscribe": "vite build --config vite.unsubscribe.config.ts",
+    "preview:unsubscribe": "wrangler pages dev dist-unsubscribe"
   },
   "dependencies": {
     "@grapesjs/studio-sdk": "^1.1.1",

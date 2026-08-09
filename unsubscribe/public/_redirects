@@ -1,0 +1,8 @@
+# SPA fallback. Every unsubscribe URL is /<token>, which is not a real file, so
+# Cloudflare Pages must serve index.html for it and let the app read the token
+# off location.pathname.
+#
+# Note this only covers GET/HEAD. The RFC 8058 one-click POST deliberately does
+# NOT come here — Pages answers 405 to a POST for a static asset — it goes
+# straight to the `unsubscribe` edge function. See docs/unsubscribe-cloudflare-setup.md.
+/*  /index.html  200
