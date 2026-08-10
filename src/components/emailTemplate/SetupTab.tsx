@@ -32,6 +32,9 @@ function visibleLength(text: string): number {
 const FONTS = ["Helvetica", "Georgia", "Verdana", "Tahoma", "Arial"];
 
 export default function SetupTab({
+  name,
+  onName,
+  nameError,
   subject,
   onSubject,
   preheader,
@@ -42,6 +45,12 @@ export default function SetupTab({
   domain,
   domainExtra,
 }: {
+  name: string;
+  onName: (value: string) => void;
+  /** Set once a save or publish was refused for want of a name. The field only
+   *  turns red after someone tried to save without one — an untouched form is
+   *  incomplete, not wrong. */
+  nameError: boolean;
   subject: string;
   onSubject: (value: string) => void;
   preheader: string;
@@ -61,6 +70,32 @@ export default function SetupTab({
 
   return (
     <div className="flex flex-col gap-[22px]">
+      <Section title={t("Template")}>
+        <Field label={t("Template name")} required>
+          <input
+            className={
+              "w-full rounded-[9px] border bg-popover text-foreground text-[14px] p-[8px_10px] outline-none " +
+              (nameError
+                ? "border-destructive focus:border-destructive"
+                : "border-border focus:border-primary")
+            }
+            dir="auto"
+            value={name}
+            aria-invalid={nameError || undefined}
+            onChange={(e) => onName(e.target.value)}
+          />
+          {nameError ? (
+            <div className="text-[11.5px] text-destructive-strong leading-[1.55] mt-[6px]">
+              {t("Give the template a name before saving.")}
+            </div>
+          ) : (
+            <Hint>
+              {t("Only you see this — it names the template in your library.")}
+            </Hint>
+          )}
+        </Field>
+      </Section>
+
       <Section title={t("Inbox line")}>
         <Field
           label={t("Subject")}
@@ -106,6 +141,8 @@ export default function SetupTab({
           <Field label={t("From name")}>
             <input
               className="w-full rounded-[9px] border border-border bg-popover text-foreground text-[14px] p-[8px_10px] outline-none focus:border-primary"
+              name="from-name"
+              autoComplete="off"
               value={extra.from_name ?? ""}
               placeholder={domainExtra?.default_from_name ?? ""}
               onChange={(e) => onExtra({ from_name: e.target.value })}
@@ -115,6 +152,11 @@ export default function SetupTab({
             <input
               className="w-full rounded-[9px] border border-border bg-popover text-foreground text-[14px] p-[8px_10px] outline-none focus:border-primary"
               dir="ltr"
+              type="email"
+              name="reply-to"
+              autoComplete="email"
+              inputMode="email"
+              spellCheck={false}
               value={extra.reply_to ?? ""}
               placeholder={domainExtra?.default_from_address ?? ""}
               onChange={(e) => onExtra({ reply_to: e.target.value })}
@@ -126,7 +168,7 @@ export default function SetupTab({
           <div className="flex gap-[9px] items-start rounded-[10px] bg-success/10 p-[10px_12px] text-[12.5px] leading-[1.5] text-success-strong">
             <Check size={14} className="mt-[2px] shrink-0" />
             <div>
-              <b dir="ltr">{domain}</b> {t("verified in Amazon SES")}
+              <b dir="ltr">{domain}</b> {t("verified for email")}
               <div className="text-muted-foreground text-[11.5px] mt-[3px]">
                 {t("Sending from a verified domain, not a single address.")}
               </div>
@@ -181,18 +223,16 @@ export default function SetupTab({
           </Field>
         </div>
 
-        <div className="grid grid-cols-2 gap-[12px]">
-          <ColorField
-            label={t("Page")}
-            value={extra.pageBg ?? "#eceee9"}
-            onChange={(pageBg) => onExtra({ pageBg })}
-          />
-          <ColorField
-            label={t("Content")}
-            value={extra.bodyBg ?? "#ffffff"}
-            onChange={(bodyBg) => onExtra({ bodyBg })}
-          />
-        </div>
+        {/* One colour, not two. There was a second picker for the surround
+            behind the content, but the canvas is a card the width of the
+            content — so that colour was invisible while designing and only
+            showed up as a frame around the design in the inbox. The email is
+            one flat surface now. */}
+        <ColorField
+          label={t("Content")}
+          value={extra.bodyBg ?? "#ffffff"}
+          onChange={(bodyBg) => onExtra({ bodyBg })}
+        />
       </Section>
 
       <Section title={t("Compliance")}>
@@ -237,16 +277,25 @@ function Section({
 function Field({
   label,
   aside,
+  required,
   children,
 }: {
   label: string;
   aside?: React.ReactNode;
+  required?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <label className="block">
       <div className="flex justify-between items-baseline text-[12px] text-muted-foreground mb-[6px]">
-        <span>{label}</span>
+        <span>
+          {label}
+          {required && (
+            <span className="text-destructive-strong ms-[2px]" aria-hidden>
+              *
+            </span>
+          )}
+        </span>
         {aside}
       </div>
       {children}

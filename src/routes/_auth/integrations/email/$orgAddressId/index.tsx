@@ -135,13 +135,13 @@ function EmailDomainDetail() {
         ? {
             tone: "muted" as const,
             text: t(
-              "We could not read your DNS just now. Amazon checks independently, so this does not block verification.",
+              "We could not read your DNS just now. Verification is checked separately, so this does not block it.",
             ),
           }
         : {
             tone: "success" as const,
             text: t(
-              "All required records are live. Amazon usually verifies within minutes of seeing them.",
+              "All required records are live. Verification usually completes within minutes.",
             ),
           };
     }
@@ -173,6 +173,19 @@ function EmailDomainDetail() {
     }[integration.status] ?? integration.status;
 
   const senderValue = fromAddress ?? extra?.default_from_address ?? "";
+  const sender = senderValue.trim();
+
+  // Only a mailbox on the verified domain can be used as the From address —
+  // anything else is rejected at send time, long after this page said "Saved".
+  const [senderLocal, senderDomain, ...senderRest] = sender.split("@");
+  const senderValid =
+    senderRest.length === 0 &&
+    /^[^\s@]+$/.test(senderLocal ?? "") &&
+    senderDomain?.toLowerCase() === domain.toLowerCase();
+
+  // Nothing to complain about before the field has been touched, or while the
+  // stored value is simply being displayed.
+  const senderError = fromAddress !== null && sender !== "" && !senderValid;
 
   return (
     <>
@@ -203,7 +216,7 @@ function EmailDomainDetail() {
                       "We could not verify this domain within 72 hours. Check the records below, then disconnect and connect it again.",
                     )
                   : t(
-                      "Amazon could not verify this domain. Check that the records below match exactly.",
+                      "We could not verify this domain. Check that the records below match exactly.",
                     )}
               </p>
             </div>
@@ -360,9 +373,15 @@ function EmailDomainDetail() {
                   readOnly={!isOwner}
                 />
               </label>
-              <p className="text-muted-foreground text-[14px]">
-                {t("The address your messages will be sent from.")}
-              </p>
+              {senderError ? (
+                <p className="text-destructive text-[14px] font-medium">
+                  {`${t("Enter an address on this domain, like")} hola@${domain}`}
+                </p>
+              ) : (
+                <p className="text-muted-foreground text-[14px]">
+                  {t("The address your messages will be sent from.")}
+                </p>
+              )}
 
               {setSender.error && (
                 <p className="text-destructive font-medium">
@@ -373,12 +392,16 @@ function EmailDomainDetail() {
               <Button
                 type="button"
                 className="primary w-fit"
-                disabled={!isOwner || senderValue === ""}
-                disabledReason={t("Requires owner permissions")}
+                disabled={!isOwner || !senderValid}
+                disabledReason={
+                  isOwner
+                    ? `${t("Enter an address on this domain, like")} hola@${domain}`
+                    : t("Requires owner permissions")
+                }
                 loading={setSender.isPending}
                 onClick={() =>
                   setSender.mutate(
-                    { domain, default_from_address: senderValue },
+                    { domain, default_from_address: sender },
                     { onSuccess: () => setFromAddress(null) },
                   )
                 }

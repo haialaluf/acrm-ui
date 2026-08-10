@@ -16,6 +16,9 @@ import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
 import SectionFooter from "@/components/SectionFooter";
 import WhatsAppPreview from "@/components/messagePreview/WhatsAppPreview";
+import EmailPreviewFrame, {
+  previewStatsLabel,
+} from "@/components/emailTemplate/EmailPreviewFrame";
 import { detectRtl } from "@/components/messagePreview/rtl";
 import type { MessagePreviewData } from "@/components/messagePreview/types";
 import {
@@ -27,9 +30,12 @@ import { BOOKING_DURATIONS } from "@/queries/useBookingLinks";
 import { isRtl, type Language } from "@/stores/uiSlice";
 import {
   type ContactWithAddressesRow,
+  type EmailTemplateExtra,
+  type EmailTemplateRow,
+  type EmailTemplateVariable,
   type TemplateData,
 } from "@/supabase/client";
-import { contactPhone } from "@/utils/ContactAddressUtils";
+import { contactEmail, contactPhone } from "@/utils/ContactAddressUtils";
 import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 
 import NavBtn from "./NavBtn";
@@ -40,6 +46,7 @@ import { datePickerTokens } from "@/components/antdTokens";
 import {
   type Batch,
   type BatchSchedule,
+  type Channel,
   effectiveScheduling,
   fillTemplate,
   headerMediaFormat,
@@ -52,10 +59,13 @@ import {
 
 const datePickerTheme = { components: { DatePicker: datePickerTokens } };
 
-/** Step 4 — per-contact preview using the shared `<WhatsAppPreview>`,
- *  recipient chips with remove, and schedule (now / later) selector. */
+/** Step 4 — per-contact preview (`<WhatsAppPreview>` or `<EmailPreviewFrame>`,
+ *  by channel), recipient chips with remove, and schedule (now / later)
+ *  selector. Everything except the preview itself is shared between channels. */
 export default function ReviewStep({
+  channel,
   template,
+  email,
   vars,
   headerMedia,
   headerMediaName,
@@ -76,7 +86,17 @@ export default function ReviewStep({
   setScheduleMode,
   booking,
 }: {
-  template: TemplateData;
+  channel: Channel;
+  /** Set when `channel === "whatsapp"`. */
+  template?: TemplateData;
+  /** Set when `channel === "email"`. `from` is null until the domain has a
+   *  default sender, which is what blocks the send below — there is no
+   *  legitimate address to put in the From header before then. */
+  email?: {
+    template: EmailTemplateRow;
+    variables: EmailTemplateVariable[];
+    from: { address: string; name?: string } | null;
+  };
   vars: Record<string, VarValue>;
   headerMedia: string;
   headerMediaName: string;
@@ -110,6 +130,10 @@ export default function ReviewStep({
 }) {
   const { translate: t } = useTranslation();
   const [idx, setIdx] = useState(0);
+  const [previewStats, setPreviewStats] = useState({
+    resolved: 0,
+    fallbacks: 0,
+  });
 
   const overLimit = dailyLimit != null && recipients.length > dailyLimit;
   const effective = effectiveScheduling(scheduling, overLimit);
@@ -127,7 +151,7 @@ export default function ReviewStep({
   // with header/body variables already substituted, so the shared WhatsApp
   // preview renders the exact message this recipient receives.
   const previewData = useMemo<MessagePreviewData | null>(() => {
-    if (!current) return null;
+    if (!current || !template) return null;
     const head = template.components.find((c) => c.type === "HEADER");
     const body = template.components.find((c) => c.type === "BODY");
     const foot = template.components.find((c) => c.type === "FOOTER");
@@ -175,7 +199,9 @@ export default function ReviewStep({
     (effective !== "later" || !!scheduledAt) &&
     // A booking template with no calendar chosen would send everyone the
     // template's example link instead of their own.
-    (!booking || !!booking.calendarId);
+    (!booking || !!booking.calendarId) &&
+    // Nothing to put in the From header until the domain has a default sender.
+    (channel !== "email" || !!email?.from);
 
   return (
     <>
@@ -222,7 +248,18 @@ export default function ReviewStep({
                 <div className="text-[13px] truncate">
                   {current?.name || "—"}
                 </div>
-                {current && contactPhone(current) && (
+                {/* The address this copy actually goes to — the one thing on
+                    this screen that differs per recipient and is worth
+                    double-checking before a few hundred of them go out. */}
+                {current && channel === "email" && contactEmail(current) && (
+                  <div
+                    className="text-[11px] truncate text-muted-foreground"
+                    style={{ direction: "ltr", textAlign: "start" }}
+                  >
+                    {contactEmail(current)}
+                  </div>
+                )}
+                {current && channel === "whatsapp" && contactPhone(current) && (
                   <div
                     className="text-[11px] truncate text-muted-foreground"
                     style={{ direction: "ltr", textAlign: "start" }}
@@ -232,10 +269,47 @@ export default function ReviewStep({
                 )}
               </div>
             </div>
-            {previewData && (
+            {channel === "whatsapp" && previewData && (
               <WhatsAppPreview data={previewData} variant="bubble" />
             )}
+            {channel === "email" && email && (
+              <EmailPreviewFrame
+                html={email.template.html ?? ""}
+                subject={email.template.subject}
+                preheader={email.template.preheader}
+                variables={email.variables}
+                contact={current}
+                dir={
+                  (email.template.extra as EmailTemplateExtra | null)?.dir ??
+                  "ltr"
+                }
+                className="h-[340px]"
+                onStats={setPreviewStats}
+              />
+            )}
           </div>
+
+          {channel === "email" && (
+            <div className="mt-[8px] flex flex-wrap items-center gap-x-[10px] gap-y-[4px] text-[11.5px] text-muted-foreground">
+              {email?.from ? (
+                <span>
+                  {t("From")}{" "}
+                  <span dir="ltr">
+                    {email.from.name
+                      ? `${email.from.name} <${email.from.address}>`
+                      : email.from.address}
+                  </span>
+                </span>
+              ) : (
+                <span className="text-destructive-strong">
+                  {t(
+                    "Set a default sender address on the domain before sending.",
+                  )}
+                </span>
+              )}
+              <span>· {previewStatsLabel(previewStats, t)}</span>
+            </div>
+          )}
         </div>
 
         <div className="px-[16px] mt-[16px]">

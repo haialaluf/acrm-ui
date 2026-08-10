@@ -14,7 +14,7 @@ import {
   useCreateEmailTemplate,
   useUpdateEmailTemplate,
 } from "@/queries/useEmailTemplates";
-import type { EmailProjectData } from "@/supabase/client";
+import type { EmailProjectData, EmailTemplateStatus } from "@/supabase/client";
 
 export const Route = createFileRoute("/_auth/templates/email/new")({
   component: NewEmailTemplate,
@@ -34,6 +34,7 @@ function NewEmailTemplate() {
     name: "",
     subject: "",
     preheader: "",
+    status: "draft",
     variables: [],
     extra: {},
   });
@@ -56,23 +57,33 @@ function NewEmailTemplate() {
     async ({
       project,
       html,
+      status,
     }: {
       project?: EmailProjectData;
       html?: string;
+      status?: EmailTemplateStatus;
     }) => {
       setSaveError(null);
 
       try {
         if (templateId) {
-          await update.mutateAsync({ id: templateId, ...draft, project, html });
+          const saved = await update.mutateAsync({
+            id: templateId,
+            ...draft,
+            ...(status ? { status } : {}),
+            project,
+            html,
+          });
+          onDraft({ status: saved.status as EmailTemplateStatus });
           return;
         }
 
         const created = await create.mutateAsync({
           ...draft,
-          // A template needs a name to be saved at all (it is the unique key),
-          // so an untouched title bar gets a placeholder rather than blocking
-          // the first autosave.
+          ...(status ? { status } : {}),
+          // A template needs a name to be saved at all — it is the unique key.
+          // The builder makes the Setup field required and refuses to write
+          // without one, so this is only a backstop against an empty insert.
           name: draft.name.trim() || t("Untitled template"),
           organization_address: address ?? null,
           project,
@@ -80,7 +91,10 @@ function NewEmailTemplate() {
         });
 
         setTemplateId(created.id);
-        onDraft({ name: created.name });
+        onDraft({
+          name: created.name,
+          status: created.status as EmailTemplateStatus,
+        });
         // Swap the URL for the real one so a refresh, or the back button,
         // lands on the saved template rather than a blank create screen.
         void navigate({
@@ -91,6 +105,9 @@ function NewEmailTemplate() {
         });
       } catch (e) {
         setSaveError(e instanceof Error ? e.message : String(e));
+        // Re-thrown so the builder keeps the draft marked unsaved. The message
+        // is already on its way there through `saveError`.
+        throw e;
       }
     },
     [templateId, draft, address, create, update, navigate, onDraft, t],
@@ -122,12 +139,14 @@ function NewEmailTemplate() {
 
   return (
     <EmailTemplateBuilder
+      title={t("Create template")}
       draft={draft}
       onDraft={onDraft}
       project={projectFor(starter.content)}
       saving={create.isPending || update.isPending}
       saveError={saveError}
       onSave={onSave}
+      unsavedOnMount
       domain={address}
       domainExtra={domainExtra}
     />

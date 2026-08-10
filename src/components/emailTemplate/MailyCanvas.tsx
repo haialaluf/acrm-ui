@@ -26,6 +26,7 @@ import type { Editor } from "@tiptap/core";
 import type { JSONContent } from "@tiptap/core";
 import { Lock } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useCurrentOrganization } from "@/queries/useOrganizations";
 import useBoundStore from "@/stores/useBoundStore";
 import { uploadMediaToBucket } from "@/utils/uploadMediaToBucket";
 import type {
@@ -37,6 +38,7 @@ import {
   toMailyVariables,
   VariablesProvider,
 } from "./mailyVariables";
+import { complianceFooter } from "./renderTemplate";
 
 /** How long the document has to sit still before it is written.
  *
@@ -62,8 +64,8 @@ export default function MailyCanvas({
   content: JSONContent | null;
   /** Direction of the email being composed — independent of the app's UI. */
   dir: "ltr" | "rtl";
-  /** Page/content colours and width, so the editor shows the same paper the
-   *  render produces rather than a generic white sheet. */
+  /** Content colour and width, so the editor shows the same paper the render
+   *  produces rather than a generic white sheet. */
   extra: EmailTemplateExtra;
   /** The template's `{{n}}` slots, offered by the `@` menu and drawn as pills. */
   variables: EmailTemplateVariable[];
@@ -77,6 +79,7 @@ export default function MailyCanvas({
 }) {
   const { translate: t } = useTranslation();
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
+  const { data: organization } = useCurrentOrganization();
 
   // Frozen at mount. See `content` above.
   const [initialContent] = useState(content);
@@ -148,7 +151,6 @@ export default function MailyCanvas({
           style={{
             width: extra.width ?? 600,
             maxWidth: "100%",
-            background: extra.pageBg ?? "#eceee9",
           }}
           dir={dir}
         >
@@ -179,25 +181,38 @@ export default function MailyCanvas({
           </div>
 
           {/* Drawn, not editable. The footer is appended at send time from the
-              organization record (`complianceFooter` in renderTemplate.ts), so
-              this is the only place someone sees it while designing — and
-              seeing it is the point: it explains why there is no unsubscribe
-              block to place. */}
+              organization record, so this is the only place someone sees it
+              while designing — and seeing it is the point: it explains why
+              there is no unsubscribe block to place.
+
+              The markup comes from `complianceFooter`, the same function the
+              preview uses and the twin of the one the send path runs, rather
+              than from JSX of its own: a hand-drawn copy showed translated
+              placeholder text ("Your business name · Your business address")
+              that no recipient ever receives. The footer is English by
+              construction and is not translated here for the same reason.
+
+              `pointer-events-none` because the real opt-out link is minted per
+              recipient — there is nothing to click while designing, and the
+              strip keeps no bottom padding of its own because that markup
+              brings the spacing the recipient will see. */}
           <div
-            className="border-t border-dashed border-[#d8ddd8] bg-[#f6f7f5] rounded-b-[8px] p-[10px_20px_20px] text-center"
+            className="border-t border-dashed border-[#d8ddd8] bg-[#f6f7f5] rounded-b-[8px] p-[10px_20px_0] text-center"
             dir="ltr"
           >
             <span className="inline-flex items-center gap-[5px] text-[9.5px] uppercase tracking-[0.06em] text-[#a2aba4] mb-[8px]">
               <Lock size={11} />
               {t("appended at send · not part of the design")}
             </span>
-            <div className="font-[Arial,Helvetica,sans-serif] text-[12px] leading-[1.7] text-[#8b938d]">
-              <div>{t("This message is sent to you by:")}</div>
-              <div className="text-[#5f6a62]">
-                {t("Your business name · Your business address")}
-              </div>
-              <div className="pt-[8px] underline">{t("Unsubscribe")}</div>
-            </div>
+            <div
+              className="pointer-events-none"
+              dangerouslySetInnerHTML={{
+                __html: complianceFooter({
+                  organizationName: organization?.name ?? "",
+                  organizationAddress: organization?.address ?? "",
+                }),
+              }}
+            />
           </div>
         </div>
       </div>

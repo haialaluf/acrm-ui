@@ -139,6 +139,11 @@ export function renderHtml(
  * business name, the postal address CAN-SPAM requires and the opt-out link are
  * added at send time, from the organization record.
  *
+ * `dir="ltr"` on the cell because this text is English and always will be,
+ * while the document around it inherits the template's direction. Appended into
+ * a `dir="rtl"` email without it, the bidi algorithm moves the trailing colon
+ * and the separator to the wrong end — ":This message is sent to you by".
+ *
  * TWIN: `complianceFooter` in
  * ../acrm-api/supabase/functions/_shared/email_render.ts. The markup must stay
  * identical; only the href differs, because the real opt-out link is minted per
@@ -152,15 +157,23 @@ export function complianceFooter(ctx: {
 }): string {
   const href = escapeHtml(ctx.unsubscribeHref || "#");
 
+  // Name and address joined only where both exist. `organizations.address` is
+  // NOT NULL but may be an empty string, and `Name &middot; ` with nothing
+  // after it reads as a rendering fault rather than a missing field.
+  const identity = [ctx.organizationName, ctx.organizationAddress]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map(escapeHtml)
+    .join(" &middot; ");
+
   return (
     `<table role="presentation" width="100%" cellpadding="0" ` +
     `cellspacing="0" border="0" style="border-collapse:collapse">` +
-    `<tr><td align="center" style="padding:26px 24px 30px;` +
+    `<tr><td align="center" dir="ltr" style="padding:26px 24px 30px;` +
     `font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.7;` +
     `color:#8b938d">` +
     `<div>This message is sent to you by:</div>` +
-    `<div style="color:#5f6a62">${escapeHtml(ctx.organizationName)} ` +
-    `&middot; ${escapeHtml(ctx.organizationAddress)}</div>` +
+    `<div style="color:#5f6a62">${identity}</div>` +
     `<div style="padding-top:8px"><a href="${href}" ` +
     `style="color:#8b938d;text-decoration:underline">Unsubscribe</a></div>` +
     `</td></tr></table>`

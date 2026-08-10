@@ -1,32 +1,19 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Eye, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
-import { useCurrentOrganization } from "@/queries/useOrganizations";
 import type { EmailTemplateVariable } from "@/supabase/client";
-import {
-  appendToBody,
-  complianceFooter,
-  contactValues,
-  renderHtml,
-  renderText,
-} from "./renderTemplate";
+import EmailPreviewFrame, { previewStatsLabel } from "./EmailPreviewFrame";
 
 /**
- * "Preview as" — the compiled email with a real contact's data substituted in.
+ * "Preview as" — the builder's full-screen preview, showing the compiled email
+ * with a real contact's data substituted in.
  *
- * Rendered in a sandboxed iframe rather than inline: the email carries its own
- * `<style>` and table layout, and letting that into the app's document would
- * have it fight Tailwind's reset. `sandbox` with no `allow-scripts` also means
- * a template that somehow picked up a script cannot run it while being edited.
- *
- * The tinting is the reason this exists at all. A grey wall of resolved text
- * tells you nothing; green-vs-amber tells you at a glance that `{{2}}` is
- * quietly falling back for half your list.
- *
- * The compliance footer is drawn here too, below the design: it is appended at
- * send time and cannot be edited, so this is the only place someone sees it
- * before a recipient does.
+ * The frame itself (iframe, tinting, inbox row, compliance footer) is
+ * `EmailPreviewFrame`, shared with the bulk-send review step so the thing you
+ * approve before sending is drawn by the same code as the thing you designed.
+ * What lives here is the chrome only: the overlay, the contact picker and the
+ * close button.
  */
 export default function ContactPreview({
   html,
@@ -46,27 +33,10 @@ export default function ContactPreview({
 }) {
   const { translate: t } = useTranslation();
   const { data: contacts } = useContacts();
-  const { data: organization } = useCurrentOrganization();
   const [contactId, setContactId] = useState<string>("");
+  const [stats, setStats] = useState({ resolved: 0, fallbacks: 0 });
 
   const contact = contacts?.find((c) => c.id === contactId);
-  const values = useMemo(() => contactValues(contact), [contact]);
-
-  const rendered = useMemo(
-    () => renderHtml(html, variables, values),
-    [html, variables, values],
-  );
-
-  // `name` and `address` are NOT NULL on organizations, so the placeholders only
-  // ever show while the record is still loading.
-  const footer = complianceFooter({
-    organizationName: organization?.name || t("Your business name"),
-    organizationAddress: organization?.address || t("Your business address"),
-  });
-
-  const fallbackCount = rendered.resolutions.filter(
-    (r) => !r.fromContact,
-  ).length;
 
   return (
     <div className="absolute inset-0 z-30 flex flex-col bg-muted">
@@ -92,13 +62,7 @@ export default function ContactPreview({
         </select>
 
         <span className="text-[11.5px] text-muted-foreground truncate">
-          {rendered.resolutions.length === 0
-            ? t("This email has no variables placed in it.")
-            : fallbackCount === 0
-              ? t("Every value came from the contact record.")
-              : `${fallbackCount} ${t("of")} ${rendered.resolutions.length} ${t(
-                  "values fell back",
-                )}`}
+          {previewStatsLabel(stats, t)}
         </span>
 
         <div className="flex-1" />
@@ -113,32 +77,15 @@ export default function ContactPreview({
       </div>
 
       <div className="flex-1 min-h-0 overflow-auto p-[22px_20px_60px]">
-        <div className="mx-auto w-full max-w-[600px] rounded-[6px] overflow-hidden shadow-lg">
-          {/* The inbox row: what the recipient reads before opening anything.
-              Always LTR — the inbox chrome is the client's, not the email's. */}
-          <div
-            className="bg-white border-b border-[#e4e7e4] p-[11px_16px]"
-            dir="ltr"
-          >
-            <div
-              className="text-[14px] font-semibold text-[#1c2320]"
-              dir="auto"
-            >
-              {renderText(subject, variables, values) || t("No subject")}
-            </div>
-            <div className="text-[12.5px] text-[#6c766f] mt-[2px]" dir="auto">
-              {renderText(preheader, variables, values)}
-            </div>
-          </div>
-
-          <iframe
-            title={t("Email preview")}
-            className="w-full h-[70vh] bg-white border-0"
-            sandbox=""
-            srcDoc={`<!doctype html><html dir="${dir}"><body style="margin:0">${appendToBody(
-              rendered.html,
-              footer,
-            )}</body></html>`}
+        <div className="mx-auto w-full max-w-[600px]">
+          <EmailPreviewFrame
+            html={html}
+            subject={subject}
+            preheader={preheader}
+            variables={variables}
+            contact={contact}
+            dir={dir}
+            onStats={setStats}
           />
         </div>
       </div>

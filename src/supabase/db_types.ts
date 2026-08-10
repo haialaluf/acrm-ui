@@ -1745,6 +1745,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      apply_email_suppression: {
+        Args: { p_address: string; p_organization_id: string; p_reason: string }
+        Returns: undefined
+      }
       apply_unsubscribe: {
         Args: { p_link_id: string; p_undo?: boolean }
         Returns: undefined
@@ -1792,6 +1796,7 @@ export type Database = {
           contact_name: string
           conversation_id: string
           message_id: string
+          service: Database["public"]["Enums"]["service"]
           status: Json
           timestamp: string
         }[]
@@ -1814,7 +1819,10 @@ export type Database = {
         Returns: boolean
       }
       claim_dispatch_batch: {
-        Args: { p_limit?: number }
+        Args: {
+          p_limit?: number
+          p_services?: Database["public"]["Enums"]["service"][]
+        }
         Returns: {
           agent_id: string
           contact_address: string
@@ -1872,6 +1880,10 @@ export type Database = {
           unread_count: number
         }[]
       }
+      ensure_unsubscribe_link: {
+        Args: { p_address: string; p_organization_id: string }
+        Returns: string
+      }
       get_authorized_orgs: {
         Args: { role?: Database["public"]["Enums"]["role"] }
         Returns: string[]
@@ -1900,6 +1912,7 @@ export type Database = {
           recipient_count: number
           scheduled_date: string
           sent_count: number
+          service: Database["public"]["Enums"]["service"]
           template_name: string
         }[]
       }

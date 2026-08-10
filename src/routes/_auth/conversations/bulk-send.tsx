@@ -9,6 +9,11 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useTemplates } from "@/queries/useTemplates";
+import {
+  useEmailTemplate,
+  useEmailTemplates,
+} from "@/queries/useEmailTemplates";
+import { useMintUnsubscribeLinks } from "@/queries/useUnsubscribeLinks";
 import { useMessagingLimit } from "@/queries/useMessagingLimit";
 import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
 import { pushMessageToStore } from "@/utils/MessageUtils";
@@ -18,12 +23,14 @@ import {
   type ContactWithAddressesRow,
   type ConversationInsert,
   type ConversationRow,
+  type EmailOrganizationAddressExtra,
+  type EmailTemplateExtra,
   type Json,
   type MessageInsert,
   supabase,
   type TemplateData,
 } from "@/supabase/client";
-import { contactPhone } from "@/utils/ContactAddressUtils";
+import { contactEmail, contactPhone } from "@/utils/ContactAddressUtils";
 import { formatPhoneNumber } from "@/utils/FormatUtils";
 
 import WizardHeader from "@/components/bulkSend/WizardHeader";
@@ -31,10 +38,12 @@ import RecipientsStep from "@/components/bulkSend/RecipientsStep";
 import TemplateStep from "@/components/bulkSend/TemplateStep";
 import ManageTemplatesOverlay from "@/components/bulkSend/ManageTemplatesOverlay";
 import VariablesStep from "@/components/bulkSend/VariablesStep";
+import EmailVariablesStep from "@/components/bulkSend/EmailVariablesStep";
 import ReviewStep from "@/components/bulkSend/ReviewStep";
 import SendingStep from "@/components/bulkSend/SendingStep";
 import DoneStep from "@/components/bulkSend/DoneStep";
 import { buildMessageRecord } from "@/components/bulkSend/buildMessageRecord";
+import { buildEmailMessageRecord } from "@/components/bulkSend/buildEmailMessageRecord";
 import { bookingButtonIndex } from "@/components/templateButtons";
 import { useCalendars } from "@/queries/useCalendars";
 import {
@@ -42,12 +51,15 @@ import {
   useMintBookingLinks,
 } from "@/queries/useBookingLinks";
 import {
+  applyEmailOverrides,
   type BatchSchedule,
   batchScheduledIso,
+  type Channel,
   computeBatches,
   countVars,
   defaultScheduledAt,
   effectiveScheduling,
+  type EmailVarOverrides,
   immediateCount,
   initVars,
   type ScheduleMode,
@@ -115,18 +127,45 @@ function BulkSend() {
   const whatsappAddress = addresses?.find(
     (a) => a.service === "whatsapp" && a.status === "connected",
   );
-  const { data: templates } = useTemplates(whatsappAddress?.address);
+  // A verified sending domain. Email templates point at one by name, so this is
+  // both the "can this org send email at all" test and where the From address
+  // and SES wiring come from.
+  const emailAddress = addresses?.find(
+    (a) => a.service === "email" && a.status === "connected",
+  );
+  const { data: templates, isPending: loadingTemplates } = useTemplates(
+    whatsappAddress?.address,
+  );
+  const {
+    data: emailTemplateList,
+    isPending: loadingEmailTemplates,
+    error: emailTemplatesError,
+  } = useEmailTemplates();
   const { data: messagingLimit } = useMessagingLimit(whatsappAddress?.address);
-  const dailyLimit = messagingLimit?.dailyLimit ?? null;
   const approved = useMemo(
     () => (templates ?? []).filter((tpl) => tpl.status === "APPROVED"),
     [templates],
   );
+  // Only `live` templates on a domain this org has actually connected. A draft
+  // is unfinished by definition, and a template whose domain was disconnected
+  // has nowhere to send from — its `organization_address` was set to null by
+  // the FK.
+  const sendableEmailTemplates = useMemo(
+    () =>
+      (emailTemplateList ?? []).filter(
+        (tpl) =>
+          tpl.status === "live" &&
+          !!tpl.organization_address &&
+          tpl.organization_address === emailAddress?.address,
+      ),
+    [emailTemplateList, emailAddress],
+  );
   const { data: calendars, isPending: loadingCalendars } = useCalendars();
   const mintBookingLinks = useMintBookingLinks();
+  const mintUnsubscribeLinks = useMintUnsubscribeLinks();
 
   // wizard state
-  const [stage, setStage] = useState<Stage>("recipients");
+  const [stage, setStage] = useState<Stage>("template");
   // Templates management shown as an overlay over the wizard. Kept as local
   // state (not a route) so opening it never unmounts the wizard.
   // `false` = closed; otherwise the sub-view the overlay should open on.
@@ -136,6 +175,15 @@ function BulkSend() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [vars, setVars] = useState<Record<string, VarValue>>({});
+  // Email arm. `channel` is set by whichever list the step-1 pick came from,
+  // and from then on decides who is selectable, which variables UI runs and
+  // which preview the review step draws.
+  const [channel, setChannel] = useState<Channel>("whatsapp");
+  const [emailTemplateId, setEmailTemplateId] = useState<string | null>(null);
+  // The list only carries summaries; the compiled HTML the preview and the send
+  // both need lives on the detail row.
+  const { data: emailTemplate } = useEmailTemplate(emailTemplateId ?? undefined);
+  const [emailVars, setEmailVars] = useState<EmailVarOverrides>({});
   // Signed URL for a template's mandatory media header (image/video/document),
   // plus the picked file's name for display only. Empty when the chosen
   // template has a text/no header. Always set together — see `pickHeaderMedia`.
@@ -173,8 +221,51 @@ function BulkSend() {
   // this is all-or-nothing: if it is set, nothing was written and nothing sent.
   const [sendError, setSendError] = useState<string | null>(null);
 
+  /* Which channels this organization can broadcast on at all. Drives the step-1
+   * toggle, and when there is exactly one it also picks it — an org with only
+   * WhatsApp connected should never see an email tab it cannot use. */
+  const available = useMemo<Channel[]>(() => {
+    const list: Channel[] = [];
+    if (emailAddress) list.push("email");
+    if (whatsappAddress) list.push("whatsapp");
+    return list;
+  }, [emailAddress, whatsappAddress]);
+
+  /* The From address, resolved at queue time rather than at dispatch.
+   *
+   * It is snapshotted onto every message so that changing the domain's default
+   * sender, or the template's `from_name`, cannot retarget mail that is already
+   * queued. `default_from_address` is set on the domain detail page once the
+   * domain verifies, and validated server-side to be at that domain — until
+   * someone does, there is no legitimate address to send from and the review
+   * step blocks. */
+  const emailFrom = useMemo(() => {
+    const extra = emailAddress?.extra as EmailOrganizationAddressExtra | null;
+    if (!extra?.default_from_address) return null;
+
+    return {
+      address: extra.default_from_address,
+      // The template may override the domain-wide display name — a newsletter
+      // and a receipt can legitimately come from "Acme News" and "Acme".
+      name:
+        (emailTemplate?.extra as EmailTemplateExtra | null)?.from_name ||
+        extra.default_from_name ||
+        undefined,
+    };
+  }, [emailAddress, emailTemplate]);
+
+  const pickedDefaultChannelRef = useRef(false);
+  useEffect(() => {
+    if (pickedDefaultChannelRef.current || available.length === 0) return;
+    pickedDefaultChannelRef.current = true;
+    // Only meaningful when one channel exists; with both, the default stays
+    // whatever the toggle last showed.
+    if (available.length === 1) setChannel(available[0]);
+  }, [available]);
+
   // Prefill once data is loaded. Guarded so we don't re-apply if the user
-  // navigates back inside the wizard.
+  // navigates back inside the wizard. WhatsApp-only: the entry points that use
+  // it (TemplatePicker, opened from inside a conversation) are chat surfaces.
   const appliedPrefillRef = useRef(false);
   useEffect(() => {
     if (
@@ -190,6 +281,7 @@ function BulkSend() {
     const contact = contacts.find((c) => c.id === prefillContactId);
     if (!tpl || !contact) return;
     appliedPrefillRef.current = true;
+    setChannel("whatsapp");
     setSelectedIds(new Set([contact.id]));
     setTemplate(tpl);
     const headN = countVars(
@@ -202,12 +294,15 @@ function BulkSend() {
     setStage("variables");
   }, [prefillContactId, prefillTemplateId, contacts, approved]);
 
-  /* Resolved recipients (contacts with at least one address). */
+  /* Resolved recipients — selected contacts reachable on the chosen channel.
+   * The step-2 list already filters by the same rule, so this only re-applies
+   * it in case the channel changed after a selection was made. */
   const recipients = useMemo<ContactWithAddressesRow[]>(() => {
+    const reachable = channel === "email" ? contactEmail : contactPhone;
     return (contacts ?? []).filter(
-      (c) => selectedIds.has(c.id) && contactPhone(c),
+      (c) => selectedIds.has(c.id) && reachable(c),
     );
-  }, [contacts, selectedIds]);
+  }, [contacts, selectedIds, channel]);
 
   /* Self-service booking links. A template carries them by pointing a dynamic
    * URL button at the booking site; when one does, every recipient needs their
@@ -223,7 +318,14 @@ function BulkSend() {
         null;
 
   /* Daily-limit batching: split the broadcast into one batch per day when it
-   * exceeds the WhatsApp messaging limit fetched from Meta. */
+   * exceeds the WhatsApp messaging limit fetched from Meta.
+   *
+   * Null for email — the messaging limit is a Meta tier, a property of a phone
+   * number, with no email equivalent. A null limit makes `computeBatches` yield
+   * a single batch and takes the "split over days" option off the review step,
+   * which is the correct behaviour rather than a missing feature. */
+  const dailyLimit =
+    channel === "email" ? null : (messagingLimit?.dailyLimit ?? null);
   const overLimit = dailyLimit != null && recipients.length > dailyLimit;
   const batches = useMemo(
     () => computeBatches(recipients, dailyLimit),
@@ -238,14 +340,17 @@ function BulkSend() {
       : recipients.length;
 
   function back() {
-    if (stage === "template") setStage("recipients");
-    else if (stage === "variables") setStage("template");
+    if (stage === "recipients") setStage("template");
+    else if (stage === "variables") setStage("recipients");
     else if (stage === "review") setStage("variables");
     else navigate({ to: "/conversations", hash: (h) => h! });
   }
 
   async function send() {
-    if (!template || !whatsappAddress || !activeOrgId) return;
+    if (!activeOrgId) return;
+    if (channel === "email" ? !emailTemplate : !template || !whatsappAddress) {
+      return;
+    }
     const effective = effectiveScheduling(scheduling, overLimit);
     if (effective === "later" && !scheduledAt) return;
 
@@ -291,7 +396,7 @@ function BulkSend() {
     // round-trip, and anyone who already holds a live link gets that same link
     // back (with its expiry pushed out) rather than a second one.
     let bookingTokens = new Map<string, string>();
-    if (bookingIndex != null && bookingCalendarId) {
+    if (channel === "whatsapp" && bookingIndex != null && bookingCalendarId) {
       try {
         bookingTokens = await mintBookingLinks.mutateAsync({
           calendarId: bookingCalendarId,
@@ -310,11 +415,38 @@ function BulkSend() {
       }
     }
 
+    // The email counterpart, and the same all-or-nothing rule. The dispatcher
+    // will mint any token this misses (ensure_unsubscribe_link), so the reason
+    // to do it here is not correctness but cost: one round-trip for the whole
+    // campaign instead of one query per recipient at send time. A failure still
+    // aborts — a broadcast whose opt-out links cannot be created is one that
+    // should not go out.
+    if (channel === "email") {
+      try {
+        await mintUnsubscribeLinks.mutateAsync({
+          contactIds: recipients.map((c) => c.id),
+        });
+      } catch (e) {
+        console.error("minting unsubscribe links failed", e);
+        setSendError(describeError(e));
+        setProgress({ sent: 0, failed: recipients.length });
+        setStage("done");
+        return;
+      }
+    }
+
     const storeConvs = useBoundStore.getState().chat.conversations;
 
+    // Both channels write a conversation per recipient, because
+    // messages.conversation_id is NOT NULL. For email that means the contact's
+    // timeline shows what they were sent, on the same footing as their chats.
+    const orgAddress =
+      channel === "email" ? emailAddress!.address : whatsappAddress!.address;
+
     for (const { contact, scheduledIso } of items) {
-      const phone = contactPhone(contact);
-      if (!phone) {
+      const address =
+        channel === "email" ? contactEmail(contact) : contactPhone(contact);
+      if (!address) {
         skipped.push(contact);
         continue;
       }
@@ -323,17 +455,19 @@ function BulkSend() {
         storeConvs.values(),
       ).find(
         (c) =>
-          c.organization_address === whatsappAddress.address &&
-          c.contact_address === phone,
+          c.organization_address === orgAddress &&
+          c.contact_address === address,
       );
 
       if (!conv) {
         const record = startConversation({
           organization_id: activeOrgId,
-          organization_address: whatsappAddress.address,
-          contact_address: phone,
-          service: "whatsapp",
-          name: contact.name || formatPhoneNumber(phone),
+          organization_address: orgAddress,
+          contact_address: address,
+          service: channel,
+          name:
+            contact.name ||
+            (channel === "email" ? address : formatPhoneNumber(address)),
         });
         conv = useBoundStore.getState().chat.conversations.get(record.id!);
         if (!conv) {
@@ -345,16 +479,32 @@ function BulkSend() {
         }
       }
 
-      const record = buildMessageRecord({
-        contact,
-        conv,
-        template,
-        vars,
-        headerMedia,
-        agentId,
-        scheduledAt: scheduledIso,
-        bookingToken: bookingTokens.get(contact.id),
-      });
+      const record =
+        channel === "email"
+          ? buildEmailMessageRecord({
+              contact,
+              conv,
+              template: emailTemplate!,
+              variables: applyEmailOverrides(
+                emailTemplate!.variables,
+                emailVars,
+              ),
+              from: emailFrom!,
+              replyTo: (emailTemplate!.extra as EmailTemplateExtra | null)
+                ?.reply_to,
+              agentId,
+              scheduledAt: scheduledIso,
+            })
+          : buildMessageRecord({
+              contact,
+              conv,
+              template: template!,
+              vars,
+              headerMedia,
+              agentId,
+              scheduledAt: scheduledIso,
+              bookingToken: bookingTokens.get(contact.id),
+            });
       if (!record) {
         skipped.push(contact);
         continue;
@@ -406,10 +556,12 @@ function BulkSend() {
   }
 
   function reset() {
-    setStage("recipients");
+    setStage("template");
     setSelectedIds(new Set());
     setTemplate(null);
     setVars({});
+    setEmailTemplateId(null);
+    setEmailVars({});
     pickHeaderMedia("", "");
     setPickedCalendarId("");
     setBookingDuration(DEFAULT_BOOKING_DURATION);
@@ -422,28 +574,32 @@ function BulkSend() {
     setSendError(null);
   }
 
+  // Whichever channel's template is in play, for the header subtitles.
+  const templateName =
+    channel === "email" ? emailTemplate?.name : template?.name;
+
   // Header content varies by stage.
   const header = (() => {
     const step = STEP_FOR[stage];
     switch (stage) {
-      case "recipients":
-        return {
-          title: t("Bulk send"),
-          subtitle: t("Choose recipients"),
-          step,
-          showProgress: true,
-        };
       case "template":
         return {
           title: t("Choose a template"),
-          subtitle: `${selectedIds.size} ${t("recipients")}`,
+          subtitle: t("This decides who you can send to"),
+          step,
+          showProgress: true,
+        };
+      case "recipients":
+        return {
+          title: t("Choose recipients"),
+          subtitle: templateName,
           step,
           showProgress: true,
         };
       case "variables":
         return {
           title: t("Variables"),
-          subtitle: template?.name,
+          subtitle: templateName,
           step,
           showProgress: true,
         };
@@ -452,21 +608,21 @@ function BulkSend() {
           title: t("Preview and send"),
           subtitle: `${recipients.length} ${t(
             "recipients",
-          )} · ${template?.name}`,
+          )} · ${templateName}`,
           step,
           showProgress: true,
         };
       case "sending":
         return {
           title: t("Sending…"),
-          subtitle: template?.name,
+          subtitle: templateName,
           step,
           showProgress: false,
         };
       case "done":
         return {
           title: sendError ? t("Could not send") : t("Sending completed"),
-          subtitle: template?.name,
+          subtitle: templateName,
           step,
           showProgress: false,
         };
@@ -483,42 +639,69 @@ function BulkSend() {
         showProgress={header.showProgress}
       />
 
+      {stage === "template" && (
+        <TemplateStep
+          channel={channel}
+          onChannel={(next) => {
+            setChannel(next);
+            // Switching channel invalidates any selection made for the other
+            // one: reachability differs, so keeping it would silently drop
+            // whoever is unreachable on the new channel at send time.
+            setSelectedIds(new Set());
+          }}
+          available={available}
+          whatsapp={{
+            templates: approved,
+            isLoading: loadingTemplates,
+            onManage: whatsappAddress
+              ? () => setManagingTemplates("list")
+              : undefined,
+            onCreate: whatsappAddress
+              ? () => setManagingTemplates("new")
+              : undefined,
+            onPick: (tpl) => {
+              setChannel("whatsapp");
+              setTemplate(tpl);
+              const headN = countVars(
+                tpl.components.find((c) => c.type === "HEADER")?.text,
+              );
+              const bodyN = countVars(
+                tpl.components.find((c) => c.type === "BODY")?.text,
+              );
+              setVars(initVars(headN, bodyN));
+              pickHeaderMedia("", "");
+              setStage("recipients");
+            },
+          }}
+          email={{
+            templates: sendableEmailTemplates,
+            isLoading: loadingEmailTemplates,
+            error: emailTemplatesError as Error | null,
+            onCreate: () => navigate({ to: "/templates/email/new" }),
+            onPick: (tpl) => {
+              setChannel("email");
+              setEmailTemplateId(tpl.id);
+              // Bindings come from the template; only per-send fallback
+              // overrides are collected, and they start empty.
+              setEmailVars({});
+              setStage("recipients");
+            },
+          }}
+        />
+      )}
+
       {stage === "recipients" && (
         <RecipientsStep
+          channel={channel}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-          onNext={() => setStage("template")}
+          onNext={() => setStage("variables")}
           dailyLimit={dailyLimit}
           tier={messagingLimit?.tier}
         />
       )}
 
-      {stage === "template" && (
-        <TemplateStep
-          templates={approved}
-          selectedId={template?.id}
-          onManage={
-            whatsappAddress ? () => setManagingTemplates("list") : undefined
-          }
-          onCreate={
-            whatsappAddress ? () => setManagingTemplates("new") : undefined
-          }
-          onPick={(tpl) => {
-            setTemplate(tpl);
-            const headN = countVars(
-              tpl.components.find((c) => c.type === "HEADER")?.text,
-            );
-            const bodyN = countVars(
-              tpl.components.find((c) => c.type === "BODY")?.text,
-            );
-            setVars(initVars(headN, bodyN));
-            pickHeaderMedia("", "");
-            setStage("variables");
-          }}
-        />
-      )}
-
-      {stage === "variables" && template && (
+      {stage === "variables" && channel === "whatsapp" && template && (
         <VariablesStep
           template={template}
           vars={vars}
@@ -530,9 +713,31 @@ function BulkSend() {
         />
       )}
 
-      {stage === "review" && template && (
+      {stage === "variables" && channel === "email" && emailTemplate && (
+        <EmailVariablesStep
+          template={emailTemplate}
+          overrides={emailVars}
+          setOverrides={setEmailVars}
+          onNext={() => setStage("review")}
+        />
+      )}
+
+      {stage === "review" && (channel === "email" ? emailTemplate : template) && (
         <ReviewStep
-          template={template}
+          channel={channel}
+          template={template ?? undefined}
+          email={
+            channel === "email" && emailTemplate
+              ? {
+                  template: emailTemplate,
+                  variables: applyEmailOverrides(
+                    emailTemplate.variables,
+                    emailVars,
+                  ),
+                  from: emailFrom,
+                }
+              : undefined
+          }
           vars={vars}
           headerMedia={headerMedia}
           headerMediaName={headerMediaName}

@@ -69,9 +69,23 @@ const KIND_LABELS: Record<MessageStatusKind, string> = {
   cancelled: "Cancelled",
 };
 
+/** Where the two channels genuinely mean different things by the same key.
+ *  `read` on WhatsApp is a read receipt; on email it is an SES `Open` event,
+ *  i.e. the tracking pixel loaded — which plenty of clients block, so calling
+ *  it "Read" would overstate it. Everything else reads the same either way. */
+const EMAIL_KIND_LABELS: Partial<Record<MessageStatusKind, string>> = {
+  read: "Opened",
+};
+
 export function messageStatusLabel(
   status: Json,
   t: (s: string) => string,
+  service?: string | null,
 ): string {
-  return t(KIND_LABELS[messageStatusKind(status)]);
+  const kind = messageStatusKind(status);
+  const label =
+    (service === "email" ? EMAIL_KIND_LABELS[kind] : undefined) ??
+    KIND_LABELS[kind];
+
+  return t(label);
 }

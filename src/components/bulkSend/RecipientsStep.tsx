@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 
 import Button from "@/components/Button";
@@ -13,23 +13,49 @@ import ContactFilter, {
 } from "@/components/ContactFilter";
 
 import { type ContactWithAddressesRow } from "@/supabase/client";
-import { contactPhone, contactPhoneStatus } from "@/utils/ContactAddressUtils";
+import {
+  contactEmail,
+  contactEmailStatus,
+  contactPhone,
+  contactPhoneStatus,
+} from "@/utils/ContactAddressUtils";
 
 import ContactRow from "./ContactRow";
 import LinkBtn from "./LinkBtn";
 import QuotaMeter from "./QuotaMeter";
+import type { Channel } from "./types";
 
-const isRemoved = (c: ContactWithAddressesRow) =>
-  c.status === "removed" || contactPhoneStatus(c) === "removed";
+/**
+ * Reachability and opt-out are both per-channel, and the two must agree.
+ *
+ * A contact who unsubscribed from email is still a valid WhatsApp recipient and
+ * vice versa — the opt-outs live on different `contacts_addresses` rows exactly
+ * so that one cannot silence the other. `contacts.status` is the org-wide
+ * "remove me from everything" and outranks both.
+ */
+const REACH: Record<
+  Channel,
+  {
+    address: (c: ContactWithAddressesRow) => string | undefined;
+    status: (c: ContactWithAddressesRow) => string | undefined;
+  }
+> = {
+  whatsapp: { address: contactPhone, status: contactPhoneStatus },
+  email: { address: contactEmail, status: contactEmailStatus },
+};
 
-/** Step 1 — pick recipients with the unified filter (search + tags + source + date). */
+/** Step 2 — pick recipients with the unified filter (search + tags + source + date). */
 export default function RecipientsStep({
+  channel,
   selectedIds,
   setSelectedIds,
   onNext,
   dailyLimit,
   tier,
 }: {
+  /** Fixed by the template chosen in step 1, and it decides who is listed at
+   *  all: an email template can only reach contacts with an email. */
+  channel: Channel;
   selectedIds: Set<string>;
   setSelectedIds: (s: Set<string>) => void;
   onNext: () => void;
@@ -41,9 +67,20 @@ export default function RecipientsStep({
   const { data: activity } = useContactMessageActivity();
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
 
+  const reach = REACH[channel];
+
+  // useCallback so it is a stable dependency of the `selectable` memo below —
+  // a fresh closure each render would recompute that filter on every keystroke
+  // in the search box.
+  const isRemoved = useCallback(
+    (c: ContactWithAddressesRow) =>
+      c.status === "removed" || reach.status(c) === "removed",
+    [reach],
+  );
+
   const withAddress = useMemo(
-    () => (contacts ?? []).filter((c) => contactPhone(c)),
-    [contacts],
+    () => (contacts ?? []).filter((c) => reach.address(c)),
+    [contacts, reach],
   );
 
   const filtered = useMemo(
@@ -60,7 +97,7 @@ export default function RecipientsStep({
 
   const selectable = useMemo(
     () => filtered.filter((c) => !isRemoved(c)),
-    [filtered],
+    [filtered, isRemoved],
   );
 
   const allSelected =
@@ -119,7 +156,15 @@ export default function RecipientsStep({
           })}
           {filtered.length === 0 && (
             <div className="py-[40px] text-center text-muted-foreground text-[14px]">
-              {t("No results")}
+              {/* "No results" is only the right answer when a filter excluded
+                  everyone. When the channel did, say so — otherwise an org
+                  whose contacts have phones but no email addresses just sees an
+                  empty list with no hint why. */}
+              {withAddress.length === 0
+                ? channel === "email"
+                  ? t("None of your contacts have an email address")
+                  : t("None of your contacts have a WhatsApp number")
+                : t("No results")}
             </div>
           )}
         </div>
@@ -147,7 +192,7 @@ export default function RecipientsStep({
           invalid={selectedIds.size === 0}
         >
           <span className="inline-flex items-center justify-center gap-[8px]">
-            {t("Choose template")}
+            {t("Continue")}
             <ArrowLeft className="w-[16px] h-[16px] rotate-180" />
           </span>
         </Button>

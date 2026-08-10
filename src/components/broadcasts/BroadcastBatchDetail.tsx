@@ -106,7 +106,9 @@ export default function BroadcastBatchDetail({
     },
     {
       kind: "read",
-      label: t("Read"),
+      // An email "read" is an SES Open event — the tracking pixel loading — not
+      // a read receipt. See EMAIL_KIND_LABELS in messageStatus.ts.
+      label: batch.service === "email" ? t("Opened") : t("Read"),
       value: batch.read_count ?? 0,
       color: "var(--success)",
     },
@@ -199,7 +201,7 @@ export default function BroadcastBatchDetail({
                   {m.contact_name || m.contact_address}
                 </span>
                 <span className="text-[12px] text-muted-foreground">
-                  {messageStatusLabel(m.status, t)}
+                  {messageStatusLabel(m.status, t, m.service)}
                 </span>
               </div>
             ))}

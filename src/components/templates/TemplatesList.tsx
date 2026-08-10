@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ConfigProvider, Segmented } from "antd";
 import {
   AlertTriangle,
@@ -12,6 +13,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import type { EmailTemplateSummary, TemplateData } from "@/supabase/client";
 import SectionBody from "@/components/SectionBody";
 import SectionItem from "@/components/SectionItem";
+import { statusDot } from "@/components/emailTemplate/status";
 
 /** Which kind of template the list is showing. Templates are per-channel all
  *  the way down — different stores, different editors — so this is a switch
@@ -28,14 +30,6 @@ const segmentedTheme = {
       itemSelectedColor: "var(--primary)",
     },
   },
-};
-
-/** Status dot for an email template. WhatsApp templates carry Meta's review
- *  status instead and keep their existing pill. */
-const STATUS_DOT: Record<string, string> = {
-  live: "bg-success",
-  draft: "bg-warning",
-  paused: "bg-input",
 };
 
 export function ChannelToggle({
@@ -91,6 +85,7 @@ export default function TemplatesList({
   isLoading,
   onCreate,
   onSelect,
+  renderMeta,
 }: {
   templates?: TemplateData[];
   /** Pass `addressLoading || templatesLoading` when the organization address is
@@ -99,6 +94,12 @@ export default function TemplatesList({
   isLoading?: boolean;
   onCreate: () => void;
   onSelect: (template: TemplateData) => void;
+  /** Extra detail appended to a row's description line. Exists for the
+   *  bulk-send wizard, where the question is "what will this cost me to fill
+   *  in" (variable count, language) rather than the management surfaces'
+   *  "what is this" — rather than have the wizard fork the whole list to add
+   *  two spans. */
+  renderMeta?: (template: TemplateData) => ReactNode;
 }) {
   const { translate: t } = useTranslation();
 
@@ -134,6 +135,7 @@ export default function TemplatesList({
                   {template.status.toLowerCase()}
                 </span>
               )}
+              {renderMeta?.(template)}
             </div>
           }
           aside={
@@ -215,7 +217,7 @@ export function EmailTemplatesList({
               <span
                 className={
                   "w-[7px] h-[7px] rounded-full shrink-0 " +
-                  (STATUS_DOT[template.status] ?? "bg-muted-foreground")
+                  statusDot(template.status)
                 }
                 title={t(template.status)}
               />

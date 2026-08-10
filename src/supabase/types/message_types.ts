@@ -18,6 +18,7 @@ import type {
   WhatsAppReferral,
 } from "./whatsapp_webhook_message_types";
 import type { Template } from "./whatsapp_template_types";
+import type { EmailSendData } from "./email_template_types";
 import type { InstagramReferral } from "./instagram_webhook_payload_types";
 
 //===================================
@@ -155,7 +156,20 @@ type InteractivePart = DataPart<
 
 type ButtonPart = DataPart<"button", ButtonMessage["button"]>;
 
-type TemplatePart = DataPart<"template", Template>;
+/**
+ * A template send, on either channel.
+ *
+ * One `kind` for two payload shapes is deliberate, not an oversight: the
+ * broadcast machinery in SQL (list_broadcast_batches, cancel_broadcast_batch,
+ * messages_outgoing_template_broadcast_idx) keys on
+ * `content->>'kind' = 'template'`, and keeping email inside that key is what
+ * let the entire campaign layer cover a second channel with no new table.
+ *
+ * Narrow with `"email_template_id" in content.data` — `Template` (WhatsApp)
+ * never carries it, `EmailSendData` always does. The row's `service` says the
+ * same thing, but only the `in` check narrows the type.
+ */
+type TemplatePart = DataPart<"template", Template | EmailSendData>;
 
 type MediaPlaceholderPart = DataPart<
   "media_placeholder",

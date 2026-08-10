@@ -1,143 +1,150 @@
 import { useState } from "react";
-import { LayoutTemplate, Plus } from "lucide-react";
+import { LayoutTemplate } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { type TemplateData } from "@/supabase/client";
+import type { EmailTemplateSummary, TemplateData } from "@/supabase/client";
+import TemplatesList, {
+  ChannelToggle,
+  EmailTemplatesList,
+  NoEmailDomainState,
+  NoWhatsAppState,
+} from "@/components/templates/TemplatesList";
 
 import PillSearch from "./PillSearch";
-import { countVars } from "./types";
+import { type Channel, countVars } from "./types";
 
-/** Step 2 — pick which APPROVED template to send. Selecting a row advances
- *  automatically (handled by the parent). */
+/**
+ * Step 1 — pick the template, which also picks the channel.
+ *
+ * The lists are the same components `/templates` renders (`ChannelToggle`,
+ * `TemplatesList`, `EmailTemplatesList`) rather than a wizard-local copy, so a
+ * template looks and reads identically wherever you meet it. Only the search
+ * box and the send-relevant metadata are added on top.
+ *
+ * Selecting a row advances the wizard; the parent handles that.
+ */
 export default function TemplateStep({
-  templates,
-  selectedId,
-  onPick,
-  onManage,
-  onCreate,
+  channel,
+  onChannel,
+  available,
+  whatsapp,
+  email,
 }: {
-  templates: TemplateData[];
-  selectedId?: string;
-  onPick: (tpl: TemplateData) => void;
-  /** Jump to the templates management page (create/edit templates). */
-  onManage?: () => void;
-  /** Jump straight to the create-template form. */
-  onCreate?: () => void;
+  channel: Channel;
+  onChannel: (channel: Channel) => void;
+  /** Channels this organization can actually broadcast on. With one entry the
+   *  toggle is hidden — there is nothing to switch to. */
+  available: Channel[];
+  whatsapp: {
+    templates: TemplateData[];
+    isLoading?: boolean;
+    onPick: (template: TemplateData) => void;
+    /** Absent when no WhatsApp number is connected, since templates are a
+     *  per-WABA resource and there is nowhere to create one. */
+    onCreate?: () => void;
+    onManage?: () => void;
+  };
+  email: {
+    templates: EmailTemplateSummary[];
+    isLoading?: boolean;
+    error?: Error | null;
+    onPick: (template: EmailTemplateSummary) => void;
+    onCreate: () => void;
+  };
 }) {
   const { translate: t } = useTranslation();
   const [search, setSearch] = useState("");
-  const filtered = search
-    ? templates.filter((tpl) =>
-        tpl.name.toLowerCase().includes(search.toLowerCase()),
-      )
-    : templates;
+
+  const matches = (name: string) =>
+    !search || name.toLowerCase().includes(search.toLowerCase());
+
+  const whatsappTemplates = whatsapp.templates.filter((tpl) =>
+    matches(tpl.name),
+  );
+  const emailTemplates = email.templates.filter((tpl) => matches(tpl.name));
 
   return (
     <>
-      <div className="px-[16px] pt-[6px] pb-[8px]">
+      {available.length > 1 && (
+        <ChannelToggle channel={channel} onChannel={onChannel} />
+      )}
+
+      <div className="px-[16px] pt-[10px] pb-[8px]">
         <PillSearch
           value={search}
           onChange={setSearch}
           placeholder={t("Search template")}
         />
       </div>
-      <div className="grow overflow-y-auto px-[12px] pb-[12px]">
-        <div className="flex flex-col gap-[6px]">
-          {filtered.length === 0 && (
-            <div className="py-[40px] text-center text-muted-foreground text-[14px]">
-              {t("Only approved templates are shown")}
-            </div>
-          )}
-          {filtered.map((tpl) => {
-            const body =
-              tpl.components.find((c) => c.type === "BODY")?.text || "";
-            const head =
-              tpl.components.find((c) => c.type === "HEADER")?.text || "";
-            const totalVars = countVars(head) + countVars(body);
-            const selected = tpl.id === selectedId;
-            return (
-              <button
-                key={tpl.id}
-                onClick={() => onPick(tpl)}
-                className="text-start rounded-[14px] p-[14px] transition-all"
-                style={{
-                  background: selected
-                    ? "oklch(from var(--primary) l c h / 0.06)"
-                    : "var(--background)",
-                  border: `1px solid ${selected ? "var(--primary)" : "var(--border)"}`,
+
+      <div className="grow overflow-y-auto pb-[12px]">
+        {channel === "email" &&
+          (available.includes("email") ? (
+            <EmailTemplatesList
+              templates={emailTemplates}
+              isLoading={email.isLoading}
+              error={email.error}
+              onCreate={email.onCreate}
+              onSelect={email.onPick}
+            />
+          ) : (
+            <NoEmailDomainState />
+          ))}
+
+        {channel === "whatsapp" &&
+          (available.includes("whatsapp") ? (
+            <>
+              <TemplatesList
+                templates={whatsappTemplates}
+                isLoading={whatsapp.isLoading}
+                onCreate={whatsapp.onCreate ?? (() => {})}
+                onSelect={whatsapp.onPick}
+                // Only meaningful when choosing something to SEND: how many
+                // values you are about to be asked for, and in which language.
+                renderMeta={(tpl) => {
+                  const head =
+                    tpl.components.find((c) => c.type === "HEADER")?.text ?? "";
+                  const body =
+                    tpl.components.find((c) => c.type === "BODY")?.text ?? "";
+                  const vars = countVars(head) + countVars(body);
+
+                  return (
+                    <>
+                      <span className="shrink-0 text-xs text-muted-foreground uppercase">
+                        {tpl.language}
+                      </span>
+                      {vars > 0 && (
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {vars} {t("vars")}
+                        </span>
+                      )}
+                    </>
+                  );
                 }}
-              >
-                <div className="flex items-center justify-between mb-[6px] gap-[6px]">
-                  <div className="text-[14px] font-semibold truncate">
-                    {tpl.name}
-                  </div>
-                  <div className="flex items-center gap-[6px] shrink-0">
-                    <span
-                      className="text-[10px] px-[6px] py-[1px] rounded-full"
-                      style={{
-                        background: "oklch(from var(--success) l c h / 0.15)",
-                        color: "oklch(from var(--success) calc(l - 0.1) c h)",
-                      }}
-                    >
-                      APPROVED
-                    </span>
-                    <span
-                      className="text-[10px] px-[6px] py-[1px] rounded-full"
-                      style={{
-                        background: "var(--muted)",
-                        color: "var(--muted-foreground)",
-                      }}
-                    >
-                      {tpl.category}
-                    </span>
-                  </div>
+              />
+
+              {/* Only approved templates can be sent, so an org with drafts
+                  pending review sees an empty list and needs telling why. */}
+              {!whatsapp.isLoading && whatsappTemplates.length === 0 && (
+                <div className="px-[16px] pb-[8px] text-center text-muted-foreground text-[13px]">
+                  {t("Only approved templates can be sent")}
                 </div>
-                <div
-                  className="text-[13px] text-muted-foreground"
-                  style={{
-                    whiteSpace: "pre-wrap",
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden",
-                  }}
-                >
-                  {body}
+              )}
+
+              {whatsapp.onManage && (
+                <div className="px-[12px]">
+                  <button
+                    onClick={whatsapp.onManage}
+                    className="mt-[8px] w-full flex items-center justify-center gap-[6px] rounded-[14px] py-[12px] text-[13px] font-medium text-muted-foreground border border-dashed border-border hover:bg-accent transition-colors"
+                  >
+                    <LayoutTemplate className="w-[14px] h-[14px]" />
+                    {t("Manage templates")}
+                  </button>
                 </div>
-                <div className="flex items-center flex-wrap gap-x-[10px] gap-y-[4px] mt-[8px] text-[11px] text-muted-foreground">
-                  <span>{tpl.language.toUpperCase()}</span>
-                  {totalVars > 0 && (
-                    <span>
-                      · {totalVars} {t("variables")}
-                    </span>
-                  )}
-                  {head && <span>· {t("Header")}</span>}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-        {onCreate && (
-          <button
-            onClick={onCreate}
-            className="mt-[8px] w-full flex items-center gap-[15px] rounded-xl py-[8px] px-[10px] text-start hover:bg-accent transition-colors"
-          >
-            <div className="p-[8px] bg-primary/10 rounded-full">
-              <Plus className="w-[24px] h-[24px] text-primary" />
-            </div>
-            <div className="text-[16px] text-foreground">
-              {t("Create template")}
-            </div>
-          </button>
-        )}
-        {onManage && (
-          <button
-            onClick={onManage}
-            className="mt-[8px] w-full flex items-center justify-center gap-[6px] rounded-[14px] py-[12px] text-[13px] font-medium text-muted-foreground border border-dashed border-border hover:bg-accent transition-colors"
-          >
-            <LayoutTemplate className="w-[14px] h-[14px]" />
-            {t("Manage templates")}
-          </button>
-        )}
+              )}
+            </>
+          ) : (
+            <NoWhatsAppState />
+          ))}
       </div>
     </>
   );

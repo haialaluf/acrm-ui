@@ -49,7 +49,9 @@ export type EmailTemplateExtra = {
   /** Content width in px. 600 is the safe default across clients. */
   width?: number;
   font?: string;
-  pageBg?: string;
+  /** Background of the whole email — container and the surround behind it, one
+   *  flat colour. Templates saved before that carry a `pageBg` alongside it;
+   *  nothing reads it, and their stored HTML keeps its frame until re-saved. */
   bodyBg?: string;
   /** Overrides the domain's `default_from_name` for this template only. */
   from_name?: string;
@@ -85,6 +87,42 @@ export type EmailTemplateRow = Omit<
 // EmailTemplateRow. The API has no need to name that shape; the UI does, because
 // its query hooks are typed on what actually arrives.
 export type EmailTemplateSummary = Omit<EmailTemplateRow, "project" | "html">;
+
+/**
+ * What one queued email carries in `messages.content.data`.
+ *
+ * A REFERENCE to the template plus a snapshot of the variable bindings — never
+ * the compiled HTML. A design runs to hundreds of KB, so a 1000-recipient
+ * campaign that inlined it would write ~200 MB into `public.messages`;
+ * email-dispatcher re-renders per recipient instead, which is also the only way
+ * each person can get their own opt-out link.
+ *
+ * `variables` IS snapshotted, unlike the HTML. It is a few hundred bytes, and
+ * it is the half a sender can change with a single click in the builder —
+ * re-binding `{{2}}` from `first_name` to `city` between queueing and dispatch
+ * must not silently rewrite a send that was already reviewed and approved.
+ * (The design itself is read live at dispatch. See DEPLOYING_EMAIL.md.)
+ *
+ * Note `kind` stays `"template"`, shared with WhatsApp: it is what lets
+ * list_broadcast_batches, cancel_broadcast_batch and
+ * messages_outgoing_template_broadcast_idx cover both channels unchanged. The
+ * two payload shapes are told apart by `email_template_id`, and at runtime by
+ * the row's `service`.
+ */
+export type EmailSendData = {
+  /** The template's name. Denormalised because list_broadcast_batches groups
+   *  campaigns on `content->'data'->>'name'` for both channels. */
+  name: string;
+  email_template_id: string;
+  /** Raw, with `{{n}}` slots intact — substituted at dispatch like the body. */
+  subject: string;
+  variables: EmailTemplateVariable[];
+  /** Resolved at queue time from the domain's `default_from_*` and the
+   *  template's `extra.from_name`, so a later change to either cannot retarget
+   *  mail that is already in flight. */
+  from: { address: string; name?: string };
+  reply_to?: string;
+};
 
 /** Fields a client may write. `organization_id` is deliberately absent: it is
  *  pinned from the authenticated caller, never read off the body. */

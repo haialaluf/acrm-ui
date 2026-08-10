@@ -184,7 +184,28 @@ export default function TemplateMessage({
     return null;
   }
 
-  const template = message.content.data;
+  const data = message.content.data;
+
+  // Email sends share `kind: "template"` with WhatsApp (it is what lets one set
+  // of broadcast queries cover both channels), so this component now sees both
+  // shapes. There is nothing WhatsApp-specific to draw for an email — no
+  // quick-reply buttons, no media header — and `content.text` already holds the
+  // rendered subject, so the plain text bubble below is the right rendering.
+  if ("email_template_id" in data) {
+    return (
+      <TextMessage
+        header={header}
+        body={message.content.text || ""}
+        type="markdown"
+        direction={message.direction}
+        timestamp={message.timestamp}
+        status={message.direction === "outgoing" ? message.status : undefined}
+        fixedWidth={fixedWidth}
+      />
+    );
+  }
+
+  const template = data;
   const copyLabel = t("Copy code");
 
   // Prefer the definition's buttons (they carry the real labels); fall back to

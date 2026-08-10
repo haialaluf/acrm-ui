@@ -1,4 +1,5 @@
-import { Calendar, Users, XCircle } from "lucide-react";
+import { Calendar, Mail, Users, XCircle } from "lucide-react";
+import { WhatsAppOutlined } from "@ant-design/icons";
 import StatusBadge from "@/components/StatusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { BroadcastBatchRow } from "@/queries/useBroadcasts";
@@ -61,8 +62,25 @@ export default function BroadcastCard({
     >
       {/* Title + status */}
       <div className="flex items-start justify-between gap-[8px]">
-        <div className="text-[14px] font-semibold truncate min-w-0">
-          {batch.template_name ?? t("Broadcast")}
+        <div className="flex items-center gap-[6px] min-w-0">
+          {/* Both channels write content->>'kind' = 'template', which is what
+              lets one set of queries cover them — so `service` is the only
+              thing distinguishing an email campaign from a WhatsApp one here. */}
+          {batch.service === "email" ? (
+            <Mail
+              className="w-[14px] h-[14px] shrink-0 text-muted-foreground"
+              aria-label={t("Email")}
+            />
+          ) : (
+            <WhatsAppOutlined
+              style={{ fontSize: "14px" }}
+              className="shrink-0 text-muted-foreground"
+              aria-label={t("WhatsApp")}
+            />
+          )}
+          <div className="text-[14px] font-semibold truncate min-w-0">
+            {batch.template_name ?? t("Broadcast")}
+          </div>
         </div>
         <StatusBadge
           label={batchStatusLabel(status, t)}

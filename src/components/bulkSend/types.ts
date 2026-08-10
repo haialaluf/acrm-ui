@@ -1,18 +1,33 @@
 import {
   type ContactWithAddressesRow,
+  type EmailTemplateVariable,
   type TemplateData,
 } from "@/supabase/client";
 import { contactPhone } from "@/utils/ContactAddressUtils";
 
 /* Shared types, constants, and pure helpers for the bulk-send wizard. */
 
+/**
+ * Template first, recipients second.
+ *
+ * The order is not cosmetic since the wizard grew a second channel: an email
+ * template can only go to contacts with an email address and a WhatsApp
+ * template only to contacts with a phone, so the template is what decides who
+ * is even selectable. Asking for recipients first — as this did while WhatsApp
+ * was the only channel — would mean silently dropping a chunk of a chosen list
+ * the moment a template was picked.
+ */
 export type Stage =
-  | "recipients"
   | "template"
+  | "recipients"
   | "variables"
   | "review"
   | "sending"
   | "done";
+
+/** Which channel the broadcast goes out on, fixed by the step-1 template.
+ *  Mirrors `TemplateChannel` in components/templates/TemplatesList.tsx. */
+export type Channel = "whatsapp" | "email";
 
 export type Scheduling = "now" | "later" | "split";
 
@@ -291,8 +306,8 @@ export const FIELD_OPTIONS: { id: ContactField; label: string }[] = [
 
 export const TOTAL_STEPS = 4;
 export const STEP_FOR: Partial<Record<Stage, number>> = {
-  recipients: 1,
-  template: 2,
+  template: 1,
+  recipients: 2,
   variables: 3,
   review: 4,
 };
@@ -340,4 +355,57 @@ export function fillTemplate(
     const v = vars[`${scope}.${n}`];
     return v ? resolveVar(v, c) : `{{${n}}}`;
   });
+}
+
+//===================================
+// Email variables
+//===================================
+
+/*
+ * Email slots are bound at AUTHORING time, not send time.
+ *
+ * The WhatsApp model above asks, per broadcast, what each `{{n}}` should draw
+ * from — because a Meta-approved template is a fixed string with numbered holes
+ * and nothing records an intent for them. An email template already stores
+ * `[{ n, field, fallback }]` on the row: the builder is where you say "{{2}} is
+ * the first name". Re-asking here would be a second, competing answer to a
+ * question already settled.
+ *
+ * So the email arm of the Variables step confirms rather than collects, and the
+ * only thing it can change is the FALLBACK — which is genuinely per-send ("Hi
+ * {{1}}" wants "there" on a newsletter and "valued customer" on an invoice) and
+ * is the one field a `custom` slot depends on entirely.
+ */
+
+/** Per-send fallback overrides, keyed by slot number. Absent = use the
+ *  template's stored fallback. */
+export type EmailVarOverrides = Record<number, string>;
+
+/** The template's bindings with this send's fallbacks applied — the array that
+ *  gets snapshotted onto the message. */
+export function applyEmailOverrides(
+  variables: EmailTemplateVariable[],
+  overrides: EmailVarOverrides,
+): EmailTemplateVariable[] {
+  return variables.map((v) =>
+    overrides[v.n] === undefined ? v : { ...v, fallback: overrides[v.n] }
+  );
+}
+
+/**
+ * Slots that would render as an empty string for every recipient.
+ *
+ * A `custom` slot has no contact field by definition, so an empty fallback is
+ * not a graceful degradation — it is a hole in every copy of the email. Those
+ * block the step. A field-backed slot with an empty fallback only affects the
+ * contacts missing that field, which the preview already flags in amber, so it
+ * is left as a warning rather than a gate.
+ */
+export function unfilledEmailVars(
+  variables: EmailTemplateVariable[],
+  overrides: EmailVarOverrides,
+): number[] {
+  return applyEmailOverrides(variables, overrides)
+    .filter((v) => v.field === "custom" && !v.fallback.trim())
+    .map((v) => v.n);
 }

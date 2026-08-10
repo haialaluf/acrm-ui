@@ -17,7 +17,6 @@ import type { EmailTemplateExtra } from "@/supabase/client";
  *  whether or not `extra` has been written yet. */
 const DEFAULT_WIDTH = 600;
 const DEFAULT_FONT = "Helvetica";
-const DEFAULT_PAGE_BG = "#eceee9";
 const DEFAULT_BODY_BG = "#ffffff";
 
 export async function renderMaily(
@@ -63,13 +62,59 @@ export async function renderMaily(
       fallbackFontFamily: "sans-serif",
     },
     // "Content" in SetupTab — the paper the design sits on.
+    //
+    // Maily's own container padding (0.5rem all round) is zeroed: it insets the
+    // design by an amount nothing in the builder shows and nothing in SetupTab
+    // controls. Blocks bring their own spacing, and a design that wants a
+    // margin can say so with a section.
     container: {
       maxWidth: `${extra.width ?? DEFAULT_WIDTH}px`,
       backgroundColor: extra.bodyBg ?? DEFAULT_BODY_BG,
+      paddingTop: "0",
+      paddingRight: "0",
+      paddingBottom: "0",
+      paddingLeft: "0",
     },
-    // "Page" in SetupTab — the surround behind it.
-    body: { backgroundColor: extra.pageBg ?? DEFAULT_PAGE_BG },
+    // The surround behind the container gets the SAME colour, deliberately: it
+    // is the one thing the builder cannot draw. The canvas is a card the width
+    // of the container, so a distinct page colour is invisible while designing
+    // and then frames the design in the recipient's inbox — the design looked
+    // one way in the builder and another on arrival. One flat surface makes the
+    // builder honest. A stored `extra.pageBg` from before this is ignored, and
+    // templates whose HTML was compiled then keep their frame until re-saved.
+    body: { backgroundColor: extra.bodyBg ?? DEFAULT_BODY_BG },
   });
 
-  return await maily.render();
+  return zeroBodyMargin(await maily.render());
+}
+
+/**
+ * Kill the `<body>` element's default 8px margin.
+ *
+ * Not reachable through the theme: react-email's `<Body>` forwards only
+ * `background` and `backgroundColor` to the body tag and puts everything else —
+ * including the `margin: 0` Maily asks for — on an inner `<td>`, where it does
+ * nothing about the tag's own margin. Every browser-based client then applies
+ * its user-agent default, which is the strip of page colour that used to show
+ * around the design.
+ *
+ * A string patch rather than a `<style>` in the head: the head is exactly what
+ * Gmail is unreliable about, and this attribute is already there to extend.
+ */
+function zeroBodyMargin(html: string): string {
+  // The theme always sets a background, so the attribute is always there. The
+  // fallback covers a future render that drops it — and only runs when the
+  // first pass changed nothing, so a `<body>` inside an HTML block cannot be
+  // mistaken for the document's own.
+  const patched = html.replace(
+    /<body style="/i,
+    '<body style="margin:0;padding:0;',
+  );
+  if (patched !== html) return patched;
+
+  return html.replace(
+    /<body(\s[^>]*)?>/i,
+    (_match, attrs: string | undefined) =>
+      `<body${attrs ?? ""} style="margin:0;padding:0">`,
+  );
 }
