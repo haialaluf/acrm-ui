@@ -19,10 +19,16 @@ const CATEGORY_LABEL: Record<string, string> = {
   message_template_status_update: "Template",
   message_template_quality_update: "Template",
   health_poll: "Health check",
+  // Email, written by email-webhook (from SNS) and the email health poller.
+  email_bounce: "Bounce",
+  email_complaint: "Spam report",
+  email_suppression_drift: "Suppression",
+  email_health_poll: "Health check",
 };
 
-/** Whether Meta pushed this to us, or we found it on a scheduled check. */
-const isScheduled = (category: string) => category === "health_poll";
+/** Whether the provider pushed this to us, or we found it on a scheduled check. */
+const isScheduled = (category: string) =>
+  category === "health_poll" || category === "email_health_poll";
 
 /**
  * What Meta has told us about this number, newest first.
@@ -65,7 +71,7 @@ export default function EventsTimeline({ events }: { events: LogRow[] }) {
       {!rows.length ? (
         <div className="text-[13px] text-muted-foreground py-[8px]">
           {level === "all"
-            ? t("No events reported for this number yet.")
+            ? t("No events reported yet.")
             : t("No events at this level.")}
         </div>
       ) : (

@@ -11,6 +11,8 @@ import { Plus, X } from "lucide-react";
 import type { ContactWithAddressesInsert } from "@/supabase/client";
 import { isValidPhoneNumber } from "@/utils/FormatUtils";
 import FieldError from "@/components/FieldError";
+import EmailSuggestion from "@/components/EmailSuggestion";
+import { validateEmailField } from "@/utils/emailValidation";
 
 // `tags` is a contacts column not yet present in the generated db_types.ts;
 // remove this once ContactWithAddressesInsert includes it (see useContactTags).
@@ -32,6 +34,7 @@ function ContactNew() {
     register,
     handleSubmit,
     control,
+    watch,
     formState: { isValid, isDirty, errors },
   } = useForm<ContactFormValues>({
     mode: "onTouched",
@@ -89,8 +92,16 @@ function ContactNew() {
               type="email"
               className="text"
               placeholder={t("email@example.com")}
-              {...register("email")}
+              {...register("email", {
+                // The phone field two blocks down has always been validated;
+                // this one relied on the browser's `type="email"` grammar, which
+                // accepts `a@b` and `john@localhost`. A bad address here becomes
+                // a hard bounce charged against the sending domain's reputation.
+                validate: validateEmailField,
+              })}
             />
+            <FieldError error={errors.email} />
+            <EmailSuggestion value={watch("email")} />
           </label>
 
           {/* Reaches the AI agent's prompt on every message, and the agent

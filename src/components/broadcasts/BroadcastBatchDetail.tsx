@@ -17,6 +17,14 @@ import { formatScheduledDate } from "./formatScheduledDate";
 import { messageMatchesStatus, messageStatusLabel } from "./messageStatus";
 import type { MessageStatusKind } from "./messageStatus";
 
+/** One clickable stat tile: a status bucket, its count, and how to paint it. */
+type StatTileSpec = {
+  kind: MessageStatusKind;
+  label: string;
+  value: number;
+  color: string;
+};
+
 // One batch's stats + recipient list + cancel action. Fills the center panel
 // (see BroadcastCenter, wired from _auth.tsx like CalendarCenter/StatsCenter).
 export default function BroadcastBatchDetail({
@@ -80,12 +88,9 @@ export default function BroadcastBatchDetail({
     });
   }
 
-  const tiles: {
-    kind: MessageStatusKind;
-    label: string;
-    value: number;
-    color: string;
-  }[] = [
+  // The six buckets every channel has. Always rendered, however empty — a tile
+  // disappearing when its count is zero would read as a broken page.
+  const coreTiles: StatTileSpec[] = [
     {
       kind: "pending",
       label: t("Pending"),
@@ -125,6 +130,53 @@ export default function BroadcastBatchDetail({
       color: "var(--muted-foreground)",
     },
   ];
+
+  // Appended rather than replacing the Failed tile: bounced and suppressed are
+  // a subset *of* failed but do not account for all of it — a rejection or a
+  // rendering failure is neither — so dropping Failed would hide those
+  // entirely.
+  //
+  // Each appears only once it has happened, except spam reports, which stay
+  // visible at zero on purpose: "0" is the answer to "are we getting
+  // complaints?", and a tile that vanishes when healthy cannot give it. SES
+  // begins reviewing an account at a 0.1% complaint rate, so the first
+  // complaint matters far more than its count suggests.
+  const emailTiles: StatTileSpec[] =
+    batch.service === "email"
+      ? ([
+          {
+            kind: "bounced",
+            label: t("Bounced"),
+            value: batch.bounced_count ?? 0,
+            color: "var(--destructive)",
+          },
+          {
+            kind: "soft_bounced",
+            label: t("Soft bounced"),
+            value: batch.soft_bounced_count ?? 0,
+            // `-strong`, not the bare hue: StatTile paints this as the large
+            // number's text colour, and global.css warns the mid-lightness
+            // fills fall below contrast when used as text.
+            color: "var(--warning-strong)",
+          },
+          {
+            kind: "complained",
+            label: t("Spam reports"),
+            value: batch.complained_count ?? 0,
+            color: "var(--destructive)",
+          },
+          {
+            kind: "suppressed",
+            label: t("Opted out"),
+            value: batch.suppressed_count ?? 0,
+            color: "var(--muted-foreground)",
+          },
+        ] satisfies StatTileSpec[]).filter(
+          (tile) => tile.kind === "complained" || tile.value > 0,
+        )
+      : [];
+
+  const tiles = [...coreTiles, ...emailTiles];
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-muted">

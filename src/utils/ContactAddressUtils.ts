@@ -93,3 +93,24 @@ export function contactEmailStatus(
     (a) => a.service === "email" && a.address === email,
   )?.status;
 }
+
+/**
+ * The display name a contact address carries, if its service records one.
+ *
+ * WhatsApp and Instagram rows both stash a profile name in `extra`; email rows
+ * do not — `extra.opt_out` is all they hold. Since `ContactAddressExtra` is a
+ * union across all three, `extra.name` is not a property of the union type and
+ * every "name fallback" chain needs the narrowing done once, here, rather than
+ * inline at each call site.
+ */
+export function contactAddressName(
+  row: ContactAddressRow | null | undefined,
+): string | undefined {
+  const extra = row?.extra;
+
+  if (!extra || typeof extra !== "object") return undefined;
+
+  return "name" in extra && typeof extra.name === "string"
+    ? extra.name
+    : undefined;
+}

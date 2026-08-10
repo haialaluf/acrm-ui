@@ -6,7 +6,23 @@ export type MessageStatusKind =
   | "delivered"
   | "read"
   | "failed"
-  | "cancelled";
+  | "cancelled"
+  // Email only, written by email-webhook and email-dispatcher. Each is a
+  // scalar timestamp key rather than an entry in status.errors, because the
+  // merge_update trigger REPLACES arrays instead of merging them — a second
+  // event for the same message overwrites the whole errors array.
+  | "bounced"
+  | "soft_bounced"
+  | "complained"
+  | "suppressed";
+
+/** The email buckets, in the order the UI shows them. */
+export const EMAIL_STATUS_KINDS = [
+  "bounced",
+  "soft_bounced",
+  "complained",
+  "suppressed",
+] as const satisfies readonly MessageStatusKind[];
 
 /** Single status bucket for one recipient's message.status jsonb — terminal
  *  states first. Used only to LABEL a row (the single most-advanced thing
@@ -17,6 +33,19 @@ export type MessageStatusKind =
 export function messageStatusKind(status: Json): MessageStatusKind {
   const s = (status ?? {}) as Record<string, unknown>;
   if (s.cancelled) return "cancelled";
+  // Before `failed`, and before `read`/`delivered`. These are the *reason* a
+  // message failed, so showing the generic "Failed" instead would throw away
+  // the only information the recipient row carries — it is what made an invalid
+  // address indistinguishable from a broken template.
+  //
+  // `complained` outranks `delivered` and `read` for a different reason: a
+  // complaint means the mail arrived and was reported as spam, so the row does
+  // legitimately carry `delivered` too. Labelling it "Delivered" is technically
+  // true and practically useless — the spam report is the thing worth knowing.
+  if (s.suppressed) return "suppressed";
+  if (s.bounced) return "bounced";
+  if (s.soft_bounced) return "soft_bounced";
+  if (s.complained) return "complained";
   if (s.failed) return "failed";
   if (s.read) return "read";
   if (s.delivered) return "delivered";
@@ -57,6 +86,16 @@ export function messageMatchesStatus(
       return !!s.failed;
     case "cancelled":
       return !!s.cancelled;
+    // Same "is the key present" shape as the SQL counterparts in
+    // list_broadcast_batches, so a clicked tile filters to exactly its count.
+    case "bounced":
+      return !!s.bounced;
+    case "soft_bounced":
+      return !!s.soft_bounced;
+    case "complained":
+      return !!s.complained;
+    case "suppressed":
+      return !!s.suppressed;
   }
 }
 
@@ -67,6 +106,10 @@ const KIND_LABELS: Record<MessageStatusKind, string> = {
   read: "Read",
   failed: "Failed",
   cancelled: "Cancelled",
+  bounced: "Bounced",
+  soft_bounced: "Soft bounced",
+  complained: "Reported as spam",
+  suppressed: "Not sent — opted out",
 };
 
 /** Where the two channels genuinely mean different things by the same key.

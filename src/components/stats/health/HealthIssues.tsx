@@ -15,7 +15,17 @@ const SEVERITY_TONE: Record<Severity, Tone> = {
  * "Meta restricted you" and "your cold ratio doubled" compete on urgency
  * instead of on which table they came from.
  */
-export default function HealthIssues({ issues }: { issues: HealthIssue[] }) {
+export default function HealthIssues({
+  issues,
+  // Only the all-clear copy is channel-specific — the issue rows themselves are
+  // already channel-agnostic, since `HealthIssue` says nothing about where an
+  // issue came from. The email health page passes its own wording here rather
+  // than forking the whole component.
+  emptyBody,
+}: {
+  issues: HealthIssue[];
+  emptyBody?: string;
+}) {
   const { translate: t } = useTranslation();
   const [open, setOpen] = useState<string | null>(issues[0]?.key ?? null);
 
@@ -39,9 +49,10 @@ export default function HealthIssues({ issues }: { issues: HealthIssue[] }) {
               {t("Nothing to fix")}
             </div>
             <div className="text-[12.5px] text-muted-foreground">
-              {t(
-                "No blocking issues reported by Meta, and your sending signals look healthy.",
-              )}
+              {emptyBody ??
+                t(
+                  "No blocking issues reported by Meta, and your sending signals look healthy.",
+                )}
             </div>
           </div>
         </div>

@@ -19,6 +19,7 @@ import WhatsAppPreview from "@/components/messagePreview/WhatsAppPreview";
 import EmailPreviewFrame, {
   previewStatsLabel,
 } from "@/components/emailTemplate/EmailPreviewFrame";
+import EmailPausedBanner from "@/components/emailSuppression/EmailPausedBanner";
 import { detectRtl } from "@/components/messagePreview/rtl";
 import type { MessagePreviewData } from "@/components/messagePreview/types";
 import {
@@ -207,6 +208,15 @@ export default function ReviewStep({
     <>
       <div className="grow overflow-y-auto">
         <div className="px-[16px] pt-[14px]">
+          {/* The last screen before the send is committed, and the only place
+              the warning can still change the outcome. Renders nothing unless
+              SES has actually paused the account. */}
+          {channel === "email" && (
+            <div className="mb-[12px]">
+              <EmailPausedBanner />
+            </div>
+          )}
+
           <div className="flex items-center justify-between mb-[10px]">
             <div className="text-[12px] text-muted-foreground">
               {t("Preview for")}

@@ -222,11 +222,40 @@ export type InstagramContactAddressExtra = {
   replaced_by_address?: string;
 };
 
-// Union — the column accepts either shape; consumers narrow via the row's
-// `service` column (or via the per-service Row/Insert aliases below).
+/**
+ * Why an email address may no longer be mailed.
+ *
+ * Written by three SQL functions in 04-10_unsubscribe.sql, each stamping its
+ * own `source`:
+ *   'unsubscribe_link' — apply_unsubscribe; the recipient clicked the footer
+ *                        link. Carries `link_id`, and `undone_at` if they used
+ *                        the 24h undo.
+ *   'ses_feedback'     — apply_email_suppression; SES reported a hard bounce or
+ *                        a spam complaint. `reason` is `hard_bounce:<subtype>`
+ *                        or `complaint:<feedbackType>`.
+ * and by the email-management un-suppress route, which stamps `restored_at`
+ * when an owner deliberately puts an address back. The history is kept rather
+ * than cleared on restore: that an operator overrode a spam complaint is worth
+ * being able to see afterwards.
+ */
+export type EmailContactAddressExtra = {
+  opt_out?: {
+    source?: "unsubscribe_link" | "ses_feedback";
+    reason?: string;
+    at?: string;
+    link_id?: string;
+    undone_at?: string;
+    restored_at?: string;
+    restored_from_ses?: boolean;
+  };
+};
+
+// Union — the column accepts any of these shapes; consumers narrow via the
+// row's `service` column (or via the per-service Row/Insert aliases below).
 export type ContactAddressExtra =
   | WhatsAppContactAddressExtra
-  | InstagramContactAddressExtra;
+  | InstagramContactAddressExtra
+  | EmailContactAddressExtra;
 
 // Function tools have a JSON input (data part).
 export type LocalFunctionToolConfig = {

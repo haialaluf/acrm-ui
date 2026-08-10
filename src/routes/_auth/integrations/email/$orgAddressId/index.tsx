@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import SectionHeader from "@/components/SectionHeader";
 import SectionBody from "@/components/SectionBody";
+import SuppressionList from "@/components/emailSuppression/SuppressionList";
 import Button from "@/components/Button";
 import CopyButton from "@/components/CopyButton";
 import StatusBadge from "@/components/StatusBadge";
@@ -443,6 +444,16 @@ function EmailDomainDetail() {
             </Button>
           )}
         </form>
+
+        {/* Outside the form: this is a list with its own actions, not another
+            field of the domain settings. Kept on this page rather than under
+            /stats/email because acting on a blocked address is an integration
+            setting, while the rates that explain them are a statistic. */}
+        {integration.status !== "disconnected" && (
+          <div className="mt-[32px] pt-[24px] border-t border-border">
+            <SuppressionList isOwner={isOwner} />
+          </div>
+        )}
       </SectionBody>
     </>
   );

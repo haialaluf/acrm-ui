@@ -29,6 +29,7 @@ import { useContactAddress } from "@/queries/useContactsAddresses";
 import { formatPhoneNumber, nameInitials } from "@/utils/FormatUtils";
 import { useNavigate } from "@tanstack/react-router";
 import { useThreadConversation } from "@/hooks/useThread";
+import { contactAddressName } from "@/utils/ContactAddressUtils";
 
 function mediaPreview(t: (content: string) => ReactNode, message?: MessageRow) {
   let mediaIcon = null;
@@ -255,11 +256,11 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
       : null;
 
   // Name fallback order: conversation.name → contact.name →
-  // contactAddress.extra?.name → @username (Instagram)
+  // contactAddressName(contactAddress) → @username (Instagram)
   const name =
     conversation?.name ||
     contact?.name ||
-    contactAddress?.extra?.name ||
+    contactAddressName(contactAddress) ||
     (igExtra?.username ? `@${igExtra.username}` : undefined);
 
   // When there is no name, show the (formatted) contact address instead of "?".

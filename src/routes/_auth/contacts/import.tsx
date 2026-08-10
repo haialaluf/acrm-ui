@@ -28,6 +28,7 @@ import {
   type ParsedFile,
 } from "@/utils/parseContactsFile";
 import { isValidPhoneNumber, normalizePhoneNumber } from "@/utils/FormatUtils";
+import { checkEmail } from "@/utils/emailValidation";
 
 export const Route = createFileRoute("/_auth/contacts/import")({
   component: ImportContacts,
@@ -49,7 +50,10 @@ type ResolvedRow = {
   name: string;
   surname: string;
   phone: string;
+  /** Validated and normalized, or "" when the file's value was unusable. */
   email: string;
+  /** True when a value WAS present in the file and we dropped it. */
+  emailDropped: boolean;
   /** Per-contact tags parsed from the mapped column (merged with global tags). */
   tags: string[];
   /** Existing contact this row duplicates, when status === "dup". */
@@ -131,8 +135,15 @@ function ImportContacts() {
         mapping.surname != null ? (row[mapping.surname] ?? "").trim() : "";
       const phone =
         mapping.phone != null ? (row[mapping.phone] ?? "").trim() : "";
-      const email =
+      const rawEmail =
         mapping.email != null ? (row[mapping.email] ?? "").trim() : "";
+      // An unusable address does not fail the row — the contact and phone are
+      // still perfectly good, and rejecting the lot would lose real people over
+      // one bad cell. The email alone is dropped, and counted so the summary can
+      // say so rather than silently importing fewer addresses than the file had.
+      const emailCheck = checkEmail(rawEmail);
+      const email = emailCheck.ok ? (emailCheck.email ?? "") : "";
+      const emailDropped = !!rawEmail && !emailCheck.ok;
       const tags =
         mapping.tags != null ? parseTags(row[mapping.tags] ?? "") : [];
 
@@ -143,12 +154,29 @@ function ImportContacts() {
         !phone ||
         !isValidPhoneNumber(phone)
       ) {
-        return { status: "err", name, surname, phone, email, tags };
+        return {
+          status: "err",
+          name,
+          surname,
+          phone,
+          email,
+          emailDropped,
+          tags,
+        };
       }
       const existing = existingByPhone.get(normalizePhoneNumber(phone));
       if (existing)
-        return { status: "dup", name, surname, phone, email, tags, existing };
-      return { status: "ok", name, surname, phone, email, tags };
+        return {
+          status: "dup",
+          name,
+          surname,
+          phone,
+          email,
+          emailDropped,
+          tags,
+          existing,
+        };
+      return { status: "ok", name, surname, phone, email, emailDropped, tags };
     });
   }, [file, mapping, existingByPhone]);
 
@@ -167,13 +195,17 @@ function ImportContacts() {
   const counts = useMemo(() => {
     let ok = 0,
       err = 0,
-      dup = 0;
+      dup = 0,
+      emailDropped = 0;
     for (const r of rows) {
       if (r.status === "ok") ok++;
       else if (r.status === "err") err++;
       else dup++;
+      // Counted across every status, including rows that will not be imported:
+      // it describes the file, not the outcome.
+      if (r.emailDropped) emailDropped++;
     }
-    return { ok, err, dup, total: rows.length };
+    return { ok, err, dup, emailDropped, total: rows.length };
   }, [rows]);
 
   const importableCount = skipDupes ? counts.ok : counts.ok + counts.dup;
@@ -575,6 +607,17 @@ function ImportContacts() {
                     label={t("Errors (not imported)")}
                     accent="err"
                     value={counts.err}
+                  />
+                )}
+                {/* The contact was imported; only the address was dropped. Said
+                    out loud because the alternative is importing fewer email
+                    addresses than the file contained and nobody noticing until
+                    a campaign reaches half the list. */}
+                {counts.emailDropped > 0 && (
+                  <SummaryRow
+                    label={t("Invalid emails (contact kept)")}
+                    accent="dup"
+                    value={counts.emailDropped}
                   />
                 )}
                 <div className="flex justify-between items-start text-[14px]">

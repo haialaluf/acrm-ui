@@ -25,6 +25,8 @@ import {
 } from "@/utils/FormatUtils";
 import Avatar from "@/components/Avatar";
 import FieldError from "@/components/FieldError";
+import EmailSuggestion from "@/components/EmailSuggestion";
+import { validateEmailField } from "@/utils/emailValidation";
 
 type ContactFormValues = ContactWithAddressesUpdate;
 
@@ -67,6 +69,7 @@ function ContactDetail() {
     register,
     handleSubmit,
     control,
+    watch,
     formState: { isDirty, isValid, errors },
   } = useForm<ContactFormValues>({
     mode: "onTouched",
@@ -139,8 +142,16 @@ function ContactDetail() {
                 type="email"
                 className="text"
                 placeholder={t("email@example.com")}
-                {...register("email")}
+                {...register("email", {
+                  // The phone field is already validated; this one relied on the
+                  // browser's `type="email"` grammar, which accepts `a@b` and
+                  // `john@localhost`. A bad address here becomes a hard bounce
+                  // charged against the sending domain's reputation.
+                  validate: validateEmailField,
+                })}
               />
+              <FieldError error={errors.email} />
+              <EmailSuggestion value={watch("email")} />
             </label>
 
             {/* Shared with the AI agent, in both directions: what is typed

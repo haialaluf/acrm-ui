@@ -4,6 +4,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import StatsQuotas from "./StatsQuotas";
 import StatsUsage from "./StatsUsage";
 import AccountHealth from "./health/AccountHealth";
+import EmailHealth from "./health/email/EmailHealth";
 
 export default function StatsCenter() {
   const pathname = useLocation({ select: (l) => l.pathname });
@@ -12,6 +13,7 @@ export default function StatsCenter() {
 
   const isUsage = pathname === "/stats/usage";
   const isHealth = pathname === "/stats/health";
+  const isEmailHealth = pathname === "/stats/email";
 
   return (
     <>
@@ -27,11 +29,19 @@ export default function StatsCenter() {
           <ArrowLeft className="w-[24px] h-[24px] text-foreground" />
         </button>
         <div className="flex items-center text-[16px] text-foreground">
-          {isHealth ? t("Account health") : isUsage ? t("Usage") : t("Quotas")}
+          {isEmailHealth
+            ? t("Email health")
+            : isHealth
+              ? t("Account health")
+              : isUsage
+                ? t("Usage")
+                : t("Quotas")}
         </div>
       </div>
 
-      {isHealth ? (
+      {isEmailHealth ? (
+        <EmailHealth />
+      ) : isHealth ? (
         <AccountHealth />
       ) : isUsage ? (
         <StatsUsage />

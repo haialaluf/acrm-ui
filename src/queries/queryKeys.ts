@@ -118,6 +118,20 @@ export const queryKeys = {
     templateSends: (orgId: NullableId, days: number) =>
       [orgId, "whatsapp_health", "template_sends", days] as const,
   },
+  emailHealth: {
+    /** Poll + webhook snapshots for one sending domain, newest first. */
+    snapshots: (orgId: NullableId, address: NullableId) =>
+      [orgId, "email_health", "snapshots", address] as const,
+    /** Per-day deliverability for every domain (email_daily_metrics). */
+    metrics: (orgId: NullableId, days: number) =>
+      [orgId, "email_health", "metrics", days] as const,
+    /** Bounce/complaint/poll events from `logs`. */
+    events: (orgId: NullableId, address: NullableId) =>
+      [orgId, "email_health", "events", address] as const,
+    /** Addresses this org may no longer email (contacts_addresses). */
+    suppressed: (orgId: NullableId, limit: number) =>
+      [orgId, "email_health", "suppressed", limit] as const,
+  },
   billing: {
     products: () => ["billing", "products"] as const,
     usage: (orgId: NullableId, interval: string) =>

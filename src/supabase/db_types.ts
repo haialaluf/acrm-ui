@@ -1070,6 +1070,69 @@ export type Database = {
         }
         Relationships: []
       }
+      email_health_snapshots: {
+        Row: {
+          created_at: string
+          event_type: string | null
+          findings: Json | null
+          id: string
+          organization_address: string | null
+          organization_id: string
+          raw: Json
+          reputation_status: string | null
+          sending_status: string | null
+          source: string
+          suppressed_count: number | null
+          tenant_name: string | null
+          validation_threshold: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type?: string | null
+          findings?: Json | null
+          id?: string
+          organization_address?: string | null
+          organization_id: string
+          raw: Json
+          reputation_status?: string | null
+          sending_status?: string | null
+          source: string
+          suppressed_count?: number | null
+          tenant_name?: string | null
+          validation_threshold?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string | null
+          findings?: Json | null
+          id?: string
+          organization_address?: string | null
+          organization_id?: string
+          raw?: Json
+          reputation_status?: string | null
+          sending_status?: string | null
+          source?: string
+          suppressed_count?: number | null
+          tenant_name?: string | null
+          validation_threshold?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_health_snapshots_organization_address_fkey"
+            columns: ["organization_id", "organization_address"]
+            isOneToOne: false
+            referencedRelation: "organizations_addresses"
+            referencedColumns: ["organization_id", "address"]
+          },
+          {
+            foreignKeyName: "email_health_snapshots_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_templates: {
         Row: {
           category: string | null
@@ -1880,6 +1943,23 @@ export type Database = {
           unread_count: number
         }[]
       }
+      email_daily_metrics: {
+        Args: { p_days?: number; p_organization_id: string }
+        Returns: {
+          bounce_rate: number
+          bounced_count: number
+          complained_count: number
+          complaint_rate: number
+          day: string
+          delivered_count: number
+          failed_count: number
+          opened_count: number
+          organization_address: string
+          sent_count: number
+          soft_bounced_count: number
+          suppressed_count: number
+        }[]
+      }
       ensure_unsubscribe_link: {
         Args: { p_address: string; p_organization_id: string }
         Returns: string
@@ -1903,7 +1983,9 @@ export type Database = {
         Returns: {
           batch_index: number
           batches_total: number
+          bounced_count: number
           cancelled_count: number
+          complained_count: number
           created_at: string
           delivered_count: number
           failed_count: number
@@ -1913,6 +1995,8 @@ export type Database = {
           scheduled_date: string
           sent_count: number
           service: Database["public"]["Enums"]["service"]
+          soft_bounced_count: number
+          suppressed_count: number
           template_name: string
         }[]
       }
@@ -1953,6 +2037,16 @@ export type Database = {
       normalize_email: { Args: { p_email: string }; Returns: string }
       org_update_by_admin_rules: {
         Args: { p_id: string; p_name: string }
+        Returns: boolean
+      }
+      record_soft_bounce: {
+        Args: {
+          p_address: string
+          p_organization_id: string
+          p_reason: string
+          p_strikes?: number
+          p_window?: string
+        }
         Returns: boolean
       }
       release_dispatch_lock: { Args: never; Returns: undefined }

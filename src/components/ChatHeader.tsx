@@ -12,6 +12,7 @@ import { useContactByAddress } from "@/queries/useContacts";
 import { useContactAddress } from "@/queries/useContactsAddresses";
 import type { InstagramContactAddressExtra } from "@/supabase/client";
 import { useActiveConversation } from "@/hooks/useThread";
+import { contactAddressName } from "@/utils/ContactAddressUtils";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -33,11 +34,11 @@ export default function Header() {
       : null;
 
   // Name fallback order: conversation.name → contact.name →
-  // contactAddress.extra?.name → @username (Instagram) → "?"
+  // contactAddressName(contactAddress) → @username (Instagram) → "?"
   const convName =
     conversation?.name ||
     contact?.name ||
-    contactAddress?.extra?.name ||
+    contactAddressName(contactAddress) ||
     (igExtra?.username ? `@${igExtra.username}` : undefined);
 
   const address = conversation?.contact_address;
