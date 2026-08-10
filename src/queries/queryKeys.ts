@@ -56,6 +56,12 @@ export const queryKeys = {
     detail: (orgId: NullableId, id: NullableId) =>
       [orgId, "email_templates", id] as const,
   },
+  media: {
+    /** Listing of the org's `media` bucket, optionally narrowed to one mime
+     *  family (`"image/"` for the email builder's picker). */
+    all: (orgId: NullableId, mimePrefix?: string) =>
+      [orgId, "media", mimePrefix ?? "all"] as const,
+  },
   webhooks: {
     all: (orgId: NullableId) => [orgId, "webhooks"] as const,
     detail: (orgId: NullableId, id: NullableId) =>
