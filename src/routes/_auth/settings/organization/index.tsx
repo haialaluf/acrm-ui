@@ -9,14 +9,14 @@ import {
 } from "@/queries/useOrganizations";
 import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useMemo } from "react";
 import useBoundStore from "@/stores/useBoundStore";
 import Button from "@/components/Button";
 import SelectField from "@/components/SelectField";
 import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
-import { type OrganizationUpdate } from "@/supabase/client";
+import { NO_DEFAULT_AGENT, type OrganizationUpdate } from "@/supabase/client";
 
 export const Route = createFileRoute("/_auth/settings/organization/")({
   beforeLoad: () => {
@@ -61,6 +61,8 @@ function EditOrganization() {
     control,
     formState: { isValid, isDirty },
   } = useForm<OrganizationUpdate>({ values: normalizedOrg });
+
+  const defaultAgentId = useWatch({ control, name: "extra.default_agent_id" });
 
   return (
     <>
@@ -126,9 +128,7 @@ function EditOrganization() {
             control={control}
             name="extra.welcome_message"
             label={t("Welcome message")}
-            placeholder={t(
-              "Hello! I'm a virtual agent. How can I help you?",
-            )}
+            placeholder={t("Hello! I'm a virtual agent. How can I help you?")}
             disabled={!isOwner}
           />
 
@@ -144,14 +144,26 @@ function EditOrganization() {
           />
 
           {aiAgents.length > 0 && (
-            <SelectField
-              control={control}
-              name="extra.default_agent_id"
-              label={t("Default agent")}
-              placeholder={t("Oldest active agent")}
-              options={aiAgents.map((a) => ({ value: a.id, label: a.name }))}
-              disabled={!isOwner}
-            />
+            <div className="flex flex-col gap-[8px]">
+              <SelectField
+                control={control}
+                name="extra.default_agent_id"
+                label={t("Default agent")}
+                placeholder={t("Oldest active agent")}
+                options={[
+                  { value: NO_DEFAULT_AGENT, label: t("None") },
+                  ...aiAgents.map((a) => ({ value: a.id, label: a.name })),
+                ]}
+                disabled={!isOwner}
+              />
+              {defaultAgentId === NO_DEFAULT_AGENT && (
+                <p className="text-[12px] text-muted-foreground">
+                  {t(
+                    "No agent replies automatically. Every conversation waits for a person.",
+                  )}
+                </p>
+              )}
+            </div>
           )}
 
           <div className="border-t border-border" />

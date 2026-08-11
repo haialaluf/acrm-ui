@@ -13,6 +13,7 @@ import { useContactAddress } from "@/queries/useContactsAddresses";
 import type { InstagramContactAddressExtra } from "@/supabase/client";
 import { useActiveConversation } from "@/hooks/useThread";
 import { contactAddressName } from "@/utils/ContactAddressUtils";
+import ConversationAgentSelect from "./ConversationAgentSelect";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -122,13 +123,13 @@ export default function Header() {
         </div>
       </button>
 
-      {/* Options button - Hidden, does nothing yet. */}
-      <div className="options flex justify-end w-full hidden">
-        <button className="p-[8px] ml-[10px] rounded-full active:bg-gray-icon-bg">
-          <svg className="w-[24px] h-[24px] text-foreground">
-            <use href="/icons.svg#options" />
-          </svg>
-        </button>
+      {/* Who answers this thread. Not offered on `local` test chats: there the
+          conversation exists to talk to one specific agent, and reassigning it
+          would leave the chat pointing at someone else. */}
+      <div className="flex items-center justify-end grow min-w-0">
+        {conversation && service !== "local" && (
+          <ConversationAgentSelect conversation={conversation} />
+        )}
       </div>
     </div>
   );

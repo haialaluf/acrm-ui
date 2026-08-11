@@ -28,6 +28,8 @@ export type BusinessProfile = {
   services?: string; // freeform multiline ("Corte 30min $20 …")
 };
 
+export const NO_DEFAULT_AGENT = "none";
+
 export type OrganizationExtra = {
   response_delay_seconds?: number;
   welcome_message?: string;
@@ -175,12 +177,10 @@ export type OrganizationAddressExtra =
 
 export type ConversationExtra = {
   memory?: Memory;
-  // @ui-divergence: paused/archived/pinned are `string | null` (API: `string`).
   paused?: string | null;
   archived?: string | null;
   pinned?: string | null;
-  default_agent_id?: string;
-  // @ui-divergence: `draft` is UI-only (API has a commented-out `test_run`).
+  default_agent_id?: string | null;
   draft?: {
     text: string;
     origin: string;

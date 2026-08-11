@@ -34,19 +34,7 @@ export default function ItemActions({
 
   const isPinned = conversation.extra?.pinned;
 
-  const isPaused =
-    +new Date(conversation.extra?.paused || 0) >
-    +new Date() - 12 * 60 * 60 * 1000; // Less than 12 hours ago.
-
   const items: MenuProps["items"] = [
-    {
-      label: isPaused ? t("Resume assistant") : t("Pause assistant"),
-      key: "0",
-      onClick: () =>
-        updateConvExtra(conversation, {
-          paused: isPaused ? null : new Date().toISOString(),
-        }),
-    },
     {
       label: isArchived(conversation, mostRecentMsg)
         ? t("Unarchive chat")

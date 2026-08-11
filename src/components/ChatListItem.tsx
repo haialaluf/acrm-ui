@@ -30,6 +30,8 @@ import { formatPhoneNumber, nameInitials } from "@/utils/FormatUtils";
 import { useNavigate } from "@tanstack/react-router";
 import { useThreadConversation } from "@/hooks/useThread";
 import { contactAddressName } from "@/utils/ContactAddressUtils";
+import { assistantState } from "@/utils/ConversationUtils";
+import { useCurrentOrganization } from "@/queries/useOrganizations";
 
 function mediaPreview(t: (content: string) => ReactNode, message?: MessageRow) {
   let mediaIcon = null;
@@ -176,6 +178,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
 
   const { data: agent } = useCurrentAgent();
   const { data: agents } = useCurrentAgents();
+  const { data: org } = useCurrentOrganization();
   const isAdmin = ["admin", "owner"].includes(agent?.extra?.role || "");
 
   // The sidebar only ever holds the thread's most recent message (or whatever
@@ -246,9 +249,8 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
 
   const isPinned = conversation?.extra?.pinned;
 
-  const isPaused =
-    +new Date(conversation?.extra?.paused || 0) >
-    +new Date() - 12 * 60 * 60 * 1000; // Less than 12 hours ago.
+  // Paused by a person or a handoff, or off org-wide (default agent "None").
+  const isPaused = assistantState(conversation, org?.extra) !== "active";
 
   const igExtra =
     conversation?.service === "instagram"

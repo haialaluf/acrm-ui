@@ -2,6 +2,8 @@ import useBoundStore from "@/stores/useBoundStore";
 import {
   type ConversationInsert,
   type ConversationRow,
+  NO_DEFAULT_AGENT,
+  type OrganizationExtra,
   supabase,
 } from "@/supabase/client";
 
@@ -60,6 +62,43 @@ export function primaryConversation(convs: ConversationRow[]) {
   return byNewest.find((c) => c.status === "active") ?? byNewest[0];
 }
 
+const PAUSED_CONV_WINDOW = 12 * 60 * 60 * 1000;
+
+export function assistantState(
+  conversation: ConversationRow | undefined,
+  orgExtra: OrganizationExtra | null | undefined,
+): "off" | "paused" | "active" {
+  const convAgentId = conversation?.extra?.default_agent_id;
+
+  if (convAgentId === NO_DEFAULT_AGENT) return "off";
+
+  if (orgExtra?.default_agent_id === NO_DEFAULT_AGENT && !convAgentId) {
+    return "off";
+  }
+
+  const paused = conversation?.extra?.paused;
+
+  return paused && +new Date(paused) > +new Date() - PAUSED_CONV_WINDOW
+    ? "paused"
+    : "active";
+}
+
+
+export function organizationDefaultAgent<
+  T extends { id: string; created_at: string; extra: { mode?: string } | null },
+>(aiAgents: T[], orgExtra: OrganizationExtra | null | undefined) {
+  if (orgExtra?.default_agent_id === NO_DEFAULT_AGENT) return undefined;
+
+  const selectable = aiAgents.filter((a) => a.extra?.mode !== "inactive");
+
+  return (
+    selectable.find((a) => a.id === orgExtra?.default_agent_id) ??
+    [...selectable].sort(
+      (a, b) => +new Date(a.created_at) - +new Date(b.created_at),
+    )[0]
+  );
+}
+
 function pushConversationToStore(record: ConversationInsert) {
   // TODO: optimistic insert lacks some fields that the store considers as present - cabra 2024/07/28
   useBoundStore.getState().chat.pushConversations([record as ConversationRow]);
@@ -108,6 +147,7 @@ export const updateConvExtra = async (
     pinned?: string | null;
     archived?: string | null;
     paused?: string | null;
+    default_agent_id?: string | null;
   },
 ) => {
   const { error } = await supabase
