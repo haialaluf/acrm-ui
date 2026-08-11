@@ -1084,5 +1084,20 @@
   "Unpublish": "Cancelar publicação",
   "Only live templates can be sent to contacts.": "Só é possível enviar modelos ativos aos contactos.",
   "Add a subject before publishing.": "Adicione um assunto antes de publicar.",
-  "Define every variable in the design before publishing.": "Defina todas as variáveis do design antes de publicar."
+  "Define every variable in the design before publishing.": "Defina todas as variáveis do design antes de publicar.",
+  "API Leads": "Leads por API",
+  "Post contacts to your own endpoint URL": "Envie contactos para o seu próprio URL de endpoint",
+  "The endpoint is live and accepting leads": "O endpoint está ativo e a aceitar leads",
+  "The endpoint rejects every request while off": "O endpoint rejeita todos os pedidos enquanto estiver desligado",
+  "Send a POST request to this URL to create a contact. Any system that can make an HTTP request can use it — a website form, a landing page, Zapier, or your own app.": "Envie um pedido POST para este URL para criar um contacto. Qualquer sistema capaz de fazer um pedido HTTP pode usá-lo: um formulário de site, uma landing page, o Zapier ou a sua própria aplicação.",
+  "Endpoint URL": "URL do endpoint",
+  "Copy URL": "Copiar URL",
+  "Authenticate with an organization API key in the api-key header.": "Autentique com uma chave de API da organização no cabeçalho api-key.",
+  "Manage API keys": "Gerir chaves de API",
+  "Example": "Exemplo",
+  "Copy example": "Copiar exemplo",
+  "Include at least an email or a phone number. A lead whose phone matches an existing contact updates that contact instead of creating a duplicate, and a phone number becomes messageable on WhatsApp straight away.": "Inclua pelo menos um e-mail ou um número de telefone. Um lead cujo telefone corresponda a um contacto existente atualiza esse contacto em vez de criar um duplicado, e um número de telefone fica imediatamente disponível para mensagens no WhatsApp.",
+  "Send external_id to make retries safe: posting the same value twice creates one contact, not two. Any field we do not recognize is kept on the contact as a custom answer.": "Envie external_id para tornar as repetições seguras: publicar o mesmo valor duas vezes cria um contacto, não dois. Qualquer campo que não reconheçamos é guardado no contacto como resposta personalizada.",
+  "Recent leads": "Leads recentes",
+  "Nothing received yet": "Ainda não foi recebido nada"
 }

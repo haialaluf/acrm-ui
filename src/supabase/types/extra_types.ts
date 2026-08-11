@@ -167,13 +167,32 @@ export type EmailOrganizationAddressExtra = {
   default_from_name?: string;
 };
 
+// The public lead-intake connection (service = 'api', address = 'api').
+//
+// Deliberately almost empty, and deliberately holds NO statistics — no counter,
+// no `last_lead_at`. Every write to organizations_addresses fires
+// `z_notify_webhook_organizations_addresses`, so touching this row on each
+// accepted lead would fan a webhook out to the organization on the wrong entity,
+// once per POST. The integration page derives "last received" from `leads`
+// (source = 'api') instead, which costs one indexed read and no writes.
+//
+// The credential is not here either: callers authenticate with an `api_keys`
+// row, and this row is only the on/off switch — read via its `status` column,
+// not via `extra`.
+export type ApiOrganizationAddressExtra = {
+  // Display label, for a future world where an org runs more than one intake
+  // endpoint. The address is a constant today, so this is cosmetic.
+  name?: string;
+};
+
 // Union — the column accepts any of these shapes; consumers narrow via the
 // row's `service` column (or via a cast at service-specific read sites).
 export type OrganizationAddressExtra =
   | WhatsAppOrganizationAddressExtra
   | InstagramOrganizationAddressExtra
   | FacebookOrganizationAddressExtra
-  | EmailOrganizationAddressExtra;
+  | EmailOrganizationAddressExtra
+  | ApiOrganizationAddressExtra;
 
 export type ConversationExtra = {
   memory?: Memory;

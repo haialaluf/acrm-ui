@@ -1051,5 +1051,20 @@
   "Unpublish": "Ondoa uchapishaji",
   "Only live templates can be sent to contacts.": "Ni violezo hai pekee vinavyoweza kutumwa kwa waasiliani.",
   "Add a subject before publishing.": "Ongeza mada kabla ya kuchapisha.",
-  "Define every variable in the design before publishing.": "Bainisha kila kigezo katika muundo kabla ya kuchapisha."
+  "Define every variable in the design before publishing.": "Bainisha kila kigezo katika muundo kabla ya kuchapisha.",
+  "API Leads": "Miongozo kupitia API",
+  "Post contacts to your own endpoint URL": "Tuma anwani kwa URL yako ya endpoint",
+  "The endpoint is live and accepting leads": "Endpoint iko hai na inapokea miongozo",
+  "The endpoint rejects every request while off": "Endpoint hukataa kila ombi ikiwa imezimwa",
+  "Send a POST request to this URL to create a contact. Any system that can make an HTTP request can use it — a website form, a landing page, Zapier, or your own app.": "Tuma ombi la POST kwa URL hii ili kuunda anwani. Mfumo wowote unaoweza kutuma ombi la HTTP unaweza kuitumia — fomu ya tovuti, ukurasa wa kutua, Zapier, au programu yako mwenyewe.",
+  "Endpoint URL": "URL ya endpoint",
+  "Copy URL": "Nakili URL",
+  "Authenticate with an organization API key in the api-key header.": "Thibitisha kwa ufunguo wa API wa shirika katika kichwa cha api-key.",
+  "Manage API keys": "Dhibiti funguo za API",
+  "Example": "Mfano",
+  "Copy example": "Nakili mfano",
+  "Include at least an email or a phone number. A lead whose phone matches an existing contact updates that contact instead of creating a duplicate, and a phone number becomes messageable on WhatsApp straight away.": "Jumuisha angalau barua pepe au namba ya simu. Mwongozo ambaye simu yake inalingana na anwani iliyopo husasisha anwani hiyo badala ya kuunda nakala, na namba ya simu inaweza kutumwa ujumbe kwenye WhatsApp mara moja.",
+  "Send external_id to make retries safe: posting the same value twice creates one contact, not two. Any field we do not recognize is kept on the contact as a custom answer.": "Tuma external_id ili majaribio ya kurudia yawe salama: kutuma thamani ile ile mara mbili huunda anwani moja, si mbili. Sehemu yoyote tusiyoitambua huhifadhiwa kwenye anwani kama jibu maalum.",
+  "Recent leads": "Miongozo ya hivi karibuni",
+  "Nothing received yet": "Hakuna kilichopokelewa bado"
 }

@@ -2,7 +2,7 @@ import SectionBody from "@/components/SectionBody";
 import SectionHeader from "@/components/SectionHeader";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { FileText, Mail } from "lucide-react";
+import { FileText, Mail, Webhook } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
   FacebookFilled,
@@ -83,6 +83,21 @@ function IntegrationsIndex() {
             onClick={() =>
               navigate({
                 to: "/integrations/email",
+                hash: (prevHash) => prevHash!,
+              })
+            }
+          />
+          <SectionItem
+            aside={
+              <div className="p-[8px]">
+                <Webhook className="w-[24px] h-[24px] text-muted-foreground" />
+              </div>
+            }
+            title={t("API Leads")}
+            description={t("Post contacts to your own endpoint URL")}
+            onClick={() =>
+              navigate({
+                to: "/integrations/api",
                 hash: (prevHash) => prevHash!,
               })
             }

@@ -55,6 +55,7 @@ import { Route as AuthIntegrationsWhatsappIndexRouteImport } from './routes/_aut
 import { Route as AuthIntegrationsInstagramIndexRouteImport } from './routes/_auth/integrations/instagram/index'
 import { Route as AuthIntegrationsFacebookIndexRouteImport } from './routes/_auth/integrations/facebook/index'
 import { Route as AuthIntegrationsEmailIndexRouteImport } from './routes/_auth/integrations/email/index'
+import { Route as AuthIntegrationsApiIndexRouteImport } from './routes/_auth/integrations/api/index'
 import { Route as AuthTemplatesEmailNewRouteImport } from './routes/_auth/templates/email/new'
 import { Route as AuthTemplatesEmailEmailTemplateIdRouteImport } from './routes/_auth/templates/email/$emailTemplateId'
 import { Route as AuthSettingsWebhooksNewRouteImport } from './routes/_auth/settings/webhooks/new'
@@ -326,6 +327,12 @@ const AuthIntegrationsEmailIndexRoute =
     path: '/integrations/email/',
     getParentRoute: () => AuthRoute,
   } as any)
+const AuthIntegrationsApiIndexRoute =
+  AuthIntegrationsApiIndexRouteImport.update({
+    id: '/integrations/api/',
+    path: '/integrations/api/',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthTemplatesEmailNewRoute = AuthTemplatesEmailNewRouteImport.update({
   id: '/templates/email/new',
   path: '/templates/email/new',
@@ -555,6 +562,7 @@ export interface FileRoutesByFullPath {
   '/settings/webhooks/new': typeof AuthSettingsWebhooksNewRoute
   '/templates/email/$emailTemplateId': typeof AuthTemplatesEmailEmailTemplateIdRoute
   '/templates/email/new': typeof AuthTemplatesEmailNewRoute
+  '/integrations/api': typeof AuthIntegrationsApiIndexRoute
   '/integrations/email': typeof AuthIntegrationsEmailIndexRoute
   '/integrations/facebook': typeof AuthIntegrationsFacebookIndexRoute
   '/integrations/instagram': typeof AuthIntegrationsInstagramIndexRoute
@@ -631,6 +639,7 @@ export interface FileRoutesByTo {
   '/settings/webhooks/new': typeof AuthSettingsWebhooksNewRoute
   '/templates/email/$emailTemplateId': typeof AuthTemplatesEmailEmailTemplateIdRoute
   '/templates/email/new': typeof AuthTemplatesEmailNewRoute
+  '/integrations/api': typeof AuthIntegrationsApiIndexRoute
   '/integrations/email': typeof AuthIntegrationsEmailIndexRoute
   '/integrations/facebook': typeof AuthIntegrationsFacebookIndexRoute
   '/integrations/instagram': typeof AuthIntegrationsInstagramIndexRoute
@@ -710,6 +719,7 @@ export interface FileRoutesById {
   '/_auth/settings/webhooks/new': typeof AuthSettingsWebhooksNewRoute
   '/_auth/templates/email/$emailTemplateId': typeof AuthTemplatesEmailEmailTemplateIdRoute
   '/_auth/templates/email/new': typeof AuthTemplatesEmailNewRoute
+  '/_auth/integrations/api/': typeof AuthIntegrationsApiIndexRoute
   '/_auth/integrations/email/': typeof AuthIntegrationsEmailIndexRoute
   '/_auth/integrations/facebook/': typeof AuthIntegrationsFacebookIndexRoute
   '/_auth/integrations/instagram/': typeof AuthIntegrationsInstagramIndexRoute
@@ -789,6 +799,7 @@ export interface FileRouteTypes {
     | '/settings/webhooks/new'
     | '/templates/email/$emailTemplateId'
     | '/templates/email/new'
+    | '/integrations/api'
     | '/integrations/email'
     | '/integrations/facebook'
     | '/integrations/instagram'
@@ -865,6 +876,7 @@ export interface FileRouteTypes {
     | '/settings/webhooks/new'
     | '/templates/email/$emailTemplateId'
     | '/templates/email/new'
+    | '/integrations/api'
     | '/integrations/email'
     | '/integrations/facebook'
     | '/integrations/instagram'
@@ -943,6 +955,7 @@ export interface FileRouteTypes {
     | '/_auth/settings/webhooks/new'
     | '/_auth/templates/email/$emailTemplateId'
     | '/_auth/templates/email/new'
+    | '/_auth/integrations/api/'
     | '/_auth/integrations/email/'
     | '/_auth/integrations/facebook/'
     | '/_auth/integrations/instagram/'
@@ -1307,6 +1320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIntegrationsEmailIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/integrations/api/': {
+      id: '/_auth/integrations/api/'
+      path: '/integrations/api'
+      fullPath: '/integrations/api'
+      preLoaderRoute: typeof AuthIntegrationsApiIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/templates/email/new': {
       id: '/_auth/templates/email/new'
       path: '/templates/email/new'
@@ -1577,6 +1597,7 @@ interface AuthRouteChildren {
   AuthSettingsWebhooksNewRoute: typeof AuthSettingsWebhooksNewRoute
   AuthTemplatesEmailEmailTemplateIdRoute: typeof AuthTemplatesEmailEmailTemplateIdRoute
   AuthTemplatesEmailNewRoute: typeof AuthTemplatesEmailNewRoute
+  AuthIntegrationsApiIndexRoute: typeof AuthIntegrationsApiIndexRoute
   AuthIntegrationsEmailIndexRoute: typeof AuthIntegrationsEmailIndexRoute
   AuthIntegrationsFacebookIndexRoute: typeof AuthIntegrationsFacebookIndexRoute
   AuthIntegrationsInstagramIndexRoute: typeof AuthIntegrationsInstagramIndexRoute
@@ -1642,6 +1663,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthTemplatesEmailEmailTemplateIdRoute:
     AuthTemplatesEmailEmailTemplateIdRoute,
   AuthTemplatesEmailNewRoute: AuthTemplatesEmailNewRoute,
+  AuthIntegrationsApiIndexRoute: AuthIntegrationsApiIndexRoute,
   AuthIntegrationsEmailIndexRoute: AuthIntegrationsEmailIndexRoute,
   AuthIntegrationsFacebookIndexRoute: AuthIntegrationsFacebookIndexRoute,
   AuthIntegrationsInstagramIndexRoute: AuthIntegrationsInstagramIndexRoute,

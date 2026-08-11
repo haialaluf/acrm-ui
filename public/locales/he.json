@@ -1104,5 +1104,20 @@
   "Unpublish": "בטל פרסום",
   "Only live templates can be sent to contacts.": "רק תבניות פעילות ניתן לשלוח לאנשי קשר.",
   "Add a subject before publishing.": "יש להוסיף נושא לפני הפרסום.",
-  "Define every variable in the design before publishing.": "יש להגדיר כל משתנה בעיצוב לפני הפרסום."
+  "Define every variable in the design before publishing.": "יש להגדיר כל משתנה בעיצוב לפני הפרסום.",
+  "API Leads": "לידים דרך API",
+  "Post contacts to your own endpoint URL": "שליחת אנשי קשר לכתובת endpoint משלך",
+  "The endpoint is live and accepting leads": "ה-endpoint פעיל ומקבל לידים",
+  "The endpoint rejects every request while off": "ה-endpoint דוחה כל בקשה כשהוא כבוי",
+  "Send a POST request to this URL to create a contact. Any system that can make an HTTP request can use it — a website form, a landing page, Zapier, or your own app.": "שלחו בקשת POST לכתובת הזו כדי ליצור איש קשר. כל מערכת שיודעת לשלוח בקשת HTTP יכולה להשתמש בה — טופס באתר, דף נחיתה, Zapier או אפליקציה משלכם.",
+  "Endpoint URL": "כתובת ה-endpoint",
+  "Copy URL": "העתקת הכתובת",
+  "Authenticate with an organization API key in the api-key header.": "האימות מתבצע עם מפתח API של הארגון בכותרת api-key.",
+  "Manage API keys": "ניהול מפתחות API",
+  "Example": "דוגמה",
+  "Copy example": "העתקת הדוגמה",
+  "Include at least an email or a phone number. A lead whose phone matches an existing contact updates that contact instead of creating a duplicate, and a phone number becomes messageable on WhatsApp straight away.": "יש לכלול לפחות אימייל או מספר טלפון. ליד שהטלפון שלו תואם לאיש קשר קיים יעדכן את אותו איש קשר במקום ליצור כפילות, ומספר טלפון הופך מיד לזמין להתכתבות בוואטסאפ.",
+  "Send external_id to make retries safe: posting the same value twice creates one contact, not two. Any field we do not recognize is kept on the contact as a custom answer.": "שלחו external_id כדי שניסיונות חוזרים יהיו בטוחים: שליחה של אותו ערך פעמיים תיצור איש קשר אחד ולא שניים. כל שדה שלא מזוהה נשמר על איש הקשר כתשובה מותאמת אישית.",
+  "Recent leads": "לידים אחרונים",
+  "Nothing received yet": "עדיין לא התקבל דבר"
 }

@@ -49,6 +49,10 @@ export const queryKeys = {
     spend: (orgId: NullableId, address: NullableId, days: number) =>
       [orgId, "organizations_addresses", address, "spend", days] as const,
   },
+  apiLeads: {
+    /** Recent leads posted to the public intake endpoint, newest first. */
+    recent: (orgId: NullableId) => [orgId, "leads", "api"] as const,
+  },
   emailTemplates: {
     /** List for the org — summaries only, without the project/html payloads. */
     all: (orgId: NullableId) => [orgId, "email_templates"] as const,

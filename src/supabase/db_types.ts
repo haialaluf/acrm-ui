@@ -1212,8 +1212,9 @@ export type Database = {
           form_name: string | null
           leadgen_id: string
           organization_id: string
-          page_id: string
+          page_id: string | null
           platform: string | null
+          source: string
           updated_at: string
         }
         Insert: {
@@ -1228,8 +1229,9 @@ export type Database = {
           form_name?: string | null
           leadgen_id: string
           organization_id: string
-          page_id: string
+          page_id?: string | null
           platform?: string | null
+          source?: string
           updated_at?: string
         }
         Update: {
@@ -1244,8 +1246,9 @@ export type Database = {
           form_name?: string | null
           leadgen_id?: string
           organization_id?: string
-          page_id?: string
+          page_id?: string | null
           platform?: string | null
+          source?: string
           updated_at?: string
         }
         Relationships: [
@@ -2123,6 +2126,7 @@ export type Database = {
         | "slack"
         | "discord"
         | "teams"
+        | "api"
       webhook_operation: "insert" | "update"
       webhook_table:
         | "messages"
@@ -2819,6 +2823,7 @@ export const Constants = {
         "slack",
         "discord",
         "teams",
+        "api",
       ],
       webhook_operation: ["insert", "update"],
       webhook_table: [
