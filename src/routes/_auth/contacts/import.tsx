@@ -60,11 +60,20 @@ type ResolvedRow = {
   existing?: { id: string; tags: string[] };
 };
 
-const NAME_RE = /^(name|nombre|first ?name|nombres?|שם)/i;
+const NAME_RE = /^(full[ _]?name|name|nombre|first ?name|nombres?|שם)/i;
 const SURNAME_RE = /surname|apellidos?|last ?name|family ?name|משפחה/i;
 const PHONE_RE = /phone|mobile|tel|tel[eé]fono|טלפון|נייד/i;
 const EMAIL_RE = /mail|correo|email|אימייל|דואר אלקטרוני/i;
 const TAGS_RE = /tags?|etiquetas?|labels?|categor|תגית|תגיות|תווית/i;
+
+/**
+ * Meta's Lead Ads export tags typed values with a short prefix — `p:` on
+ * `phone_number`, like `l:` on ids. It is not part of the number, and the phone
+ * validator (rightly) rejects any letter, so strip it before validating.
+ */
+function stripPhonePrefix(cell: string): string {
+  return cell.trim().replace(/^p:/i, "");
+}
 
 function detect(headers: string[], re: RegExp): number | null {
   const i = headers.findIndex((h) => re.test(h));
@@ -134,7 +143,7 @@ function ImportContacts() {
       const surname =
         mapping.surname != null ? (row[mapping.surname] ?? "").trim() : "";
       const phone =
-        mapping.phone != null ? (row[mapping.phone] ?? "").trim() : "";
+        mapping.phone != null ? stripPhonePrefix(row[mapping.phone] ?? "") : "";
       const rawEmail =
         mapping.email != null ? (row[mapping.email] ?? "").trim() : "";
       // An unusable address does not fail the row — the contact and phone are
@@ -443,7 +452,11 @@ function ImportContacts() {
                   {(
                     [
                       { key: "name", label: t("Name"), required: true },
-                      { key: "surname", label: t("Last name"), required: false },
+                      {
+                        key: "surname",
+                        label: t("Last name"),
+                        required: false,
+                      },
                       { key: "phone", label: t("Phone"), required: true },
                       { key: "email", label: t("Email"), required: false },
                       { key: "tags", label: t("Tags"), required: false },
@@ -625,9 +638,7 @@ function ImportContacts() {
                     {t("Tags applied")}
                   </span>
                   {tags.length === 0 ? (
-                    <span className="text-muted-foreground">
-                      {t("none")}
-                    </span>
+                    <span className="text-muted-foreground">{t("none")}</span>
                   ) : (
                     <div
                       className="flex flex-wrap gap-1 justify-end"
@@ -749,9 +760,7 @@ function DropZone({
             className="w-[14px] h-[14px] shrink-0"
             style={{ color: "var(--primary)" }}
           />
-          {t(
-            "Automatic column detection — any file format is supported",
-          )}
+          {t("Automatic column detection — any file format is supported")}
         </div>
       </div>
     </div>
@@ -845,9 +854,7 @@ function ValidationBanner({
     >
       <div className="flex items-center gap-2">
         <TriangleAlert className="w-4 h-4 shrink-0" strokeWidth={2.5} />
-        <span style={{ fontWeight: 500 }}>
-          {t("Issues found in the file")}
-        </span>
+        <span style={{ fontWeight: 500 }}>{t("Issues found in the file")}</span>
       </div>
       <div className="text-[12px] mt-1 text-muted-foreground flex flex-col">
         {counts.err > 0 && (

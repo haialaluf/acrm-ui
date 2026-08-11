@@ -35,11 +35,64 @@ function formatBytes(bytes: number): string {
 }
 
 /**
+ * Decode an uploaded text file, honoring its byte-order mark.
+ *
+ * `File.text()` always decodes as UTF-8, which mangles the UTF-16 exports some
+ * tools produce (Meta's Lead Ads download is UTF-16LE) into NUL-interleaved
+ * mojibake — every header and cell then fails to match anything.
+ */
+async function readText(file: File): Promise<string> {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+
+  if (bytes[0] === 0xff && bytes[1] === 0xfe)
+    return new TextDecoder("utf-16le").decode(bytes.subarray(2));
+  if (bytes[0] === 0xfe && bytes[1] === 0xff)
+    return new TextDecoder("utf-16be").decode(bytes.subarray(2));
+
+  // No BOM: UTF-16 text is still recognizable by its NUL padding bytes, which
+  // land on odd offsets for LE and even offsets for BE.
+  const sample = bytes.subarray(0, 512);
+  let evenNuls = 0;
+  let oddNuls = 0;
+  for (let i = 0; i < sample.length; i++) {
+    if (sample[i] === 0x00) i % 2 === 0 ? evenNuls++ : oddNuls++;
+  }
+  if (oddNuls > sample.length / 4 && evenNuls === 0)
+    return new TextDecoder("utf-16le").decode(bytes);
+  if (evenNuls > sample.length / 4 && oddNuls === 0)
+    return new TextDecoder("utf-16be").decode(bytes);
+
+  return new TextDecoder("utf-8").decode(bytes);
+}
+
+/** Delimiters we sniff for, in preference order on a tie. */
+const DELIMITERS = [",", "\t", ";", "|"];
+
+/**
+ * Guess the field separator from the header line. Files handed out as ".csv"
+ * are routinely tab- or semicolon-separated; picking the wrong one collapses
+ * every row into a single cell.
+ */
+function detectDelimiter(text: string): string {
+  const header = text.split(/\r?\n/, 1)[0] ?? "";
+  let best = ",";
+  let bestCount = 0;
+  for (const delimiter of DELIMITERS) {
+    const count = header.split(delimiter).length - 1;
+    if (count > bestCount) {
+      best = delimiter;
+      bestCount = count;
+    }
+  }
+  return best;
+}
+
+/**
  * Parse a CSV string into a matrix of cells, honoring RFC-4180 quoting
- * (double quotes, escaped `""`, embedded commas and newlines) and both
+ * (double quotes, escaped `""`, embedded delimiters and newlines) and both
  * `\n` and `\r\n` line endings.
  */
-function parseCsv(text: string): string[][] {
+function parseCsv(text: string, delimiter = ","): string[][] {
   // Strip UTF-8 BOM if present.
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
 
@@ -67,7 +120,7 @@ function parseCsv(text: string): string[][] {
 
     if (char === '"') {
       inQuotes = true;
-    } else if (char === ",") {
+    } else if (char === delimiter) {
       row.push(field);
       field = "";
     } else if (char === "\n" || char === "\r") {
@@ -141,7 +194,8 @@ async function parseExcel(file: File): Promise<string[][]> {
 export async function parseContactsFile(file: File): Promise<ParsedFile> {
   let matrix: string[][];
   if (isCsv(file)) {
-    matrix = parseCsv(await file.text());
+    const text = await readText(file);
+    matrix = parseCsv(text, detectDelimiter(text));
   } else if (isExcel(file)) {
     matrix = await parseExcel(file);
   } else {
