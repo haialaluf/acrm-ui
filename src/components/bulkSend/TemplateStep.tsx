@@ -76,7 +76,10 @@ export default function TemplateStep({
         />
       </div>
 
-      <div className="grow overflow-y-auto pb-[12px]">
+      {/* No `overflow-y-auto` here: `SectionBody` inside the lists is already a
+          full-height scroller, and nesting the two made the pane scroll with
+          three rows in it — and pushed the footer below the fold. */}
+      <div className="grow min-h-0 flex flex-col">
         {channel === "email" &&
           (available.includes("email") ? (
             <EmailTemplatesList
@@ -92,60 +95,63 @@ export default function TemplateStep({
 
         {channel === "whatsapp" &&
           (available.includes("whatsapp") ? (
-            <>
-              <TemplatesList
-                templates={whatsappTemplates}
-                isLoading={whatsapp.isLoading}
-                onCreate={whatsapp.onCreate ?? (() => {})}
-                onSelect={whatsapp.onPick}
-                // Only meaningful when choosing something to SEND: how many
-                // values you are about to be asked for, and in which language.
-                renderMeta={(tpl) => {
-                  const head =
-                    tpl.components.find((c) => c.type === "HEADER")?.text ?? "";
-                  const body =
-                    tpl.components.find((c) => c.type === "BODY")?.text ?? "";
-                  const vars = countVars(head) + countVars(body);
+            <TemplatesList
+              templates={whatsappTemplates}
+              isLoading={whatsapp.isLoading}
+              onCreate={whatsapp.onCreate ?? (() => {})}
+              onSelect={whatsapp.onPick}
+              // Only meaningful when choosing something to SEND: how many
+              // values you are about to be asked for, and in which language.
+              renderMeta={(tpl) => {
+                const head =
+                  tpl.components.find((c) => c.type === "HEADER")?.text ?? "";
+                const body =
+                  tpl.components.find((c) => c.type === "BODY")?.text ?? "";
+                const vars = countVars(head) + countVars(body);
 
-                  return (
-                    <>
-                      <span className="shrink-0 text-xs text-muted-foreground uppercase">
-                        {tpl.language}
+                return (
+                  <>
+                    <span className="shrink-0 text-xs text-muted-foreground uppercase">
+                      {tpl.language}
+                    </span>
+                    {vars > 0 && (
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {vars} {t("vars")}
                       </span>
-                      {vars > 0 && (
-                        <span className="shrink-0 text-xs text-muted-foreground">
-                          {vars} {t("vars")}
-                        </span>
-                      )}
-                    </>
-                  );
-                }}
-              />
-
-              {/* Only approved templates can be sent, so an org with drafts
-                  pending review sees an empty list and needs telling why. */}
-              {!whatsapp.isLoading && whatsappTemplates.length === 0 && (
-                <div className="px-[16px] pb-[8px] text-center text-muted-foreground text-[13px]">
-                  {t("Only approved templates can be sent")}
-                </div>
-              )}
-
-              {whatsapp.onManage && (
-                <div className="px-[12px]">
-                  <button
-                    onClick={whatsapp.onManage}
-                    className="mt-[8px] w-full flex items-center justify-center gap-[6px] rounded-[14px] py-[12px] text-[13px] font-medium text-muted-foreground border border-dashed border-border hover:bg-accent transition-colors"
-                  >
-                    <LayoutTemplate className="w-[14px] h-[14px]" />
-                    {t("Manage templates")}
-                  </button>
-                </div>
-              )}
-            </>
+                    )}
+                  </>
+                );
+              }}
+            />
           ) : (
             <NoWhatsAppState />
           ))}
       </div>
+
+      {/* Pinned under the list rather than trailing it: the list is its own
+          scroller, so anything placed after it inside would only be reachable
+          by scrolling past every template. */}
+      {channel === "whatsapp" && available.includes("whatsapp") && (
+        <div className="shrink-0 px-[10px] pb-[10px] pt-[8px]">
+          {/* Only approved templates can be sent, so an org with drafts
+              pending review sees an empty list and needs telling why. */}
+          {!whatsapp.isLoading && whatsappTemplates.length === 0 && (
+            <div className="px-[6px] pb-[8px] text-center text-muted-foreground text-[13px]">
+              {t("Only approved templates can be sent")}
+            </div>
+          )}
+
+          {whatsapp.onManage && (
+            <button
+              onClick={whatsapp.onManage}
+              className="w-full flex items-center justify-center gap-[6px] rounded-[14px] py-[12px] text-[13px] font-medium text-muted-foreground border border-dashed border-border hover:bg-accent transition-colors"
+            >
+              <LayoutTemplate className="w-[14px] h-[14px]" />
+              {t("Manage templates")}
+            </button>
+          )}
+        </div>
+      )}
     </>
   );
 }
