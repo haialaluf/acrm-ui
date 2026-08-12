@@ -20,7 +20,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(localizedFormat);
 import { TickContext } from "@/contexts/useTick";
 import { useTranslation } from "@/hooks/useTranslation";
-import { AtSign, Pause } from "lucide-react";
+import { AtSign, Bot, Pause } from "lucide-react";
 import { mediaCategory } from "./Message/media";
 
 import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
@@ -325,19 +325,21 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                 size={49}
                 className="bg-accent text-accent-foreground border border-border text-[16px]"
               />
-              {conversation.service !== "local" && (
-                <div className="absolute -bottom-[1px] -right-[1px] rounded-full bg-background p-[1px] leading-none">
-                  {conversation.service === "instagram" ? (
-                    <InstagramOutlined
-                      style={{ fontSize: "14px", color: "#E1306C" }}
-                    />
-                  ) : (
-                    <WhatsAppOutlined
-                      style={{ fontSize: "14px", color: "#25D366" }}
-                    />
-                  )}
-                </div>
-              )}
+              <div className="absolute -bottom-[1px] -right-[1px] rounded-full bg-background p-[1px] leading-none">
+                {conversation.service === "instagram" ? (
+                  <InstagramOutlined
+                    style={{ fontSize: "14px", color: "#E1306C" }}
+                  />
+                ) : conversation.service === "local" ? (
+                  // A test chat talks to the org's own bot, so the channel slot
+                  // gets a robot where the other services get their logo.
+                  <Bot className="h-[14px] w-[14px] text-muted-foreground" />
+                ) : (
+                  <WhatsAppOutlined
+                    style={{ fontSize: "14px", color: "#25D366" }}
+                  />
+                )}
+              </div>
             </div>
           </div>
           <div className="info flex flex-col justify-center grow min-w-0 pr-[15px]">
