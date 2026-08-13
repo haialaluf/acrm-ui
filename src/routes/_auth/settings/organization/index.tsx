@@ -257,6 +257,24 @@ function EditOrganization() {
               disabled={!isOwner}
             />
 
+            {/* Named to the client when the agent hands a conversation over.
+                Left blank the agent says "someone will get back to you" — the
+                honest default for a rota or a shared inbox. */}
+            <label>
+              <div className="label">{t("Who follows up")}</div>
+              <input
+                className="text"
+                placeholder={t("Leave blank if it varies")}
+                disabled={!isOwner}
+                {...register("extra.business_profile.contact_name")}
+              />
+              <div className="text-muted-foreground text-[14px] mt-[4px]">
+                {t(
+                  "The agent names this person when it hands a conversation to a human. Set it only if the same person always replies.",
+                )}
+              </div>
+            </label>
+
             {/* Which clock the hours below are kept on — the calendar
                 editor's picker, unchanged. */}
             <Controller

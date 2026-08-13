@@ -135,11 +135,7 @@ function AgentDetail() {
 
               <div className="border-t border-border" />
 
-              <PersonaSection
-                control={control}
-                register={register}
-                disabled={!isAdmin}
-              />
+              <PersonaSection control={control} disabled={!isAdmin} />
 
               <SkillsSection
                 control={control}

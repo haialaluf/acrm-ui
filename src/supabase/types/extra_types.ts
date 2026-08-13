@@ -45,6 +45,17 @@ export type BusinessProfile = {
   // still render, the agent is simply told it cannot place them on a clock.
   region?: string; // ISO 3166 alpha-2, e.g. "IL"
   timezone?: string; // IANA id, e.g. "Asia/Jerusalem"
+  // Who picks up a handed-off conversation, named to the client. Read only by
+  // the API's `renderHandoff`, never by `renderBusinessProfile`: it says nothing
+  // about what the business DOES, and counting it in `hasBusinessProfile` would
+  // open a `# Business` section for an organization with nothing else filled in.
+  //
+  // Leave it unset for anything with a rota or a shared inbox. The platform's
+  // default is deliberately vague because it is usually the truth — naming one
+  // person on a queue that five people watch is a worse promise than naming
+  // nobody. Set it where a client really does always hear back from the same
+  // person, which for a studio, a clinic or a one-owner shop is most of them.
+  contact_name?: string;
 };
 
 export const NO_DEFAULT_AGENT = "none";

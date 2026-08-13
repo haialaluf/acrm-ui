@@ -102,7 +102,7 @@ function AddAgent() {
 
             <div className="border-t border-border" />
 
-            <PersonaSection control={control} register={register} />
+            <PersonaSection control={control} />
 
             <SkillsSection
               control={control}
