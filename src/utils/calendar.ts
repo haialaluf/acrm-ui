@@ -135,6 +135,27 @@ export function nextWindowSuggestion(
   return { from: toHHMM(from), to: toHHMM(to) };
 }
 
+// Write out every weekday, closed ones as an explicit `[]`.
+//
+// Only needed where the value lands in a deep-merged jsonb column — today
+// `organizations.extra.business_profile.working_hours`. The `merge_update`
+// trigger recurses into objects and only ever SETS leaves, so a key the new
+// value omits keeps whatever it held before: switching Friday off by deleting
+// its key would silently leave Friday's old hours in the database, and the
+// agent would go on telling clients the business is open. An empty array is a
+// value, so it overwrites — and every reader already reads `[]` and "absent"
+// the same way ("closed").
+//
+// Calendars don't need this: `calendars.working_hours` is its own column,
+// replaced wholesale on update.
+export function expandClosedDays(
+  hours: CalendarWorkingHours,
+): CalendarWorkingHours {
+  const next: CalendarWorkingHours = {};
+  for (const d of WEEKDAYS) next[d.key] = hours[d.key] ?? [];
+  return next;
+}
+
 // Sun–Thu 09:00–17:00, Fri/Sat closed — a sensible default business week.
 export function defaultWorkingHours(): CalendarWorkingHours {
   const hours: CalendarWorkingHours = {};

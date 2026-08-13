@@ -26,6 +26,25 @@ export type BusinessProfile = {
   business_name?: string; // defaults from organization.name in the UI
   description?: string;
   services?: string; // freeform multiline ("Corte 30min $20 …")
+  // When the business itself is open — NOT a calendar. Nothing is booked
+  // against these and no free-slot maths reads them; they exist so the agent
+  // can answer "are you open on Saturday?" instead of guessing. A calendar's
+  // own `working_hours` stays the authority for scheduling, and the two are
+  // free to differ (a shop open daily may take appointments Tue–Thu only).
+  //
+  // Same shape as `calendars.working_hours` so the CRM reuses one editor.
+  // Closed days arrive as an explicit `[]` rather than a missing key: this
+  // lives under `organizations.extra`, which the `merge_update` trigger deep-
+  // merges, and a dropped key would leave yesterday's hours in place forever
+  // (see `expandClosedDays` in utils/calendar).
+  working_hours?: CalendarWorkingHours;
+  // The clock `working_hours` is written in, mirroring the split a calendar
+  // makes between `extra.region` and its `timezone` column: `region` is the ISO
+  // country the CRM's picker shows, `timezone` the IANA id everything else
+  // reads. Both absent on organizations that predate the picker — the hours
+  // still render, the agent is simply told it cannot place them on a clock.
+  region?: string; // ISO 3166 alpha-2, e.g. "IL"
+  timezone?: string; // IANA id, e.g. "Asia/Jerusalem"
 };
 
 export const NO_DEFAULT_AGENT = "none";

@@ -9,13 +9,20 @@ import {
 } from "@/queries/useOrganizations";
 import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useMemo } from "react";
 import useBoundStore from "@/stores/useBoundStore";
 import Button from "@/components/Button";
 import SelectField from "@/components/SelectField";
 import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
+import WorkingHoursField from "@/components/WorkingHoursField";
+import CountryField, { useDetectedRegion } from "@/components/CountryField";
+import {
+  expandClosedDays,
+  hasWorkingHoursIssues,
+  resolveTimezone,
+} from "@/utils/calendar";
 import { NO_DEFAULT_AGENT, type OrganizationUpdate } from "@/supabase/client";
 
 export const Route = createFileRoute("/_auth/settings/organization/")({
@@ -43,6 +50,13 @@ function EditOrganization() {
   const updateOrg = useUpdateCurrentOrganization();
   const deleteOrg = useDeleteCurrentOrganization();
 
+  const detected = useDetectedRegion();
+  // Whether the country was already a saved choice, which is what retires the
+  // "detected from browser" badge — the organization's answer to CalendarForm's
+  // `isEdit`, since the organization itself always exists but this field is new
+  // and unset on every organization that predates it.
+  const savedRegion = !!org?.extra?.business_profile?.region;
+
   const normalizedOrg = useMemo(() => {
     if (!org) return undefined;
     return {
@@ -51,9 +65,16 @@ function EditOrganization() {
         ...org.extra,
         error_messages_direction:
           org.extra?.error_messages_direction || "internal",
+        business_profile: {
+          ...org.extra?.business_profile,
+          // Seeded from the browser exactly as CalendarForm seeds a new
+          // calendar's. It is the form's baseline, so it does not by itself
+          // make the form dirty — nothing is written until the owner saves.
+          region: org.extra?.business_profile?.region ?? detected.region,
+        },
       },
     };
-  }, [org]);
+  }, [org, detected.region]);
 
   const {
     register,
@@ -63,6 +84,15 @@ function EditOrganization() {
   } = useForm<OrganizationUpdate>({ values: normalizedOrg });
 
   const defaultAgentId = useWatch({ control, name: "extra.default_agent_id" });
+
+  // Overlapping or backwards windows would render to the agent as nonsense
+  // ("Sunday: 17:00-09:00"), and RHF's own `isValid` can't see inside a
+  // Controller-held object — so gate the save the way CalendarForm does.
+  const workingHours = useWatch({
+    control,
+    name: "extra.business_profile.working_hours",
+  });
+  const hoursInvalid = !!workingHours && hasWorkingHoursIssues(workingHours);
 
   return (
     <>
@@ -84,9 +114,36 @@ function EditOrganization() {
       <SectionBody>
         <form
           id="org-form"
-          onSubmit={handleSubmit((data) =>
-            updateOrg.mutate({ ...data, address: data.address?.trim() }),
-          )}
+          onSubmit={handleSubmit((data) => {
+            const profile = data.extra?.business_profile;
+            const hours = profile?.working_hours;
+            updateOrg.mutate({
+              ...data,
+              address: data.address?.trim(),
+              ...((hours || profile?.region) && {
+                extra: {
+                  ...data.extra,
+                  business_profile: {
+                    ...profile,
+                    // A day switched off leaves the object entirely, and
+                    // `organizations.extra` is deep-merged by the
+                    // `merge_update` trigger — which never removes a key.
+                    // Without this, closing a day would save nothing and the
+                    // agent would keep quoting the old hours.
+                    // `expandClosedDays` sends `[]` instead.
+                    ...(hours && { working_hours: expandClosedDays(hours) }),
+                    // The picker stores a country; everything downstream reads
+                    // an IANA id. Derived here rather than kept in the form so
+                    // the two can never drift out of step, exactly as
+                    // CalendarForm derives `calendars.timezone`.
+                    ...(profile?.region && {
+                      timezone: resolveTimezone(profile.region, detected),
+                    }),
+                  },
+                },
+              }),
+            });
+          })}
         >
           <label>
             <div className="label">{t("Name")}</div>
@@ -199,6 +256,42 @@ function EditOrganization() {
               placeholder={t("Haircut 30min $20\nColor 60min $50 ...")}
               disabled={!isOwner}
             />
+
+            {/* Which clock the hours below are kept on — the calendar
+                editor's picker, unchanged. */}
+            <Controller
+              control={control}
+              name="extra.business_profile.region"
+              render={({ field }) => (
+                <CountryField
+                  value={field.value ?? detected.region}
+                  onChange={field.onChange}
+                  detected={detected}
+                  saved={savedRegion}
+                  disabled={!isOwner}
+                />
+              )}
+            />
+
+            {/* When the business is OPEN — not when it takes appointments.
+                Booking hours stay on each calendar; these only exist so the
+                agent can answer "are you open on Saturday?" from the prompt
+                instead of coming back to the client with it. */}
+            <Controller
+              control={control}
+              name="extra.business_profile.working_hours"
+              render={({ field }) => (
+                <WorkingHoursField
+                  value={field.value ?? {}}
+                  onChange={field.onChange}
+                  disabled={!isOwner}
+                  label={t("Opening hours")}
+                  description={t(
+                    "The days and hours the business is open. The agent quotes these to clients; appointment availability is set per calendar.",
+                  )}
+                />
+              )}
+            />
           </SectionField>
         </form>
       </SectionBody>
@@ -208,7 +301,7 @@ function EditOrganization() {
           form="org-form"
           type="submit"
           disabled={!isOwner}
-          invalid={!isValid || !isDirty}
+          invalid={!isValid || !isDirty || hoursInvalid}
           loading={updateOrg.isPending}
           disabledReason={t("Requires owner permissions")}
           className="primary"

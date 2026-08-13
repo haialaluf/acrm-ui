@@ -725,6 +725,8 @@
   "Will close in": "Encerrará em",
   "With tags": "Com etiquetas",
   "Working hours": "Horário de atendimento",
+  "Opening hours": "Horário de funcionamento",
+  "The days and hours the business is open. The agent quotes these to clients; appointment availability is set per calendar.": "Os dias e horas em que o negócio está aberto. O agente informa-os aos clientes; a disponibilidade para marcações é definida em cada calendário.",
   "Write a message": "Escreva uma mensagem",
   "Write sheet": "Escrever planilha",
   "Write your message. Select text and use the toolbar above to make it bold, add emoji, or insert a variable.": "Escreva sua mensagem. Selecione o texto e use a barra acima para deixá-lo em negrito, adicionar emoji ou inserir uma variável.",

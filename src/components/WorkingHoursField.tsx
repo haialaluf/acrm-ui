@@ -16,12 +16,25 @@ import type {
 
 const DEFAULT_WINDOWS: WorkingHoursDay[] = [{ from: "09:00", to: "17:00" }];
 
+/**
+ * The weekday grid, shared by the calendar editor and the organization's
+ * business profile. The two mean different things — a calendar's hours decide
+ * when appointments may be booked, an organization's only say when the business
+ * is open — so `label` and `description` are overridable while the grid,
+ * its validation and its copy-to-all button stay one implementation.
+ */
 export default function WorkingHoursField({
   value,
   onChange,
+  label,
+  description,
+  disabled,
 }: {
   value: CalendarWorkingHours;
   onChange: (value: CalendarWorkingHours) => void;
+  label?: string;
+  description?: string;
+  disabled?: boolean;
 }) {
   const { translate: t } = useTranslation();
 
@@ -66,7 +79,7 @@ export default function WorkingHoursField({
   return (
     <div className="flex flex-col gap-[10px]">
       <div className="flex items-baseline justify-between">
-        <div className="label mb-0">{t("Working hours")}</div>
+        <div className="label mb-0">{label ?? t("Working hours")}</div>
         <span className="text-[12px] text-muted-foreground">
           {activeCount
             ? `${activeCount} ${t("active days")}`
@@ -74,9 +87,10 @@ export default function WorkingHoursField({
         </span>
       </div>
       <p className="text-[12px] text-muted-foreground -mt-1">
-        {t(
-          "The days and hours when appointments can be scheduled in this calendar. You can add more than one window per day.",
-        )}
+        {description ??
+          t(
+            "The days and hours when appointments can be scheduled in this calendar. You can add more than one window per day.",
+          )}
       </p>
 
       <div className="flex flex-col gap-[6px]">
@@ -99,6 +113,7 @@ export default function WorkingHoursField({
                       <>
                         <Switch
                           checked={on}
+                          disabled={disabled}
                           onCheckedChange={(checked) => toggleDay(d.key, checked)}
                         />
                         <div className="text-[14px] w-[80px] shrink-0 text-foreground">
@@ -112,6 +127,7 @@ export default function WorkingHoursField({
                     <TimeInput
                       value={w.from}
                       invalid={!!issues[i]}
+                      disabled={disabled}
                       onChange={(v) => setWindow(d.key, i, { from: v })}
                     />
                     <span className="text-[13px] text-muted-foreground">
@@ -120,11 +136,13 @@ export default function WorkingHoursField({
                     <TimeInput
                       value={w.to}
                       invalid={!!issues[i]}
+                      disabled={disabled}
                       onChange={(v) => setWindow(d.key, i, { to: v })}
                     />
                     {windows.length > 1 ? (
                       <MiniButton
                         title={t("Remove window")}
+                        disabled={disabled}
                         onClick={() => removeWindow(d.key, i)}
                       >
                         <X className="w-[15px] h-[15px]" />
@@ -132,6 +150,7 @@ export default function WorkingHoursField({
                     ) : (
                       <MiniButton
                         title={t("Add a working-hours window for this day")}
+                        disabled={disabled}
                         onClick={() => addWindow(d.key)}
                       >
                         <Plus className="w-[15px] h-[15px]" />
@@ -140,6 +159,7 @@ export default function WorkingHoursField({
                     {i === 0 ? (
                       <MiniButton
                         title={t("Apply these hours to all active days")}
+                        disabled={disabled}
                         onClick={() => applyToAll(sortWindows(windows))}
                       >
                         <Copy className="w-[15px] h-[15px]" />
@@ -147,6 +167,7 @@ export default function WorkingHoursField({
                     ) : i === windows.length - 1 ? (
                       <MiniButton
                         title={t("Add a working-hours window for this day")}
+                        disabled={disabled}
                         onClick={() => addWindow(d.key)}
                       >
                         <Plus className="w-[15px] h-[15px]" />
@@ -160,6 +181,7 @@ export default function WorkingHoursField({
                 <div className="flex items-center gap-3 h-[44px]">
                   <Switch
                     checked={on}
+                    disabled={disabled}
                     onCheckedChange={(checked) => toggleDay(d.key, checked)}
                   />
                   <div className="text-[14px] w-[80px] shrink-0 text-muted-foreground">
@@ -188,10 +210,12 @@ export default function WorkingHoursField({
 function MiniButton({
   title,
   onClick,
+  disabled,
   children,
 }: {
   title: string;
   onClick: () => void;
+  disabled?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -199,7 +223,8 @@ function MiniButton({
       type="button"
       title={title}
       onClick={onClick}
-      className="p-[7px] rounded-full hover:bg-muted text-muted-foreground shrink-0"
+      disabled={disabled}
+      className="p-[7px] rounded-full hover:bg-muted text-muted-foreground shrink-0 disabled:opacity-50 disabled:hover:bg-transparent"
     >
       {children}
     </button>
@@ -210,18 +235,21 @@ function TimeInput({
   value,
   onChange,
   invalid,
+  disabled,
 }: {
   value: string;
   onChange: (value: string) => void;
   invalid?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <input
       type="time"
       dir="ltr"
       value={value}
+      disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
-      className={`text-[14px] text-foreground bg-popover border rounded-[8px] px-[8px] py-[5px] w-[92px] outline-none focus:border-primary ${
+      className={`text-[14px] text-foreground bg-popover border rounded-[8px] px-[8px] py-[5px] w-[92px] outline-none focus:border-primary disabled:opacity-50 ${
         invalid ? "border-destructive" : "border-border"
       }`}
     />
