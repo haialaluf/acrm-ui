@@ -21,6 +21,7 @@ import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
 import PersonaSection from "@/components/PersonaSection";
 import SkillsSection from "@/components/SkillsSection";
+import FaqSection from "@/components/FaqSection";
 import SwitchField from "@/components/SwitchField";
 import {
   DEFAULT_AGENT_MODEL,
@@ -47,10 +48,11 @@ function AgentDetail() {
     (address) => address.service === "local",
   );
 
-  // Normalize agent data so the skills field array always has an array, and so
-  // the scope guard reads as on for agents saved before it existed (the API
-  // treats undefined as on too). Normalizing here also keeps it out of the
-  // dirty check: `values` is the baseline the form compares against.
+  // Normalize agent data so the skills and FAQ field arrays always have an
+  // array, and so the scope guard reads as on for agents saved before it
+  // existed (the API treats undefined as on too). Normalizing here also keeps
+  // it out of the dirty check: `values` is the baseline the form compares
+  // against.
   const normalizedAgent = useMemo(() => {
     if (!agent) return undefined;
     return {
@@ -58,6 +60,7 @@ function AgentDetail() {
       extra: {
         ...agent.extra,
         skills: agent.extra?.skills ?? [],
+        faq: agent.extra?.faq ?? [],
         on_topic_only: agent.extra?.on_topic_only ?? true,
       },
     };
@@ -173,6 +176,12 @@ function AgentDetail() {
                   control={control}
                   label={t("Additional instructions")}
                   placeholder={t("You are a helpful assistant...")}
+                />
+                <FaqSection
+                  control={control}
+                  register={register}
+                  disabled={!isAdmin}
+                  modalClassName="bottom-0"
                 />
                 <SelectField
                   name="extra.model"

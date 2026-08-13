@@ -12,6 +12,7 @@ import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
 import PersonaSection from "@/components/PersonaSection";
 import SkillsSection from "@/components/SkillsSection";
+import FaqSection from "@/components/FaqSection";
 import SwitchField from "@/components/SwitchField";
 import {
   DEFAULT_AGENT_MODEL,
@@ -46,6 +47,7 @@ function AddAgent() {
         protocol: "chat_completions",
         model: DEFAULT_AGENT_MODEL,
         skills: [],
+        faq: [],
         on_topic_only: true,
       },
     },
@@ -136,6 +138,12 @@ function AddAgent() {
                 control={control}
                 label={t("Additional instructions")}
                 placeholder={t("You are a helpful assistant...")}
+              />
+              <FaqSection
+                control={control}
+                register={register}
+                disabled={!isAdmin}
+                modalClassName="bottom-0"
               />
               <SelectField
                 name="extra.model"

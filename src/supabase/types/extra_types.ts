@@ -368,6 +368,26 @@ export type HumanAgentExtra = {
 
 // HumanAgentExtraInsert / HumanAgentExtraUpdate moved to ./ui_types.ts (UI-only).
 
+/**
+ * One question the business is asked often, and the answer it wants given.
+ *
+ * Structured rows rather than a paragraph inside `instructions`, for two
+ * reasons the free-text field cannot serve. The company edits one answer
+ * without retyping a wall of prose — a price changes far more often than a
+ * policy does. And the platform gets to frame the list in the API's
+ * `renderFaq`, which is what stops a model from reading a list of answers as
+ * the LIMIT of what the business does and answering "no" to anything absent.
+ *
+ * `verbatim` is for the answers where the wording IS the answer: a
+ * no-guarantees disclaimer, an eligibility caveat, anything a company would
+ * have its lawyer read before sending.
+ */
+export type FaqEntry = {
+  question: string;
+  answer: string;
+  verbatim?: boolean;
+};
+
 export type AIAgentExtra = {
   mode?: "active" | "draft" | "inactive";
   description?: string;
@@ -381,6 +401,10 @@ export type AIAgentExtra = {
   max_tokens?: number;
   thinking?: "minimal" | "low" | "medium" | "high";
   instructions?: string;
+  // The answers the company wrote for the questions it gets most. Rendered as
+  // its own prompt section rather than folded into `instructions` — see
+  // `FaqEntry`.
+  faq?: FaqEntry[];
   // Reply only when the message is business this agent can handle — see the
   // API's `renderReplyScope`. Undefined ⇒ on: the guard is the default posture.
   on_topic_only?: boolean;
