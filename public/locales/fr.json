@@ -1071,5 +1071,10 @@
   "Include at least an email or a phone number. A lead whose phone matches an existing contact updates that contact instead of creating a duplicate, and a phone number becomes messageable on WhatsApp straight away.": "Incluez au moins un e-mail ou un numéro de téléphone. Un prospect dont le téléphone correspond à un contact existant met à jour ce contact au lieu d'en créer un doublon, et un numéro de téléphone devient immédiatement joignable sur WhatsApp.",
   "Send external_id to make retries safe: posting the same value twice creates one contact, not two. Any field we do not recognize is kept on the contact as a custom answer.": "Envoyez external_id pour sécuriser les nouvelles tentatives : poster deux fois la même valeur crée un seul contact, pas deux. Tout champ que nous ne reconnaissons pas est conservé sur le contact comme réponse personnalisée.",
   "Recent leads": "Prospects récents",
-  "Nothing received yet": "Rien reçu pour l'instant"
+  "Nothing received yet": "Rien reçu pour l'instant",
+  "Reactions are not supported on this channel": "Les réactions ne sont pas prises en charge sur ce canal",
+  "Still sending": "Envoi en cours",
+  "More emoji": "Plus d'émojis",
+  "Your organization": "Votre organisation",
+  "Reactions aren't available on this message": "Les réactions ne sont pas disponibles sur ce message"
 }

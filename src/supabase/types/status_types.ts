@@ -29,4 +29,14 @@ export type OutgoingStatus = {
   preprocessing?: string;
   preprocessed?: string;
   errors?: WebhookError[];
+  /**
+   * The raw WAMID this message was announced under, kept verbatim.
+   *
+   * `external_id` holds the bare message id instead — the half both addressing
+   * forms agree on (see utils/wamid.ts). But the reaction endpoint addresses a
+   * message by full WAMID, so reacting to something we sent needs the form
+   * `external_id` drops. Absent on anything sent before the API started
+   * keeping it; Meta says it once and never again, so it cannot be backfilled.
+   */
+  wamid?: string;
 };

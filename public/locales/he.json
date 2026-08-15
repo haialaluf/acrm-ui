@@ -1124,5 +1124,10 @@
   "Include at least an email or a phone number. A lead whose phone matches an existing contact updates that contact instead of creating a duplicate, and a phone number becomes messageable on WhatsApp straight away.": "יש לכלול לפחות אימייל או מספר טלפון. ליד שהטלפון שלו תואם לאיש קשר קיים יעדכן את אותו איש קשר במקום ליצור כפילות, ומספר טלפון הופך מיד לזמין להתכתבות בוואטסאפ.",
   "Send external_id to make retries safe: posting the same value twice creates one contact, not two. Any field we do not recognize is kept on the contact as a custom answer.": "שלחו external_id כדי שניסיונות חוזרים יהיו בטוחים: שליחה של אותו ערך פעמיים תיצור איש קשר אחד ולא שניים. כל שדה שלא מזוהה נשמר על איש הקשר כתשובה מותאמת אישית.",
   "Recent leads": "לידים אחרונים",
-  "Nothing received yet": "עדיין לא התקבל דבר"
+  "Nothing received yet": "עדיין לא התקבל דבר",
+  "Reactions are not supported on this channel": "תגובות אינן נתמכות בערוץ הזה",
+  "Still sending": "עדיין נשלח",
+  "More emoji": "עוד אימוג'ים",
+  "Your organization": "הארגון שלך",
+  "Reactions aren't available on this message": "תגובות אינן זמינות בהודעה הזו"
 }

@@ -13,7 +13,15 @@ import { useCurrentOrganization } from "@/queries/useOrganizations";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { AVATAR_COLORS } from "@/utils/colors";
 import { useActiveConversation } from "@/hooks/useThread";
+import { useCSWindow } from "@/hooks/useCSWindow";
 import { useThreadMessages } from "@/queries/useThreadMessages";
+import {
+  indexReactions,
+  isReactionRow,
+  reactionKey,
+  reactionTargetId,
+  toggleReaction,
+} from "@/utils/reactions";
 import Spinner from "./Spinner";
 
 /** Rough height of a text bubble; every row is measured after its first paint. */
@@ -69,7 +77,18 @@ export default function Chat() {
   const { data: org } = useCurrentOrganization();
   const orgName = org?.name || "?";
 
-  const convName = useActiveConversation()?.name || "?";
+  const conv = useActiveConversation();
+  const convName = conv?.name || "?";
+
+  // Reactions are messages too, so they obey the same 24-hour window the
+  // composer does.
+  const { inCSWindow } = useCSWindow();
+
+  /* Reactions are stored as sibling message rows pointing at their target's
+     external_id, not as a column on the target. Index them here — off the
+     store's newest-first order, which `indexReactions` relies on — and hand
+     each bubble its own. */
+  const reactionsByTarget = useMemo(() => indexReactions(messages), [messages]);
 
   const { data: agent } = useCurrentAgent();
   const activeAgentId = agent?.id;
@@ -123,6 +142,45 @@ export default function Chat() {
   }
 
   const colorMap = assignAgentColors(getUniqueAgentIds(messages));
+
+  /** A bubble's reactions, plus how (or why not) it can be reacted to. */
+  function reactionProps(message: MessageRow) {
+    const reactions = message.external_id
+      ? reactionsByTarget.get(reactionKey(message.external_id))
+      : undefined;
+
+    // Tool traces and agent notes never reach a channel — no affordance at all.
+    if (message.direction === "internal" || !conv) return { reactions };
+
+    const reactDisabledReason =
+      conv.service !== "whatsapp" && conv.service !== "instagram"
+        ? t("Reactions are not supported on this channel")
+        : !inCSWindow
+          ? t("Outside the 24-hour window")
+          : !message.external_id
+            ? // No channel id yet: the send is still in flight.
+              t("Still sending")
+            : !reactionTargetId(message)
+              ? // Delivered, but the id the endpoint needs was never kept —
+                // messages sent before the API started storing the raw WAMID,
+                // and every Instagram send. Unbackfillable, so this is final.
+                t("Reactions aren't available on this message")
+              : undefined;
+
+    if (reactDisabledReason) return { reactions, reactDisabledReason };
+
+    return {
+      reactions,
+      onReact: (emoji: string) =>
+        void toggleReaction({
+          conv,
+          target: message,
+          emoji,
+          agentId: activeAgentId,
+          current: reactions?.find((r) => r.side === "org"),
+        }).catch(console.error),
+    };
+  }
 
   function getAgentAvatar(
     agentId: string | null,
@@ -221,6 +279,10 @@ export default function Chat() {
   const rows = insertDateSeparators(
     messages
       .filter((m, idx) => {
+        // A reaction belongs on the bubble it points at, not on a line of its
+        // own — `reactionsByTarget` has already claimed it.
+        if (isReactionRow(m)) return false;
+
         if (isAdmin) return true;
 
         // Hide internal messages for non-admin users
@@ -459,6 +521,7 @@ export default function Chat() {
                     orgName={orgName}
                     convName={convName}
                     avatar={getAgentAvatar(row.message.agent_id)}
+                    {...reactionProps(row.message)}
                   />
                 ) : (
                   <Separator text={row.text} />

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import {
   newMessage,
@@ -8,11 +8,7 @@ import {
 import useBoundStore from "@/stores/useBoundStore";
 import { pushConversationToDb, saveDraft } from "@/utils/ConversationUtils";
 import { type FileDraft } from "@/stores/chatSlice";
-import { type Draft, type MessageRow } from "@/supabase/client";
-import { TickContext } from "@/contexts/useTick";
-import dayjs from "dayjs";
-import "dayjs/locale/es";
-import "dayjs/locale/pt";
+import { type Draft } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useContactAddress, useContactByAddress } from "@/queries/useContacts";
@@ -21,6 +17,7 @@ import { htmlToMarkdown } from "@/utils/htmlToMarkdown";
 import TemplatePicker from "./TemplatePicker";
 import DisabledSection from "./DisabledSection";
 import { useActiveConversation } from "@/hooks/useThread";
+import { useCSWindow } from "@/hooks/useCSWindow";
 
 export default function ChatFooter() {
   const activeThreadKey = useBoundStore((store) => store.ui.activeThreadKey);
@@ -61,35 +58,11 @@ export default function ChatFooter() {
   const editableDiv = useRef<HTMLDivElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
-  const { translate: t, currentLanguage } = useTranslation();
+  const { translate: t } = useTranslation();
 
-  const tick = useContext(TickContext); // one-minute ticks
-
-  const mostRecentIncoming: MessageRow | undefined = useBoundStore((store) => {
-    const msgs = store.chat.messages
-      .get(store.ui.activeThreadKey || "")
-      ?.values();
-
-    if (!msgs) {
-      return;
-    }
-
-    for (const msg of msgs) {
-      if (msg.direction === "incoming") {
-        return msg;
-      }
-    }
-  });
-
-  // Wether or not the user is allowed to send messages to the client
-  const inCSWindow =
-    (conv?.service !== "whatsapp" && conv?.service !== "instagram") ||
-    tick.isBefore(dayjs(mostRecentIncoming?.timestamp || 0).add(1, "day"));
-
-  // WhatsApp customer service window lasts 24 hours since the last contact's message
-  const remaining = tick
-    .locale(currentLanguage)
-    .to(dayjs(mostRecentIncoming?.timestamp || 0).add(1, "day"), true);
+  // WhatsApp's customer service window lasts 24 hours since the contact's last
+  // message. Shared with the reaction picker, which is gated by the same rule.
+  const { inCSWindow, remaining } = useCSWindow();
 
   useEffect(() => {
     if (!editableDiv.current) {

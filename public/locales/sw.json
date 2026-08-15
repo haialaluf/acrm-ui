@@ -1071,5 +1071,10 @@
   "Include at least an email or a phone number. A lead whose phone matches an existing contact updates that contact instead of creating a duplicate, and a phone number becomes messageable on WhatsApp straight away.": "Jumuisha angalau barua pepe au namba ya simu. Mwongozo ambaye simu yake inalingana na anwani iliyopo husasisha anwani hiyo badala ya kuunda nakala, na namba ya simu inaweza kutumwa ujumbe kwenye WhatsApp mara moja.",
   "Send external_id to make retries safe: posting the same value twice creates one contact, not two. Any field we do not recognize is kept on the contact as a custom answer.": "Tuma external_id ili majaribio ya kurudia yawe salama: kutuma thamani ile ile mara mbili huunda anwani moja, si mbili. Sehemu yoyote tusiyoitambua huhifadhiwa kwenye anwani kama jibu maalum.",
   "Recent leads": "Miongozo ya hivi karibuni",
-  "Nothing received yet": "Hakuna kilichopokelewa bado"
+  "Nothing received yet": "Hakuna kilichopokelewa bado",
+  "Reactions are not supported on this channel": "Miitikio haitumiki kwenye chaneli hii",
+  "Still sending": "Bado inatumwa",
+  "More emoji": "Emoji zaidi",
+  "Your organization": "Shirika lako",
+  "Reactions aren't available on this message": "Miitikio haipatikani kwenye ujumbe huu"
 }

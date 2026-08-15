@@ -1147,5 +1147,10 @@
   "Include at least an email or a phone number. A lead whose phone matches an existing contact updates that contact instead of creating a duplicate, and a phone number becomes messageable on WhatsApp straight away.": "Incluye al menos un correo o un número de teléfono. Un lead cuyo teléfono coincida con un contacto existente actualiza ese contacto en lugar de duplicarlo, y un número de teléfono queda disponible para enviar mensajes por WhatsApp de inmediato.",
   "Send external_id to make retries safe: posting the same value twice creates one contact, not two. Any field we do not recognize is kept on the contact as a custom answer.": "Envía external_id para que los reintentos sean seguros: enviar el mismo valor dos veces crea un contacto, no dos. Cualquier campo que no reconozcamos se guarda en el contacto como respuesta personalizada.",
   "Recent leads": "Leads recientes",
-  "Nothing received yet": "Todavía no se ha recibido nada"
+  "Nothing received yet": "Todavía no se ha recibido nada",
+  "Reactions are not supported on this channel": "Las reacciones no son compatibles con este canal",
+  "Still sending": "Aún enviando",
+  "More emoji": "Más emojis",
+  "Your organization": "Tu organización",
+  "Reactions aren't available on this message": "Las reacciones no están disponibles en este mensaje"
 }

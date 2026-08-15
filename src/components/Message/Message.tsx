@@ -30,6 +30,10 @@ import {
 } from "@/components/templateButtons";
 import TemplateMessage from "./TemplateMessage";
 import BookingLinkPreview from "./BookingLinkPreview";
+import MessageReactions from "./MessageReactions";
+import ReactionPicker from "./ReactionPicker";
+import { useLongPress } from "@/hooks/useLongPress";
+import type { Reaction } from "@/utils/reactions";
 
 const md = new Remarkable({
   breaks: true,
@@ -308,11 +312,74 @@ const textMsgMaxWidth = " max-w-[90%] lg:max-w-[65%]";
 
 const msgTailClasses = "w-[8px] h-[13px] absolute top-0";
 
+/**
+ * The column a bubble lives in: the bubble itself, the reaction chips hanging
+ * off its bottom edge, and the picker floating above it.
+ *
+ * The max-width used to sit on the bubble; it moved here so the chips line up
+ * with the bubble's edge. It is equivalent — the bubble is this column's only
+ * wide child.
+ */
+function BubbleColumn({
+  align,
+  text,
+  reactions,
+  onReact,
+  reactDisabledReason,
+  children,
+}: PropsWithChildren<{
+  align: "start" | "end";
+  text?: boolean;
+  reactions?: Reaction[];
+  onReact?: (emoji: string) => void;
+  reactDisabledReason?: string;
+}>) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const longPress = useLongPress(() => setPickerOpen(true));
+
+  // Nothing to offer on messages that never reach a channel (tool traces).
+  const reactable = !!onReact || !!reactDisabledReason;
+
+  return (
+    <div
+      className={
+        "group relative flex flex-col " +
+        (align === "end" ? "items-end" : "items-start") +
+        // max-w-65% applies to text only but could not find a way to abstract it
+        (text ? textMsgMaxWidth : "")
+      }
+      {...(reactable ? longPress : {})}
+    >
+      {reactable && (
+        <ReactionPicker
+          align={align}
+          current={reactions?.find((r) => r.side === "org")?.emoji}
+          onPick={onReact ?? (() => {})}
+          disabledReason={reactDisabledReason}
+          open={pickerOpen}
+          onOpenChange={setPickerOpen}
+        />
+      )}
+      {children}
+      {!!reactions?.length && (
+        <MessageReactions
+          reactions={reactions}
+          align={align}
+          onRemove={onReact}
+        />
+      )}
+    </div>
+  );
+}
+
 export function InMessage({
   text,
   first,
   last,
   avatar,
+  reactions,
+  onReact,
+  reactDisabledReason,
   children,
 }: PropsWithChildren<UIMessage>) {
   return (
@@ -320,33 +387,40 @@ export function InMessage({
       className={
         (avatar ? avatarMsgRowClasses : msgRowClasses) +
         " justify-start" +
-        (last ? " mb-[12px]" : " mb-[2px]")
+        // Chips overhang the bubble, so a grouped message needs the full gap.
+        (last || reactions?.length ? " mb-[12px]" : " mb-[2px]")
       }
     >
-      <div
-        className={
-          // max-w-65% applies to text only but could not find a way to abstract it
-          msgBubbleClasses +
-          " bg-incoming-chat-bubble text-foreground" +
-          (first ? " rounded-tl-none" : "") +
-          (text ? textMsgMaxWidth : "")
-        }
+      <BubbleColumn
+        align="start"
+        text={text}
+        reactions={reactions}
+        onReact={onReact}
+        reactDisabledReason={reactDisabledReason}
       >
-        {first && (
-          <>
-            {avatar && <Avatar {...avatar} display="picture-left" />}
-            <svg
-              className={
-                msgTailClasses + " text-incoming-chat-bubble -left-[8px]"
-              }
-            >
-              <use href="/icons.svg#tail-in" />
-            </svg>
-          </>
-        )}
-        {avatar && first && <Avatar {...avatar} display="name" />}
-        {children}
-      </div>
+        <div
+          className={
+            msgBubbleClasses +
+            " bg-incoming-chat-bubble text-foreground" +
+            (first ? " rounded-tl-none" : "")
+          }
+        >
+          {first && (
+            <>
+              {avatar && <Avatar {...avatar} display="picture-left" />}
+              <svg
+                className={
+                  msgTailClasses + " text-incoming-chat-bubble -left-[8px]"
+                }
+              >
+                <use href="/icons.svg#tail-in" />
+              </svg>
+            </>
+          )}
+          {avatar && first && <Avatar {...avatar} display="name" />}
+          {children}
+        </div>
+      </BubbleColumn>
     </div>
   );
 }
@@ -358,44 +432,53 @@ export function OutMessage({
   children,
   avatar,
   internal,
+  reactions,
+  onReact,
+  reactDisabledReason,
 }: PropsWithChildren<UIMessage>) {
   return (
     <div
       className={
         (avatar ? avatarMsgRowClasses : msgRowClasses) +
         " justify-end" +
-        (last ? " mb-[12px]" : " mb-[2px]")
+        (last || reactions?.length ? " mb-[12px]" : " mb-[2px]")
       }
     >
-      <div
-        className={
-          // max-w-65% applies to text only but could not find a way to abstract it
-          msgBubbleClasses +
-          " text-foreground" +
-          (first ? " rounded-tr-none" : "") +
-          (text ? textMsgMaxWidth : "") +
-          (internal ? " bg-incoming-chat-bubble" : " bg-outgoing-chat-bubble")
-        }
+      <BubbleColumn
+        align="end"
+        text={text}
+        reactions={reactions}
+        onReact={onReact}
+        reactDisabledReason={reactDisabledReason}
       >
-        {first && (
-          <>
-            {!!avatar && <Avatar {...avatar} display="picture-right" />}
-            <svg
-              className={
-                msgTailClasses +
-                " -right-[8px]" +
-                (internal
-                  ? " text-incoming-chat-bubble"
-                  : " text-outgoing-chat-bubble")
-              }
-            >
-              <use href="/icons.svg#tail-out" />
-            </svg>
-          </>
-        )}
-        {!!avatar && first && <Avatar {...avatar} display="name" />}
-        {children}
-      </div>
+        <div
+          className={
+            msgBubbleClasses +
+            " text-foreground" +
+            (first ? " rounded-tr-none" : "") +
+            (internal ? " bg-incoming-chat-bubble" : " bg-outgoing-chat-bubble")
+          }
+        >
+          {first && (
+            <>
+              {!!avatar && <Avatar {...avatar} display="picture-right" />}
+              <svg
+                className={
+                  msgTailClasses +
+                  " -right-[8px]" +
+                  (internal
+                    ? " text-incoming-chat-bubble"
+                    : " text-outgoing-chat-bubble")
+                }
+              >
+                <use href="/icons.svg#tail-out" />
+              </svg>
+            </>
+          )}
+          {!!avatar && first && <Avatar {...avatar} display="name" />}
+          {children}
+        </div>
+      </BubbleColumn>
     </div>
   );
 }
@@ -408,6 +491,12 @@ type UIMessage = {
   convName?: string;
   avatar?: { agentId: string; color: string };
   internal?: boolean;
+  /** Live reactions on this message — at most one per party. */
+  reactions?: Reaction[];
+  /** Adds, replaces or removes the organization's reaction. Absent = read-only. */
+  onReact?: (emoji: string) => void;
+  /** Why reacting is unavailable; shows the picker greyed with this tooltip. */
+  reactDisabledReason?: string;
 };
 
 /* ─── Content render strategies ───────────────────────────────────────────
