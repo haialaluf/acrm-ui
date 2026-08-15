@@ -100,6 +100,9 @@ export type SyncContext = {
   timezone: string;
   /** Apple configuration profile — one tap on iOS. */
   profile_url: string;
+  /** False on a deployment with no signing certificate: iOS will say
+   *  "Unverified" in red, and the page has to warn about it. */
+  profile_signed: boolean;
   /** CalDAV server URL, for clients configured by hand. */
   server_url: string;
   username: string;

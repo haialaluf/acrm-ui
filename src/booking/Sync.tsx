@@ -113,13 +113,19 @@ export default function Sync({ token, t }: { token: string; t: Translate }) {
         <Step n="3" text={t("Tap it, then Install, and enter your passcode.")} />
       </ol>
 
-      {/* Said plainly and up front: iOS shows this in red, and a user who was
-          not expecting it reads it as "this is unsafe" and stops. */}
-      <p className="mt-[14px] text-[12px] text-muted-foreground">
-        {t(
-          "iOS marks the profile “Unverified” because it is not signed by Apple. That is expected.",
-        )}
-      </p>
+      {/* Only where the profile really is unsigned — a deployment with no
+          signing certificate. Said plainly and up front there, because iOS
+          shows it in red and a user who was not expecting it reads it as "this
+          is unsafe" and stops. Where the profile IS signed the sheet says
+          "Verified" in green, and repeating the warning would invent a doubt
+          the user never had. */}
+      {!sync.profile_signed && (
+        <p className="mt-[14px] text-[12px] text-muted-foreground">
+          {t(
+            "iOS marks the profile “Unverified” because it is not signed by Apple. That is expected.",
+          )}
+        </p>
+      )}
 
       <ManualSetup sync={sync} t={t} />
     </div>
