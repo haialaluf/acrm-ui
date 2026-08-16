@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus, SmilePlus } from "lucide-react";
 import { Tooltip } from "antd";
 import EmojiPickerPopover from "@/components/templateEditor/EmojiPickerPopover";
@@ -22,8 +22,7 @@ export default function ReactionPicker({
   current,
   onPick,
   disabledReason,
-  open,
-  onOpenChange,
+  revealed,
 }: {
   align: "start" | "end";
   /** The organization's current emoji, highlighted so a re-pick reads as toggle-off. */
@@ -31,11 +30,14 @@ export default function ReactionPicker({
   onPick: (emoji: string) => void;
   /** When set, only the button shows — inert, explaining itself instead. */
   disabledReason?: string;
-  /** Whether the quick bar is open: by its button, or pinned by a long press. */
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  /** Button shown without hover — a long press pins it that way on touch. */
+  revealed?: boolean;
 }) {
   const { translate: t } = useTranslation();
+
+  // Opening the bar is always an explicit click on the button, on every input:
+  // hover and long press only bring the button out.
+  const [open, setOpen] = useState(false);
 
   const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
@@ -62,13 +64,13 @@ export default function ReactionPicker({
         return;
       }
 
-      onOpenChange?.(false);
+      setOpen(false);
     };
 
     document.addEventListener("pointerdown", dismiss);
 
     return () => document.removeEventListener("pointerdown", dismiss);
-  }, [open, onOpenChange]);
+  }, [open]);
 
   const bar = (
     <div className="flex items-center gap-[2px] rounded-full bg-background border border-border shadow-md px-[6px] py-[3px]">
@@ -83,7 +85,7 @@ export default function ReactionPicker({
           }
           onClick={() => {
             onPick(emoji);
-            onOpenChange?.(false);
+            setOpen(false);
           }}
         >
           {emoji}
@@ -94,7 +96,7 @@ export default function ReactionPicker({
         dark={dark}
         onPick={(emoji) => {
           onPick(emoji);
-          onOpenChange?.(false);
+          setOpen(false);
         }}
       >
         <button
@@ -122,7 +124,7 @@ export default function ReactionPicker({
           ? " opacity-50 cursor-default"
           : " cursor-pointer hover:bg-accent")
       }
-      onClick={() => !disabledReason && onOpenChange?.(!open)}
+      onClick={() => !disabledReason && setOpen(!open)}
     >
       <SmilePlus size={15} />
     </button>
@@ -143,7 +145,7 @@ export default function ReactionPicker({
             ? "start-[-34px] pe-[8px] "
             : "end-[-34px] ps-[8px] ") +
           // Hover reveals it on pointer devices; a long press pins it on touch.
-          (open
+          (revealed || open
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto")
         }

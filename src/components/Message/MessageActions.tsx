@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Dropdown, Tooltip, type MenuProps } from "antd";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -20,19 +21,21 @@ export default function MessageActions({
   bubbleColor,
   onReply,
   disabledReason,
-  open,
-  onOpenChange,
+  revealed,
 }: {
   /** Tailwind gradient stop matching the bubble it sits on. */
   bubbleColor: string;
   onReply: () => void;
   /** When set, the item is inert and explains itself instead. */
   disabledReason?: string;
-  /** Held open by a long press; hover alone does not need this. */
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  /** Chevron shown without hover — a long press pins it that way on touch. */
+  revealed?: boolean;
 }) {
   const { translate: t } = useTranslation();
+
+  // Opening the menu is always an explicit click on the chevron, on every
+  // input: hover and long press only bring the chevron out.
+  const [open, setOpen] = useState(false);
 
   const items: MenuProps["items"] = [
     {
@@ -53,7 +56,7 @@ export default function MessageActions({
     <div
       className={
         "absolute top-0 end-0 z-[2] transition-opacity " +
-        (open
+        (revealed || open
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto")
       }
@@ -62,7 +65,7 @@ export default function MessageActions({
         menu={{ items }}
         trigger={["click"]}
         open={open}
-        onOpenChange={onOpenChange}
+        onOpenChange={setOpen}
         placement="bottomRight"
       >
         <button

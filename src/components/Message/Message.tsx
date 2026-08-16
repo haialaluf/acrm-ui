@@ -15,6 +15,8 @@ import {
   type FormEventHandler,
   type PropsWithChildren,
   type ReactNode,
+  useEffect,
+  useRef,
   useState,
 } from "react";
 import { prettyPrintJson } from "pretty-print-json";
@@ -350,14 +352,40 @@ function BubbleColumn({
   replyDisabledReason?: string;
   bubbleColor: string;
 }>) {
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [actionsOpen, setActionsOpen] = useState(false);
-  // One gesture reveals both affordances, the way a long press does in
-  // WhatsApp; on a pointer device hover does the same job for free.
-  const longPress = useLongPress(() => {
-    setPickerOpen(true);
-    setActionsOpen(true);
-  });
+  // A long press brings out the same two buttons hover does on a pointer
+  // device — the reaction smiley and the actions chevron — and neither opens
+  // until it is tapped, the way WhatsApp does it.
+  const [revealed, setRevealed] = useState(false);
+  const longPress = useLongPress(() => setRevealed(true));
+
+  const column = useRef<HTMLDivElement>(null);
+
+  /* Touch has no "pointer left the bubble", so the pinned buttons are put away
+     by the next press elsewhere. A document listener rather than a backdrop:
+     the chat list positions every row with a `transform`, which makes it the
+     containing block for `position: fixed`, so a "full screen" overlay would
+     only ever cover its own row. The menus these buttons open portal out of
+     this subtree, so they are matched by class. */
+  useEffect(() => {
+    if (!revealed) return;
+
+    const dismiss = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+
+      if (
+        column.current?.contains(target) ||
+        target?.closest(".emoji-popover, .ant-dropdown")
+      ) {
+        return;
+      }
+
+      setRevealed(false);
+    };
+
+    document.addEventListener("pointerdown", dismiss);
+
+    return () => document.removeEventListener("pointerdown", dismiss);
+  }, [revealed]);
 
   // Nothing to offer on messages that never reach a channel (tool traces).
   const reactable = !!onReact || !!reactDisabledReason;
@@ -365,6 +393,7 @@ function BubbleColumn({
 
   return (
     <div
+      ref={column}
       className={
         "group relative flex flex-col " +
         (align === "end" ? "items-end" : "items-start") +
@@ -379,8 +408,7 @@ function BubbleColumn({
           current={reactions?.find((r) => r.side === "org")?.emoji}
           onPick={onReact ?? (() => {})}
           disabledReason={reactDisabledReason}
-          open={pickerOpen}
-          onOpenChange={setPickerOpen}
+          revealed={revealed}
         />
       )}
       {replyable && (
@@ -388,8 +416,7 @@ function BubbleColumn({
           bubbleColor={bubbleColor}
           onReply={onReply ?? (() => {})}
           disabledReason={replyDisabledReason}
-          open={actionsOpen}
-          onOpenChange={setActionsOpen}
+          revealed={revealed}
         />
       )}
       {children}
