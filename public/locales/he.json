@@ -1130,5 +1130,11 @@
   "More emoji": "עוד אימוג'ים",
   "Your organization": "הארגון שלך",
   "Reactions aren't available on this message": "תגובות אינן זמינות בהודעה הזו",
-  "You": "את/ה"
+  "You": "את/ה",
+  "Reply": "תגובה",
+  "Original message": "ההודעה המקורית",
+  "Cancel reply": "ביטול התגובה",
+  "Message actions": "פעולות בהודעה",
+  "Replies are not supported on this channel": "תגובות אינן נתמכות בערוץ הזה",
+  "Replies aren't available on this message": "תגובות אינן זמינות בהודעה הזו"
 }

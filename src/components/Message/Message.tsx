@@ -32,6 +32,8 @@ import TemplateMessage from "./TemplateMessage";
 import BookingLinkPreview from "./BookingLinkPreview";
 import MessageReactions from "./MessageReactions";
 import ReactionPicker from "./ReactionPicker";
+import MessageActions from "./MessageActions";
+import QuotedMessage from "./QuotedMessage";
 import { useLongPress } from "@/hooks/useLongPress";
 import type { Reaction } from "@/utils/reactions";
 
@@ -312,6 +314,14 @@ const textMsgMaxWidth = " max-w-[90%] lg:max-w-[65%]";
 
 const msgTailClasses = "w-[8px] h-[13px] absolute top-0";
 
+/* The quoted block sits inside the bubble's own 3px padding, above the content.
+   The min-width keeps a short quote from collapsing narrower than the text it
+   introduces, which is what makes the pair read as one card. */
+const quotedInBubbleClasses = "mx-[3px] mt-[3px] mb-[2px] min-w-[160px]";
+
+/** Brief flash marking the message a quote jumped to. */
+const highlightClasses = " ring-2 ring-primary transition-shadow duration-300";
+
 /**
  * The column a bubble lives in: the bubble itself, the reaction chips hanging
  * off its bottom edge, and the picker floating above it.
@@ -326,6 +336,9 @@ function BubbleColumn({
   reactions,
   onReact,
   reactDisabledReason,
+  onReply,
+  replyDisabledReason,
+  bubbleColor,
   children,
 }: PropsWithChildren<{
   align: "start" | "end";
@@ -333,12 +346,22 @@ function BubbleColumn({
   reactions?: Reaction[];
   onReact?: (emoji: string) => void;
   reactDisabledReason?: string;
+  onReply?: () => void;
+  replyDisabledReason?: string;
+  bubbleColor: string;
 }>) {
   const [pickerOpen, setPickerOpen] = useState(false);
-  const longPress = useLongPress(() => setPickerOpen(true));
+  const [actionsOpen, setActionsOpen] = useState(false);
+  // One gesture reveals both affordances, the way a long press does in
+  // WhatsApp; on a pointer device hover does the same job for free.
+  const longPress = useLongPress(() => {
+    setPickerOpen(true);
+    setActionsOpen(true);
+  });
 
   // Nothing to offer on messages that never reach a channel (tool traces).
   const reactable = !!onReact || !!reactDisabledReason;
+  const replyable = !!onReply || !!replyDisabledReason;
 
   return (
     <div
@@ -348,7 +371,7 @@ function BubbleColumn({
         // max-w-65% applies to text only but could not find a way to abstract it
         (text ? textMsgMaxWidth : "")
       }
-      {...(reactable ? longPress : {})}
+      {...(reactable || replyable ? longPress : {})}
     >
       {reactable && (
         <ReactionPicker
@@ -358,6 +381,15 @@ function BubbleColumn({
           disabledReason={reactDisabledReason}
           open={pickerOpen}
           onOpenChange={setPickerOpen}
+        />
+      )}
+      {replyable && (
+        <MessageActions
+          bubbleColor={bubbleColor}
+          onReply={onReply ?? (() => {})}
+          disabledReason={replyDisabledReason}
+          open={actionsOpen}
+          onOpenChange={setActionsOpen}
         />
       )}
       {children}
@@ -380,6 +412,12 @@ export function InMessage({
   reactions,
   onReact,
   reactDisabledReason,
+  onReply,
+  replyDisabledReason,
+  quoted,
+  hasQuote,
+  onJumpToQuoted,
+  highlight,
   children,
 }: PropsWithChildren<UIMessage>) {
   return (
@@ -397,12 +435,16 @@ export function InMessage({
         reactions={reactions}
         onReact={onReact}
         reactDisabledReason={reactDisabledReason}
+        onReply={onReply}
+        replyDisabledReason={replyDisabledReason}
+        bubbleColor="from-incoming-chat-bubble"
       >
         <div
           className={
             msgBubbleClasses +
             " bg-incoming-chat-bubble text-foreground" +
-            (first ? " rounded-tl-none" : "")
+            (first ? " rounded-tl-none" : "") +
+            (highlight ? highlightClasses : "")
           }
         >
           {first && (
@@ -418,6 +460,13 @@ export function InMessage({
             </>
           )}
           {avatar && first && <Avatar {...avatar} display="name" />}
+          {hasQuote && (
+            <QuotedMessage
+              message={quoted}
+              onClick={onJumpToQuoted}
+              className={quotedInBubbleClasses}
+            />
+          )}
           {children}
         </div>
       </BubbleColumn>
@@ -435,6 +484,12 @@ export function OutMessage({
   reactions,
   onReact,
   reactDisabledReason,
+  onReply,
+  replyDisabledReason,
+  quoted,
+  hasQuote,
+  onJumpToQuoted,
+  highlight,
 }: PropsWithChildren<UIMessage>) {
   return (
     <div
@@ -450,13 +505,21 @@ export function OutMessage({
         reactions={reactions}
         onReact={onReact}
         reactDisabledReason={reactDisabledReason}
+        onReply={onReply}
+        replyDisabledReason={replyDisabledReason}
+        bubbleColor={
+          internal ? "from-incoming-chat-bubble" : "from-outgoing-chat-bubble"
+        }
       >
         <div
           className={
             msgBubbleClasses +
             " text-foreground" +
             (first ? " rounded-tr-none" : "") +
-            (internal ? " bg-incoming-chat-bubble" : " bg-outgoing-chat-bubble")
+            (internal
+              ? " bg-incoming-chat-bubble"
+              : " bg-outgoing-chat-bubble") +
+            (highlight ? highlightClasses : "")
           }
         >
           {first && (
@@ -476,6 +539,13 @@ export function OutMessage({
             </>
           )}
           {!!avatar && first && <Avatar {...avatar} display="name" />}
+          {hasQuote && (
+            <QuotedMessage
+              message={quoted}
+              onClick={onJumpToQuoted}
+              className={quotedInBubbleClasses}
+            />
+          )}
           {children}
         </div>
       </BubbleColumn>
@@ -497,6 +567,18 @@ type UIMessage = {
   onReact?: (emoji: string) => void;
   /** Why reacting is unavailable; shows the picker greyed with this tooltip. */
   reactDisabledReason?: string;
+  /** Starts a reply to this message. Absent = no reply affordance at all. */
+  onReply?: () => void;
+  /** Why replying is unavailable; shows the item greyed with this tooltip. */
+  replyDisabledReason?: string;
+  /** This message is a reply — draw the quoted block. */
+  hasQuote?: boolean;
+  /** The message it quotes, when that one is in the loaded window. */
+  quoted?: MessageRow;
+  /** Scrolls to the quoted message. Absent when it is not loaded. */
+  onJumpToQuoted?: () => void;
+  /** Flashes the bubble; set right after a quote jumped to it. */
+  highlight?: boolean;
 };
 
 /* ─── Content render strategies ───────────────────────────────────────────

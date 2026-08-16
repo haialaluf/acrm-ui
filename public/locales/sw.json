@@ -1077,5 +1077,11 @@
   "More emoji": "Emoji zaidi",
   "Your organization": "Shirika lako",
   "Reactions aren't available on this message": "Miitikio haipatikani kwenye ujumbe huu",
-  "You": "Wewe"
+  "You": "Wewe",
+  "Reply": "Jibu",
+  "Original message": "Ujumbe asili",
+  "Cancel reply": "Ghairi jibu",
+  "Message actions": "Vitendo vya ujumbe",
+  "Replies are not supported on this channel": "Majibu hayatumiki kwenye chaneli hii",
+  "Replies aren't available on this message": "Majibu hayapatikani kwenye ujumbe huu"
 }

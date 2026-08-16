@@ -77,6 +77,10 @@ export type ChatState = {
   orphanMessages: Map<string, MessageRow[]>; // by conversation id
   textDrafts: Map<string, string>; // by thread key
   fileDrafts: Map<string, FileDraft[]>; // by thread key
+  /** Message being replied to, by thread key. Holds our uuid, not the channel
+   *  id: the row is resolved from `messages` when the quote is drawn and when
+   *  the reply is sent. UI buffer only — never persisted to `conv.extra.draft`. */
+  replyDrafts: Map<string, string>;
   mediaLoads: Map<string, MediaLoad>;
 };
 
@@ -89,6 +93,8 @@ export type ChatActions = {
   setMediaLoad: (messageId: string, mediaLoad: MediaLoad) => void;
   setThreadTextDraft: (threadKey: string, textDraft: string) => void;
   setThreadFileDrafts: (threadKey: string, drafts: FileDraft[]) => void;
+  /** `null` clears the pending reply. */
+  setThreadReplyDraft: (threadKey: string, messageId: string | null) => void;
   setThreadFileDraftCaption: (
     threadKey: string,
     draftIndex: number,
@@ -176,6 +182,7 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
   orphanMessages: new Map(),
   textDrafts: new Map(),
   fileDrafts: new Map(),
+  replyDrafts: new Map(),
   mediaLoads: new Map(),
   pushConversations: (convs: ConversationRow[]) =>
     set((state) => applyConversations(state, convs)),
@@ -258,6 +265,24 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
         chat: {
           ...state.chat,
           textDrafts,
+        },
+      };
+    });
+  },
+  setThreadReplyDraft: (key: string, messageId: string | null) => {
+    set((state) => {
+      const replyDrafts = new Map(state.chat.replyDrafts);
+
+      if (messageId) {
+        replyDrafts.set(key, messageId);
+      } else {
+        replyDrafts.delete(key);
+      }
+
+      return {
+        chat: {
+          ...state.chat,
+          replyDrafts,
         },
       };
     });

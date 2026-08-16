@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -18,10 +18,13 @@ import { useThreadMessages } from "@/queries/useThreadMessages";
 import {
   indexReactions,
   isReactionRow,
-  reactionKey,
-  reactionTargetId,
   toggleReaction,
 } from "@/utils/reactions";
+import {
+  channelKey,
+  channelMessageId,
+  indexByChannelId,
+} from "@/utils/messageRefs";
 import Spinner from "./Spinner";
 
 /** Rough height of a text bubble; every row is measured after its first paint. */
@@ -90,6 +93,20 @@ export default function Chat() {
      each bubble its own. */
   const reactionsByTarget = useMemo(() => indexReactions(messages), [messages]);
 
+  /* A reply's `re_message_id` names its target by the channel's id, so the row
+     it points at has to be found by that rather than by our uuid. */
+  const messagesByChannelId = useMemo(
+    () => indexByChannelId(messages),
+    [messages],
+  );
+
+  const setThreadReplyDraft = useBoundStore(
+    (store) => store.chat.setThreadReplyDraft,
+  );
+
+  /** Message a quote jumped to, flashed briefly so the eye can find it. */
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
   const { data: agent } = useCurrentAgent();
   const activeAgentId = agent?.id;
   const isAdmin = ["admin", "owner"].includes(agent?.extra?.role || "");
@@ -146,7 +163,7 @@ export default function Chat() {
   /** A bubble's reactions, plus how (or why not) it can be reacted to. */
   function reactionProps(message: MessageRow) {
     const reactions = message.external_id
-      ? reactionsByTarget.get(reactionKey(message.external_id))
+      ? reactionsByTarget.get(channelKey(message.external_id))
       : undefined;
 
     // Tool traces and agent notes never reach a channel — no affordance at all.
@@ -160,10 +177,10 @@ export default function Chat() {
           : !message.external_id
             ? // No channel id yet: the send is still in flight.
               t("Still sending")
-            : !reactionTargetId(message)
+            : !channelMessageId(message)
               ? // Delivered, but the id the endpoint needs was never kept —
-                // messages sent before the API started storing the raw WAMID,
-                // and every Instagram send. Unbackfillable, so this is final.
+                // messages sent before the API started storing the raw WAMID.
+                // Unbackfillable, so this is final.
                 t("Reactions aren't available on this message")
               : undefined;
 
@@ -180,6 +197,69 @@ export default function Chat() {
           current: reactions?.find((r) => r.side === "org"),
         }).catch(console.error),
     };
+  }
+
+  /** Whether this bubble can be replied to, or why it cannot. */
+  function replyProps(message: MessageRow) {
+    // Tool traces and agent notes never reach a channel — no affordance at all.
+    if (message.direction === "internal" || !conv) return {};
+
+    /* Instagram is deliberately absent: the dispatcher has no way to attach a
+       quote to an Instagram send (the Instagram-with-Instagram-Login messaging
+       API documents `reply_to` only on the inbound webhook, never on the send
+       payload — see instagram-dispatcher's `case "text"`). Offering Reply there
+       would draw a quote in the CRM that the contact never sees. Incoming IG
+       replies still render their quote; only sending one is unavailable. */
+    const replyDisabledReason =
+      conv.service !== "whatsapp" && conv.service !== "local"
+        ? t("Replies are not supported on this channel")
+        : !inCSWindow
+          ? t("Outside the 24-hour window")
+          : channelMessageId(message)
+            ? undefined
+            : !message.external_id
+              ? // No channel id yet: the send is still in flight.
+                t("Still sending")
+              : // Delivered, but the id the endpoint needs was never kept.
+                // Unbackfillable, so this is final.
+                t("Replies aren't available on this message");
+
+    if (replyDisabledReason) return { replyDisabledReason };
+
+    return {
+      onReply: () => setThreadReplyDraft(activeThreadKey || "", message.id),
+    };
+  }
+
+  /** The message this one quotes, when it is a reply. */
+  function quotedProps(message: MessageRow) {
+    const { re_message_id, forwarded } = message.content;
+
+    // `re_message_id` is overloaded across reply, reaction and forward; the
+    // `forwarded` flag is what tells a forward apart, the same test the
+    // dispatcher makes before sending a context.
+    if (!re_message_id || forwarded) return {};
+
+    const quoted = messagesByChannelId.get(channelKey(re_message_id));
+
+    return {
+      hasQuote: true,
+      quoted,
+      // Not loaded means not scrollable: paging backwards until it turns up is
+      // unbounded, so the card stays inert instead.
+      onJumpToQuoted: quoted ? () => jumpToMessage(quoted.id) : undefined,
+    };
+  }
+
+  function jumpToMessage(messageId: string) {
+    const index = rows.findIndex(
+      (row) => "message" in row && row.message.id === messageId,
+    );
+
+    if (index < 0) return;
+
+    virtualizer.scrollToIndex(index, { align: "center" });
+    setHighlightedId(messageId);
   }
 
   function getAgentAvatar(
@@ -438,6 +518,27 @@ export default function Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newestMessageId]);
 
+  /* The composer's reply bar grows the footer and so shrinks this scroller,
+     which the browser absorbs by leaving scrollTop alone — the newest message
+     slides out of view. Follow it, but only for a reader who was already at
+     the tail. */
+  const replyDraft = useBoundStore((store) =>
+    store.chat.replyDrafts.get(store.ui.activeThreadKey || ""),
+  );
+
+  useEffect(() => {
+    if (replyDraft && atBottom.current) scrollToBottom(false);
+  }, [replyDraft]);
+
+  // The flash is a cue, not a state: drop it once the eye has had time to land.
+  useEffect(() => {
+    if (!highlightedId) return;
+
+    const timer = setTimeout(() => setHighlightedId(null), 1500);
+
+    return () => clearTimeout(timer);
+  }, [highlightedId]);
+
   // Adjust scroll when visual viewport resizes (e.g. mobile keyboard opens)
   useEffect(() => {
     const handleResize = () => {
@@ -521,7 +622,10 @@ export default function Chat() {
                     orgName={orgName}
                     convName={convName}
                     avatar={getAgentAvatar(row.message.agent_id)}
+                    highlight={highlightedId === row.message.id}
                     {...reactionProps(row.message)}
+                    {...replyProps(row.message)}
+                    {...quotedProps(row.message)}
                   />
                 ) : (
                   <Separator text={row.text} />

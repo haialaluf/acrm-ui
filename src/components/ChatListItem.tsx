@@ -1,9 +1,6 @@
-import { type ReactNode, useContext } from "react";
+import { useContext } from "react";
 import Avatar from "./Avatar";
-import {
-  getHighestStatus,
-  getStatusPresentation,
-} from "@/utils/MessageStatusUtils";
+import { getStatusPresentation } from "@/utils/MessageStatusUtils";
 import useBoundStore from "@/stores/useBoundStore";
 import {
   type Draft,
@@ -21,7 +18,6 @@ dayjs.extend(localizedFormat);
 import { TickContext } from "@/contexts/useTick";
 import { useTranslation } from "@/hooks/useTranslation";
 import { AtSign, Bot, Pause } from "lucide-react";
-import { mediaCategory } from "./Message/media";
 
 import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
 import { useContactByAddress } from "@/queries/useContacts";
@@ -32,106 +28,7 @@ import { useThreadConversation } from "@/hooks/useThread";
 import { contactAddressName } from "@/utils/ContactAddressUtils";
 import { assistantState } from "@/utils/ConversationUtils";
 import { useCurrentOrganization } from "@/queries/useOrganizations";
-
-function mediaPreview(t: (content: string) => ReactNode, message?: MessageRow) {
-  let mediaIcon = null;
-  let mediaIconClass = "mr-[3px]";
-  let mediaPreviewContent: ReactNode = "";
-
-  if (
-    !message ||
-    !(message.direction === "incoming" || message.direction === "outgoing")
-  ) {
-    return { mediaIcon, mediaPreviewContent };
-  }
-
-  // Media that could not be ingested arrives as an empty data placeholder.
-  // Show a media icon and a friendly label instead of an empty "{}".
-  if (
-    message.content.type === "data" &&
-    message.content.kind === "media_placeholder"
-  ) {
-    mediaIcon = (
-      <div>
-        <svg className={`${mediaIconClass} h-[20px] w-[16px]`}>
-          <use href="/icons.svg#chat-image" />
-        </svg>
-      </div>
-    );
-    mediaPreviewContent = t("Unavailable media");
-    return { mediaIcon, mediaPreviewContent };
-  }
-
-  if (message.content.type !== "file") {
-    return { mediaIcon, mediaPreviewContent };
-  }
-
-  const type = message.content.kind;
-  const status = getHighestStatus(message.status);
-
-  const mime = message.content.file?.mime_type || "";
-
-  // Known kinds keep their own icon (incl. the distinct sticker icon); the
-  // Instagram "native" kinds and the generic file/media kinds resolve via the
-  // shared kind/MIME mapping (e.g. a shared reel gets the video icon).
-  const knownKinds = ["audio", "document", "image", "sticker", "video"];
-  const iconKind = knownKinds.includes(type) ? type : mediaCategory(type, mime);
-
-  // Instagram "native" share kinds get friendlier last-message labels.
-  const igLabels: Record<string, ReactNode> = {
-    ig_post: t("Post"),
-    ig_reel: t("Reel"),
-    reel: t("Reel"),
-    story: t("Story"),
-    ig_story: t("Story"),
-    story_mention: t("Story mention"),
-    story_reply: t("Story reply"),
-  };
-
-  switch (iconKind) {
-    case "audio":
-      mediaIconClass += " h-[20px] w-[12px]";
-
-      if (status === "read") {
-        mediaIconClass += " text-primary";
-      }
-
-      // TODO: Should be the audio length - cabra 24/05/2024
-      mediaPreviewContent = t("Audio");
-      break;
-    case "document":
-      mediaIconClass += " h-[20px] w-[13px]";
-      mediaPreviewContent = message.content.file?.name || t("Document");
-      break;
-    case "image":
-      mediaIconClass += " h-[20px] w-[16px]";
-      mediaPreviewContent = t("Photo");
-      break;
-    case "sticker":
-      mediaIconClass += " h-[16px] w-[16px] mt-[4px]";
-      mediaPreviewContent = t("Sticker");
-      break;
-    case "video":
-      mediaIconClass += " h-[20px] w-[16px]";
-      mediaPreviewContent = message.content.file?.name || t("Video");
-      break;
-  }
-
-  // Override the label for Instagram shares (icon stays image/video).
-  if (igLabels[type]) {
-    mediaPreviewContent = igLabels[type];
-  }
-
-  mediaIcon = (
-    <div>
-      <svg className={mediaIconClass}>
-        <use href={`/icons.svg#chat-${iconKind}`} />
-      </svg>
-    </div>
-  );
-
-  return { mediaIcon, mediaPreviewContent };
-}
+import { mediaPreview } from "@/utils/messagePreview";
 
 function statusIcon(status: OutgoingStatus, t: (text: string) => string) {
   const { icon, color, title } = getStatusPresentation(status);

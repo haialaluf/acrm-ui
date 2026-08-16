@@ -1110,5 +1110,11 @@
   "More emoji": "Mais emojis",
   "Your organization": "Sua organização",
   "Reactions aren't available on this message": "As reações não estão disponíveis nesta mensagem",
-  "You": "Você"
+  "You": "Você",
+  "Reply": "Responder",
+  "Original message": "Mensagem original",
+  "Cancel reply": "Cancelar resposta",
+  "Message actions": "Ações da mensagem",
+  "Replies are not supported on this channel": "As respostas não são compatíveis com este canal",
+  "Replies aren't available on this message": "As respostas não estão disponíveis nesta mensagem"
 }

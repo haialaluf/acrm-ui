@@ -17,6 +17,8 @@ import { useCurrentAgent } from "@/queries/useAgents";
 import { moveCursorToEnd } from "@/utils/UtilityFunctions";
 import { htmlToMarkdown } from "@/utils/htmlToMarkdown";
 import { useActiveConversation } from "@/hooks/useThread";
+import QuotedMessage from "@/components/Message/QuotedMessage";
+import { channelMessageId } from "@/utils/messageRefs";
 
 const FilePreviewer = () => {
   const { translate: t } = useTranslation();
@@ -41,6 +43,22 @@ const FilePreviewer = () => {
   );
   const sendAsContact = useBoundStore((store) => store.ui.sendAsContact);
   const setMediaLoad = useBoundStore((store) => store.chat.setMediaLoad);
+
+  /* A reply started in the composer survives attaching a file — WhatsApp keeps
+     the quote and hangs it on the first attachment of the batch. */
+  const replyTargetId = useBoundStore((store) =>
+    store.chat.replyDrafts.get(store.ui.activeThreadKey || ""),
+  );
+  const replyTarget = useBoundStore((store) =>
+    replyTargetId
+      ? store.chat.messages
+          .get(store.ui.activeThreadKey || "")
+          ?.get(replyTargetId)
+      : undefined,
+  );
+  const setThreadReplyDraft = useBoundStore(
+    (store) => store.chat.setThreadReplyDraft,
+  );
 
   const [previewIndex, setPreviewIndex] = useState(0);
 
@@ -150,7 +168,12 @@ const FilePreviewer = () => {
     // If the conv has the `updated_at` unset, it means it has not been pushed to the DB yet.
     !conv.updated_at && (await pushConversationToDb(conv));
 
-    for (const draft of drafts) {
+    // The endpoint's id, not our storage key — see channelMessageId.
+    const re_message_id = replyTarget
+      ? channelMessageId(replyTarget)
+      : undefined;
+
+    for (const [index, draft] of drafts.entries()) {
       const fileKind = isImage(draft.file.type) ? "image" : "document";
 
       const record = newMessage(
@@ -167,6 +190,8 @@ const FilePreviewer = () => {
             size: draft.file.size,
           },
           text: draft.caption, // caption
+          // Only the first of a batch quotes; the rest ride along behind it.
+          ...(index === 0 && re_message_id && { re_message_id }),
         },
         agentId,
         draft.file,
@@ -182,6 +207,7 @@ const FilePreviewer = () => {
     }
 
     setThreadTextDraft(activeThreadKey, "");
+    setThreadReplyDraft(activeThreadKey, null);
     (conv.extra as any)?.draft && saveDraft(conv, "", sendAsContact);
     resetFiles();
   };
@@ -244,8 +270,16 @@ const FilePreviewer = () => {
         </div>
 
         {/* Caption input */}
-        <div className="shrink-0 py-[8px] mx-[16px] md:mx-[80px] flex justify-center items-center">
-          <div className="relative grow max-w-[650px]">
+        <div className="shrink-0 py-[8px] mx-[16px] md:mx-[80px] flex flex-col justify-center items-center">
+          {!!replyTargetId && (
+            <div className="w-full max-w-[650px] mb-[6px] p-[4px] rounded-lg bg-incoming-chat-bubble">
+              <QuotedMessage
+                message={replyTarget}
+                onClose={() => setThreadReplyDraft(activeThreadKey || "", null)}
+              />
+            </div>
+          )}
+          <div className="relative grow w-full max-w-[650px]">
             <div
               ref={editableDiv}
               contentEditable

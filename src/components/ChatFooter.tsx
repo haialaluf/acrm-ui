@@ -18,6 +18,8 @@ import TemplatePicker from "./TemplatePicker";
 import DisabledSection from "./DisabledSection";
 import { useActiveConversation } from "@/hooks/useThread";
 import { useCSWindow } from "@/hooks/useCSWindow";
+import QuotedMessage from "./Message/QuotedMessage";
+import { channelMessageId } from "@/utils/messageRefs";
 
 export default function ChatFooter() {
   const activeThreadKey = useBoundStore((store) => store.ui.activeThreadKey);
@@ -35,6 +37,23 @@ export default function ChatFooter() {
   );
   const setMessage = (message: string) =>
     setThreadTextDraft(activeThreadKey || "", message);
+
+  /* The pending reply is held as our own uuid; the row it names is resolved
+     here, both to draw the quote and to read the channel id off at send time. */
+  const replyTargetId = useBoundStore((store) =>
+    store.chat.replyDrafts.get(store.ui.activeThreadKey || ""),
+  );
+  const replyTarget = useBoundStore((store) =>
+    replyTargetId
+      ? store.chat.messages
+          .get(store.ui.activeThreadKey || "")
+          ?.get(replyTargetId)
+      : undefined,
+  );
+  const setThreadReplyDraft = useBoundStore(
+    (store) => store.chat.setThreadReplyDraft,
+  );
+  const clearReplyDraft = () => setThreadReplyDraft(activeThreadKey || "", null);
 
   const fileDrafts = useBoundStore((store) =>
     store.chat.fileDrafts.get(store.ui.activeThreadKey || ""),
@@ -87,6 +106,15 @@ export default function ChatFooter() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeThreadKey, fileDrafts]);
 
+  // Picking Reply hands the composer the turn, the way it does in WhatsApp.
+  useEffect(() => {
+    if (!replyTargetId || !editableDiv.current) return;
+
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      moveCursorToEnd(editableDiv.current);
+    }
+  }, [replyTargetId]);
+
   // Set send as contact
   useEffect(() => {
     if (!activeThreadKey || !conv) {
@@ -133,6 +161,12 @@ export default function ChatFooter() {
     // If the conv has the `updated_at` unset, it means it has not been pushed to the DB yet.
     !conv.updated_at && (await pushConversationToDb(conv));
 
+    // The endpoint's id, not our storage key — see channelMessageId. A target
+    // that cannot produce one is not offered a Reply in the first place.
+    const re_message_id = replyTarget
+      ? channelMessageId(replyTarget)
+      : undefined;
+
     const record = newMessage(
       conv,
       sendAsContact ? "incoming" : "outgoing",
@@ -141,6 +175,7 @@ export default function ChatFooter() {
         type: "text",
         kind: "text",
         text: message,
+        ...(re_message_id && { re_message_id }),
       },
       agentId,
     );
@@ -149,6 +184,7 @@ export default function ChatFooter() {
     await pushMessageToDb(record);
 
     setMessage("");
+    clearReplyDraft();
     // TODO: optimization: combine with the updateConvExtra call - cabra 2025-01-16
     draft && saveDraft(conv, "", sendAsContact);
 
@@ -167,6 +203,14 @@ export default function ChatFooter() {
     conv && (
       <div className="relative mx-[12px] mb-[calc(12px+env(safe-area-inset-bottom))] mt-[4px] lg:mt-[0px] z-10">
         {templatePicker && <TemplatePicker />}
+        {/* The bar carries the composer's own surface colour rather than the
+            translucent tint the in-bubble quote uses — out here it sits on the
+            chat wallpaper, where a tint would barely read. */}
+        {!!replyTargetId && (
+          <div className="mb-[6px] p-[4px] rounded-[12px] bg-incoming-chat-bubble shadow-[0_0_4px_0px_rgba(0,0,0,0.1)]">
+            <QuotedMessage message={replyTarget} onClose={clearReplyDraft} />
+          </div>
+        )}
         <DisabledSection
           disabled={isRemoved}
           description={t("This contact asked to be removed")}
@@ -242,7 +286,10 @@ export default function ChatFooter() {
                   }
                 }}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter" && event.ctrlKey) {
+                  if (event.key === "Escape" && replyTargetId) {
+                    event.preventDefault();
+                    clearReplyDraft();
+                  } else if (event.key === "Enter" && event.ctrlKey) {
                     // toggle("sendAsContact") is handled at window level, nonetheless this
                     // no-op block prevents from sending the message when pressing ctrl+enter
                   } else if (

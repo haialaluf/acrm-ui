@@ -8,7 +8,7 @@ import {
   pushMessageToDb,
   pushMessageToStore,
 } from "./MessageUtils";
-import { whatsappMessageId } from "./wamid";
+import { channelKey, channelMessageId } from "./messageRefs";
 
 /** The emoji offered in the quick bar, in WhatsApp's own order. */
 export const QUICK_REACTIONS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
@@ -45,38 +45,7 @@ function reactorKey(m: MessageRow): string {
 }
 
 /**
- * The key a reaction and its target agree on.
- *
- * Both hold a channel id, but not always in the same shape: an incoming
- * reaction's `re_message_id` is the raw WAMID Meta sent, while the outgoing
- * message it points at is stored under the bare id (see utils/wamid.ts). Left
- * unnormalized, a contact reacting to a message we sent correlates with
- * nothing. `whatsappMessageId` is idempotent and passes through ids it cannot
- * parse, so running *both* sides through it is safe on every id form —
- * Instagram `mid`s included.
- */
-export function reactionKey(id: string): string {
-  return whatsappMessageId(id);
-}
-
-/**
- * The id the channel's reaction endpoint expects for a target message.
- *
- * Not the same thing as `reactionKey`: correlating our own rows can use either
- * form as long as both sides agree, but Meta only accepts the full WAMID.
- */
-export function reactionTargetId(target: MessageRow): string | undefined {
-  // Incoming rows keep the raw channel id, which is already what it wants.
-  if (target.direction !== "outgoing") return target.external_id ?? undefined;
-
-  // Outgoing rows are keyed on the bare id, which Meta rejects; the raw WAMID
-  // is kept on the status instead. Absent on anything sent before the API
-  // started keeping it, and unbackfillable — the caller has to handle that.
-  return target.status.wamid;
-}
-
-/**
- * Current reactions of a thread, keyed by `reactionKey` of the message they
+ * Current reactions of a thread, keyed by `channelKey` of the message they
  * point at — `re_message_id` holds the channel's id (a WhatsApp WAMID or an
  * Instagram `mid`), never our uuid.
  *
@@ -95,7 +64,7 @@ export function indexReactions(
     if (!isReactionRow(m)) continue;
 
     const targetId = m.content.re_message_id
-      ? reactionKey(m.content.re_message_id)
+      ? channelKey(m.content.re_message_id)
       : undefined;
     if (!targetId) continue;
 
@@ -149,7 +118,7 @@ export async function toggleReaction({
 }) {
   // The endpoint's id, not our storage key: sending the bare id is exactly the
   // bug that made reactions to our own messages render here and never arrive.
-  const re_message_id = reactionTargetId(target);
+  const re_message_id = channelMessageId(target);
   if (!re_message_id) return;
 
   const content: OutgoingMessage = {
