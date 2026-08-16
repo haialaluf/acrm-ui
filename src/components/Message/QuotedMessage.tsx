@@ -89,7 +89,12 @@ export default function QuotedMessage({
   return (
     <div
       className={
-        "flex items-stretch rounded-[6px] overflow-hidden bg-foreground/[0.06] min-w-[160px] max-w-full text-start" +
+        /* `wrap-anywhere` so an unbreakable token — a booking URL in the
+           preview, an address for a name — can never set this card's
+           min-content width. Inside a bubble that width is the bubble's own,
+           and the bubble is sized by its content, so a nowrap line here used to
+           push the whole message off the side of a phone screen. */
+        "flex items-stretch rounded-[6px] overflow-hidden wrap-anywhere bg-foreground/[0.06] min-w-[160px] max-w-full text-start" +
         (onClick ? " cursor-pointer" : "") +
         (className ? " " + className : "")
       }
@@ -104,7 +109,10 @@ export default function QuotedMessage({
 
         <div className="flex items-center text-[13px] leading-[18px] text-muted-foreground">
           {mediaIcon}
-          <div className="truncate">
+          {/* `line-clamp-1` rather than `truncate`: both show one line with an
+              ellipsis, but truncate's `white-space: nowrap` makes the full text
+              this card's minimum width. */}
+          <div className="line-clamp-1">
             {message ? messagePreviewText(message, mediaPreviewContent) : ""}
           </div>
         </div>

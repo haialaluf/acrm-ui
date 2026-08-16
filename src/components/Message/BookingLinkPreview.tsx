@@ -32,7 +32,12 @@ export default function BookingLinkPreview({ url }: { url: string }) {
       href={url}
       target="_blank"
       rel="noreferrer"
-      className="mb-[1px] flex w-[320px] max-w-full gap-[10px] rounded-md px-[10px] pt-[10px] pb-[3px] bg-black/5 dark:bg-white/5 text-foreground"
+      /* `w-full max-w-[320px]`, not `w-[320px] max-w-full`: the bubble is sized
+         by its content, so a percentage max-width on a child is ignored while
+         that size is computed and the fixed 320px forced the bubble wider than
+         the row it lives in — off the side of a phone screen. This way the card
+         asks for the bubble's width and caps itself at the 320px it wants. */
+      className="mb-[1px] flex w-full max-w-[320px] gap-[10px] rounded-md px-[10px] pt-[10px] pb-[3px] bg-black/5 dark:bg-white/5 text-foreground"
     >
       <img
         src={OG_IMAGE}

@@ -309,8 +309,12 @@ function Avatar({
 const msgRowClasses = "lg:px-[63px] px-[24px] flex";
 const avatarMsgRowClasses = "lg:px-[calc(63px+38px)] px-[calc(24px+33px)] flex";
 
+/* `wrap-anywhere` rather than `break-words`: the break opportunities the latter
+   introduces are ignored when a box's min-content width is computed, so one long
+   unbreakable token — a booking URL is the usual one — pushed the bubble past
+   its max-width and, with it, the whole list sideways on a phone. */
 const msgBubbleClasses =
-  "relative rounded-lg shadow break-words text-[14.2px] leading-[19px] p-[3px]";
+  "relative rounded-lg shadow wrap-anywhere text-[14.2px] leading-[19px] p-[3px]";
 
 const textMsgMaxWidth = " max-w-[90%] lg:max-w-[65%]";
 
