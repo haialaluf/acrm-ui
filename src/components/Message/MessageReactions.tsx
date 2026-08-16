@@ -1,5 +1,7 @@
+import { Fragment } from "react";
 import { Tooltip } from "antd";
-import { useAgent } from "@/queries/useAgents";
+import { useAgent, useCurrentAgent } from "@/queries/useAgents";
+import { useContactByAddress } from "@/queries/useContacts";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { Reaction } from "@/utils/reactions";
 
@@ -9,11 +11,9 @@ const chipClasses =
 /** One emoji and everyone who used it — WhatsApp shows "❤️ 2", not "❤️ ❤️". */
 type ReactionGroup = {
   emoji: string;
-  count: number;
-  /** Set when the organization is one of the reactors: its chip toggles off. */
-  agentId: string | null;
+  reactors: Reaction[];
+  /** Whether the organization is one of them: only then is the chip removable. */
   mine: boolean;
-  at: string;
 };
 
 function groupByEmoji(reactions: Reaction[]): ReactionGroup[] {
@@ -25,47 +25,71 @@ function groupByEmoji(reactions: Reaction[]): ReactionGroup[] {
     if (!group) {
       groups.set(reaction.emoji, {
         emoji: reaction.emoji,
-        count: 1,
-        agentId: reaction.side === "org" ? reaction.agentId : null,
+        reactors: [reaction],
         mine: reaction.side === "org",
-        at: reaction.at,
       });
       continue;
     }
 
-    group.count += 1;
+    group.reactors.push(reaction);
+    group.mine ||= reaction.side === "org";
+  }
 
-    if (reaction.side === "org") {
-      group.agentId = reaction.agentId;
-      group.mine = true;
-    }
+  // The organization reads first, the way WhatsApp puts "You" at the top of a
+  // reaction list.
+  for (const group of groups.values()) {
+    group.reactors.sort(
+      (a, b) => (a.side === "org" ? 0 : 1) - (b.side === "org" ? 0 : 1),
+    );
   }
 
   return [...groups.values()];
 }
 
-/** A chip the organization is part of: labelled with the agent, click to undo. */
-function OrgChip({
-  group,
-  onRemove,
-}: {
-  group: ReactionGroup;
-  onRemove?: () => void;
-}) {
+/* Each name resolves in its own component so every one of them makes exactly
+   one hook call. Resolving a variable-length list inline would mean a varying
+   number of hooks in a single component. */
+
+function AgentName({ agentId }: { agentId: string }) {
+  const { data: agent } = useAgent(agentId);
+
+  return <>{agent?.name || "?"}</>;
+}
+
+function ContactName({ address }: { address: string }) {
+  const { data: contact } = useContactByAddress(address);
+
+  return <>{contact?.name || address}</>;
+}
+
+/** Who reacted with this emoji, in the order the chip lists them. */
+function Reactors({ group }: { group: ReactionGroup }) {
   const { translate: t } = useTranslation();
-  const { data: agent } = useAgent(group.agentId!);
+  const { data: currentAgent } = useCurrentAgent();
 
   return (
-    <Tooltip title={agent?.name || t("Your organization")}>
-      <button
-        type="button"
-        className={chipClasses + (onRemove ? " cursor-pointer" : "")}
-        onClick={onRemove}
-      >
-        {group.emoji}
-        {group.count > 1 && <span>{group.count}</span>}
-      </button>
-    </Tooltip>
+    <>
+      {group.reactors.map((reactor, index) => (
+        <Fragment key={reactor.side + (reactor.agentId ?? reactor.at)}>
+          {index > 0 && ", "}
+          {reactor.side === "contact" ? (
+            reactor.contactAddress ? (
+              <ContactName address={reactor.contactAddress} />
+            ) : (
+              t("Contact")
+            )
+          ) : !reactor.agentId ? (
+            t("Your organization")
+          ) : reactor.agentId === currentAgent?.id ? (
+            // Your own reaction reads as "You" rather than your own name, which
+            // is what tells the two chips apart at a glance.
+            t("You")
+          ) : (
+            <AgentName agentId={reactor.agentId} />
+          )}
+        </Fragment>
+      ))}
+    </>
   );
 }
 
@@ -100,30 +124,24 @@ export default function MessageReactions({
         (align === "end" ? "justify-end" : "justify-start")
       }
     >
-      {groups.map((group) =>
-        group.mine && group.agentId ? (
-          <OrgChip
-            key={group.emoji}
-            group={group}
-            onRemove={onRemove && (() => onRemove(group.emoji))}
-          />
-        ) : (
-          <button
-            key={group.emoji}
-            type="button"
-            disabled={!group.mine || !onRemove}
-            className={
-              chipClasses + (group.mine && onRemove ? " cursor-pointer" : "")
-            }
-            onClick={
-              group.mine && onRemove ? () => onRemove(group.emoji) : undefined
-            }
-          >
-            {group.emoji}
-            {group.count > 1 && <span>{group.count}</span>}
-          </button>
-        ),
-      )}
+      {groups.map((group) => {
+        const removable = group.mine && !!onRemove;
+
+        return (
+          <Tooltip key={group.emoji} title={<Reactors group={group} />}>
+            <button
+              type="button"
+              className={chipClasses + (removable ? " cursor-pointer" : "")}
+              onClick={removable ? () => onRemove(group.emoji) : undefined}
+            >
+              {group.emoji}
+              {group.reactors.length > 1 && (
+                <span>{group.reactors.length}</span>
+              )}
+            </button>
+          </Tooltip>
+        );
+      })}
     </div>
   );
 }

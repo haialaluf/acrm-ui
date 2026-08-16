@@ -18,13 +18,16 @@ export const QUICK_REACTIONS = ["👍", "❤️", "😂", "😮", "😢", "🙏"
  *
  * `side` is the reacting party as the *channel* sees it: the organization
  * shares a single WhatsApp number, so every agent reacts as one participant and
- * a second agent's reaction replaces the first upstream. `agentId` says which
- * agent it was, for the tooltip only.
+ * a second agent's reaction replaces the first upstream. `agentId` and
+ * `contactAddress` name the reactor behind that side — whichever one applies —
+ * and are used to label the chip.
  */
 export type Reaction = {
   emoji: string;
   side: "contact" | "org";
   agentId: string | null;
+  /** Set on the contact side; group threads have one per participant. */
+  contactAddress: string | null;
   at: string;
 };
 
@@ -108,6 +111,7 @@ export function indexReactions(
       emoji,
       side: m.direction === "incoming" ? "contact" : "org",
       agentId: m.agent_id,
+      contactAddress: m.direction === "incoming" ? m.contact_address : null,
       at: m.timestamp,
     });
     byTarget.set(targetId, reactions);
