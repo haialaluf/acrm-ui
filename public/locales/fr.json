@@ -1082,6 +1082,7 @@
   "Original message": "Message d'origine",
   "Cancel reply": "Annuler la réponse",
   "Message actions": "Actions du message",
+  "React": "Réagir",
   "Replies are not supported on this channel": "Les réponses ne sont pas prises en charge sur ce canal",
   "Replies aren't available on this message": "Les réponses ne sont pas disponibles sur ce message"
 }

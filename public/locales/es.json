@@ -1158,6 +1158,7 @@
   "Original message": "Mensaje original",
   "Cancel reply": "Cancelar respuesta",
   "Message actions": "Acciones del mensaje",
+  "React": "Reaccionar",
   "Replies are not supported on this channel": "Las respuestas no son compatibles con este canal",
   "Replies aren't available on this message": "Las respuestas no están disponibles en este mensaje"
 }
