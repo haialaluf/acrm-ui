@@ -19,6 +19,20 @@ const DEFAULT_WIDTH = 600;
 const DEFAULT_FONT = "Helvetica";
 const DEFAULT_BODY_BG = "#ffffff";
 
+/**
+ * The gap between the design and the edge of the paper.
+ *
+ * Exported because MailyCanvas insets its editing surface by exactly this much:
+ * the builder has always drawn the design with breathing room, so a render that
+ * inset it by nothing produced an email whose every line sat flush against the
+ * edge — the design looked one way while editing and another on arrival. One
+ * constant, both surfaces, no drift.
+ *
+ * The bottom is small on purpose: blocks carry a 20px bottom margin of their
+ * own, so the last one already brings most of the space under it.
+ */
+export const CONTENT_INSET = { top: 26, side: 20, bottom: 4 } as const;
+
 export async function renderMaily(
   content: JSONContent | null,
   {
@@ -63,17 +77,23 @@ export async function renderMaily(
     },
     // "Content" in SetupTab — the paper the design sits on.
     //
-    // Maily's own container padding (0.5rem all round) is zeroed: it insets the
-    // design by an amount nothing in the builder shows and nothing in SetupTab
-    // controls. Blocks bring their own spacing, and a design that wants a
-    // margin can say so with a section.
+    // Maily's own container padding (0.5rem all round) is replaced with the
+    // builder's inset rather than zeroed: what the canvas shows is the whole
+    // promise this screen makes, and the canvas has always drawn a 20px gutter.
+    //
+    // `boxSizing` matters as much as the padding. SetupTab's Width names the
+    // paper, and the editor's card is that width with the gutter drawn inside
+    // it; content-box would make the table `width + 2 * side` instead — wider
+    // than the number the user typed, and, since Maily also sets `width: 100%`
+    // here, wide enough to overflow a phone screen sideways.
     container: {
       maxWidth: `${extra.width ?? DEFAULT_WIDTH}px`,
       backgroundColor: extra.bodyBg ?? DEFAULT_BODY_BG,
-      paddingTop: "0",
-      paddingRight: "0",
-      paddingBottom: "0",
-      paddingLeft: "0",
+      boxSizing: "border-box",
+      paddingTop: `${CONTENT_INSET.top}px`,
+      paddingRight: `${CONTENT_INSET.side}px`,
+      paddingBottom: `${CONTENT_INSET.bottom}px`,
+      paddingLeft: `${CONTENT_INSET.side}px`,
     },
     // The surround behind the container gets the SAME colour, deliberately: it
     // is the one thing the builder cannot draw. The canvas is a card the width

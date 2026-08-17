@@ -40,6 +40,7 @@ import {
   toMailyVariables,
   VariablesProvider,
 } from "./mailyVariables";
+import { CONTENT_INSET } from "./renderMaily";
 import { complianceFooter } from "./renderTemplate";
 
 /** How long the document has to sit still before it is written.
@@ -168,11 +169,16 @@ export default function MailyCanvas({
           }}
           dir={dir}
         >
+          {/* The gutter comes from `CONTENT_INSET`, the same constant the render
+              pads the container with, because this inset is part of the email
+              rather than editor chrome: hard-coded here, it made the canvas show
+              breathing room the recipient never got. */}
           <div
-            className="maily-surface rounded-[8px] p-[26px_20px_4px] text-[#2b312d]"
+            className="maily-surface rounded-[8px] text-[#2b312d]"
             style={{
               background: extra.bodyBg ?? "#ffffff",
               fontFamily: `${extra.font ?? "Helvetica"}, Arial, sans-serif`,
+              padding: `${CONTENT_INSET.top}px ${CONTENT_INSET.side}px ${CONTENT_INSET.bottom}px`,
             }}
           >
             <VariablesProvider value={variables}>
