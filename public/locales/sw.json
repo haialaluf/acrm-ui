@@ -720,7 +720,7 @@
   "You're requesting Utility, but Meta's automated review reads your message content and assigns the category itself. If it decides this looks promotional, the template is approved as Marketing.": "Unaomba Manufaa, lakini ukaguzi otomatiki wa Meta husoma maudhui ya ujumbe wako na kuweka aina wenyewe. Ikiamua kuwa hii inaonekana ya matangazo, kiolezo huidhinishwa kama Masoko.",
   "Utility templates must relate to something the customer already has: an order, a booking, an account, or a payment. Offers, promotions and general updates count as Marketing.": "Violezo vya Manufaa lazima vihusiane na kitu ambacho mteja tayari anacho: agizo, nafasi iliyowekwa, akaunti au malipo. Ofa, matangazo na taarifa za jumla huhesabiwa kama Masoko.",
   "Meta can also re-categorise a template later, after it has been approved.": "Meta pia inaweza kubadilisha aina ya kiolezo baadaye, baada ya kuidhinishwa.",
-  "Account health": "Afya ya akaunti",
+  "WhatsApp account health": "Afya ya akaunti ya WhatsApp",
   "Account": "Akaunti",
   "Account review": "Ukaguzi wa akaunti",
   "Business verification": "Uthibitisho wa biashara",

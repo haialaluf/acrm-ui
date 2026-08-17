@@ -801,7 +801,7 @@
   "You're requesting Utility, but Meta's automated review reads your message content and assigns the category itself. If it decides this looks promotional, the template is approved as Marketing.": "Estás solicitando Utilidad, pero la revisión automática de Meta lee el contenido de tu mensaje y asigna la categoría por su cuenta. Si considera que esto parece promocional, la plantilla se aprueba como Promoción.",
   "Utility templates must relate to something the customer already has: an order, a booking, an account, or a payment. Offers, promotions and general updates count as Marketing.": "Las plantillas de Utilidad deben estar relacionadas con algo que el cliente ya tiene: un pedido, una reserva, una cuenta o un pago. Las ofertas, promociones y novedades generales cuentan como Promoción.",
   "Meta can also re-categorise a template later, after it has been approved.": "Meta también puede recategorizar una plantilla más adelante, después de haber sido aprobada.",
-  "Account health": "Estado de la cuenta",
+  "WhatsApp account health": "Estado de la cuenta de WhatsApp",
   "Account": "Cuenta",
   "Account review": "Revisión de la cuenta",
   "Business verification": "Verificación comercial",

@@ -68,7 +68,7 @@ function StatsLayout() {
           className={activeTab === "usage" ? "bg-accent" : ""}
         />
         <SectionItem
-          title={t("Account health")}
+          title={t("WhatsApp account health")}
           aside={
             <div
               className={`p-[8px] rounded-full ${activeTab === "health" ? "bg-primary/10" : ""}`}

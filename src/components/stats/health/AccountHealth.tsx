@@ -107,7 +107,7 @@ export default function AccountHealth() {
     <div className="@container flex flex-col gap-[14px] p-[24px] max-w-[1200px] mx-auto w-full">
       <header className="flex items-end justify-between gap-[16px] flex-wrap">
         <div className="min-w-0">
-          <h2 className="text-[20px] font-medium">{t("Account health")}</h2>
+          <h2 className="text-[20px] font-medium">{t("WhatsApp account health")}</h2>
           <div className="flex items-center gap-[8px] text-[12.5px] mt-[4px] text-muted-foreground flex-wrap">
             <Ltr>{address}</Ltr>
             {state?.displayName && (

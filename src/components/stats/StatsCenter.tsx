@@ -32,7 +32,7 @@ export default function StatsCenter() {
           {isEmailHealth
             ? t("Email health")
             : isHealth
-              ? t("Account health")
+              ? t("WhatsApp account health")
               : isUsage
                 ? t("Usage")
                 : t("Quotas")}
