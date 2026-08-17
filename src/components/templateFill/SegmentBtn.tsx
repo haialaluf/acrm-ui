@@ -1,4 +1,4 @@
-/** One half of the "Valor fijo / Por destinatario" segmented control inside a
+/** One half of the "Fixed value / Per recipient" segmented control inside a
  *  VarCard. */
 export default function SegmentBtn({
   active,
@@ -13,7 +13,7 @@ export default function SegmentBtn({
     <button
       type="button"
       onClick={onClick}
-      className="text-[12px] px-[10px] py-[3px] rounded-full border-none cursor-pointer"
+      className="text-[12px] px-[10px] py-[3px] rounded-full border-none cursor-pointer whitespace-nowrap"
       style={{
         background: active ? "var(--background)" : "transparent",
         color: active ? "var(--foreground)" : "var(--muted-foreground)",

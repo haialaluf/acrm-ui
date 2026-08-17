@@ -1,0 +1,49 @@
+/* React Flow theming.
+ *
+ * The library ships neutral defaults; everything here is either a token swap so
+ * the canvas follows light/dark with the rest of the app, or the removal of an
+ * affordance the editor does not offer (handles are layout anchors, not
+ * connection points — nothing on this canvas is wired by hand).
+ *
+ * Scoped under .acrm-flow so none of it can reach another React Flow instance.
+ */
+
+.acrm-flow {
+  /* The diagram is a left-to-right picture of time, not of reading order.
+     Mirroring it under RTL would put the first branch on the right and read as
+     a different flow. */
+  direction: ltr;
+}
+
+.acrm-flow .react-flow__edge-path {
+  stroke: var(--flow-line);
+  stroke-width: 2;
+}
+
+.acrm-flow .react-flow__handle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.acrm-flow .react-flow__node {
+  cursor: default;
+}
+
+/* The pane is the pan surface; a node is not. */
+.acrm-flow .react-flow__pane {
+  cursor: grab;
+}
+
+.acrm-flow .react-flow__pane.dragging {
+  cursor: grabbing;
+}
+
+.acrm-flow .react-flow__attribution {
+  background: transparent;
+  padding: 0 4px;
+}
+
+.acrm-flow .react-flow__attribution a {
+  color: var(--muted-foreground);
+  font-size: 9px;
+}

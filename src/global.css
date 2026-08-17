@@ -47,6 +47,18 @@
   --success-strong: oklch(from var(--success) calc(l - 0.12) c h);
   --warning-strong: oklch(from var(--warning) calc(l - 0.28) c h);
   --destructive-strong: var(--destructive);
+
+  /* Automation step categories, matching the editor's insert menu: Messaging,
+     Timing, Logic, CRM. Same lightness and chroma as --primary with only the
+     hue varying, so four coloured tiles on one canvas read as one family
+     rather than as four unrelated brand colours. */
+  --step-messaging: oklch(0.62 0.16 152);
+  --step-timing: oklch(0.62 0.16 75);
+  --step-logic: oklch(0.62 0.16 292);
+  --step-crm: oklch(0.62 0.16 248);
+  /* Connector strokes on the flow canvas — lighter than --border, which is
+     doing edge work rather than drawing lines across open background. */
+  --flow-line: oklch(0.86 0.01 150);
 }
 
 .dark {
@@ -86,6 +98,14 @@
   --success-strong: oklch(from var(--success) calc(l + 0.06) c h);
   --warning-strong: oklch(from var(--warning) calc(l + 0.04) c h);
   --destructive-strong: oklch(from var(--destructive) calc(l + 0.08) c h);
+
+  /* Lifted to match the dark --primary, so the four step tints stay a family
+     with it here too. */
+  --step-messaging: oklch(0.7 0.15 152);
+  --step-timing: oklch(0.7 0.15 75);
+  --step-logic: oklch(0.7 0.15 292);
+  --step-crm: oklch(0.7 0.15 248);
+  --flow-line: oklch(0.4 0.02 160);
 }
 
 @theme inline {
@@ -124,6 +144,12 @@
   --color-success-strong: var(--success-strong);
   --color-warning-strong: var(--warning-strong);
   --color-destructive-strong: var(--destructive-strong);
+
+  --color-step-messaging: var(--step-messaging);
+  --color-step-timing: var(--step-timing);
+  --color-step-logic: var(--step-logic);
+  --color-step-crm: var(--step-crm);
+  --color-flow-line: var(--flow-line);
 }
 
 html,

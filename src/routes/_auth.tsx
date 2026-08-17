@@ -72,6 +72,14 @@ function AppLayout() {
   // vendor's sidebar) and has no use for a center panel, so it takes the whole
   // width to the right of the menu instead of living in the left panel.
   const isEmailBuilderRoute = /^\/templates\/email\/[^/]+$/.test(pathname);
+  // An open automation (`/automations/<id>`) is a canvas plus its own config
+  // drawer — the same two-column app shape the email builder has, and with the
+  // same lack of anything to put in a center panel. The list at
+  // `/automations` stays an ordinary left-panel page.
+  const isAutomationEditorRoute = /^\/automations\/[^/]+$/.test(pathname);
+  // Both full-width routes get identical layout treatment; kept as one flag so
+  // the four places below cannot drift apart.
+  const isFullWidthRoute = isEmailBuilderRoute || isAutomationEditorRoute;
 
   const [isHoveringFiles, setIsHoveringFiles] = useState(false);
 
@@ -119,13 +127,13 @@ function AppLayout() {
       isCalendarBoardRoute ||
       isBroadcastDetailRoute) &&
     !isTemplateEditorRoute &&
-    !isEmailBuilderRoute;
+    !isFullWidthRoute;
 
   return (
     <div
       className={"app-grid" + (isResizing ? "" : " animate-columns")}
       style={
-        isEmailBuilderRoute
+        isFullWidthRoute
           ? // Two columns: the menu, then the builder across the rest. The
             // third track is collapsed rather than removed so the grid keeps
             // animating between shapes instead of snapping.
@@ -145,14 +153,14 @@ function AppLayout() {
         className={
           "flex-col overflow-hidden border-border bg-background text-foreground col-span-2 md:col-span-1 relative " +
           // No divider when this column is the last one on screen.
-          (isEmailBuilderRoute ? "" : "md:border-r ") +
+          (isFullWidthRoute ? "" : "md:border-r ") +
           (showCenterPanel ? "hidden md:flex" : "flex")
         }
       >
         <Outlet />
-        {/* Resize Handle — the email builder owns its whole column, so there is
-            no boundary to drag. */}
-        {!isEmailBuilderRoute && (
+        {/* Resize Handle — a full-width route (email builder, automation
+            editor) owns its whole column, so there is no boundary to drag. */}
+        {!isFullWidthRoute && (
           <div className="resize-handle z-[60]" onMouseDown={handleMouseDown} />
         )}
       </div>
@@ -161,7 +169,7 @@ function AppLayout() {
       <div
         className={
           "flex-col min-w-0 relative overflow-hidden col-span-full md:col-span-1" +
-          (isEmailBuilderRoute
+          (isFullWidthRoute
             ? // Its column is 0px wide; keep it out of the layout entirely so a
               // stray open conversation cannot paint a sliver beside the canvas.
               " hidden"

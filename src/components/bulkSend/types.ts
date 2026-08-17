@@ -1,8 +1,8 @@
 import {
   type ContactWithAddressesRow,
-  type EmailTemplateVariable,
   type TemplateData,
 } from "@/supabase/client";
+import * as fill from "@/components/templateFill/types";
 import { contactPhone } from "@/utils/ContactAddressUtils";
 
 /* Shared types, constants, and pure helpers for the bulk-send wizard. */
@@ -257,44 +257,32 @@ export function immediateCount<T>(
   );
 }
 
-/** One template variable's substitution rule. */
-export type VarValue =
-  | { mode: "static"; static: string }
-  | { mode: "field"; field: ContactField };
+/* The variable model itself lives in components/templateFill — the automation
+   editor fills the same templates through the same cards, and a second copy of
+   it here is exactly how the two screens drifted apart. What stays local is the
+   broadcast's own vocabulary: a fixed contact-field enum, resolved against a
+   contact row this wizard already holds. */
 
 export type ContactField = "name" | "surname" | "email" | "phone";
-export type Scope = "head" | "body";
 
-/** Media header formats. A template whose HEADER is one of these requires a
- *  mandatory media file (an image/video/document link) supplied at send time —
- *  the header is fixed content, not a per-recipient text variable. */
-export type HeaderMediaFormat = "IMAGE" | "VIDEO" | "DOCUMENT";
+/** One template variable's substitution rule, over the contact fields a
+ *  broadcast can resolve. */
+export type VarValue = fill.VarBinding<ContactField>;
+
+export type { HeaderMediaFormat, Scope } from "@/components/templateFill/types";
+export { countVars, isValidMediaUrl } from "@/components/templateFill/types";
 
 /** The template's header media format, or `null` for a text/no header. */
 export function headerMediaFormat(
   template: TemplateData,
-): HeaderMediaFormat | null {
-  const head = template.components.find((c) => c.type === "HEADER");
-  if (head && head.format !== "TEXT") {
-    return head.format as HeaderMediaFormat;
-  }
-  return null;
+): fill.HeaderMediaFormat | null {
+  return fill.headerMediaFormat(template.components);
 }
 
 /** The sample media URL Meta returns with an approved media-header template,
  *  used to prefill the input so the user can send the template's own sample. */
 export function headerMediaExample(template: TemplateData): string | undefined {
-  const head = template.components.find((c) => c.type === "HEADER");
-  return head?.example?.header_handle?.[0];
-}
-
-/** WhatsApp fetches header media from a public URL (`link`), so only http(s)
- *  URLs are accepted. The dispatcher forwards template payloads to Meta
- *  verbatim — it does not upload header media — so a private/internal URI would
- *  fail to deliver. */
-export function isValidMediaUrl(url: string): boolean {
-  const u = url.trim();
-  return /^https?:\/\/\S+$/i.test(u);
+  return fill.headerMediaExample(template.components);
 }
 
 export const FIELD_OPTIONS: { id: ContactField; label: string }[] = [
@@ -311,10 +299,6 @@ export const STEP_FOR: Partial<Record<Stage, number>> = {
   variables: 3,
   review: 4,
 };
-
-export function countVars(text: string | undefined) {
-  return (text?.match(/\{\{\d+\}\}/g) || []).length;
-}
 
 export function initVars(
   headN: number,
@@ -346,7 +330,7 @@ export function resolveVar(v: VarValue, c: ContactWithAddressesRow): string {
 /** Fill {{N}} in `text` using the variable map (scope = head/body). */
 export function fillTemplate(
   text: string | undefined,
-  scope: Scope,
+  scope: fill.Scope,
   vars: Record<string, VarValue>,
   c: ContactWithAddressesRow,
 ): string {
@@ -375,37 +359,15 @@ export function fillTemplate(
  * only thing it can change is the FALLBACK — which is genuinely per-send ("Hi
  * {{1}}" wants "there" on a newsletter and "valued customer" on an invoice) and
  * is the one field a `custom` slot depends on entirely.
- */
-
-/** Per-send fallback overrides, keyed by slot number. Absent = use the
- *  template's stored fallback. */
-export type EmailVarOverrides = Record<number, string>;
-
-/** The template's bindings with this send's fallbacks applied — the array that
- *  gets snapshotted onto the message. */
-export function applyEmailOverrides(
-  variables: EmailTemplateVariable[],
-  overrides: EmailVarOverrides,
-): EmailTemplateVariable[] {
-  return variables.map((v) =>
-    overrides[v.n] === undefined ? v : { ...v, fallback: overrides[v.n] }
-  );
-}
-
-/**
- * Slots that would render as an empty string for every recipient.
  *
- * A `custom` slot has no contact field by definition, so an empty fallback is
- * not a graceful degradation — it is a hole in every copy of the email. Those
- * block the step. A field-backed slot with an empty fallback only affects the
- * contacts missing that field, which the preview already flags in amber, so it
- * is left as a warning rather than a gate.
+ * That editor and its helpers live with the shared card in
+ * components/templateFill/EmailVarsEditor — an automation's send-email step asks
+ * for the same overrides — and are re-exported here so the wizard's own modules
+ * keep importing everything about a send from one place.
  */
-export function unfilledEmailVars(
-  variables: EmailTemplateVariable[],
-  overrides: EmailVarOverrides,
-): number[] {
-  return applyEmailOverrides(variables, overrides)
-    .filter((v) => v.field === "custom" && !v.fallback.trim())
-    .map((v) => v.n);
-}
+
+export type { EmailVarOverrides } from "@/components/templateFill/EmailVarsEditor";
+export {
+  applyEmailOverrides,
+  unfilledEmailVars,
+} from "@/components/templateFill/EmailVarsEditor";

@@ -182,7 +182,9 @@ function BulkSend() {
   const [emailTemplateId, setEmailTemplateId] = useState<string | null>(null);
   // The list only carries summaries; the compiled HTML the preview and the send
   // both need lives on the detail row.
-  const { data: emailTemplate } = useEmailTemplate(emailTemplateId ?? undefined);
+  const { data: emailTemplate } = useEmailTemplate(
+    emailTemplateId ?? undefined,
+  );
   const [emailVars, setEmailVars] = useState<EmailVarOverrides>({});
   // Signed URL for a template's mandatory media header (image/video/document),
   // plus the picked file's name for display only. Empty when the chosen
@@ -606,9 +608,7 @@ function BulkSend() {
       case "review":
         return {
           title: t("Preview and send"),
-          subtitle: `${recipients.length} ${t(
-            "recipients",
-          )} · ${templateName}`,
+          subtitle: `${recipients.length} ${t("recipients")} · ${templateName}`,
           step,
           showProgress: true,
         };
@@ -708,6 +708,7 @@ function BulkSend() {
           setVars={setVars}
           headerMedia={headerMedia}
           headerMediaName={headerMediaName}
+          headerMediaSize={headerMediaSize}
           setHeaderMedia={pickHeaderMedia}
           onNext={() => setStage("review")}
         />
@@ -722,61 +723,62 @@ function BulkSend() {
         />
       )}
 
-      {stage === "review" && (channel === "email" ? emailTemplate : template) && (
-        <ReviewStep
-          channel={channel}
-          template={template ?? undefined}
-          email={
-            channel === "email" && emailTemplate
-              ? {
-                  template: emailTemplate,
-                  variables: applyEmailOverrides(
-                    emailTemplate.variables,
-                    emailVars,
-                  ),
-                  from: emailFrom,
-                }
-              : undefined
-          }
-          vars={vars}
-          headerMedia={headerMedia}
-          headerMediaName={headerMediaName}
-          headerMediaSize={headerMediaSize}
-          recipients={recipients}
-          onRemove={(id) => {
-            const next = new Set(selectedIds);
-            next.delete(id);
-            setSelectedIds(next);
-          }}
-          scheduling={scheduling}
-          setScheduling={setScheduling}
-          scheduledAt={scheduledAt}
-          setScheduledAt={setScheduledAt}
-          onSend={send}
-          dailyLimit={dailyLimit}
-          tier={messagingLimit?.tier}
-          batches={batches}
-          batchSchedule={batchSchedule}
-          setBatchSchedule={setBatchSchedule}
-          scheduleMode={scheduleMode}
-          setScheduleMode={setScheduleMode}
-          booking={
-            bookingIndex == null
-              ? undefined
-              : {
-                  calendars: (calendars ?? []).map((c) => ({
-                    id: c.id,
-                    name: c.name,
-                  })),
-                  calendarsLoading: loadingCalendars,
-                  calendarId: bookingCalendarId ?? "",
-                  setCalendarId: setPickedCalendarId,
-                  duration: bookingDuration,
-                  setDuration: setBookingDuration,
-                }
-          }
-        />
-      )}
+      {stage === "review" &&
+        (channel === "email" ? emailTemplate : template) && (
+          <ReviewStep
+            channel={channel}
+            template={template ?? undefined}
+            email={
+              channel === "email" && emailTemplate
+                ? {
+                    template: emailTemplate,
+                    variables: applyEmailOverrides(
+                      emailTemplate.variables,
+                      emailVars,
+                    ),
+                    from: emailFrom,
+                  }
+                : undefined
+            }
+            vars={vars}
+            headerMedia={headerMedia}
+            headerMediaName={headerMediaName}
+            headerMediaSize={headerMediaSize}
+            recipients={recipients}
+            onRemove={(id) => {
+              const next = new Set(selectedIds);
+              next.delete(id);
+              setSelectedIds(next);
+            }}
+            scheduling={scheduling}
+            setScheduling={setScheduling}
+            scheduledAt={scheduledAt}
+            setScheduledAt={setScheduledAt}
+            onSend={send}
+            dailyLimit={dailyLimit}
+            tier={messagingLimit?.tier}
+            batches={batches}
+            batchSchedule={batchSchedule}
+            setBatchSchedule={setBatchSchedule}
+            scheduleMode={scheduleMode}
+            setScheduleMode={setScheduleMode}
+            booking={
+              bookingIndex == null
+                ? undefined
+                : {
+                    calendars: (calendars ?? []).map((c) => ({
+                      id: c.id,
+                      name: c.name,
+                    })),
+                    calendarsLoading: loadingCalendars,
+                    calendarId: bookingCalendarId ?? "",
+                    setCalendarId: setPickedCalendarId,
+                    duration: bookingDuration,
+                    setDuration: setBookingDuration,
+                  }
+            }
+          />
+        )}
 
       {stage === "sending" && (
         <SendingStep

@@ -1,26 +1,31 @@
 import { useTranslation } from "@/hooks/useTranslation";
-import {
-  FIELD_OPTIONS,
-  type ContactField,
-  type Scope,
-  type VarValue,
-} from "./types";
+import type { FieldOption, Scope, VarBinding } from "./types";
 import SegmentBtn from "./SegmentBtn";
 
 /** Editor for one template variable: code chip + scope label + static/field
- *  segmented control + the matching input/select. */
-export default function VarCard({
+ *  segmented control + the matching input/select.
+ *
+ *  Generic over the field id so each caller keeps its own vocabulary — a
+ *  broadcast's contact-field enum, an automation's dotted paths — without this
+ *  component knowing either. */
+export default function VarCard<F extends string>({
   scope,
   num,
   value,
   example,
+  fields,
+  allowFallback = false,
   onUpdate,
 }: {
   scope: Scope;
   num: string;
-  value: VarValue;
+  value: VarBinding<F>;
   example?: string;
-  onUpdate: (patch: Partial<VarValue>) => void;
+  fields: readonly FieldOption<F>[];
+  /** Show a fallback input under the field select, for callers whose field can
+   *  resolve to nothing at send time (see `VarBinding`). */
+  allowFallback?: boolean;
+  onUpdate: (patch: Partial<VarBinding<F>>) => void;
 }) {
   const { translate: t } = useTranslation();
   const isField = value.mode === "field";
@@ -32,7 +37,7 @@ export default function VarCard({
         border: "1px solid var(--border)",
       }}
     >
-      <div className="flex items-center justify-between mb-[10px]">
+      <div className="flex flex-wrap items-center justify-between gap-[8px] mb-[10px]">
         <div className="flex items-center gap-[8px]">
           <span
             className="text-[11px] px-[6px] py-[2px] rounded-full font-mono"
@@ -71,19 +76,38 @@ export default function VarCard({
               border: "1px solid var(--border)",
             }}
             value={value.field}
-            onChange={(e) =>
-              onUpdate({ field: e.target.value as ContactField })
-            }
+            onChange={(e) => onUpdate({ field: e.target.value as F })}
           >
-            {FIELD_OPTIONS.map((f) => (
+            {fields.map((f) => (
               <option key={f.id} value={f.id}>
                 {t(f.label)}
               </option>
             ))}
           </select>
-          <div className="text-[11px] mt-[6px] text-muted-foreground">
-            {t("Will be automatically substituted with the contact's value")}
-          </div>
+          {allowFallback ? (
+            <>
+              <input
+                type="text"
+                className="w-full text-[13px] rounded-[8px] p-[8px] mt-[6px] outline-none"
+                style={{
+                  background: "var(--background)",
+                  border: "1px solid var(--border)",
+                }}
+                placeholder={t("Fallback when the contact has no value")}
+                value={value.fallback ?? ""}
+                onChange={(e) => onUpdate({ fallback: e.target.value })}
+              />
+              <div className="text-[11px] mt-[6px] text-muted-foreground">
+                {t(
+                  "The contact's own value is used when there is one; otherwise the fallback — an empty fallback leaves a gap in the message.",
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="text-[11px] mt-[6px] text-muted-foreground">
+              {t("Will be automatically substituted with the contact's value")}
+            </div>
+          )}
         </>
       ) : (
         <input

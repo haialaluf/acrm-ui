@@ -16,6 +16,7 @@ import {
   CalendarDays,
   ChevronRight,
   Megaphone,
+  Workflow,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { LinkButton } from "./LinkButton";
@@ -71,6 +72,16 @@ export default function Menu() {
           className="mt-[10px]"
         >
           <Megaphone className="w-[24px] h-[24px] stroke-[2]" />
+        </LinkButton>
+
+        {/* Automations button */}
+        <LinkButton
+          to="/automations"
+          title={t("Automations")}
+          isActive={pathname.startsWith("/automations")}
+          className="mt-[10px]"
+        >
+          <Workflow className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
 
         {/* Agents button */}

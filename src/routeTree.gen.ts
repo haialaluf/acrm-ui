@@ -25,6 +25,7 @@ import { Route as AuthConversationsIndexRouteImport } from './routes/_auth/conve
 import { Route as AuthContactsIndexRouteImport } from './routes/_auth/contacts/index'
 import { Route as AuthCalendarsIndexRouteImport } from './routes/_auth/calendars/index'
 import { Route as AuthBroadcastsIndexRouteImport } from './routes/_auth/broadcasts/index'
+import { Route as AuthAutomationsIndexRouteImport } from './routes/_auth/automations/index'
 import { Route as AuthAgentsIndexRouteImport } from './routes/_auth/agents/index'
 import { Route as OnboardWhatsappTokenRouteImport } from './routes/onboard.whatsapp.$token'
 import { Route as OnboardInstagramCallbackRouteImport } from './routes/onboard.instagram.callback'
@@ -45,6 +46,7 @@ import { Route as AuthContactsContactIdRouteImport } from './routes/_auth/contac
 import { Route as AuthCalendarsNewRouteImport } from './routes/_auth/calendars/new'
 import { Route as AuthCalendarsCalendarIdRouteImport } from './routes/_auth/calendars/$calendarId'
 import { Route as AuthBroadcastsBatchKeyRouteImport } from './routes/_auth/broadcasts/$batchKey'
+import { Route as AuthAutomationsAutomationIdRouteImport } from './routes/_auth/automations/$automationId'
 import { Route as AuthAgentsNewRouteImport } from './routes/_auth/agents/new'
 import { Route as AuthAgentsAgentIdRouteImport } from './routes/_auth/agents/$agentId'
 import { Route as AuthSettingsWebhooksIndexRouteImport } from './routes/_auth/settings/webhooks/index'
@@ -166,6 +168,11 @@ const AuthBroadcastsIndexRoute = AuthBroadcastsIndexRouteImport.update({
   path: '/broadcasts/',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthAutomationsIndexRoute = AuthAutomationsIndexRouteImport.update({
+  id: '/automations/',
+  path: '/automations/',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthAgentsIndexRoute = AuthAgentsIndexRouteImport.update({
   id: '/agents/',
   path: '/agents/',
@@ -269,6 +276,12 @@ const AuthBroadcastsBatchKeyRoute = AuthBroadcastsBatchKeyRouteImport.update({
   path: '/broadcasts/$batchKey',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthAutomationsAutomationIdRoute =
+  AuthAutomationsAutomationIdRouteImport.update({
+    id: '/automations/$automationId',
+    path: '/automations/$automationId',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthAgentsNewRoute = AuthAgentsNewRouteImport.update({
   id: '/agents/new',
   path: '/agents/new',
@@ -520,6 +533,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
   '/agents/$agentId': typeof AuthAgentsAgentIdRoute
   '/agents/new': typeof AuthAgentsNewRoute
+  '/automations/$automationId': typeof AuthAutomationsAutomationIdRoute
   '/broadcasts/$batchKey': typeof AuthBroadcastsBatchKeyRoute
   '/calendars/$calendarId': typeof AuthCalendarsCalendarIdRoute
   '/calendars/new': typeof AuthCalendarsNewRoute
@@ -540,6 +554,7 @@ export interface FileRoutesByFullPath {
   '/onboard/instagram/callback': typeof OnboardInstagramCallbackRoute
   '/onboard/whatsapp/$token': typeof OnboardWhatsappTokenRoute
   '/agents': typeof AuthAgentsIndexRoute
+  '/automations': typeof AuthAutomationsIndexRoute
   '/broadcasts': typeof AuthBroadcastsIndexRoute
   '/calendars': typeof AuthCalendarsIndexRoute
   '/contacts': typeof AuthContactsIndexRoute
@@ -597,6 +612,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthIndexRoute
   '/agents/$agentId': typeof AuthAgentsAgentIdRoute
   '/agents/new': typeof AuthAgentsNewRoute
+  '/automations/$automationId': typeof AuthAutomationsAutomationIdRoute
   '/broadcasts/$batchKey': typeof AuthBroadcastsBatchKeyRoute
   '/calendars/$calendarId': typeof AuthCalendarsCalendarIdRoute
   '/calendars/new': typeof AuthCalendarsNewRoute
@@ -617,6 +633,7 @@ export interface FileRoutesByTo {
   '/onboard/instagram/callback': typeof OnboardInstagramCallbackRoute
   '/onboard/whatsapp/$token': typeof OnboardWhatsappTokenRoute
   '/agents': typeof AuthAgentsIndexRoute
+  '/automations': typeof AuthAutomationsIndexRoute
   '/broadcasts': typeof AuthBroadcastsIndexRoute
   '/calendars': typeof AuthCalendarsIndexRoute
   '/contacts': typeof AuthContactsIndexRoute
@@ -677,6 +694,7 @@ export interface FileRoutesById {
   '/_auth/': typeof AuthIndexRoute
   '/_auth/agents/$agentId': typeof AuthAgentsAgentIdRoute
   '/_auth/agents/new': typeof AuthAgentsNewRoute
+  '/_auth/automations/$automationId': typeof AuthAutomationsAutomationIdRoute
   '/_auth/broadcasts/$batchKey': typeof AuthBroadcastsBatchKeyRoute
   '/_auth/calendars/$calendarId': typeof AuthCalendarsCalendarIdRoute
   '/_auth/calendars/new': typeof AuthCalendarsNewRoute
@@ -697,6 +715,7 @@ export interface FileRoutesById {
   '/onboard/instagram/callback': typeof OnboardInstagramCallbackRoute
   '/onboard/whatsapp/$token': typeof OnboardWhatsappTokenRoute
   '/_auth/agents/': typeof AuthAgentsIndexRoute
+  '/_auth/automations/': typeof AuthAutomationsIndexRoute
   '/_auth/broadcasts/': typeof AuthBroadcastsIndexRoute
   '/_auth/calendars/': typeof AuthCalendarsIndexRoute
   '/_auth/contacts/': typeof AuthContactsIndexRoute
@@ -757,6 +776,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agents/$agentId'
     | '/agents/new'
+    | '/automations/$automationId'
     | '/broadcasts/$batchKey'
     | '/calendars/$calendarId'
     | '/calendars/new'
@@ -777,6 +797,7 @@ export interface FileRouteTypes {
     | '/onboard/instagram/callback'
     | '/onboard/whatsapp/$token'
     | '/agents'
+    | '/automations'
     | '/broadcasts'
     | '/calendars'
     | '/contacts'
@@ -834,6 +855,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agents/$agentId'
     | '/agents/new'
+    | '/automations/$automationId'
     | '/broadcasts/$batchKey'
     | '/calendars/$calendarId'
     | '/calendars/new'
@@ -854,6 +876,7 @@ export interface FileRouteTypes {
     | '/onboard/instagram/callback'
     | '/onboard/whatsapp/$token'
     | '/agents'
+    | '/automations'
     | '/broadcasts'
     | '/calendars'
     | '/contacts'
@@ -913,6 +936,7 @@ export interface FileRouteTypes {
     | '/_auth/'
     | '/_auth/agents/$agentId'
     | '/_auth/agents/new'
+    | '/_auth/automations/$automationId'
     | '/_auth/broadcasts/$batchKey'
     | '/_auth/calendars/$calendarId'
     | '/_auth/calendars/new'
@@ -933,6 +957,7 @@ export interface FileRouteTypes {
     | '/onboard/instagram/callback'
     | '/onboard/whatsapp/$token'
     | '/_auth/agents/'
+    | '/_auth/automations/'
     | '/_auth/broadcasts/'
     | '/_auth/calendars/'
     | '/_auth/contacts/'
@@ -1110,6 +1135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthBroadcastsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/automations/': {
+      id: '/_auth/automations/'
+      path: '/automations'
+      fullPath: '/automations'
+      preLoaderRoute: typeof AuthAutomationsIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/agents/': {
       id: '/_auth/agents/'
       path: '/agents'
@@ -1248,6 +1280,13 @@ declare module '@tanstack/react-router' {
       path: '/broadcasts/$batchKey'
       fullPath: '/broadcasts/$batchKey'
       preLoaderRoute: typeof AuthBroadcastsBatchKeyRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/automations/$automationId': {
+      id: '/_auth/automations/$automationId'
+      path: '/automations/$automationId'
+      fullPath: '/automations/$automationId'
+      preLoaderRoute: typeof AuthAutomationsAutomationIdRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/agents/new': {
@@ -1565,6 +1604,7 @@ interface AuthRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
   AuthAgentsAgentIdRoute: typeof AuthAgentsAgentIdRoute
   AuthAgentsNewRoute: typeof AuthAgentsNewRoute
+  AuthAutomationsAutomationIdRoute: typeof AuthAutomationsAutomationIdRoute
   AuthBroadcastsBatchKeyRoute: typeof AuthBroadcastsBatchKeyRoute
   AuthCalendarsCalendarIdRoute: typeof AuthCalendarsCalendarIdRoute
   AuthCalendarsNewRoute: typeof AuthCalendarsNewRoute
@@ -1576,6 +1616,7 @@ interface AuthRouteChildren {
   AuthTemplatesTemplateIdRoute: typeof AuthTemplatesTemplateIdRoute
   AuthTemplatesNewRoute: typeof AuthTemplatesNewRoute
   AuthAgentsIndexRoute: typeof AuthAgentsIndexRoute
+  AuthAutomationsIndexRoute: typeof AuthAutomationsIndexRoute
   AuthBroadcastsIndexRoute: typeof AuthBroadcastsIndexRoute
   AuthCalendarsIndexRoute: typeof AuthCalendarsIndexRoute
   AuthContactsIndexRoute: typeof AuthContactsIndexRoute
@@ -1629,6 +1670,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
   AuthAgentsAgentIdRoute: AuthAgentsAgentIdRoute,
   AuthAgentsNewRoute: AuthAgentsNewRoute,
+  AuthAutomationsAutomationIdRoute: AuthAutomationsAutomationIdRoute,
   AuthBroadcastsBatchKeyRoute: AuthBroadcastsBatchKeyRoute,
   AuthCalendarsCalendarIdRoute: AuthCalendarsCalendarIdRoute,
   AuthCalendarsNewRoute: AuthCalendarsNewRoute,
@@ -1641,6 +1683,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthTemplatesTemplateIdRoute: AuthTemplatesTemplateIdRoute,
   AuthTemplatesNewRoute: AuthTemplatesNewRoute,
   AuthAgentsIndexRoute: AuthAgentsIndexRoute,
+  AuthAutomationsIndexRoute: AuthAutomationsIndexRoute,
   AuthBroadcastsIndexRoute: AuthBroadcastsIndexRoute,
   AuthCalendarsIndexRoute: AuthCalendarsIndexRoute,
   AuthContactsIndexRoute: AuthContactsIndexRoute,

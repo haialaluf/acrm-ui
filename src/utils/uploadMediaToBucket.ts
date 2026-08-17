@@ -6,6 +6,16 @@ import { supabase } from "@/supabase/client";
  *  margin for scheduled/large sends and slow reviews. */
 export const MEDIA_SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 7;
 
+/** Signed-URL lifetime for media an *automation* step points at (5 years).
+ *
+ *  The 7-day default above assumes the file is fetched by Meta within days of
+ *  being picked, which is true of a broadcast and false of an automation: a
+ *  welcome flow configured today is still sending that header image next year,
+ *  and a link that expired in the meantime fails the send with Meta's opaque
+ *  131053. Until the dispatcher re-signs storage paths at delivery time, the
+ *  step stores a URL that outlives the flow. */
+export const DURABLE_MEDIA_SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 365 * 5;
+
 /** Guess a file extension for the stored object from the mime type, falling
  *  back to the source name's suffix. Keeps the object name tidy; the served
  *  content-type comes from the upload's `contentType`, not the extension. */
@@ -29,6 +39,7 @@ export async function uploadMediaToBucket(
   blob: Blob,
   orgId: string,
   fileName?: string,
+  expiresIn: number = MEDIA_SIGNED_URL_TTL_SECONDS,
 ): Promise<string> {
   const ext = extensionFor(blob.type, fileName);
   const path = `organizations/${orgId}/attachments/${crypto.randomUUID()}.${ext}`;
@@ -45,7 +56,7 @@ export async function uploadMediaToBucket(
 
   const { data, error: signError } = await supabase.storage
     .from("media")
-    .createSignedUrl(path, MEDIA_SIGNED_URL_TTL_SECONDS);
+    .createSignedUrl(path, expiresIn);
   if (signError || !data?.signedUrl) {
     throw new Error(
       `Failed to sign media URL: ${signError?.message ?? "unknown error"}`,

@@ -1,33 +1,45 @@
-import { ArrowLeft, FileText, Play } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import Button from "@/components/Button";
 import SectionFooter from "@/components/SectionFooter";
-import VideoThumb from "@/components/media/VideoThumb";
+import WhatsAppPreview from "@/components/messagePreview/WhatsAppPreview";
+import TemplateVarsEditor, {
+  varsIntro,
+} from "@/components/templateFill/TemplateVarsEditor";
+import {
+  bindingPreviewValues,
+  templatePreviewData,
+} from "@/components/templateFill/previewData";
+import {
+  applyBindingPatch,
+  headerMediaFormat as headerMediaFormatOf,
+  templateSlots,
+} from "@/components/templateFill/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { type TemplateData } from "@/supabase/client";
 
-import VarCard from "./VarCard";
-import VarChip from "./VarChip";
-import HeaderMediaCard from "./HeaderMediaCard";
 import {
-  countVars,
-  headerMediaExample,
-  headerMediaFormat,
+  FIELD_OPTIONS,
   isValidMediaUrl,
   type ContactField,
-  type Scope,
   type VarValue,
 } from "./types";
 
 /** Step 3 — for each `{{N}}`, choose a static value or a per-recipient field.
- *  A live preview card at the top renders the template text with chips in
- *  place of each variable so changes are visible inline. */
+ *  The bubble underneath is the same preview the review step shows, with each
+ *  binding highlighted in place of its `{{N}}` — there is no recipient to
+ *  resolve against yet, so a field binding reads as its own name.
+ *
+ *  Both halves are the shared `templateFill` blocks: the automation editor's
+ *  send-template step asks for exactly the same things, and this step is now
+ *  only the wizard chrome around them. */
 export default function VariablesStep({
   template,
   vars,
   setVars,
   headerMedia,
   headerMediaName,
+  headerMediaSize,
   setHeaderMedia,
   onNext,
 }: {
@@ -36,44 +48,18 @@ export default function VariablesStep({
   setVars: (v: Record<string, VarValue>) => void;
   headerMedia: string;
   headerMediaName: string;
+  /** Only a document header shows its size, as "PDF · 21 KB". */
+  headerMediaSize?: number;
   setHeaderMedia: (url: string, name: string, size?: number) => void;
   onNext: () => void;
 }) {
   const { translate: t } = useTranslation();
-  const head = template.components.find((c) => c.type === "HEADER");
-  const body = template.components.find((c) => c.type === "BODY");
-  const foot = template.components.find((c) => c.type === "FOOTER");
-  const headExamples = head?.example?.header_text || [];
-  const bodyExamples = body?.example?.body_text?.[0] || [];
 
-  const mediaFormat = headerMediaFormat(template);
-  const mediaExample = headerMediaExample(template);
+  const mediaFormat = headerMediaFormatOf(template.components);
   // A media header requires a valid public URL before the user can continue.
   const mediaOk = !mediaFormat || isValidMediaUrl(headerMedia);
-
-  const keys = Object.keys(vars);
-  const hasVars = keys.length > 0;
-  const hasInputs = hasVars || !!mediaFormat;
-
-  function update(key: string, patch: Partial<VarValue>) {
-    const current = vars[key];
-    const next: VarValue =
-      patch.mode === "static" ||
-      (patch.mode === undefined && current.mode === "static")
-        ? {
-            mode: "static",
-            static:
-              (patch as { static?: string }).static ??
-              (current.mode === "static" ? current.static : ""),
-          }
-        : {
-            mode: "field",
-            field:
-              (patch as { field?: ContactField }).field ??
-              (current.mode === "field" ? current.field : "name"),
-          };
-    setVars({ ...vars, [key]: next });
-  }
+  const hasInputs =
+    templateSlots(template.components).length > 0 || !!mediaFormat;
 
   const allFilled =
     mediaOk &&
@@ -82,44 +68,14 @@ export default function VariablesStep({
         v.mode === "field" || (v.mode === "static" && v.static.trim() !== ""),
     );
 
-  function renderWithChips(
-    text: string | undefined,
-    scope: Scope,
-    examples: string[],
-  ) {
-    if (!text) return null;
-    const parts = text.split(/(\{\{\d+\}\})/);
-    return parts.map((p, i) => {
-      const m = p.match(/^\{\{(\d+)\}\}$/);
-      if (m) {
-        const n = Number(m[1]);
-        const v = vars[`${scope}.${n}`];
-        return (
-          <VarChip
-            key={i}
-            value={v}
-            placeholder={examples[n - 1] || `{{${n}}}`}
-          />
-        );
-      }
-      return <span key={i}>{p}</span>;
-    });
-  }
+  const intro = varsIntro(template.components, t);
 
   return (
     <>
       <div className="grow overflow-y-auto">
         <div className="px-[16px] pt-[14px] pb-[16px]">
-          {hasInputs && (
-            <div className="text-[14px] leading-[20px] mb-[16px]">
-              {mediaFormat && !hasVars
-                ? t(
-                    "This template requires a file in the header — it is mandatory to send it.",
-                  )
-                : t(
-                    "For each variable, choose a fixed value or a contact field that will be substituted per recipient.",
-                  )}
-            </div>
+          {intro && (
+            <div className="text-[14px] leading-[20px] mb-[16px]">{intro}</div>
           )}
 
           {hasInputs && (
@@ -127,122 +83,52 @@ export default function VariablesStep({
               {t("Variables")}
             </div>
           )}
-          <div className="flex flex-col gap-[8px]">
-            {mediaFormat && (
-              <HeaderMediaCard
-                format={mediaFormat}
-                value={headerMedia}
-                name={headerMediaName}
-                example={mediaExample}
-                onChange={setHeaderMedia}
-              />
-            )}
-            {keys.map((key) => {
-              const [scope, n] = key.split(".");
-              const example =
-                scope === "head"
-                  ? headExamples[Number(n) - 1]
-                  : bodyExamples[Number(n) - 1];
-              return (
-                <VarCard
-                  key={key}
-                  scope={scope as Scope}
-                  num={n}
-                  value={vars[key]}
-                  example={example}
-                  onUpdate={(patch) => update(key, patch)}
-                />
-              );
-            })}
-            {!hasInputs && (
-              <div
-                className="rounded-[12px] p-[16px] text-[13px] text-center text-muted-foreground"
-                style={{
-                  background: "var(--background)",
-                  border: "1px dashed var(--border)",
-                }}
-              >
-                {t("This template has no variables — you can continue")}
-              </div>
-            )}
-          </div>
+
+          <TemplateVarsEditor<ContactField>
+            components={template.components}
+            bindings={vars}
+            fields={FIELD_OPTIONS}
+            onUpdate={(scope, n, patch) => {
+              const key = `${scope}.${n}`;
+              setVars({
+                ...vars,
+                [key]: applyBindingPatch(vars[key], patch, FIELD_OPTIONS),
+              });
+            }}
+            media={{
+              value: headerMedia,
+              name: headerMediaName,
+              onChange: setHeaderMedia,
+            }}
+            empty={t("This template has no variables — you can continue")}
+          />
 
           <div className="text-[12px] font-semibold mt-[20px] mb-[8px] text-muted-foreground">
-            {t("Variables Summary")}
+            {t("Preview")}
           </div>
-          <div
-            className="rounded-[14px] p-[14px] text-[14px] leading-[22px]"
-            style={{
-              background: "var(--background)",
-              border: "1px solid var(--border)",
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {/* The header file is part of what gets sent, so every format —
-                not just images — belongs in the summary. Each is sized to the
-                file's own aspect ratio rather than cropped to the card's
-                width: a portrait video (a story, an invitation) loses its top
-                and bottom under `object-cover`. */}
-            {mediaFormat && isValidMediaUrl(headerMedia) && (
-              <div className="mb-[10px]">
-                {mediaFormat === "IMAGE" && (
-                  <img
-                    src={headerMedia.trim()}
-                    alt={t("Preview")}
-                    className="mx-auto block w-auto max-w-full max-h-[220px] rounded-[8px]"
-                  />
-                )}
-                {mediaFormat === "VIDEO" && (
-                  <div className="relative flex justify-center">
-                    <VideoThumb
-                      url={headerMedia}
-                      className="block w-auto max-w-full max-h-[220px] rounded-[8px]"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <span
-                        className="w-[38px] h-[38px] rounded-full inline-flex items-center justify-center"
-                        style={{ background: "rgba(0,0,0,0.45)" }}
-                      >
-                        <Play size={18} fill="#fff" stroke="none" />
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {mediaFormat === "DOCUMENT" && (
-                  <div
-                    className="flex items-center gap-[8px] rounded-[8px] p-[10px]"
-                    style={{ background: "var(--muted)" }}
-                  >
-                    <FileText className="w-[16px] h-[16px] text-destructive shrink-0" />
-                    <span className="text-[13px] truncate">
-                      {headerMediaName || t("Document")}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-            {head?.text && (
-              <div className="font-semibold mb-[8px]">
-                {countVars(head.text) > 0
-                  ? renderWithChips(head.text, "head", headExamples)
-                  : head.text}
-              </div>
-            )}
-            {body?.text && (
-              <div>
-                {countVars(body.text) > 0
-                  ? renderWithChips(body.text, "body", bodyExamples)
-                  : body.text}
-              </div>
-            )}
-            {foot?.text && (
-              <div
-                className="mt-[10px] text-[12px] italic"
-                style={{ color: "var(--muted-foreground)" }}
-              >
-                {foot.text}
-              </div>
-            )}
+          {/* The client's own bubble, not a summary of it: each binding shows as
+              a highlighted value inside the real message, so the footer, the
+              buttons and the media header are all part of what you check. */}
+          <div className="rounded-[14px] overflow-hidden">
+            <WhatsAppPreview
+              variant="bubble"
+              data={templatePreviewData({
+                components: template.components,
+                values: bindingPreviewValues({
+                  components: template.components,
+                  bindings: vars,
+                  fields: FIELD_OPTIONS,
+                  t,
+                }),
+                language: template.language,
+                media: {
+                  url: headerMedia,
+                  name: headerMediaName,
+                  size: headerMediaSize,
+                },
+                copyCodeLabel: t("Copy code"),
+              })}
+            />
           </div>
         </div>
       </div>

@@ -21,13 +21,20 @@ export async function rehostTemplateExample(
   exampleUrl: string,
   orgId: string,
   format: HeaderMediaFormat,
+  /** Signed-URL lifetime, in seconds. Omitted for a send that happens now
+   *  (bulk send); an automation passes a lifetime that outlives the flow. */
+  expiresIn?: number,
 ): Promise<string> {
   if (format === "DOCUMENT") {
     const { data, error } = await supabase.functions.invoke(
       "whatsapp-management/rehost-example",
       {
         method: "POST",
-        body: { organization_id: orgId, example_url: exampleUrl },
+        body: {
+          organization_id: orgId,
+          example_url: exampleUrl,
+          ...(expiresIn && { expires_in: expiresIn }),
+        },
       },
     );
     if (error) await throwFunctionError(error);
@@ -41,5 +48,10 @@ export async function rehostTemplateExample(
     throw new Error(`Failed to download example media (HTTP ${res.status})`);
   }
   const blob = await res.blob();
-  return uploadMediaToBucket(blob, orgId, new URL(exampleUrl).pathname);
+  return uploadMediaToBucket(
+    blob,
+    orgId,
+    new URL(exampleUrl).pathname,
+    expiresIn,
+  );
 }

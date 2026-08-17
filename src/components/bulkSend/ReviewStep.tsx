@@ -20,15 +20,10 @@ import EmailPreviewFrame, {
   previewStatsLabel,
 } from "@/components/emailTemplate/EmailPreviewFrame";
 import EmailPausedBanner from "@/components/emailSuppression/EmailPausedBanner";
-import { detectRtl } from "@/components/messagePreview/rtl";
 import type { MessagePreviewData } from "@/components/messagePreview/types";
-import {
-  buttonDefToPreview,
-  type PreviewButton,
-} from "@/components/templateButtons";
+import { templatePreviewData } from "@/components/templateFill/previewData";
 import { useTranslation } from "@/hooks/useTranslation";
 import { BOOKING_DURATIONS } from "@/queries/useBookingLinks";
-import { isRtl, type Language } from "@/stores/uiSlice";
 import {
   type ContactWithAddressesRow,
   type EmailTemplateExtra,
@@ -48,11 +43,10 @@ import {
   type Batch,
   type BatchSchedule,
   type Channel,
+  countVars,
   effectiveScheduling,
-  fillTemplate,
-  headerMediaFormat,
   immediateCount,
-  isValidMediaUrl,
+  resolveVar,
   type Scheduling,
   type ScheduleMode,
   type VarValue,
@@ -148,52 +142,46 @@ export default function ReviewStep({
   const safeIdx = Math.min(idx, Math.max(0, recipients.length - 1));
   const current = recipients[safeIdx];
 
-  // Build the normalized preview payload for the currently-previewed contact,
-  // with header/body variables already substituted, so the shared WhatsApp
-  // preview renders the exact message this recipient receives.
+  // Build the normalized preview payload for the currently-previewed contact.
+  // Same builder the variables step and the automation editor use, in its
+  // substituting mode: here there IS a recipient, so their values go into the
+  // text and the bubble shows the exact message they receive.
   const previewData = useMemo<MessagePreviewData | null>(() => {
     if (!current || !template) return null;
+
+    const resolveSlots = (scope: "head" | "body", text: string | undefined) =>
+      Array.from({ length: countVars(text) }, (_, i) => {
+        const v = vars[`${scope}.${i + 1}`];
+        return v ? resolveVar(v, current) : "";
+      });
+
     const head = template.components.find((c) => c.type === "HEADER");
     const body = template.components.find((c) => c.type === "BODY");
-    const foot = template.components.find((c) => c.type === "FOOTER");
-    const butt = template.components.find((c) => c.type === "BUTTONS");
 
-    const mediaFmt = headerMediaFormat(template);
-    const headerText =
-      head && head.format === "TEXT"
-        ? fillTemplate(head.text, "head", vars, current)
-        : "";
-    const bodyText = fillTemplate(body?.text, "body", vars, current);
-    const footer = foot?.text ?? "";
-    const buttons: PreviewButton[] =
-      butt?.buttons?.map((b) => buttonDefToPreview(b, t("Copy code"))) ?? [];
-
-    const hasMedia = mediaFmt != null && isValidMediaUrl(headerMedia);
-    return {
-      headerType: mediaFmt ?? (headerText ? "TEXT" : "NONE"),
-      headerText,
-      headerVars: [],
-      mediaUrl: hasMedia ? headerMedia.trim() : "",
-      mediaName:
-        mediaFmt === "DOCUMENT"
-          ? // The picked file's real name. Falling back to the URL's last path
-            // segment would show the storage object's random UUID, not the
-            // document the user chose. Kept only as a last resort for a URL
-            // with no known name.
-            (headerMediaName ||
-              headerMedia.trim().split("/").pop()?.split("?")[0] ||
-              "")
-          : "",
-      mediaSize: mediaFmt === "DOCUMENT" ? headerMediaSize : undefined,
-      body: bodyText,
-      bodyVars: [],
-      footer,
-      buttons,
-      rtl:
-        detectRtl(bodyText, headerText, footer) ||
-        isRtl(template.language as Language),
-    };
-  }, [template, vars, current, headerMedia, headerMediaName, headerMediaSize, t]);
+    return templatePreviewData({
+      components: template.components,
+      values: {
+        head: resolveSlots("head", head?.type === "HEADER" ? head.text : ""),
+        body: resolveSlots("body", body?.type === "BODY" ? body.text : ""),
+      },
+      substitute: true,
+      language: template.language,
+      media: {
+        url: headerMedia,
+        name: headerMediaName,
+        size: headerMediaSize,
+      },
+      copyCodeLabel: t("Copy code"),
+    });
+  }, [
+    template,
+    vars,
+    current,
+    headerMedia,
+    headerMediaName,
+    headerMediaSize,
+    t,
+  ]);
 
   const canSend =
     recipients.length > 0 &&

@@ -55,6 +55,7 @@ export default function MediaDropzone({
   name,
   subLabel,
   orgId,
+  expiresIn,
   onFile,
   onClear,
 }: {
@@ -63,6 +64,10 @@ export default function MediaDropzone({
   name?: string;
   subLabel?: string;
   orgId?: string;
+  /** Signed-URL lifetime in seconds. Defaults to the bucket helper's week,
+   *  which suits a file about to be sent; an automation step holds its file for
+   *  as long as the flow runs and passes a much longer one. */
+  expiresIn?: number;
   onFile: (url: string, name: string, size?: number) => void;
   onClear: () => void;
 }) {
@@ -116,13 +121,11 @@ export default function MediaDropzone({
           if (!orgId) return false;
           setError(null);
           setUploading(true);
-          uploadMediaToBucket(file, orgId, file.name)
+          uploadMediaToBucket(file, orgId, file.name, expiresIn)
             .then((signedUrl) => onFile(signedUrl, file.name, file.size))
             .catch((e) =>
               setError(
-                e instanceof Error
-                  ? e.message
-                  : t("Couldn't upload the file"),
+                e instanceof Error ? e.message : t("Couldn't upload the file"),
               ),
             )
             .finally(() => setUploading(false));

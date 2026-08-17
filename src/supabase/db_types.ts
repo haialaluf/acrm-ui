@@ -728,6 +728,215 @@ export type Database = {
           },
         ]
       }
+      automation_run_steps: {
+        Row: {
+          automation_id: string
+          created_at: string
+          id: string
+          organization_id: string
+          result: Json | null
+          run_id: string
+          status: string
+          step_id: string
+          type: string
+        }
+        Insert: {
+          automation_id: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          result?: Json | null
+          run_id: string
+          status: string
+          step_id: string
+          type: string
+        }
+        Update: {
+          automation_id?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          result?: Json | null
+          run_id?: string
+          status?: string
+          step_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_run_steps_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_run_steps_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_run_steps_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "automation_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_runs: {
+        Row: {
+          automation_id: string
+          automation_version: number
+          completed_at: string | null
+          contact_id: string | null
+          conversation_id: string | null
+          created_at: string
+          cursor: Json
+          dedupe_key: string | null
+          definition: Json
+          id: string
+          last_error: string | null
+          leased_until: string | null
+          organization_id: string
+          resume_at: string | null
+          state: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          automation_id: string
+          automation_version: number
+          completed_at?: string | null
+          contact_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          cursor?: Json
+          dedupe_key?: string | null
+          definition: Json
+          id?: string
+          last_error?: string | null
+          leased_until?: string | null
+          organization_id: string
+          resume_at?: string | null
+          state?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          automation_id?: string
+          automation_version?: number
+          completed_at?: string | null
+          contact_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          cursor?: Json
+          dedupe_key?: string | null
+          definition?: Json
+          id?: string
+          last_error?: string | null
+          leased_until?: string | null
+          organization_id?: string
+          resume_at?: string | null
+          state?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_runs_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_runs_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_runs_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_runs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_scheduler_lock: {
+        Row: {
+          id: boolean
+          locked_until: string
+        }
+        Insert: {
+          id?: boolean
+          locked_until?: string
+        }
+        Update: {
+          id?: boolean
+          locked_until?: string
+        }
+        Relationships: []
+      }
+      automations: {
+        Row: {
+          created_at: string
+          extra: Json | null
+          id: string
+          name: string
+          organization_id: string
+          status: string
+          steps: Json
+          trigger: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          extra?: Json | null
+          id?: string
+          name: string
+          organization_id: string
+          status?: string
+          steps?: Json
+          trigger: Json
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          extra?: Json | null
+          id?: string
+          name?: string
+          organization_id?: string
+          status?: string
+          steps?: Json
+          trigger?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_links: {
         Row: {
           calendar_id: string
@@ -1811,6 +2020,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      apply_contact_tags: {
+        Args: { p_add?: string[]; p_contact_id: string; p_remove?: string[] }
+        Returns: string[]
+      }
       apply_email_suppression: {
         Args: { p_address: string; p_organization_id: string; p_reason: string }
         Returns: undefined
@@ -1818,6 +2031,22 @@ export type Database = {
       apply_unsubscribe: {
         Args: { p_link_id: string; p_undo?: boolean }
         Returns: undefined
+      }
+      automation_stats: {
+        Args: { p_organization_id: string }
+        Returns: {
+          automation_id: string
+          completed: number
+          entered: number
+        }[]
+      }
+      automation_step_stats: {
+        Args: { p_automation_id: string }
+        Returns: {
+          entered: number
+          failed: number
+          step_id: string
+        }[]
       }
       book_slot: {
         Args: {
@@ -1875,6 +2104,24 @@ export type Database = {
         }
         Returns: number
       }
+      claim_automation_runs: {
+        Args: { p_lease_seconds?: number; p_limit?: number }
+        Returns: {
+          automation_id: string
+          automation_version: number
+          contact_id: string
+          conversation_id: string
+          created_at: string
+          cursor: Json
+          dedupe_key: string
+          definition: Json
+          id: string
+          organization_id: string
+          resume_at: string
+          state: Json
+          status: string
+        }[]
+      }
       claim_conversation: {
         Args: {
           _conversation_id: string
@@ -1927,6 +2174,14 @@ export type Database = {
         }[]
       }
       contact_tags: { Args: { p_organization_id: string }; Returns: string[] }
+      conversation_service_window: {
+        Args: { p_organization_id: string }
+        Returns: {
+          conversation_id: string
+          last_received_at: string
+          window_open: boolean
+        }[]
+      }
       conversations_page: {
         Args: {
           p_before_id?: string
@@ -1962,6 +2217,21 @@ export type Database = {
           soft_bounced_count: number
           suppressed_count: number
         }[]
+      }
+      enroll_automation_run: {
+        Args: {
+          p_automation_id: string
+          p_contact_id: string
+          p_conversation_id?: string
+          p_dedupe_key?: string
+          p_resume_at?: string
+          p_state?: Json
+        }
+        Returns: string
+      }
+      enroll_automation_sweep: {
+        Args: { p_automation_id: string; p_limit?: number; p_slot_key: string }
+        Returns: number
       }
       ensure_unsubscribe_link: {
         Args: { p_address: string; p_organization_id: string }
@@ -2052,10 +2322,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      release_automation_lock: { Args: never; Returns: undefined }
       release_dispatch_lock: { Args: never; Returns: undefined }
       send_broadcast: {
         Args: { _conversations?: Json; _messages?: Json }
         Returns: number
+      }
+      try_claim_automation_lock: {
+        Args: { p_ttl_seconds?: number }
+        Returns: boolean
       }
       try_claim_dispatch_lock: {
         Args: { p_ttl_seconds?: number }

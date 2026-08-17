@@ -101,6 +101,22 @@ export const queryKeys = {
     all: (orgId: NullableId, calendarId: NullableId) =>
       [orgId, "appointments", calendarId] as const,
   },
+  messageTemplates: {
+    /** Every approved WhatsApp template in the org, from the local mirror —
+     *  unlike useTemplates, which fetches one number's list live from Graph. */
+    approved: (orgId: NullableId) =>
+      [orgId, "message_templates", "approved"] as const,
+  },
+  automations: {
+    all: (orgId: NullableId) => [orgId, "automations"] as const,
+    detail: (orgId: NullableId, id: NullableId) =>
+      [orgId, "automations", id] as const,
+    /** Entered/completed per automation over 30d (automation_stats). */
+    stats: (orgId: NullableId) => [orgId, "automations", "stats"] as const,
+    /** Per-step counters for one automation's canvas (automation_step_stats). */
+    stepStats: (orgId: NullableId, id: NullableId) =>
+      [orgId, "automations", id, "step_stats"] as const,
+  },
   onboardingTokens: {
     all: (orgId: NullableId, service: string) =>
       [orgId, "onboarding_tokens", service] as const,
