@@ -25,7 +25,8 @@ export const MODEL_CATALOG: ModelCatalogEntry[] = [
   // GPT-OSS 120B moved from groq to fireworks — see acrm-api/models.ts.
   { id: "accounts/fireworks/models/gpt-oss-120b", label: "GPT-OSS 120B" },
   {
-    id: "accounts/fireworks/models/deepseek-v4-flash",
+    // Dated id: the unversioned alias 404s on fireworks.
+    id: "accounts/fireworks/models/deepseek-v4-flash-0731",
     label: "DeepSeek V4 Flash",
   },
 ];
