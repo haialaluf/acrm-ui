@@ -17,7 +17,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(localizedFormat);
 import { TickContext } from "@/contexts/useTick";
 import { useTranslation } from "@/hooks/useTranslation";
-import { AtSign, Bot, Pause } from "lucide-react";
+import { AtSign, Bot, Mail, Pause } from "lucide-react";
 
 import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
 import { useContactByAddress } from "@/queries/useContacts";
@@ -227,6 +227,8 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                   <InstagramOutlined
                     style={{ fontSize: "14px", color: "#E1306C" }}
                   />
+                ) : conversation.service === "email" ? (
+                  <Mail className="h-[14px] w-[14px] text-blue-500" />
                 ) : conversation.service === "local" ? (
                   // A test chat talks to the org's own bot, so the channel slot
                   // gets a robot where the other services get their logo.
