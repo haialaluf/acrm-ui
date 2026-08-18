@@ -55,6 +55,31 @@ export function useUsageHistory(interval: "day" | "month") {
   });
 }
 
+/** Credit actually added to the org's balances — the plan grants emitted by
+ *  billing.change_plan plus any top-ups. This, not plans_products.included, is
+ *  what a balance's "Available" reading is a fraction of: an org can sit on a
+ *  plan whose catalogue allowance was never granted to it (the legacy tier was
+ *  handed out by a plain subscription update precisely so it would NOT mint
+ *  credit), and measuring the balance against that allowance then overstates
+ *  the spend by the difference. */
+export function useCreditGrants() {
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  return useQuery({
+    queryKey: queryKeys.billing.grants(orgId),
+    queryFn: async () =>
+      await supabase
+        .schema("billing")
+        .from("ledger")
+        .select("product_id, quantity")
+        .eq("organization_id", orgId!)
+        .in("type", ["grant", "topup"])
+        .throwOnError(),
+    enabled: !!orgId,
+    select: (data) => data.data,
+  });
+}
+
 export function useSubscription() {
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
 

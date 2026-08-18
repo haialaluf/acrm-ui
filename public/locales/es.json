@@ -353,7 +353,6 @@
   "Instructions": "Instrucciones",
   "Integration type": "Tipo de integración",
   "Integrations": "Integraciones",
-  "Interprets audio, images, and documents": "Interpreta audios, imágenes y documentos",
   "Invalid credentials!": "¡Credenciales inválidas!",
   "Invalid number": "Número inválido",
   "Invitation resent": "Invitación reenviada",
@@ -405,7 +404,6 @@
   "Maximum messages": "Mensajes máximos",
   "May": "May",
   "MCP Client": "Cliente MCP",
-  "Media pre-processing": "Pre-procesamiento de media",
   "Member": "Miembro",
   "Member name": "Nombre del miembro",
   "Members": "Miembros",
@@ -1392,5 +1390,11 @@
   "Messaged us on Instagram": "Nos escribió por Instagram",
   "Messaged us on WhatsApp": "Nos escribió por WhatsApp",
   "Synced from Instagram contacts": "Sincronizado de contactos de Instagram",
-  "Synced from WhatsApp contacts": "Sincronizado de contactos de WhatsApp"
+  "Synced from WhatsApp contacts": "Sincronizado de contactos de WhatsApp",
+  "Transcription": "Transcripción",
+  "Reads voice messages, images and documents": "Lee mensajes de voz, imágenes y documentos",
+  "Voice messages are transcribed, and images and documents described, before the agent replies.": "Los mensajes de voz se transcriben, y las imágenes y documentos se describen, antes de que el agente responda.",
+  "Primary language": "Idioma principal",
+  "Detect automatically": "Detectar automáticamente",
+  "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.": "El idioma que hablan tus clientes. El inglés también se entiende siempre, así que un mensaje de voz en cualquiera de los dos se transcribe correctamente. Déjalo vacío para detectar el idioma cada vez."
 }

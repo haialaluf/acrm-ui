@@ -4,6 +4,7 @@ import {
   useUsage,
   useTierLimits,
   usePlanProducts,
+  useCreditGrants,
 } from "@/queries/useBilling";
 import QuotaBar from "./QuotaBar";
 import StatsPanel from "./StatsPanel";
@@ -15,6 +16,7 @@ export default function StatsQuotas() {
   const { data: lifetimeUsage } = useUsage("lifetime");
   const { data: tierLimits } = useTierLimits();
   const { data: planProducts } = usePlanProducts();
+  const { data: grants } = useCreditGrants();
 
   const monthMap = new Map(monthUsage?.map((u) => [u.product_id, u.quantity]));
   const lifetimeMap = new Map(
@@ -26,6 +28,13 @@ export default function StatsQuotas() {
       { cap: tl.cap, interval: tl.interval },
     ]),
   );
+  // Balance products read against what was actually granted, not the plan's
+  // catalogue allowance — see useCreditGrants.
+  const grantMap = new Map<string, number>();
+  for (const g of grants ?? []) {
+    grantMap.set(g.product_id, (grantMap.get(g.product_id) ?? 0) + g.quantity);
+  }
+
   const planMap = new Map(
     planProducts?.map((pp) => [
       pp.product_id,
@@ -55,6 +64,7 @@ export default function StatsQuotas() {
               interval={tier.interval}
               used={used}
               included={plan?.included ?? null}
+              granted={grantMap.get(product.id) ?? null}
               cap={tier.cap}
             />
           );

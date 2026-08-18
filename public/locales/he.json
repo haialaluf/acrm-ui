@@ -326,7 +326,6 @@
   "Instructions": "הוראות",
   "Integration type": "סוג אינטגרציה",
   "Integrations": "אינטגרציות",
-  "Interprets audio, images, and documents": "מפרש אודיו, תמונות ומסמכים",
   "Invalid credentials!": "פרטי התחברות שגויים!",
   "Invalid number": "מספר לא תקין",
   "Invitation resent": "ההזמנה נשלחה מחדש",
@@ -376,7 +375,6 @@
   "Maximum messages": "מספר הודעות מרבי",
   "May": "מאי",
   "MCP Client": "לקוח MCP",
-  "Media pre-processing": "עיבוד מקדים של מדיה",
   "Member": "חבר",
   "Member name": "שם החבר",
   "Members": "חברים",
@@ -1369,5 +1367,11 @@
   "Messaged us on Instagram": "כתב לנו באינסטגרם",
   "Messaged us on WhatsApp": "כתב לנו בוואטסאפ",
   "Synced from Instagram contacts": "סונכרן מאנשי הקשר באינסטגרם",
-  "Synced from WhatsApp contacts": "סונכרן מאנשי הקשר בוואטסאפ"
+  "Synced from WhatsApp contacts": "סונכרן מאנשי הקשר בוואטסאפ",
+  "Transcription": "תמלול",
+  "Reads voice messages, images and documents": "קורא הודעות קוליות, תמונות ומסמכים",
+  "Voice messages are transcribed, and images and documents described, before the agent replies.": "הודעות קוליות מתומללות, ותמונות ומסמכים מתוארים, לפני שהסוכן משיב.",
+  "Primary language": "שפה ראשית",
+  "Detect automatically": "זיהוי אוטומטי",
+  "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.": "השפה שבה הלקוחות שלך מדברים. אנגלית תמיד מובנת גם היא, כך שהודעה קולית באחת מהן מתומללת נכון. השאירו ריק כדי לזהות את השפה בכל פעם."
 }

@@ -56,6 +56,10 @@ export default function ConversationAgentSelect({
   const orgDefault = organizationDefaultAgent(aiAgents, org?.extra);
   const isPaused = assistantState(conversation, org?.extra) === "paused";
 
+  const answeredByPerson =
+    selectedKey === NO_DEFAULT_AGENT ||
+    (selectedKey === DEFAULT_KEY && !orgDefault);
+
   const select = (key: string) => {
     void updateConvExtra(conversation, {
       default_agent_id: key === DEFAULT_KEY ? null : key,
@@ -105,7 +109,7 @@ export default function ConversationAgentSelect({
         className="flex items-center gap-[6px] max-w-[180px] px-[10px] py-[6px] rounded-full hover:bg-muted text-muted-foreground"
         title={t("Who answers this conversation")}
       >
-        {selectedKey === NO_DEFAULT_AGENT ? (
+        {answeredByPerson ? (
           <UserRound className="w-[18px] h-[18px] shrink-0" />
         ) : (
           <Bot className="w-[18px] h-[18px] shrink-0" />

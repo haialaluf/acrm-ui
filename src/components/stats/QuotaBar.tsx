@@ -7,6 +7,9 @@ type QuotaBarProps = {
   interval: string;
   used: number;
   included: number | null;
+  /** Balance products only: credit actually added to the org (grants +
+   *  top-ups). Null when nothing was ever granted. */
+  granted?: number | null;
   cap: number | null;
 };
 
@@ -46,6 +49,7 @@ export default function QuotaBar({
   interval,
   used,
   included,
+  granted,
   cap,
 }: QuotaBarProps) {
   const { translate: t } = useTranslation();
@@ -54,10 +58,15 @@ export default function QuotaBar({
 
   if (isBalance) {
     const remaining = used;
-    // Show available credit against the granted entitlement (cap when capped,
-    // otherwise the plan's included grant). max() keeps the bar within 100% if
-    // the balance was ever topped up beyond the entitlement.
-    const entitlement = cap && cap > 0 ? cap : (included ?? 0);
+    // Show available credit against what the org was actually given: the sum of
+    // its grant and top-up ledger entries. `cap` is a floor for a balance (the
+    // minimum allowed balance, 0 = no debt), not a ceiling, and
+    // plans_products.included is a catalogue allowance the org may never have
+    // been granted — a legacy-tier org holds the $1 free grant while its plan
+    // lists $10, which read $0.91 / $10.00 and implied $9.09 of spend that
+    // never happened. Fall back to those only when no grant is on record.
+    const entitlement = granted ?? (cap && cap > 0 ? cap : (included ?? 0));
+    // max() keeps the bar within 100% if the balance somehow exceeds it.
     const total = Math.max(entitlement, remaining);
     const pct = total > 0 ? Math.min((remaining / total) * 100, 100) : 0;
 

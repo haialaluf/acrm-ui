@@ -13,12 +13,22 @@ export type Memory = {
   [key: string]: string | undefined | Memory;
 };
 
-export type PreprocessingConfig = {
+/**
+ * Whether incoming files are machine-read before the agent sees them, and in
+ * what language their audio is expected to arrive.
+ *
+ * Two fields, and deliberately no third: the model is pinned platform-wide
+ * (`DEFAULT_TRANSCRIPTION_MODEL`) and there is no per-organization API key, so
+ * every call bills the organization's AI credits.
+ */
+export type TranscriptionConfig = {
   mode?: "active" | "inactive";
-  model?: "gemini-2.5-pro" | "gemini-2.5-flash";
-  api_key?: string;
+  // ISO-639-1 primary language of this organization's clients, e.g. "he", "es".
+  // A hint for AUDIO only: the prompt tells the model a voice note is most
+  // likely this language OR English and to transcribe in whichever it hears.
+  // Unset means no hint. The picker offers only the languages the CRM itself
+  // ships translations for (SUPPORTED_LANGUAGES in stores/uiSlice).
   language?: string;
-  extra_prompt?: string;
 };
 
 // Company-wide facts, entered ONCE per organization, shared by all its agents.
@@ -65,7 +75,7 @@ export type OrganizationExtra = {
   welcome_message?: string;
   authorized_contacts_only?: boolean;
   default_agent_id?: string;
-  media_preprocessing?: PreprocessingConfig;
+  transcription?: TranscriptionConfig;
   error_messages_direction?: "internal" | "outgoing";
   business_profile?: BusinessProfile;
 };

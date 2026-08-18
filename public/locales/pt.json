@@ -337,7 +337,6 @@
   "Instructions": "Instruções",
   "Integration type": "Tipo de integração",
   "Integrations": "Integrações",
-  "Interprets audio, images, and documents": "Interpreta áudios, imagens e documentos",
   "Invalid credentials!": "Credenciais inválidas!",
   "Invalid number": "Número inválido",
   "Invitation resent": "Convite reenviado",
@@ -388,7 +387,6 @@
   "Maximum messages": "Máximo de mensagens",
   "May": "Mai",
   "MCP Client": "Cliente MCP",
-  "Media pre-processing": "Pré-processamento de mídia",
   "Member": "Membro",
   "Member name": "Nome do membro",
   "Members": "Membros",
@@ -1117,5 +1115,11 @@
   "Message actions": "Ações da mensagem",
   "React": "Reagir",
   "Replies are not supported on this channel": "As respostas não são compatíveis com este canal",
-  "Replies aren't available on this message": "As respostas não estão disponíveis nesta mensagem"
+  "Replies aren't available on this message": "As respostas não estão disponíveis nesta mensagem",
+  "Transcription": "Transcrição",
+  "Reads voice messages, images and documents": "Lê mensagens de voz, imagens e documentos",
+  "Voice messages are transcribed, and images and documents described, before the agent replies.": "As mensagens de voz são transcritas, e as imagens e documentos descritos, antes de o agente responder.",
+  "Primary language": "Idioma principal",
+  "Detect automatically": "Detetar automaticamente",
+  "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.": "O idioma que os seus clientes falam. O inglês também é sempre compreendido, por isso uma mensagem de voz em qualquer um deles é transcrita corretamente. Deixe vazio para detetar o idioma de cada vez."
 }

@@ -43,7 +43,33 @@ export type TemplateDraft = {
 
 export type Language = "es" | "en" | "pt" | "sw" | "fr" | "he";
 
-const SUPPORTED_LANGUAGES: Language[] = ["es", "en", "pt", "sw", "fr", "he"];
+export const SUPPORTED_LANGUAGES: Language[] = [
+  "es",
+  "en",
+  "pt",
+  "sw",
+  "fr",
+  "he",
+];
+
+/**
+ * Each language named in itself, never translated — a picker is read by
+ * someone who does not yet have the interface in a language they know, so
+ * "Español" is findable where "Spanish" is not.
+ *
+ * Shared by the interface-language menu and the organization's transcription
+ * language, which is why it lives here rather than inline in either: the two
+ * lists are the same set (what the CRM ships translations for) and drifting
+ * apart would offer a language on one screen and not the other.
+ */
+export const LANGUAGE_LABELS: Record<Language, string> = {
+  es: "Español",
+  en: "English",
+  pt: "Português",
+  sw: "Kiswahili",
+  fr: "Français",
+  he: "עברית",
+};
 
 const RTL_LANGUAGES: Language[] = ["he"];
 

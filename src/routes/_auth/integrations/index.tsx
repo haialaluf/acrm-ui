@@ -2,7 +2,7 @@ import SectionBody from "@/components/SectionBody";
 import SectionHeader from "@/components/SectionHeader";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { FileText, Mail, Webhook } from "lucide-react";
+import { Mail, Webhook } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
   FacebookFilled,
@@ -98,21 +98,6 @@ function IntegrationsIndex() {
             onClick={() =>
               navigate({
                 to: "/integrations/api",
-                hash: (prevHash) => prevHash!,
-              })
-            }
-          />
-          <SectionItem
-            aside={
-              <div className="p-[8px]">
-                <FileText className="w-[24px] h-[24px]" />
-              </div>
-            }
-            title={t("Media pre-processing")}
-            description={t("Interprets audio, images, and documents")}
-            onClick={() =>
-              navigate({
-                to: "/integrations/media-preprocessing",
                 hash: (prevHash) => prevHash!,
               })
             }

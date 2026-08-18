@@ -320,7 +320,6 @@
   "Instructions": "Maelekezo",
   "Integration type": "Aina ya muunganisho",
   "Integrations": "Miunganisho",
-  "Interprets audio, images, and documents": "Hutafsiri sauti, picha na hati",
   "Invalid credentials!": "Stakabadhi batili!",
   "Invalid number": "Nambari batili",
   "Invitation resent": "Mwaliko umetumwa tena",
@@ -370,7 +369,6 @@
   "Maximum messages": "Ujumbe wa juu",
   "May": "Mei",
   "MCP Client": "Mteja wa MCP",
-  "Media pre-processing": "Uchakataji wa awali wa media",
   "Member": "Mwanachama",
   "Member name": "Jina la mwanachama",
   "Members": "Wanachama",
@@ -1084,5 +1082,11 @@
   "Message actions": "Vitendo vya ujumbe",
   "React": "Itikia",
   "Replies are not supported on this channel": "Majibu hayatumiki kwenye chaneli hii",
-  "Replies aren't available on this message": "Majibu hayapatikani kwenye ujumbe huu"
+  "Replies aren't available on this message": "Majibu hayapatikani kwenye ujumbe huu",
+  "Transcription": "Unukuzi",
+  "Reads voice messages, images and documents": "Husoma ujumbe wa sauti, picha na hati",
+  "Voice messages are transcribed, and images and documents described, before the agent replies.": "Ujumbe wa sauti hunukuliwa, na picha na hati huelezwa, kabla ya wakala kujibu.",
+  "Primary language": "Lugha kuu",
+  "Detect automatically": "Tambua kiotomatiki",
+  "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.": "Lugha ambayo wateja wako huzungumza. Kiingereza pia hueleweka kila wakati, kwa hivyo ujumbe wa sauti katika lugha yoyote hunukuliwa kwa usahihi. Acha wazi ili kutambua lugha kila wakati."
 }

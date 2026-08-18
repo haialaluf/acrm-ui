@@ -1,6 +1,7 @@
 import { supabase } from "@/supabase/client";
 import Avatar from "./Avatar";
 import useBoundStore from "@/stores/useBoundStore";
+import { LANGUAGE_LABELS, SUPPORTED_LANGUAGES } from "@/stores/uiSlice";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
   LogOut,
@@ -197,24 +198,15 @@ export default function Menu() {
                 key: "lang",
                 label: t("Language"),
                 icon: <Languages className="w-[16px] h-[16px]" />,
-                children: (["en", "he", "es", "pt", "sw", "fr"] as const).map(
-                  (lang) => ({
-                    key: lang,
-                    label: {
-                      es: "Español",
-                      en: "English",
-                      pt: "Português",
-                      sw: "Kiswahili",
-                      fr: "Français",
-                      he: "עברית",
-                    }[lang],
-                    className:
-                      lang === currentLanguage
-                        ? "ant-dropdown-menu-item-selected"
-                        : "",
-                    onClick: () => setCurrentLanguage(lang),
-                  }),
-                ),
+                children: SUPPORTED_LANGUAGES.map((lang) => ({
+                  key: lang,
+                  label: LANGUAGE_LABELS[lang],
+                  className:
+                    lang === currentLanguage
+                      ? "ant-dropdown-menu-item-selected"
+                      : "",
+                  onClick: () => setCurrentLanguage(lang),
+                })),
               },
               { type: "divider" },
               {
