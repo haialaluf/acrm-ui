@@ -7,7 +7,6 @@ import "dayjs/locale/en";
 import "dayjs/locale/pt";
 import "dayjs/locale/fr";
 import "dayjs/locale/he";
-import "dayjs/locale/sw";
 import {
   ArrowLeft,
   ChevronLeft,

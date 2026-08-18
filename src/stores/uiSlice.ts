@@ -41,16 +41,9 @@ export type TemplateDraft = {
   headVarValues: string[];
 };
 
-export type Language = "es" | "en" | "pt" | "sw" | "fr" | "he";
+export type Language = "es" | "en" | "pt" | "fr" | "he";
 
-export const SUPPORTED_LANGUAGES: Language[] = [
-  "es",
-  "en",
-  "pt",
-  "sw",
-  "fr",
-  "he",
-];
+export const SUPPORTED_LANGUAGES: Language[] = ["es", "en", "pt", "fr", "he"];
 
 /**
  * Each language named in itself, never translated — a picker is read by
@@ -66,7 +59,6 @@ export const LANGUAGE_LABELS: Record<Language, string> = {
   es: "Español",
   en: "English",
   pt: "Português",
-  sw: "Kiswahili",
   fr: "Français",
   he: "עברית",
 };
