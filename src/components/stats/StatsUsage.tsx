@@ -1,5 +1,9 @@
 import { useTranslation } from "@/hooks/useTranslation";
-import { useProducts, useUsage, useTierLimits } from "@/queries/useBilling";
+import {
+  useProducts,
+  useUsageHistory,
+  useTierLimits,
+} from "@/queries/useBilling";
 import UsageChart from "./UsageChart";
 import StatsPanel from "./StatsPanel";
 
@@ -41,13 +45,19 @@ function formatDay(period: string) {
   return period.slice(8, 10);
 }
 
+function isoDate(d: Date): string {
+  const m = `${d.getMonth() + 1}`.padStart(2, "0");
+  const day = `${d.getDate()}`.padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
 function last14Days(): string[] {
   const days: string[] = [];
   const d = new Date();
   for (let i = 13; i >= 0; i--) {
     const dt = new Date(d);
     dt.setDate(d.getDate() - i);
-    days.push(dt.toISOString().slice(0, 10));
+    days.push(isoDate(dt));
   }
   return days;
 }
@@ -56,12 +66,15 @@ function last12Months(): string[] {
   const months: string[] = [];
   const d = new Date();
   for (let i = 11; i >= 0; i--) {
-    const dt = new Date(d.getFullYear(), d.getMonth() - i, 1);
-    months.push(dt.toISOString().slice(0, 10));
+    months.push(isoDate(new Date(d.getFullYear(), d.getMonth() - i, 1)));
   }
   return months;
 }
 
+/** @param carry hold the last known value through periods with no row. Only
+ *  correct for a gauge, whose series is a standing total that stays put until
+ *  something changes it. A counter or a balance that reports nothing for a
+ *  period genuinely did nothing that period, and reads as zero. */
 function fillSeries(
   periods: string[],
   usage: { period: string; product_id: string; quantity: number }[] | undefined,
@@ -69,10 +82,18 @@ function fillSeries(
   carry = false,
 ): { period: string; quantity: number }[] {
   const map = new Map<string, number>();
-  for (const row of usage ?? []) {
-    if (row.product_id === productId) map.set(row.period, row.quantity);
-  }
+  // Seed the carried value from the newest row *before* the window, so a gauge
+  // whose last change predates it charts its standing total instead of zero.
   let last = 0;
+  let seed: string | null = null;
+  for (const row of usage ?? []) {
+    if (row.product_id !== productId) continue;
+    map.set(row.period, row.quantity);
+    if (row.period < periods[0] && (seed === null || row.period > seed)) {
+      seed = row.period;
+      last = row.quantity;
+    }
+  }
   return periods.map((p) => {
     const val = map.get(p);
     if (val != null) {
@@ -86,8 +107,8 @@ function fillSeries(
 export default function StatsUsage() {
   const { translate: t } = useTranslation();
   const { data: products } = useProducts();
-  const { data: dayUsage } = useUsage("day");
-  const { data: monthUsage } = useUsage("month");
+  const { data: dayUsage } = useUsageHistory("day");
+  const { data: monthUsage } = useUsageHistory("month");
   const { data: tierLimits } = useTierLimits();
 
   const tierSet = new Set(tierLimits?.map((tl) => tl.product_id));
@@ -101,7 +122,7 @@ export default function StatsUsage() {
       <div className="flex flex-col gap-[32px]">
         {visibleProducts?.map((product) => {
           const name = translateProductName(product.name, t);
-          const carry = product.kind === "balance" || product.kind === "gauge";
+          const carry = product.kind === "gauge";
           return (
             <div key={product.id} className="flex flex-col gap-[8px]">
               <h3 className="text-[16px] font-medium text-foreground">

@@ -569,6 +569,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      usage_history: {
+        Args: { _interval: string; _organization_id: string }
+        Returns: {
+          period: string
+          product_id: string
+          quantity: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

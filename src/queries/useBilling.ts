@@ -37,6 +37,24 @@ export function useUsage(interval: string) {
   });
 }
 
+export function useUsageHistory(interval: "day" | "month") {
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  return useQuery({
+    queryKey: queryKeys.billing.usageHistory(orgId, interval),
+    queryFn: async () =>
+      await supabase
+        .schema("billing")
+        .rpc("usage_history", {
+          _organization_id: orgId!,
+          _interval: interval,
+        })
+        .throwOnError(),
+    enabled: !!orgId,
+    select: (data) => data.data,
+  });
+}
+
 export function useSubscription() {
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
 
