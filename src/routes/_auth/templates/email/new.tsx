@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useState } from "react";
 import { LoaderCircle } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
-import { NoEmailDomainState } from "@/components/templates/TemplatesList";
+import IntegrationGate from "@/components/IntegrationGate";
 import EmailTemplateBuilder, {
   type BuilderDraft,
 } from "@/components/emailTemplate/EmailTemplateBuilder";
@@ -17,10 +17,17 @@ import {
 import type { EmailProjectData, EmailTemplateStatus } from "@/supabase/client";
 
 export const Route = createFileRoute("/_auth/templates/email/new")({
-  component: NewEmailTemplate,
+  component: () => (
+    <IntegrationGate surface="/templates/email/new">
+      <NewEmailTemplateBody />
+    </IntegrationGate>
+  ),
 });
 
-function NewEmailTemplate() {
+// A separate component so the gate decides before any of this mounts:
+// the body's queries and early returns never run for an organization
+// that is about to be redirected.
+function NewEmailTemplateBody() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { address, extra: domainExtra, isLoading } = useConnectedEmailAddress();
@@ -124,14 +131,9 @@ function NewEmailTemplate() {
     );
   }
 
-  if (!address) {
-    return (
-      <>
-        <SectionHeader title={t("Create template")} />
-        <NoEmailDomainState />
-      </>
-    );
-  }
+  // Inside the gate a verified domain is guaranteed; this only narrows the type
+  // for the builder below.
+  if (!address) return null;
 
   if (!starter) {
     return <StarterGallery onPick={setStarter} />;

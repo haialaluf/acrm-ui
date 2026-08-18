@@ -25,6 +25,7 @@ import { resetAuthorizedCache } from "@/utils/IdbUtils";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { Dropdown } from "antd";
 import { useOrganizations } from "@/queries/useOrganizations";
+import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 
 export default function Menu() {
   const user = useBoundStore((state) => state.ui.user);
@@ -55,7 +56,11 @@ export default function Menu() {
     >
       {/* Upper section */}
       <div className="flex flex-col items-center">
-        {/* Conversations button */}
+        {/* Messages, Agents, Integrations and Statistics are never hidden;
+            the rest name a surface, and why each one requires what it does is
+            written once in the SURFACES table. The shell redirects on those
+            same rows, so a button can never point at a route that would only
+            bounce back. */}
         <LinkButton
           to="/conversations"
           title={t("Messages")}
@@ -65,27 +70,28 @@ export default function Menu() {
           <MessageSquareText className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
 
-        {/* Broadcasts button */}
-        <LinkButton
-          to="/broadcasts"
-          title={t("Broadcasts")}
-          isActive={pathname.startsWith("/broadcasts")}
-          className="mt-[10px]"
-        >
-          <Megaphone className="w-[24px] h-[24px] stroke-[2]" />
-        </LinkButton>
+        <HideIfNotPermitted surface="/broadcasts">
+          <LinkButton
+            to="/broadcasts"
+            title={t("Broadcasts")}
+            isActive={pathname.startsWith("/broadcasts")}
+            className="mt-[10px]"
+          >
+            <Megaphone className="w-[24px] h-[24px] stroke-[2]" />
+          </LinkButton>
+        </HideIfNotPermitted>
 
-        {/* Automations button */}
-        <LinkButton
-          to="/automations"
-          title={t("Automations")}
-          isActive={pathname.startsWith("/automations")}
-          className="mt-[10px]"
-        >
-          <Workflow className="w-[24px] h-[24px] stroke-[2]" />
-        </LinkButton>
+        <HideIfNotPermitted surface="/automations">
+          <LinkButton
+            to="/automations"
+            title={t("Automations")}
+            isActive={pathname.startsWith("/automations")}
+            className="mt-[10px]"
+          >
+            <Workflow className="w-[24px] h-[24px] stroke-[2]" />
+          </LinkButton>
+        </HideIfNotPermitted>
 
-        {/* Agents button */}
         <LinkButton
           to="/agents"
           title={t("Agents")}
@@ -95,37 +101,39 @@ export default function Menu() {
           <Bot className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
 
-        {/* Contacts button */}
-        <LinkButton
-          to="/contacts"
-          title={t("Contacts")}
-          isActive={pathname.startsWith("/contacts")}
-          className="mt-[10px]"
-        >
-          <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
-        </LinkButton>
+        <HideIfNotPermitted surface="/contacts">
+          <LinkButton
+            to="/contacts"
+            title={t("Contacts")}
+            isActive={pathname.startsWith("/contacts")}
+            className="mt-[10px]"
+          >
+            <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
+          </LinkButton>
+        </HideIfNotPermitted>
 
-        {/* Templates button */}
-        <LinkButton
-          to="/templates"
-          title={t("Templates")}
-          isActive={pathname.startsWith("/templates")}
-          className="mt-[10px]"
-        >
-          <LayoutTemplate className="w-[24px] h-[24px] stroke-[2]" />
-        </LinkButton>
+        <HideIfNotPermitted surface="/templates">
+          <LinkButton
+            to="/templates"
+            title={t("Templates")}
+            isActive={pathname.startsWith("/templates")}
+            className="mt-[10px]"
+          >
+            <LayoutTemplate className="w-[24px] h-[24px] stroke-[2]" />
+          </LinkButton>
+        </HideIfNotPermitted>
 
-        {/* Calendars button */}
-        <LinkButton
-          to="/calendars"
-          title={t("Calendars")}
-          isActive={pathname.startsWith("/calendars")}
-          className="mt-[10px]"
-        >
-          <CalendarDays className="w-[24px] h-[24px] stroke-[2]" />
-        </LinkButton>
+        <HideIfNotPermitted surface="/calendars">
+          <LinkButton
+            to="/calendars"
+            title={t("Calendars")}
+            isActive={pathname.startsWith("/calendars")}
+            className="mt-[10px]"
+          >
+            <CalendarDays className="w-[24px] h-[24px] stroke-[2]" />
+          </LinkButton>
+        </HideIfNotPermitted>
 
-        {/* Integrations button */}
         <LinkButton
           to="/integrations"
           title={t("Integrations")}
@@ -135,7 +143,6 @@ export default function Menu() {
           <Unplug className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
 
-        {/* Stats button */}
         <LinkButton
           to="/stats"
           title={t("Statistics")}
@@ -145,7 +152,6 @@ export default function Menu() {
           <BarChart3 className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
       </div>
-
       {/* Lower section */}
       <div className="flex flex-col items-center">
         {/* Settings button */}

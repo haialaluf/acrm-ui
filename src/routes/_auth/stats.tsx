@@ -8,6 +8,7 @@ import SectionHeader from "@/components/SectionHeader";
 import SectionBody from "@/components/SectionBody";
 import SectionItem from "@/components/SectionItem";
 import { useTranslation } from "@/hooks/useTranslation";
+import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 import { Activity, BarChart3, Gauge, MailWarning } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/stats")({
@@ -67,43 +68,47 @@ function StatsLayout() {
           }
           className={activeTab === "usage" ? "bg-accent" : ""}
         />
-        <SectionItem
-          title={t("WhatsApp account health")}
-          aside={
-            <div
-              className={`p-[8px] rounded-full ${activeTab === "health" ? "bg-primary/10" : ""}`}
-            >
-              <Activity
-                className={`w-[24px] h-[24px] ${activeTab === "health" ? "text-primary" : "text-muted-foreground"}`}
-              />
-            </div>
-          }
-          onClick={() =>
-            navigate({ to: "/stats/health", hash: (prev) => prev! })
-          }
-          className={activeTab === "health" ? "bg-accent" : ""}
-        />
+        <HideIfNotPermitted surface="/stats/health">
+          <SectionItem
+            title={t("WhatsApp account health")}
+            aside={
+              <div
+                className={`p-[8px] rounded-full ${activeTab === "health" ? "bg-primary/10" : ""}`}
+              >
+                <Activity
+                  className={`w-[24px] h-[24px] ${activeTab === "health" ? "text-primary" : "text-muted-foreground"}`}
+                />
+              </div>
+            }
+            onClick={() =>
+              navigate({ to: "/stats/health", hash: (prev) => prev! })
+            }
+            className={activeTab === "health" ? "bg-accent" : ""}
+          />
+        </HideIfNotPermitted>
         {/* Its own tab rather than a channel switch inside Account health: the
             two channels share almost no vocabulary. WhatsApp health is about
             quality ratings and messaging tiers; email health is about bounce
             and complaint rates. Folding them together would mean a page where
             most of the labels do not apply to what you are looking at. */}
-        <SectionItem
-          title={t("Email health")}
-          aside={
-            <div
-              className={`p-[8px] rounded-full ${activeTab === "email" ? "bg-primary/10" : ""}`}
-            >
-              <MailWarning
-                className={`w-[24px] h-[24px] ${activeTab === "email" ? "text-primary" : "text-muted-foreground"}`}
-              />
-            </div>
-          }
-          onClick={() =>
-            navigate({ to: "/stats/email", hash: (prev) => prev! })
-          }
-          className={activeTab === "email" ? "bg-accent" : ""}
-        />
+        <HideIfNotPermitted surface="/stats/email">
+          <SectionItem
+            title={t("Email health")}
+            aside={
+              <div
+                className={`p-[8px] rounded-full ${activeTab === "email" ? "bg-primary/10" : ""}`}
+              >
+                <MailWarning
+                  className={`w-[24px] h-[24px] ${activeTab === "email" ? "text-primary" : "text-muted-foreground"}`}
+                />
+              </div>
+            }
+            onClick={() =>
+              navigate({ to: "/stats/email", hash: (prev) => prev! })
+            }
+            className={activeTab === "email" ? "bg-accent" : ""}
+          />
+        </HideIfNotPermitted>
       </SectionBody>
       <Outlet />
     </>

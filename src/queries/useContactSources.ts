@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { CONTACT_SOURCE_LIST, type ContactSource } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAccess } from "@/hooks/useAccess";
 import { useContacts } from "./useContacts";
 
 /**
@@ -54,28 +55,48 @@ export type ContactSourceOption = { id: string; name: string };
  * first one. Offering only observed values makes that impossible, and the
  * failure is silent — the option simply is not there.
  *
- * So the canonical list leads, and anything the org has actually used but this
- * build does not know about is appended rather than dropped. That covers rows
- * written by an older deploy, or a channel added since, and keeps a saved
- * trigger's selection selectable.
+ * That argument is about "never used", which is not the same as "cannot
+ * receive". It defends offering `facebook_lead` to an org that has Facebook
+ * connected and no leads yet; it does not defend offering it to an org with no
+ * Facebook connection at all, where a trigger on it could never fire whatever
+ * happens. So the canonical list is filtered by what is connected — one row
+ * per ContactSource in the SURFACES table, which a new source must join before
+ * it compiles.
+ *
+ * The observed values are appended *unfiltered*. That covers rows written by an
+ * older deploy or a channel added since — and, now, a channel since
+ * disconnected: a saved trigger's selection must stay selectable, or opening an
+ * old automation would silently drop it.
  */
 export function useContactSourceOptions() {
   const { translate: t } = useTranslation();
   const observed = useContactSources();
+  const { allows } = useAccess();
 
   const options = useMemo<ContactSourceOption[]>(() => {
-    const known = new Set<string>(CONTACT_SOURCE_LIST);
+    const connectable = CONTACT_SOURCE_LIST.filter((source) =>
+      allows(`source.${source}`),
+    );
+
+    const offered = new Set<string>(connectable);
+    const label = (source: string) =>
+      source in SOURCE_LABELS
+        ? t(SOURCE_LABELS[source as ContactSource])
+        : source;
 
     return [
-      ...CONTACT_SOURCE_LIST.map((source) => ({
+      ...connectable.map((source) => ({
         id: source,
         name: t(SOURCE_LABELS[source]),
       })),
+      // Anything the org has actually received but is not being offered: a
+      // source this build does not know about, or one whose channel has since
+      // been disconnected. Appended so a saved trigger's selection survives.
       ...(observed.data ?? [])
-        .filter((source) => !known.has(source))
-        .map((source) => ({ id: source, name: source })),
+        .filter((source) => !offered.has(source))
+        .map((source) => ({ id: source, name: label(source) })),
     ];
-  }, [observed.data, t]);
+  }, [observed.data, allows, t]);
 
   return { ...observed, data: options };
 }

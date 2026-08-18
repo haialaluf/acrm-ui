@@ -1,5 +1,6 @@
 import { Copy, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAccess } from "@/hooks/useAccess";
 import { STEP_GROUPS, STEP_TYPES, type StepType } from "./catalog";
 
 /**
@@ -29,6 +30,10 @@ export function InsertMenu({
 }) {
   const { translate: t } = useTranslation();
   const position = clamp(anchor, 280, 420);
+  // Which step types this organization can build with. Every StepType has a
+  // row in the SURFACES table, so a new one must be classified before it
+  // compiles.
+  const { allows } = useAccess();
 
   return (
     <>
@@ -37,14 +42,22 @@ export function InsertMenu({
         className="fixed z-[80] max-h-[70vh] w-[262px] overflow-auto rounded-xl border border-border bg-popover p-[6px] shadow-lg"
         style={position}
       >
-        {STEP_GROUPS.map((group) => (
-          <div key={group}>
-            <div className="px-[9px] pb-[5px] pt-[9px] text-[10.5px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
-              {t(group)}
-            </div>
-            {(Object.keys(STEP_TYPES) as StepType[])
-              .filter((type) => STEP_TYPES[type].group === group)
-              .map((type) => {
+        {STEP_GROUPS.map((group) => {
+          const types = (Object.keys(STEP_TYPES) as StepType[]).filter(
+            (type) =>
+              STEP_TYPES[type].group === group && allows(`step.${type}`),
+          );
+
+          // An organization with no channel connected would otherwise get a bare
+          // "MESSAGING" heading with nothing under it.
+          if (types.length === 0) return null;
+
+          return (
+            <div key={group}>
+              <div className="px-[9px] pb-[5px] pt-[9px] text-[10.5px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
+                {t(group)}
+              </div>
+              {types.map((type) => {
                 const meta = STEP_TYPES[type];
                 const Icon = meta.icon;
                 return (
@@ -64,8 +77,9 @@ export function InsertMenu({
                   </button>
                 );
               })}
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </>
   );

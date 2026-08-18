@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { LoaderCircle, MailWarning } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
+import { useIntegrations } from "@/hooks/useIntegrations";
 import {
   useEmailDailyMetrics,
   useEmailHealthEvents,
@@ -41,16 +41,8 @@ export default function EmailHealth() {
   const [range, setRange] = useState<number>(30);
   const [selected, setSelected] = useState<string | null>(null);
 
-  const { data: addresses, isLoading: addressesLoading } =
-    useOrganizationsAddresses();
-
-  const domains = useMemo(
-    () =>
-      (addresses ?? []).filter(
-        (a) => a.service === "email" && a.status === "connected",
-      ),
-    [addresses],
-  );
+  const { allRows, isLoading: addressesLoading } = useIntegrations();
+  const domains = allRows.email;
 
   const address = selected ?? domains[0]?.address ?? null;
 

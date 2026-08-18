@@ -5,8 +5,6 @@ import type { EmailTemplateSummary, TemplateData } from "@/supabase/client";
 import TemplatesList, {
   ChannelToggle,
   EmailTemplatesList,
-  NoEmailDomainState,
-  NoWhatsAppState,
 } from "@/components/templates/TemplatesList";
 
 import PillSearch from "./PillSearch";
@@ -31,8 +29,8 @@ export default function TemplateStep({
 }: {
   channel: Channel;
   onChannel: (channel: Channel) => void;
-  /** Channels this organization can actually broadcast on. With one entry the
-   *  toggle is hidden — there is nothing to switch to. */
+  /** Channels this organization can actually broadcast on. A single entry
+   *  renders as one inert pill naming the channel being sent on. */
   available: Channel[];
   whatsapp: {
     templates: TemplateData[];
@@ -64,9 +62,13 @@ export default function TemplateStep({
 
   return (
     <>
-      {available.length > 1 && (
-        <ChannelToggle channel={channel} onChannel={onChannel} />
-      )}
+      {/* Shown even with one channel available: the header says this step
+          "decides who you can send to", so naming the channel is the point. */}
+      <ChannelToggle
+        channel={channel}
+        onChannel={onChannel}
+        channels={available}
+      />
 
       <div className="px-[16px] pt-[10px] pb-[8px]">
         <PillSearch
@@ -80,58 +82,55 @@ export default function TemplateStep({
           full-height scroller, and nesting the two made the pane scroll with
           three rows in it — and pushed the footer below the fold. */}
       <div className="grow min-h-0 flex flex-col">
-        {channel === "email" &&
-          (available.includes("email") ? (
-            <EmailTemplatesList
-              templates={emailTemplates}
-              isLoading={email.isLoading}
-              error={email.error}
-              onCreate={email.onCreate}
-              onSelect={email.onPick}
-            />
-          ) : (
-            <NoEmailDomainState />
-          ))}
+        {/* No "not connected" fallbacks: the route is gated on having at least
+            one channel, and `channel` is seeded from `available` on the very
+            first render, so it can never name a channel that is not there. */}
+        {channel === "email" && (
+          <EmailTemplatesList
+            templates={emailTemplates}
+            isLoading={email.isLoading}
+            error={email.error}
+            onCreate={email.onCreate}
+            onSelect={email.onPick}
+          />
+        )}
 
-        {channel === "whatsapp" &&
-          (available.includes("whatsapp") ? (
-            <TemplatesList
-              templates={whatsappTemplates}
-              isLoading={whatsapp.isLoading}
-              onCreate={whatsapp.onCreate ?? (() => {})}
-              onSelect={whatsapp.onPick}
-              // Only meaningful when choosing something to SEND: how many
-              // values you are about to be asked for, and in which language.
-              renderMeta={(tpl) => {
-                const head =
-                  tpl.components.find((c) => c.type === "HEADER")?.text ?? "";
-                const body =
-                  tpl.components.find((c) => c.type === "BODY")?.text ?? "";
-                const vars = countVars(head) + countVars(body);
+        {channel === "whatsapp" && (
+          <TemplatesList
+            templates={whatsappTemplates}
+            isLoading={whatsapp.isLoading}
+            onCreate={whatsapp.onCreate ?? (() => {})}
+            onSelect={whatsapp.onPick}
+            // Only meaningful when choosing something to SEND: how many
+            // values you are about to be asked for, and in which language.
+            renderMeta={(tpl) => {
+              const head =
+                tpl.components.find((c) => c.type === "HEADER")?.text ?? "";
+              const body =
+                tpl.components.find((c) => c.type === "BODY")?.text ?? "";
+              const vars = countVars(head) + countVars(body);
 
-                return (
-                  <>
-                    <span className="shrink-0 text-xs text-muted-foreground uppercase">
-                      {tpl.language}
+              return (
+                <>
+                  <span className="shrink-0 text-xs text-muted-foreground uppercase">
+                    {tpl.language}
+                  </span>
+                  {vars > 0 && (
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {vars} {t("vars")}
                     </span>
-                    {vars > 0 && (
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {vars} {t("vars")}
-                      </span>
-                    )}
-                  </>
-                );
-              }}
-            />
-          ) : (
-            <NoWhatsAppState />
-          ))}
+                  )}
+                </>
+              );
+            }}
+          />
+        )}
       </div>
 
       {/* Pinned under the list rather than trailing it: the list is its own
           scroller, so anything placed after it inside would only be reachable
           by scrolling past every template. */}
-      {channel === "whatsapp" && available.includes("whatsapp") && (
+      {channel === "whatsapp" && (
         <div className="shrink-0 px-[10px] pb-[10px] pt-[8px]">
           {/* Only approved templates can be sent, so an org with drafts
               pending review sees an empty list and needs telling why. */}
