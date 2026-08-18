@@ -1087,6 +1087,5 @@
   "Detect automatically": "Détecter automatiquement",
   "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.": "La langue que parlent vos clients. L'anglais est toujours compris également, donc un message vocal dans l'une ou l'autre est transcrit correctement. Laissez vide pour détecter la langue à chaque fois.",
   "Channels": "Canaux",
-  "Lead sources": "Sources de prospects",
-  "Enhancements": "Améliorations"
+  "Lead sources": "Sources de prospects"
 }
