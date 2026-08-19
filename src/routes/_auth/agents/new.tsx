@@ -3,7 +3,7 @@ import SectionHeader from "@/components/SectionHeader";
 import SectionFooter from "@/components/SectionFooter";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCreateAgent, useCurrentAgent } from "@/queries/useAgents";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import SectionBody from "@/components/SectionBody";
 import { type AIAgentInsert } from "@/supabase/client";
 import Button from "@/components/Button";
@@ -42,6 +42,7 @@ function AddAgent() {
     // model (see _shared/models.ts), and setting it here would pin the agent to
     // one provider and override that derivation.
     defaultValues: {
+      kind: "customer_facing",
       extra: {
         mode: "active",
         protocol: "chat_completions",
@@ -52,6 +53,9 @@ function AddAgent() {
       },
     },
   });
+
+  const kind = useWatch({ control, name: "kind" }) ?? "customer_facing";
+  const isBackOffice = kind === "back_office";
 
   const onSubmit = (data: AIAgentInsert) => {
     createAgent.mutate(
@@ -74,9 +78,13 @@ function AddAgent() {
         <form id="create-agent-form" onSubmit={handleSubmit(onSubmit)}>
           <fieldset disabled={!isAdmin} className="contents">
             <p>
-              {t(
-                "Set up an AI agent that will automatically respond to your conversations.",
-              )}
+              {isBackOffice
+                ? t(
+                    "Set up a back-office agent: it never talks to a contact, only automations can trigger it, and it can only update the CRM.",
+                  )
+                : t(
+                    "Set up an AI agent that will automatically respond to your conversations.",
+                  )}
             </p>
 
             <label>
@@ -88,6 +96,16 @@ function AddAgent() {
                 {...register("name", { required: true })}
               />
             </label>
+
+            <SelectField
+              name="kind"
+              control={control}
+              label={t("Type")}
+              options={[
+                { value: "customer_facing", label: t("Customer facing") },
+                { value: "back_office", label: t("Back office") },
+              ]}
+            />
 
             <SelectField
               name="extra.mode"
@@ -102,49 +120,63 @@ function AddAgent() {
 
             <div className="border-t border-border" />
 
-            <PersonaSection control={control} />
+            {!isBackOffice && (
+              <>
+                <PersonaSection control={control} />
 
-            <SkillsSection
-              control={control}
-              register={register}
-              setValue={setValue}
-            />
+                <SkillsSection
+                  control={control}
+                  register={register}
+                  setValue={setValue}
+                />
 
-            <SwitchField
-              name="extra.on_topic_only"
-              control={control}
-              label={t("Only reply when relevant")}
-              description={t(
-                "Stay silent on small talk and anything outside the business's services and this agent's skills.",
-              )}
-              disabled={!isAdmin}
-            />
+                <SwitchField
+                  name="extra.on_topic_only"
+                  control={control}
+                  label={t("Only reply when relevant")}
+                  description={t(
+                    "Stay silent on small talk and anything outside the business's services and this agent's skills.",
+                  )}
+                  disabled={!isAdmin}
+                />
 
-            <p className="text-muted-foreground text-[14px]">
-              {t("Business details are configured in")}{" "}
-              <Link
-                to="/settings/organization"
-                className="underline"
-                hash={(prevHash) => prevHash!}
-              >
-                {t("the organization settings")}
-              </Link>
-              .
-            </p>
+                <p className="text-muted-foreground text-[14px]">
+                  {t("Business details are configured in")}{" "}
+                  <Link
+                    to="/settings/organization"
+                    className="underline"
+                    hash={(prevHash) => prevHash!}
+                  >
+                    {t("the organization settings")}
+                  </Link>
+                  .
+                </p>
+              </>
+            )}
 
             <SectionField label={t("Advanced")}>
               <TextAreaField
                 name="extra.instructions"
                 control={control}
-                label={t("Additional instructions")}
-                placeholder={t("You are a helpful assistant...")}
+                label={
+                  isBackOffice
+                    ? t("Analysis instructions")
+                    : t("Additional instructions")
+                }
+                placeholder={
+                  isBackOffice
+                    ? t("Describe what this agent should look for and record…")
+                    : t("You are a helpful assistant...")
+                }
               />
-              <FaqSection
-                control={control}
-                register={register}
-                disabled={!isAdmin}
-                modalClassName="bottom-0"
-              />
+              {!isBackOffice && (
+                <FaqSection
+                  control={control}
+                  register={register}
+                  disabled={!isAdmin}
+                  modalClassName="bottom-0"
+                />
+              )}
               <SelectField
                 name="extra.model"
                 control={control}

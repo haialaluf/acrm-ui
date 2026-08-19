@@ -47,7 +47,12 @@ function EditOrganization() {
   const { data: agents } = useCurrentAgents();
   const isOwner = agent?.extra?.role === "owner";
 
-  const aiAgents = (agents ?? []).filter((a) => a.ai);
+  // Back-office agents are excluded: this picker is who answers a contact by
+  // default, which a `kind: 'back_office'` agent can never do (agent-client
+  // never lets one into that fallback — see its AGENT SELECTION block).
+  const aiAgents = (agents ?? []).filter(
+    (a) => a.ai && a.kind !== "back_office",
+  );
   const setActiveOrg = useBoundStore((state) => state.ui.setActiveOrg);
   const updateOrg = useUpdateCurrentOrganization();
   const deleteOrg = useDeleteCurrentOrganization();

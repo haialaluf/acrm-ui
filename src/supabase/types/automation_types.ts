@@ -219,6 +219,22 @@ export type AssignStep = StepBase & {
   prompt?: string;
 };
 
+/**
+ * Run a back-office (kind: 'back_office') agent against the contact once. Not
+ * `assign` with a different agent kind: `assign` also makes the picked agent
+ * this conversation's default responder, which a back-office agent — one that
+ * must never answer a contact — can never become. This step only ever runs
+ * the one-off instruction.
+ */
+export type AnalyzeStep = StepBase & {
+  type: "analyze";
+  /** Must resolve to an agent with kind: 'back_office'. */
+  agentId: string;
+  /** What this run should look for / record. Required — with no prompt there
+   *  is nothing for the agent to analyze. */
+  prompt: string;
+};
+
 export type TagStep = StepBase & {
   type: "tag";
   op: "add" | "remove";
@@ -239,6 +255,7 @@ export type AutomationStep =
   | ConditionStep
   | FilterStep
   | AssignStep
+  | AnalyzeStep
   | TagStep
   | WebhookStep;
 

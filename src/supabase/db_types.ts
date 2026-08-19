@@ -593,6 +593,7 @@ export type Database = {
           created_at: string
           extra: Json | null
           id: string
+          kind: Database["public"]["Enums"]["agent_kind"]
           name: string
           organization_id: string
           picture: string | null
@@ -604,6 +605,7 @@ export type Database = {
           created_at?: string
           extra?: Json | null
           id?: string
+          kind?: Database["public"]["Enums"]["agent_kind"]
           name: string
           organization_id: string
           picture?: string | null
@@ -615,6 +617,7 @@ export type Database = {
           created_at?: string
           extra?: Json | null
           id?: string
+          kind?: Database["public"]["Enums"]["agent_kind"]
           name?: string
           organization_id?: string
           picture?: string | null
@@ -2396,6 +2399,7 @@ export type Database = {
       }
     }
     Enums: {
+      agent_kind: "customer_facing" | "back_office"
       appointment_status: "scheduled" | "confirmed" | "cancelled" | "completed"
       direction: "incoming" | "outgoing" | "internal"
       log_level: "info" | "warning" | "error"
@@ -3093,6 +3097,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      agent_kind: ["customer_facing", "back_office"],
       appointment_status: ["scheduled", "confirmed", "cancelled", "completed"],
       direction: ["incoming", "outgoing", "internal"],
       log_level: ["info", "warning", "error"],

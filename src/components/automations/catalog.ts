@@ -8,6 +8,7 @@ import {
   GitBranch,
   Mail,
   MessageSquare,
+  Search,
   Split,
   Sun,
   Tag,
@@ -85,6 +86,12 @@ export const STEP_TYPES: Record<StepType, StepMeta> = {
   assign: {
     label: "Assign agent",
     icon: User,
+    tint: "var(--step-crm)",
+    group: "CRM",
+  },
+  analyze: {
+    label: "Analyze conversation",
+    icon: Search,
     tint: "var(--step-crm)",
     group: "CRM",
   },
@@ -172,6 +179,8 @@ export function blankStep(type: StepType): AutomationStep {
       return { id, type, rule: { all: [] } };
     case "assign":
       return { id, type, mode: "specific", agentIds: [] };
+    case "analyze":
+      return { id, type, agentId: "", prompt: "" };
     case "tag":
       return { id, type, op: "add", tags: [] };
     case "webhook":

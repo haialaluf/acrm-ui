@@ -8,7 +8,7 @@ import {
   useUpdateAgent,
   useCurrentAgent,
 } from "@/queries/useAgents";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import SectionBody from "@/components/SectionBody";
 import useBoundStore from "@/stores/useBoundStore";
 import { type AIAgentRow, type AIAgentUpdate } from "@/supabase/client";
@@ -74,6 +74,10 @@ function AgentDetail() {
     formState: { isDirty, isValid },
   } = useForm<AIAgentUpdate>({ values: normalizedAgent });
 
+  const kind =
+    useWatch({ control, name: "kind" }) ?? agent?.kind ?? "customer_facing";
+  const isBackOffice = kind === "back_office";
+
   const handleChat = () => {
     if (!activeOrgId || !localAddress) return;
 
@@ -123,6 +127,16 @@ function AgentDetail() {
               </label>
 
               <SelectField
+                name="kind"
+                control={control}
+                label={t("Type")}
+                options={[
+                  { value: "customer_facing", label: t("Customer facing") },
+                  { value: "back_office", label: t("Back office") },
+                ]}
+              />
+
+              <SelectField
                 name="extra.mode"
                 control={control}
                 label={t("Status")}
@@ -135,50 +149,66 @@ function AgentDetail() {
 
               <div className="border-t border-border" />
 
-              <PersonaSection control={control} disabled={!isAdmin} />
+              {!isBackOffice && (
+                <>
+                  <PersonaSection control={control} disabled={!isAdmin} />
 
-              <SkillsSection
-                control={control}
-                register={register}
-                setValue={setValue}
-                disabled={!isAdmin}
-              />
+                  <SkillsSection
+                    control={control}
+                    register={register}
+                    setValue={setValue}
+                    disabled={!isAdmin}
+                  />
 
-              <SwitchField
-                name="extra.on_topic_only"
-                control={control}
-                label={t("Only reply when relevant")}
-                description={t(
-                  "Stay silent on small talk and anything outside the business's services and this agent's skills.",
-                )}
-                disabled={!isAdmin}
-              />
+                  <SwitchField
+                    name="extra.on_topic_only"
+                    control={control}
+                    label={t("Only reply when relevant")}
+                    description={t(
+                      "Stay silent on small talk and anything outside the business's services and this agent's skills.",
+                    )}
+                    disabled={!isAdmin}
+                  />
 
-              <p className="text-muted-foreground text-[14px]">
-                {t("Business details are configured in")}{" "}
-                <Link
-                  to="/settings/organization"
-                  className="underline"
-                  hash={(prevHash) => prevHash!}
-                >
-                  {t("the organization settings")}
-                </Link>
-                .
-              </p>
+                  <p className="text-muted-foreground text-[14px]">
+                    {t("Business details are configured in")}{" "}
+                    <Link
+                      to="/settings/organization"
+                      className="underline"
+                      hash={(prevHash) => prevHash!}
+                    >
+                      {t("the organization settings")}
+                    </Link>
+                    .
+                  </p>
+                </>
+              )}
 
               <SectionField label={t("Advanced")}>
                 <TextAreaField
                   name="extra.instructions"
                   control={control}
-                  label={t("Additional instructions")}
-                  placeholder={t("You are a helpful assistant...")}
+                  label={
+                    isBackOffice
+                      ? t("Analysis instructions")
+                      : t("Additional instructions")
+                  }
+                  placeholder={
+                    isBackOffice
+                      ? t(
+                          "Describe what this agent should look for and record…",
+                        )
+                      : t("You are a helpful assistant...")
+                  }
                 />
-                <FaqSection
-                  control={control}
-                  register={register}
-                  disabled={!isAdmin}
-                  modalClassName="bottom-0"
-                />
+                {!isBackOffice && (
+                  <FaqSection
+                    control={control}
+                    register={register}
+                    disabled={!isAdmin}
+                    modalClassName="bottom-0"
+                  />
+                )}
                 <SelectField
                   name="extra.model"
                   control={control}
@@ -193,9 +223,11 @@ function AgentDetail() {
 
         <SectionFooter>
           {!isDirty ? (
-            <button type="button" className="primary" onClick={handleChat}>
-              {t("Chat with this agent")}
-            </button>
+            isBackOffice ? null : (
+              <button type="button" className="primary" onClick={handleChat}>
+                {t("Chat with this agent")}
+              </button>
+            )
           ) : (
             <Button
               form="agent-form"

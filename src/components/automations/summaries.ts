@@ -237,6 +237,17 @@ export function stepInfo(
       };
     }
 
+    case "analyze": {
+      const agentName = nameOf(lookups.agents, step.agentId);
+
+      return {
+        ...base,
+        title: t("Analyze conversation"),
+        sub: agentName || t("No agent chosen"),
+        prompt: step.prompt,
+      };
+    }
+
     case "tag":
       return {
         ...base,

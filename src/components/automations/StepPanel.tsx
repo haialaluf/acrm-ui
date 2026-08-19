@@ -252,8 +252,15 @@ export default function StepPanel({
       );
 
     case "assign": {
+      // A back-office agent can never answer a contact (agent-client never
+      // lets one into this fallback — see its AGENT SELECTION block), so
+      // offering one here would only produce a conversation nothing answers.
+      // It has its own step, "analyze", for exactly this agent kind.
+      const assignable = (agents ?? []).filter(
+        (a) => !a.ai || a.kind !== "back_office",
+      );
       const chosen = (step.agentIds ?? [])
-        .map((id) => (agents ?? []).find((a) => a.id === id))
+        .map((id) => assignable.find((a) => a.id === id))
         .filter(Boolean);
       const anyAi = chosen.some((a) => a?.ai);
 
@@ -293,7 +300,7 @@ export default function StepPanel({
           >
             {step.mode === "roundrobin" ? (
               <CheckList
-                items={(agents ?? []).map((a) => ({
+                items={assignable.map((a) => ({
                   id: a.id,
                   name: a.name,
                   ai: a.ai,
@@ -321,7 +328,7 @@ export default function StepPanel({
               >
                 <option value="">{t("Choose an agent…")}</option>
                 <optgroup label={t("People")}>
-                  {(agents ?? [])
+                  {assignable
                     .filter((a) => !a.ai)
                     .map((a) => (
                       <option key={a.id} value={a.id}>
@@ -330,7 +337,7 @@ export default function StepPanel({
                     ))}
                 </optgroup>
                 <optgroup label={t("AI agents")}>
-                  {(agents ?? [])
+                  {assignable
                     .filter((a) => a.ai)
                     .map((a) => (
                       <option key={a.id} value={a.id}>
@@ -375,6 +382,58 @@ export default function StepPanel({
               </Callout>
             </>
           )}
+        </>
+      );
+    }
+
+    case "analyze": {
+      const backOfficeAgents = (agents ?? []).filter(
+        (a) => a.ai && a.kind === "back_office",
+      );
+
+      return (
+        <>
+          <Field label={t("Agent")}>
+            <select
+              className={selectClass}
+              value={step.agentId}
+              onChange={(e) => onChange({ ...step, agentId: e.target.value })}
+            >
+              <option value="">{t("Choose a back-office agent…")}</option>
+              {backOfficeAgents.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          {backOfficeAgents.length === 0 && (
+            <Callout>
+              <Sparkles className="h-4 w-4 shrink-0" />
+              <span>
+                {t(
+                  'No back-office agents yet — create one (set its type to "Back office") before using this step.',
+                )}
+              </span>
+            </Callout>
+          )}
+
+          <Field
+            label={t("What should it look for?")}
+            hint={t(
+              "Runs once, with this contact's whole conversation history in context. It never replies — it can only update their CRM record.",
+            )}
+          >
+            <textarea
+              className={inputClass + " min-h-[92px] resize-y leading-relaxed"}
+              value={step.prompt}
+              placeholder={t(
+                "Describe what to look for and what to record on the contact…",
+              )}
+              onChange={(e) => onChange({ ...step, prompt: e.target.value })}
+            />
+          </Field>
         </>
       );
     }
