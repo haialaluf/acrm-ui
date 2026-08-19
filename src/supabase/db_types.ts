@@ -1834,6 +1834,30 @@ export type Database = {
           },
         ]
       }
+      signed_media_urls: {
+        Row: {
+          channel: Database["public"]["Enums"]["service"]
+          created_at: string
+          expires_at: string
+          signed_url: string
+          storage_key: string
+        }
+        Insert: {
+          channel: Database["public"]["Enums"]["service"]
+          created_at?: string
+          expires_at: string
+          signed_url: string
+          storage_key: string
+        }
+        Update: {
+          channel?: Database["public"]["Enums"]["service"]
+          created_at?: string
+          expires_at?: string
+          signed_url?: string
+          storage_key?: string
+        }
+        Relationships: []
+      }
       unsubscribe_links: {
         Row: {
           address: string

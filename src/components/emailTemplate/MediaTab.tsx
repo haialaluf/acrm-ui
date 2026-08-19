@@ -1,43 +1,18 @@
 import { useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { LoaderCircle, Upload } from "lucide-react";
 import type { Editor } from "@tiptap/core";
 import { useTranslation } from "@/hooks/useTranslation";
 import useBoundStore from "@/stores/useBoundStore";
-import { queryKeys } from "@/queries/queryKeys";
 import { useOrgMedia } from "@/queries/useOrgMedia";
-import { uploadMediaToBucket } from "@/utils/uploadMediaToBucket";
+import { blobToDataUri } from "./embedImages";
 
 /** Images only, and the formats every mail client renders. GIF is included
  *  because animated GIFs are still the only motion that works in email. */
 const ACCEPT = "image/png,image/jpeg,image/gif";
 
-/**
- * Our side of image handling.
- *
- * The previous builder shipped an asset browser, so this panel used to defer to
- * it. Maily has none — an image block is just a node with a `src` — so the whole
- * job is ours now: upload into the org's private `media` bucket (via the same
- * `uploadMediaToBucket` the WhatsApp editor uses), browse what is already in
- * there, drop either into the document, and explain where the file actually
- * lives. That last part is the point: an image in a marketing email is fetched
- * by the recipient's client months later, so *whose* server hosts it is a
- * decision worth making explicitly rather than inheriting from a vendor's
- * default.
- *
- * The library lists the whole bucket, not just this session's uploads — a logo
- * uploaded while writing last month's campaign is exactly what you reach for
- * when writing this month's. It is filtered to images because that is all an
- * image node can place; the audio and PDFs that WhatsApp conversations leave in
- * the same bucket are not offerable here.
- *
- * Dragging a file straight onto the document works too, and lands in the same
- * bucket — MailyCanvas wires the editor's own upload hook to this same helper.
- */
 export default function MediaTab({ editor }: { editor: Editor | null }) {
   const { translate: t } = useTranslation();
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
-  const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,18 +35,21 @@ export default function MediaTab({ editor }: { editor: Editor | null }) {
 
     try {
       for (const file of Array.from(files)) {
-        const src = await uploadMediaToBucket(file, orgId, file.name);
-        place(src);
+        place(await blobToDataUri(file));
       }
-      // The new objects belong to the listing now; refetch so they appear in
-      // the library with everything else rather than in a parallel list.
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.media.all(orgId, "image/"),
-      });
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setUploading(false);
+    }
+  };
+
+  const placeFromLibrary = async (item: { url: string; name: string }) => {
+    try {
+      const blob = await (await fetch(item.url)).blob();
+      place(await blobToDataUri(blob));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -144,7 +122,7 @@ export default function MediaTab({ editor }: { editor: Editor | null }) {
                 className="rounded-[10px] border border-border bg-card p-[5px] text-start overflow-hidden hover:border-primary disabled:opacity-60"
                 title={t("Place in the email")}
                 disabled={!editor}
-                onClick={() => place(item.url)}
+                onClick={() => void placeFromLibrary(item)}
               >
                 <img
                   src={item.url}
@@ -177,7 +155,7 @@ export default function MediaTab({ editor }: { editor: Editor | null }) {
           </b>
           <span className="text-[11.5px] text-muted-foreground leading-[1.55]">
             {t(
-              "Images are uploaded to your organization's private media storage and referenced by a signed URL — they stay in your account and survive if we ever swap the builder.",
+              "Images are stored in your organization's private media storage when you save the template — they stay in your account and survive if we ever swap the builder.",
             )}
           </span>
         </div>

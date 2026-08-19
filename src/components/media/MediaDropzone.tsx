@@ -8,6 +8,7 @@ import {
   Video as VideoIcon,
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSignedMediaUrl } from "@/hooks/useSignedMediaUrl";
 import { uploadMediaToBucket } from "@/utils/uploadMediaToBucket";
 import VideoThumb from "./VideoThumb";
 
@@ -39,12 +40,14 @@ function TypeIcon({ type, size = 22 }: { type: MediaType; size?: number }) {
 
 /** Media picker for a WhatsApp media header, shared by the template editor and
     the bulk-send wizard. The chosen file is uploaded to our private `media`
-    bucket and the caller receives its signed URL.
+    bucket and the caller receives an unsigned internal reference to it —
+    whatsapp-dispatcher resolves it to a real signed URL at send time, so this
+    component re-signs the same reference itself, short-lived, purely to show
+    a thumbnail.
 
     In the template editor the file is the *sample asset* Meta requires to review
-    a media-header template (the edge function converts the signed URL into a
-    Meta asset handle). In bulk-send it is the actual file delivered to every
-    recipient, which Meta fetches from the signed URL at send time.
+    a media-header template. In bulk-send/automations it is the actual file
+    delivered to every recipient.
 
     `name` and `subLabel` are optional because bulk-send can hold a URL with no
     known filename (the "use the template's sample file" shortcut); the format
@@ -55,7 +58,6 @@ export default function MediaDropzone({
   name,
   subLabel,
   orgId,
-  expiresIn,
   onFile,
   onClear,
 }: {
@@ -64,10 +66,6 @@ export default function MediaDropzone({
   name?: string;
   subLabel?: string;
   orgId?: string;
-  /** Signed-URL lifetime in seconds. Defaults to the bucket helper's week,
-   *  which suits a file about to be sent; an automation step holds its file for
-   *  as long as the flow runs and passes a much longer one. */
-  expiresIn?: number;
   onFile: (url: string, name: string, size?: number) => void;
   onClear: () => void;
 }) {
@@ -75,6 +73,7 @@ export default function MediaDropzone({
   const spec = SPEC[type];
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const previewUrl = useSignedMediaUrl(url || undefined);
 
   if (url) {
     const sub = [name ? spec.tag : null, subLabel].filter(Boolean).join(" · ");
@@ -82,9 +81,9 @@ export default function MediaDropzone({
       <div className="media-picked">
         <div className="media-thumb">
           {type === "IMAGE" ? (
-            <img src={url} alt="" />
+            <img src={previewUrl} alt="" />
           ) : type === "VIDEO" ? (
-            <VideoThumb url={url} />
+            <VideoThumb url={previewUrl ?? ""} />
           ) : (
             <span className="media-doc-ic">
               <FileText size={20} />
@@ -121,8 +120,8 @@ export default function MediaDropzone({
           if (!orgId) return false;
           setError(null);
           setUploading(true);
-          uploadMediaToBucket(file, orgId, file.name, expiresIn)
-            .then((signedUrl) => onFile(signedUrl, file.name, file.size))
+          uploadMediaToBucket(file, orgId, file.name)
+            .then((uri) => onFile(uri, file.name, file.size))
             .catch((e) =>
               setError(
                 e instanceof Error ? e.message : t("Couldn't upload the file"),

@@ -23,6 +23,7 @@ import EmailPausedBanner from "@/components/emailSuppression/EmailPausedBanner";
 import type { MessagePreviewData } from "@/components/messagePreview/types";
 import { templatePreviewData } from "@/components/templateFill/previewData";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSignedMediaUrl } from "@/hooks/useSignedMediaUrl";
 import { BOOKING_DURATIONS } from "@/queries/useBookingLinks";
 import {
   type ContactWithAddressesRow,
@@ -124,6 +125,7 @@ export default function ReviewStep({
   };
 }) {
   const { translate: t } = useTranslation();
+  const headerMediaPreviewUrl = useSignedMediaUrl(headerMedia || undefined);
   const [idx, setIdx] = useState(0);
   const [previewStats, setPreviewStats] = useState({
     resolved: 0,
@@ -167,7 +169,7 @@ export default function ReviewStep({
       substitute: true,
       language: template.language,
       media: {
-        url: headerMedia,
+        url: headerMediaPreviewUrl ?? "",
         name: headerMediaName,
         size: headerMediaSize,
       },
@@ -177,7 +179,7 @@ export default function ReviewStep({
     template,
     vars,
     current,
-    headerMedia,
+    headerMediaPreviewUrl,
     headerMediaName,
     headerMediaSize,
     t,

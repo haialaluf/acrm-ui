@@ -53,7 +53,6 @@ export default function HeaderMediaCard({
   name,
   example,
   note,
-  expiresIn,
   onChange,
 }: {
   format: HeaderMediaFormat;
@@ -63,9 +62,6 @@ export default function HeaderMediaCard({
   /** Overrides the "same file to all recipients" line — an automation sends one
    *  contact at a time, so the broadcast wording would be wrong there. */
   note?: string;
-  /** Signed-URL lifetime for the uploaded file, in seconds. See
-   *  `DURABLE_MEDIA_SIGNED_URL_TTL_SECONDS` for why an automation needs one. */
-  expiresIn?: number;
   onChange: (url: string, name: string, size?: number) => void;
 }) {
   const { translate: t } = useTranslation();
@@ -84,12 +80,7 @@ export default function HeaderMediaCard({
     setRehosting(true);
     setRehostError(null);
     try {
-      const url = await rehostTemplateExample(
-        example,
-        activeOrgId,
-        format,
-        expiresIn,
-      );
+      const url = await rehostTemplateExample(example, activeOrgId, format);
       onChange(url, basenameOf(example));
     } catch (err) {
       setRehostError(
@@ -127,7 +118,6 @@ export default function HeaderMediaCard({
         url={value}
         name={name}
         orgId={activeOrgId ?? undefined}
-        expiresIn={expiresIn}
         onFile={onChange}
         onClear={() => onChange("", "")}
       />

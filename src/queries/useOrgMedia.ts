@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
-import { MEDIA_SIGNED_URL_TTL_SECONDS } from "@/utils/uploadMediaToBucket";
+import { PREVIEW_SIGNED_URL_TTL_SECONDS } from "@/hooks/useSignedMediaUrl";
 import { queryKeys } from "./queryKeys";
 
 /** Everything we upload lands here — see `uploadMediaToBucket`. The bucket's
@@ -19,7 +19,7 @@ export type OrgMediaItem = {
   /** Object path inside the `media` bucket. Stable — the signed URL is not. */
   path: string;
   name: string;
-  /** Signed URL, valid for `MEDIA_SIGNED_URL_TTL_SECONDS`. */
+  /** Signed URL, valid for `PREVIEW_SIGNED_URL_TTL_SECONDS`. */
   url: string;
   mimeType: string;
   size: number;
@@ -89,7 +89,7 @@ export function useOrgMedia({ mimePrefix }: { mimePrefix?: string } = {}) {
 
       const { data: signed, error: signError } = await bucket.createSignedUrls(
         objects.map((object) => `${folder}/${object.name}`),
-        MEDIA_SIGNED_URL_TTL_SECONDS,
+        PREVIEW_SIGNED_URL_TTL_SECONDS,
       );
       if (signError) {
         throw new Error(`Failed to sign media URLs: ${signError.message}`);
