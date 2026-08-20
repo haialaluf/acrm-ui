@@ -142,6 +142,7 @@ export const SURFACES = {
   "step.condition": ALWAYS,
   "step.filter": ALWAYS,
   "step.assign": ALWAYS,
+  "step.analyze": ALWAYS,
   "step.tag": ALWAYS,
   "step.webhook": ALWAYS,
 
