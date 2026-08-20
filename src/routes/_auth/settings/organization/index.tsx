@@ -47,11 +47,12 @@ function EditOrganization() {
   const { data: agents } = useCurrentAgents();
   const isOwner = agent?.extra?.role === "owner";
 
-  // Back-office agents are excluded: this picker is who answers a contact by
-  // default, which a `kind: 'back_office'` agent can never do (agent-client
-  // never lets one into that fallback — see its AGENT SELECTION block).
+  // Back-office and personal-assistant agents are excluded: this picker is
+  // who answers a contact by default, which neither kind can ever do
+  // (agent-client never lets either into that fallback — see its AGENT
+  // SELECTION block).
   const aiAgents = (agents ?? []).filter(
-    (a) => a.ai && a.kind !== "back_office",
+    (a) => a.ai && a.kind !== "back_office" && a.kind !== "personal_assistant",
   );
   const setActiveOrg = useBoundStore((state) => state.ui.setActiveOrg);
   const updateOrg = useUpdateCurrentOrganization();

@@ -36,12 +36,13 @@ export default function ConversationAgentSelect({
   const { data: agents } = useCurrentAgents();
   const { data: org } = useCurrentOrganization();
 
-  // Back-office agents are left out along with inactive ones: agent-client
-  // never lets a `kind: 'back_office'` agent answer a contact automatically
-  // (see its AGENT SELECTION block), so offering one here would promise a
-  // reply that never comes.
+  // Back-office and personal-assistant agents are left out along with
+  // inactive ones: agent-client never lets either kind answer a contact
+  // automatically (see its AGENT SELECTION block) — a personal assistant is
+  // reachable only through "Chat with this agent" — so offering one here
+  // would promise a reply that never comes.
   const aiAgents = (agents ?? []).filter(
-    (a) => a.ai && a.kind !== "back_office",
+    (a) => a.ai && a.kind !== "back_office" && a.kind !== "personal_assistant",
   ) as AIAgentRow[];
 
   // Inactive agents are left out: agent-client skips them when resolving the

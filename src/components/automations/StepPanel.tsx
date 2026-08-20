@@ -252,12 +252,14 @@ export default function StepPanel({
       );
 
     case "assign": {
-      // A back-office agent can never answer a contact (agent-client never
-      // lets one into this fallback — see its AGENT SELECTION block), so
-      // offering one here would only produce a conversation nothing answers.
-      // It has its own step, "analyze", for exactly this agent kind.
+      // A back-office or personal-assistant agent can never answer a contact
+      // (agent-client never lets either into this fallback — see its AGENT
+      // SELECTION block), so offering one here would only produce a
+      // conversation nothing answers. Back-office has its own step,
+      // "analyze"; a personal assistant is reachable only through "Chat with
+      // this agent", never an automation.
       const assignable = (agents ?? []).filter(
-        (a) => !a.ai || a.kind !== "back_office",
+        (a) => !a.ai || (a.kind !== "back_office" && a.kind !== "personal_assistant"),
       );
       const chosen = (step.agentIds ?? [])
         .map((id) => assignable.find((a) => a.id === id))

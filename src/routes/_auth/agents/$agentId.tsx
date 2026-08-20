@@ -77,6 +77,7 @@ function AgentDetail() {
   const kind =
     useWatch({ control, name: "kind" }) ?? agent?.kind ?? "customer_facing";
   const isBackOffice = kind === "back_office";
+  const isPersonalAssistant = kind === "personal_assistant";
 
   const handleChat = () => {
     if (!activeOrgId || !localAddress) return;
@@ -105,8 +106,12 @@ function AgentDetail() {
                 navigate({ to: "..", hash: (prevHash) => prevHash! }),
             });
           }}
-          deleteDisabled={!isAdmin}
-          deleteDisabledReason={t("Requires administrator permissions")}
+          deleteDisabled={!isAdmin || isPersonalAssistant}
+          deleteDisabledReason={
+            isPersonalAssistant
+              ? t("The personal assistant can't be deleted")
+              : t("Requires administrator permissions")
+          }
           deleteLoading={deleteAgent.isPending}
         />
 
@@ -126,15 +131,17 @@ function AgentDetail() {
                 />
               </label>
 
-              <SelectField
-                name="kind"
-                control={control}
-                label={t("Type")}
-                options={[
-                  { value: "customer_facing", label: t("Customer facing") },
-                  { value: "back_office", label: t("Back office") },
-                ]}
-              />
+              {!isPersonalAssistant && (
+                <SelectField
+                  name="kind"
+                  control={control}
+                  label={t("Type")}
+                  options={[
+                    { value: "customer_facing", label: t("Customer facing") },
+                    { value: "back_office", label: t("Back office") },
+                  ]}
+                />
+              )}
 
               <SelectField
                 name="extra.mode"
@@ -149,7 +156,7 @@ function AgentDetail() {
 
               <div className="border-t border-border" />
 
-              {!isBackOffice && (
+              {!isBackOffice && !isPersonalAssistant && (
                 <>
                   <PersonaSection control={control} disabled={!isAdmin} />
 
@@ -201,7 +208,7 @@ function AgentDetail() {
                       : t("You are a helpful assistant...")
                   }
                 />
-                {!isBackOffice && (
+                {!isBackOffice && !isPersonalAssistant && (
                   <FaqSection
                     control={control}
                     register={register}

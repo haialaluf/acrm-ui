@@ -2399,7 +2399,7 @@ export type Database = {
       }
     }
     Enums: {
-      agent_kind: "customer_facing" | "back_office"
+      agent_kind: "customer_facing" | "back_office" | "personal_assistant"
       appointment_status: "scheduled" | "confirmed" | "cancelled" | "completed"
       direction: "incoming" | "outgoing" | "internal"
       log_level: "info" | "warning" | "error"
@@ -3097,7 +3097,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      agent_kind: ["customer_facing", "back_office"],
+      agent_kind: ["customer_facing", "back_office", "personal_assistant"],
       appointment_status: ["scheduled", "confirmed", "cancelled", "completed"],
       direction: ["incoming", "outgoing", "internal"],
       log_level: ["info", "warning", "error"],
