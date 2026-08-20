@@ -63,41 +63,4 @@ export const SKILL_CATALOG: SkillCatalogEntry[] = [
       },
     ],
   },
-  {
-    id: "crm_lookup",
-    title: "CRM lookup",
-    description:
-      "Lets the agent look up conversation history, contacts, and accounts from the CRM.",
-    icon: "database",
-    configSpec: [
-      {
-        key: "acrm",
-        label: "CRM connection",
-        type: "acrm_api_key",
-        required: true,
-      },
-      {
-        key: "allowed_tools",
-        label: "Allowed tools",
-        type: "multiselect",
-        options: [
-          { value: "list_conversations", label: "List conversations" },
-          { value: "fetch_conversation", label: "Get conversation" },
-          { value: "search_contacts", label: "Search contacts" },
-          { value: "list_accounts", label: "List accounts" },
-          { value: "list_templates", label: "List templates" },
-          { value: "fetch_template", label: "Get template" },
-          { value: "send_message", label: "Send message" },
-        ],
-        default: [
-          "list_conversations",
-          "fetch_conversation",
-          "search_contacts",
-          "list_accounts",
-          "list_templates",
-          "fetch_template",
-        ],
-      },
-    ],
-  },
 ];
