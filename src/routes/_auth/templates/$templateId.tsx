@@ -2,21 +2,29 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { LoaderCircle } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
 import TemplateEditor from "@/components/TemplateEditor";
-import { NoWhatsAppState } from "@/components/templates/TemplatesList";
+import IntegrationGate from "@/components/IntegrationGate";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useConnectedWhatsAppAddress } from "@/hooks/useConnectedWhatsAppAddress";
+import { useIntegrations } from "@/hooks/useIntegrations";
 import { useTemplates, useDeleteTemplate } from "@/queries/useTemplates";
 
 export const Route = createFileRoute("/_auth/templates/$templateId")({
-  component: EditTemplate,
+  component: () => (
+    <IntegrationGate surface="/templates/$templateId">
+      <EditTemplateBody />
+    </IntegrationGate>
+  ),
 });
 
-function EditTemplate() {
+// A separate component so the gate decides before any of this mounts:
+// the body's queries and early returns never run for an organization
+// that is about to be redirected.
+function EditTemplateBody() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { templateId } = Route.useParams();
 
-  const { address, isLoading: addressLoading } = useConnectedWhatsAppAddress();
+  const { rows, isLoading: addressLoading } = useIntegrations();
+  const address = rows.whatsapp?.address;
   const { data: templates, isLoading: templatesLoading } =
     useTemplates(address);
   const deleteTemplate = useDeleteTemplate();
@@ -32,14 +40,9 @@ function EditTemplate() {
     );
   }
 
-  if (!address) {
-    return (
-      <>
-        <SectionHeader title={t("Edit template")} />
-        <NoWhatsAppState />
-      </>
-    );
-  }
+  // Inside the gate a connected number is guaranteed; this only narrows the
+  // type for the editor below.
+  if (!address) return null;
 
   const template = templates?.find((tpl) => tpl.id === templateId);
 

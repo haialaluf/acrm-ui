@@ -40,6 +40,15 @@ export type StepMeta = {
   group: StepGroup;
 };
 
+/**
+ * Every step type, always — this map is never filtered by what the organization
+ * has connected. A flow saved while email was connected must still draw its
+ * `email` node, open its editor and summarise it after the domain is
+ * disconnected; without the label, icon and tint here it could not.
+ *
+ * Gating belongs at the point of authoring instead: `InsertMenu` decides which
+ * types can be *added*.
+ */
 export const STEP_TYPES: Record<StepType, StepMeta> = {
   template: {
     label: "Send WhatsApp template",

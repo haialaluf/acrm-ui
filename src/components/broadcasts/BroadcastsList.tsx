@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import ConfirmModal from "@/components/ConfirmModal";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
+import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 import {
   type BroadcastBatchRow,
   useBroadcastBatches,
@@ -163,20 +164,22 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
         )}
       </div>
 
-      <div className="shrink-0 px-[16px] py-[12px] border-t border-border">
-        <button
-          className="primary w-full h-[44px] flex items-center justify-center gap-[8px] text-[14px]"
-          onClick={() =>
-            navigate({
-              to: "/conversations/bulk-send",
-              hash: (prevHash: string | undefined) => prevHash!,
-            })
-          }
-        >
-          <Plus className="w-[17px] h-[17px]" />
-          {t("New broadcast")}
-        </button>
-      </div>
+      <HideIfNotPermitted surface="broadcasts.create">
+        <div className="shrink-0 px-[16px] py-[12px] border-t border-border">
+          <button
+            className="primary w-full h-[44px] flex items-center justify-center gap-[8px] text-[14px]"
+            onClick={() =>
+              navigate({
+                to: "/conversations/bulk-send",
+                hash: (prevHash: string | undefined) => prevHash!,
+              })
+            }
+          >
+            <Plus className="w-[17px] h-[17px]" />
+            {t("New broadcast")}
+          </button>
+        </div>
+      </HideIfNotPermitted>
 
       <ConfirmModal
         open={!!cancelTarget}

@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { LoaderCircle } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
+import IntegrationGate from "@/components/IntegrationGate";
 import EmailTemplateBuilder, {
   type BuilderDraft,
 } from "@/components/emailTemplate/EmailTemplateBuilder";
@@ -16,14 +17,23 @@ import {
 import type { EmailProjectData, EmailTemplateStatus } from "@/supabase/client";
 
 export const Route = createFileRoute("/_auth/templates/email/$emailTemplateId")(
-  { component: EditEmailTemplate },
+  {
+    component: () => (
+      <IntegrationGate surface="/templates/email/$emailTemplateId">
+        <EditEmailTemplateBody />
+      </IntegrationGate>
+    ),
+  },
 );
 
 /** A row saved before its first export has no document yet; fall back to the
  *  blank starter so the builder always has something to mount on. */
 const BLANK = projectFor(STARTERS[0].content);
 
-function EditEmailTemplate() {
+// A separate component so the gate decides before any of this mounts:
+// the body's queries and early returns never run for an organization
+// that is about to be redirected.
+function EditEmailTemplateBody() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { emailTemplateId } = Route.useParams();

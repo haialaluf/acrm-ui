@@ -15,7 +15,9 @@ import {
 } from "@/queries/useEmailTemplates";
 import { useMintUnsubscribeLinks } from "@/queries/useUnsubscribeLinks";
 import { useMessagingLimit } from "@/queries/useMessagingLimit";
-import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
+import { useIntegrations } from "@/hooks/useIntegrations";
+import { useOutboundChannels } from "@/hooks/useAccess";
+import IntegrationGate from "@/components/IntegrationGate";
 import { pushMessageToStore } from "@/utils/MessageUtils";
 import { startConversation } from "@/utils/ConversationUtils";
 import useBoundStore from "@/stores/useBoundStore";
@@ -100,21 +102,21 @@ type BulkSendSearch = {
 };
 
 export const Route = createFileRoute("/_auth/conversations/bulk-send")({
-  component: BulkSend,
+  component: () => (
+    <IntegrationGate surface="/conversations/bulk-send">
+      <BulkSendWizard />
+    </IntegrationGate>
+  ),
   validateSearch: (raw: Record<string, unknown>): BulkSendSearch => ({
     contactId: typeof raw.contactId === "string" ? raw.contactId : undefined,
     templateId: typeof raw.templateId === "string" ? raw.templateId : undefined,
   }),
 });
 
-/**
- * Multi-step wizard for sending a WhatsApp template to many contacts at once.
- * Stages: recipients → template → variables → review → sending → done.
- * Each stage component lives in `src/components/bulkSend/`. This file owns the
- * shared state and the batched send (two bulk supabase requests, regardless of
- * recipient count).
- */
-function BulkSend() {
+// A separate component so the gate decides before any of this mounts:
+// the body's queries and early returns never run for an organization
+// that is about to be redirected.
+function BulkSendWizard() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { contactId: prefillContactId, templateId: prefillTemplateId } =
@@ -123,16 +125,12 @@ function BulkSend() {
   const { data: agent } = useCurrentAgent();
   const agentId = agent?.id;
   const { data: contacts } = useContacts();
-  const { data: addresses } = useOrganizationsAddresses();
-  const whatsappAddress = addresses?.find(
-    (a) => a.service === "whatsapp" && a.status === "connected",
-  );
+  const { rows: connectedAddresses } = useIntegrations();
+  const whatsappAddress = connectedAddresses.whatsapp;
   // A verified sending domain. Email templates point at one by name, so this is
   // both the "can this org send email at all" test and where the From address
   // and SES wiring come from.
-  const emailAddress = addresses?.find(
-    (a) => a.service === "email" && a.status === "connected",
-  );
+  const emailAddress = connectedAddresses.email;
   const { data: templates, isPending: loadingTemplates } = useTemplates(
     whatsappAddress?.address,
   );
@@ -175,10 +173,21 @@ function BulkSend() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [vars, setVars] = useState<Record<string, VarValue>>({});
+  /* Which channels this organization can broadcast on at all — the same list
+   * the templates section and the nav rail read, so the three cannot drift
+   * apart on what "you can send" means. */
+  const { channels: available } = useOutboundChannels();
   // Email arm. `channel` is set by whichever list the step-1 pick came from,
   // and from then on decides who is selectable, which variables UI runs and
   // which preview the review step draws.
-  const [channel, setChannel] = useState<Channel>("whatsapp");
+  //
+  // Derived rather than defaulted-then-corrected: this wizard only mounts
+  // inside `IntegrationGate`, so at least one channel is connected by now and
+  // `available[0]` is real. Starting at "whatsapp" and fixing it in an effect
+  // rendered one frame of the WhatsApp list to an email-only organization.
+  const [channel, setChannel] = useState<Channel>(
+    () => available[0] ?? "whatsapp",
+  );
   const [emailTemplateId, setEmailTemplateId] = useState<string | null>(null);
   // The list only carries summaries; the compiled HTML the preview and the send
   // both need lives on the detail row.
@@ -223,16 +232,6 @@ function BulkSend() {
   // this is all-or-nothing: if it is set, nothing was written and nothing sent.
   const [sendError, setSendError] = useState<string | null>(null);
 
-  /* Which channels this organization can broadcast on at all. Drives the step-1
-   * toggle, and when there is exactly one it also picks it — an org with only
-   * WhatsApp connected should never see an email tab it cannot use. */
-  const available = useMemo<Channel[]>(() => {
-    const list: Channel[] = [];
-    if (emailAddress) list.push("email");
-    if (whatsappAddress) list.push("whatsapp");
-    return list;
-  }, [emailAddress, whatsappAddress]);
-
   /* The From address, resolved at queue time rather than at dispatch.
    *
    * It is snapshotted onto every message so that changing the domain's default
@@ -255,15 +254,6 @@ function BulkSend() {
         undefined,
     };
   }, [emailAddress, emailTemplate]);
-
-  const pickedDefaultChannelRef = useRef(false);
-  useEffect(() => {
-    if (pickedDefaultChannelRef.current || available.length === 0) return;
-    pickedDefaultChannelRef.current = true;
-    // Only meaningful when one channel exists; with both, the default stays
-    // whatever the toggle last showed.
-    if (available.length === 1) setChannel(available[0]);
-  }, [available]);
 
   // Prefill once data is loaded. Guarded so we don't re-apply if the user
   // navigates back inside the wizard. WhatsApp-only: the entry points that use

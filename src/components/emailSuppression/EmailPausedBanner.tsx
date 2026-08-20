@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ShieldX } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
+import { useIntegrations } from "@/hooks/useIntegrations";
 import { useEmailHealthSnapshots } from "@/queries/useEmailHealth";
 import {
   coalesceEmailHealth,
@@ -24,15 +24,8 @@ import {
 export default function EmailPausedBanner() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const { data: addresses } = useOrganizationsAddresses();
-
-  const domain = useMemo(
-    () =>
-      (addresses ?? []).find(
-        (a) => a.service === "email" && a.status === "connected",
-      )?.address ?? null,
-    [addresses],
-  );
+  const { rows } = useIntegrations();
+  const domain = rows.email?.address ?? null;
 
   const { data: snapshots } = useEmailHealthSnapshots(domain);
   const state = useMemo(

@@ -1,32 +1,27 @@
-import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
 import type { EmailOrganizationAddressExtra } from "@/supabase/client";
+import { useIntegrations } from "./useIntegrations";
 
 /**
- * The organization's verified sending domain, for the top-level `/templates`
- * section which has no `$orgAddressId` route param to work from.
+ * The organization's verified sending domain, with its `extra` narrowed to the
+ * email shape.
  *
- * Picks the *first* connected email domain, the same assumption
- * `useConnectedWhatsAppAddress` makes about numbers, so the two sections can
- * never disagree about which identity they act on. Organizations with several
- * domains manage them at `/integrations/email/$orgAddressId`.
+ * That cast is the whole reason this exists on top of `useIntegrations().rows`:
+ * the email builder's Setup panel reads `default_from_address` /
+ * `default_from_name` out of `extra`, and `OrganizationAddressExtra` is a union
+ * every read site would otherwise have to narrow for itself.
  *
- * Returns the row as well as the address: the builder's Setup panel needs
- * `default_from_address` / `default_from_name` out of `extra` to fill in the
- * sender fields, and there is no second query worth spending on that.
+ * Picks the *first* connected domain, the same assumption bulk-send makes about
+ * numbers, so the two can never disagree about which identity they act on.
+ * Organizations with several domains manage them at
+ * `/integrations/email/$orgAddressId`.
  */
 export function useConnectedEmailAddress() {
-  // `isLoading`, not `isPending`: with no active organization the query is
-  // disabled and `isPending` would stay true forever, wedging callers on a
-  // spinner instead of letting them fall through to their empty state.
-  const { data: addresses, isLoading } = useOrganizationsAddresses();
+  const { rows, isLoading } = useIntegrations();
 
-  const row = addresses?.find(
-    (a) => a.service === "email" && a.status === "connected",
-  );
+  const row = rows.email;
 
   return {
     address: row?.address,
-    row,
     extra: (row?.extra ?? null) as EmailOrganizationAddressExtra | null,
     isLoading,
   };

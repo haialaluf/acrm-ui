@@ -18,6 +18,7 @@ import TemplatePicker from "./TemplatePicker";
 import DisabledSection from "./DisabledSection";
 import { useActiveConversation } from "@/hooks/useThread";
 import { useCSWindow } from "@/hooks/useCSWindow";
+import { useAccess } from "@/hooks/useAccess";
 import QuotedMessage from "./Message/QuotedMessage";
 import { channelMessageId } from "@/utils/messageRefs";
 
@@ -82,6 +83,21 @@ export default function ChatFooter() {
   // WhatsApp's customer service window lasts 24 hours since the contact's last
   // message. Shared with the reaction picker, which is gated by the same rule.
   const { inCSWindow, remaining } = useCSWindow();
+
+  const { allows } = useAccess();
+  /**
+   * Reopening a closed conversation means sending a template, which needs a
+   * live WhatsApp connection — not merely a conversation that once was one.
+   *
+   * The one place this file consults connectivity rather than the row: it is an
+   * authoring action, and with the number disconnected the send would fail at
+   * dispatch anyway. Without it the footer falls through to the same copy every
+   * other channel shows — wait for them to write again — which is true. The
+   * "will close in" countdown below stays on `conv.service` alone: that is
+   * window state, not something you are being offered.
+   */
+  const canReopenWithTemplate =
+    allows("chat.reopenWithTemplate") && conv?.service === "whatsapp";
 
   useEffect(() => {
     if (!editableDiv.current) {
@@ -303,13 +319,13 @@ export default function ChatFooter() {
                 }}
                 onClick={() =>
                   !inCSWindow &&
-                  conv.service === "whatsapp" &&
+                  canReopenWithTemplate &&
                   toggle("templatePicker")
                 }
                 title={
                   inCSWindow
                     ? undefined
-                    : conv.service === "whatsapp"
+                    : canReopenWithTemplate
                       ? t(
                           "WhatsApp closes the conversation 24 hours after the last received message. To reopen the conversation you must use a template.",
                         )
@@ -322,18 +338,22 @@ export default function ChatFooter() {
                 <div
                   className={
                     "absolute bottom-[1px] py-[10px] mx-[5px] max-h-[40px] text-[15px] text-muted-foreground" +
-                    (inCSWindow ? "" : " cursor-pointer")
+                    // Only a pointer when clicking actually opens the template
+                    // picker — closed with no way to reopen, it does nothing.
+                    (!inCSWindow && canReopenWithTemplate
+                      ? " cursor-pointer"
+                      : "")
                   }
                   onClick={() =>
                     inCSWindow
                       ? editableDiv.current?.focus()
-                      : conv.service === "whatsapp"
+                      : canReopenWithTemplate
                         ? toggle("templatePicker")
                         : undefined
                   }
                 >
                   {!inCSWindow ? (
-                    conv.service === "whatsapp" ? (
+                    canReopenWithTemplate ? (
                       <>
                         <span className="lg:hidden">
                           {t("Conversation closed")}

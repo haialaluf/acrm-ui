@@ -8,17 +8,20 @@ import {
   Plus,
 } from "lucide-react";
 import { WhatsAppOutlined } from "@ant-design/icons";
-import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { EmailTemplateSummary, TemplateData } from "@/supabase/client";
 import SectionBody from "@/components/SectionBody";
 import SectionItem from "@/components/SectionItem";
 import { statusDot } from "@/components/emailTemplate/status";
+import type { OutboundChannel } from "@/hooks/useAccess";
 
 /** Which kind of template the list is showing. Templates are per-channel all
  *  the way down — different stores, different editors — so this is a switch
- *  between two lists, not a filter over one. */
-export type TemplateChannel = "whatsapp" | "email";
+ *  between two lists, not a filter over one.
+ *
+ *  An alias rather than its own union: it is the same set as what an
+ *  organization can send on, and two independent spellings could drift. */
+export type TemplateChannel = OutboundChannel;
 
 const segmentedTheme = {
   components: {
@@ -35,9 +38,15 @@ const segmentedTheme = {
 export function ChannelToggle({
   channel,
   onChannel,
+  channels,
 }: {
   channel: TemplateChannel;
   onChannel: (channel: TemplateChannel) => void;
+  /** Which halves to offer. Callers pass the organization's connected outbound
+   *  channels (`useOutboundChannels`), so a WhatsApp-only organization is never
+   *  shown an Email half it cannot send from. A single entry renders as one
+   *  inert pill, which is deliberate — it labels what the list below holds. */
+  channels: TemplateChannel[];
 }) {
   const { translate: t } = useTranslation();
 
@@ -50,7 +59,7 @@ export function ChannelToggle({
           onChange={onChannel}
           options={[
             {
-              value: "email",
+              value: "email" as const,
               label: (
                 <span className="inline-flex items-center gap-[6px] py-[2px]">
                   <Mail size={15} />
@@ -59,7 +68,7 @@ export function ChannelToggle({
               ),
             },
             {
-              value: "whatsapp",
+              value: "whatsapp" as const,
               label: (
                 <span className="inline-flex items-center gap-[6px] py-[2px]">
                   <WhatsAppOutlined style={{ fontSize: "15px" }} />
@@ -67,7 +76,7 @@ export function ChannelToggle({
                 </span>
               ),
             },
-          ]}
+          ].filter((option) => channels.includes(option.value))}
         />
       </ConfigProvider>
     </div>
@@ -249,67 +258,6 @@ export function EmailTemplatesList({
           {t("No templates available.")}
         </div>
       )}
-    </SectionBody>
-  );
-}
-
-/**
- * Shown by the top-level `/templates` routes when the organization has no
- * connected WhatsApp number — WhatsApp templates are a per-WABA resource, so
- * there is nothing to list or create until one exists.
- */
-export function NoWhatsAppState() {
-  const { translate: t } = useTranslation();
-  const navigate = useNavigate();
-
-  return (
-    <SectionBody>
-      <SectionItem
-        title={t("Connect WhatsApp")}
-        aside={
-          <div className="p-[8px] bg-primary/10 rounded-full">
-            <Plus className="w-[24px] h-[24px] text-primary" />
-          </div>
-        }
-        onClick={() =>
-          navigate({
-            to: "/integrations/whatsapp/new",
-            hash: (prevHash) => prevHash!,
-          })
-        }
-      />
-      <div className="p-8 text-center text-muted-foreground text-sm">
-        {t("No templates available.")}
-      </div>
-    </SectionBody>
-  );
-}
-
-/** The email counterpart: SES will not deliver from an unverified domain, so
- *  there is no point letting someone design an email they cannot send. */
-export function NoEmailDomainState() {
-  const { translate: t } = useTranslation();
-  const navigate = useNavigate();
-
-  return (
-    <SectionBody>
-      <SectionItem
-        title={t("Connect a sending domain")}
-        aside={
-          <div className="p-[8px] bg-primary/10 rounded-full">
-            <Plus className="w-[24px] h-[24px] text-primary" />
-          </div>
-        }
-        onClick={() =>
-          navigate({
-            to: "/integrations/email/new",
-            hash: (prevHash) => prevHash!,
-          })
-        }
-      />
-      <div className="p-8 text-center text-muted-foreground text-sm">
-        {t("Verify a domain before designing emails you can send.")}
-      </div>
     </SectionBody>
   );
 }

@@ -3,6 +3,7 @@ import {
   type TemplateData,
 } from "@/supabase/client";
 import * as fill from "@/components/templateFill/types";
+import type { OutboundChannel } from "@/hooks/useAccess";
 import { contactPhone } from "@/utils/ContactAddressUtils";
 
 /* Shared types, constants, and pure helpers for the bulk-send wizard. */
@@ -26,8 +27,8 @@ export type Stage =
   | "done";
 
 /** Which channel the broadcast goes out on, fixed by the step-1 template.
- *  Mirrors `TemplateChannel` in components/templates/TemplatesList.tsx. */
-export type Channel = "whatsapp" | "email";
+ *  The same set as `TemplateChannel`; both alias the one union. */
+export type Channel = OutboundChannel;
 
 export type Scheduling = "now" | "later" | "split";
 

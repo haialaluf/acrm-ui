@@ -1,6 +1,7 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { LinkButton } from "@/components/LinkButton";
 import { useCurrentOrganization } from "@/queries/useOrganizations";
+import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 import { MessageSquarePlus } from "lucide-react";
 
 export default function Header() {
@@ -16,16 +17,18 @@ export default function Header() {
         </div>
       </div>
       <div className="flex justify-end items-center">
-        <LinkButton
-          to="/conversations/bulk-send"
-          className="ms-[10px] flex items-center gap-[8px]"
-          title={t("New conversation")}
-        >
-          <MessageSquarePlus className="w-[24px] h-[24px] text-foreground shrink-0" />
-          <span className="text-[14px] text-foreground truncate">
-            {t("New conversation")}
-          </span>
-        </LinkButton>
+        <HideIfNotPermitted surface="header.newConversation">
+          <LinkButton
+            to="/conversations/bulk-send"
+            className="ms-[10px] flex items-center gap-[8px]"
+            title={t("New conversation")}
+          >
+            <MessageSquarePlus className="w-[24px] h-[24px] text-foreground shrink-0" />
+            <span className="text-[14px] text-foreground truncate">
+              {t("New conversation")}
+            </span>
+          </LinkButton>
+        </HideIfNotPermitted>
       </div>
     </div>
   );

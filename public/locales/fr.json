@@ -135,7 +135,6 @@
   "columns detected": "colonnes détectées",
   "Complete the required fields": "Remplissez les champs requis",
   "Configure the following HTTP headers for authentication:": "Configurez les en-têtes HTTP suivants pour vous authentifier :",
-  "Configure WhatsApp": "Configurer WhatsApp",
   "Configuring authentication...": "Configuration de l'authentification...",
   "Connect": "Connecter",
   "Connect account": "Connecter un compte",
@@ -973,7 +972,6 @@
   "Blank canvas": "Page vierge",
   "Close preview": "Fermer l'aperçu",
   "Compliance": "Conformité",
-  "Connect a sending domain": "Connecter un domaine d'envoi",
   "Content": "Contenu",
   "Date block, two-column gallery, RSVP": "Bloc date, galerie à deux colonnes, RSVP",
   "Email preview": "Aperçu de l'e-mail",
@@ -1032,7 +1030,6 @@
   "Upload images": "Téléverser des images",
   "Uploading…": "Téléversement…",
   "Used in the design but not defined:": "Utilisées dans la mise en page mais non définies :",
-  "Verify a domain before designing emails you can send.": "Vérifiez un domaine avant de concevoir des e-mails que vous pourrez envoyer.",
   "Where uploads go": "Où vont les fichiers",
   "Width": "Largeur",
   "You can also paste existing HTML once you are in the builder — it is parsed into editable blocks.": "Vous pouvez aussi coller du HTML existant dans l'éditeur — il est converti en blocs modifiables.",
@@ -1088,5 +1085,7 @@
   "Voice messages are transcribed, and images and documents described, before the agent replies.": "Les messages vocaux sont transcrits, et les images et documents décrits, avant que l'agent ne réponde.",
   "Primary language": "Langue principale",
   "Detect automatically": "Détecter automatiquement",
-  "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.": "La langue que parlent vos clients. L'anglais est toujours compris également, donc un message vocal dans l'une ou l'autre est transcrit correctement. Laissez vide pour détecter la langue à chaque fois."
+  "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.": "La langue que parlent vos clients. L'anglais est toujours compris également, donc un message vocal dans l'une ou l'autre est transcrit correctement. Laissez vide pour détecter la langue à chaque fois.",
+  "Channels": "Canaux",
+  "Lead sources": "Sources de prospects"
 }

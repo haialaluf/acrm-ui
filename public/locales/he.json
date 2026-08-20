@@ -144,7 +144,6 @@
   "columns detected": "עמודות זוהו",
   "Complete the required fields": "מלא את השדות הנדרשים",
   "Configure the following HTTP headers for authentication:": "הגדר את כותרות ה-HTTP הבאות לצורך אימות:",
-  "Configure WhatsApp": "הגדרת WhatsApp",
   "Configuring authentication...": "מגדיר אימות...",
   "Confirm": "אישור",
   "Connect": "התחברות",
@@ -1016,7 +1015,6 @@
   "Blank canvas": "דף חלק",
   "Close preview": "סגירת התצוגה המקדימה",
   "Compliance": "עמידה בתקנות",
-  "Connect a sending domain": "חיבור דומיין לשליחה",
   "Content": "תוכן",
   "Date block, two-column gallery, RSVP": "בלוק תאריך, גלריה בשתי עמודות, אישור השתתפות",
   "Email preview": "תצוגה מקדימה של האימייל",
@@ -1075,7 +1073,6 @@
   "Upload images": "העלאת תמונות",
   "Uploading…": "מעלה…",
   "Used in the design but not defined:": "מופיעים בעיצוב אבל לא הוגדרו:",
-  "Verify a domain before designing emails you can send.": "אמתו דומיין לפני שתעצבו אימיילים שאפשר לשלוח.",
   "Where uploads go": "לאן נשמרים הקבצים",
   "Width": "רוחב",
   "You can also paste existing HTML once you are in the builder — it is parsed into editable blocks.": "אפשר גם להדביק HTML קיים בתוך העורך — הוא יומר לבלוקים שניתן לערוך.",
@@ -1373,5 +1370,7 @@
   "Voice messages are transcribed, and images and documents described, before the agent replies.": "הודעות קוליות מתומללות, ותמונות ומסמכים מתוארים, לפני שהסוכן משיב.",
   "Primary language": "שפה ראשית",
   "Detect automatically": "זיהוי אוטומטי",
-  "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.": "השפה שבה הלקוחות שלך מדברים. אנגלית תמיד מובנת גם היא, כך שהודעה קולית באחת מהן מתומללת נכון. השאירו ריק כדי לזהות את השפה בכל פעם."
+  "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.": "השפה שבה הלקוחות שלך מדברים. אנגלית תמיד מובנת גם היא, כך שהודעה קולית באחת מהן מתומללת נכון. השאירו ריק כדי לזהות את השפה בכל פעם.",
+  "Channels": "ערוצים",
+  "Lead sources": "מקורות לידים"
 }

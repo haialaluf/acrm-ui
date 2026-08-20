@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 import useBoundStore from "@/stores/useBoundStore";
 import Menu from "@/components/Menu";
 import Chat from "@/components/Chat";
@@ -10,7 +10,15 @@ import FilePicker from "@/components/FileUploader/FilePicker";
 import FilePreviewer from "@/components/FilePreviewer";
 import ActionCard from "@/components/ActionCard";
 import { useTranslation } from "@/hooks/useTranslation";
-import { Bot, Building2, MessageSquarePlus, Settings } from "lucide-react";
+import {
+  Bot,
+  Building2,
+  LoaderCircle,
+  MessageSquarePlus,
+  Unplug,
+} from "lucide-react";
+import HideIfNotPermitted from "@/components/HideIfNotPermitted";
+import { GATED_SECTIONS, useAccess } from "@/hooks/useAccess";
 import { useResizable } from "@/hooks/useResizable";
 import { isRtl, type Language } from "@/stores/uiSlice";
 import { useCurrentAgents } from "@/queries/useAgents";
@@ -40,6 +48,12 @@ function AppLayout() {
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
   const { data: agents } = useCurrentAgents();
   const hasAiAgents = agents?.some((a) => a.ai);
+  const { allows, isResolved } = useAccess();
+  // The one surface read inverted: this card exists *because* nothing is
+  // connected. Gated on `isResolved` too, so an organization that turns out to
+  // have everything connected is not shown it for a frame on every load.
+  const needsIntegrations =
+    isResolved && !allows("app.connected") && !!activeOrgId;
   const activeThreadKey = useBoundStore((state) => state.ui.activeThreadKey);
   const panelExpanded = useBoundStore((state) => state.ui.panelExpanded);
   const setActiveThread = useBoundStore((state) => state.ui.setActiveThread);
@@ -80,6 +94,27 @@ function AppLayout() {
   // Both full-width routes get identical layout treatment; kept as one flag so
   // the four places below cannot drift apart.
   const isFullWidthRoute = isEmailBuilderRoute || isAutomationEditorRoute;
+
+  /**
+   * Redirect out of a section this organization cannot use yet.
+   *
+   * The rules live in the SURFACES table so the nav rail reads the same rows
+   * instead of a hand-copied set; this file only decides what to do when a row
+   * is unmet. Enforced around the one `<Outlet />` rather than route by route,
+   * so a new route cannot forget to guard itself.
+   *
+   * The no-organization case is never gated: there is nothing to connect yet,
+   * and the center panel below already answers it with "Create organization".
+   */
+  const gatedSection = GATED_SECTIONS.find((prefix) =>
+    pathname.startsWith(prefix),
+  );
+  const blockedForNoIntegrations =
+    !!activeOrgId && isResolved && !!gatedSection && !allows(gatedSection);
+  // Hold rather than render: showing the section and pulling it away a frame
+  // later is exactly the flash the gates elsewhere exist to prevent. Only the
+  // gated sections wait; everything else renders immediately.
+  const holdingForIntegrations = !!activeOrgId && !isResolved && !!gatedSection;
 
   const [isHoveringFiles, setIsHoveringFiles] = useState(false);
 
@@ -157,7 +192,15 @@ function AppLayout() {
           (showCenterPanel ? "hidden md:flex" : "flex")
         }
       >
-        <Outlet />
+        {blockedForNoIntegrations ? (
+          <Navigate to="/integrations" hash={(prevHash) => prevHash!} replace />
+        ) : holdingForIntegrations ? (
+          <div className="flex h-full items-center justify-center">
+            <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <Outlet />
+        )}
         {/* Resize Handle — a full-width route (email builder, automation
             editor) owns its whole column, so there is no boundary to drag. */}
         {!isFullWidthRoute && (
@@ -221,6 +264,8 @@ function AppLayout() {
             )}
             {activeOrgId && (
               <>
+                {/* An agent with no channel to answer on has nothing to do, so
+                    connecting comes first. */}
                 {!hasAiAgents && (
                   <ActionCard
                     icon={<Bot className="w-[24px] h-[24px]" />}
@@ -229,17 +274,26 @@ function AppLayout() {
                   />
                 )}
                 {hasAiAgents && (
+                  <HideIfNotPermitted surface="home.startConversation">
+                    <ActionCard
+                      icon={<MessageSquarePlus className="w-[24px] h-[24px]" />}
+                      title={t("Start conversation")}
+                      to="/conversations/bulk-send"
+                    />
+                  </HideIfNotPermitted>
+                )}
+                {/* Names no particular integration — a card that said
+                    "Configure WhatsApp" would be advertising a channel to
+                    someone who may want any of the other five. Suppressed on
+                    /integrations itself, where the list beside it is already the
+                    answer and the card would only point at the current page. */}
+                {needsIntegrations && !pathname.startsWith("/integrations") && (
                   <ActionCard
-                    icon={<MessageSquarePlus className="w-[24px] h-[24px]" />}
-                    title={t("Start conversation")}
-                    to="/conversations/bulk-send"
+                    icon={<Unplug className="w-[24px] h-[24px]" />}
+                    title={t("Integrations")}
+                    to="/integrations"
                   />
                 )}
-                <ActionCard
-                  icon={<Settings className="w-[24px] h-[24px]" />}
-                  title={t("Configure WhatsApp")}
-                  to="/integrations/whatsapp/new"
-                />
               </>
             )}
           </div>

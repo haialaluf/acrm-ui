@@ -1,6 +1,11 @@
 import { Calendar, Plus, Sun, X, Zap } from "lucide-react";
-import type { AutomationStep, AutomationTrigger } from "@/supabase/client";
+import {
+  isBranching,
+  type AutomationStep,
+  type AutomationTrigger,
+} from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAccess, type OutboundChannel } from "@/hooks/useAccess";
 
 /**
  * "Start from a recipe": prebuilt flows, opened as real editable definitions.
@@ -23,6 +28,32 @@ export type Recipe = {
 };
 
 const id = () => crypto.randomUUID().slice(0, 8);
+
+/**
+ * The channels a recipe would send on, branches included.
+ *
+ * Read so the gallery can withhold a recipe the organization cannot actually
+ * run: picking one creates a real draft, and a draft seeded with a step whose
+ * channel is not connected is a worse first screen than one recipe fewer.
+ * Filtering here rather than editing the recipes keeps each one a single
+ * coherent flow instead of a set of per-channel variants.
+ */
+function channelsUsed(steps: AutomationStep[]): Set<OutboundChannel> {
+  const used = new Set<OutboundChannel>();
+
+  const walk = (list: AutomationStep[]) => {
+    for (const step of list) {
+      if (step.type === "template") used.add("whatsapp");
+      if (step.type === "email") used.add("email");
+      if (isBranching(step)) {
+        for (const branch of step.branches) walk(branch.steps);
+      }
+    }
+  };
+
+  walk(steps);
+  return used;
+}
 
 export function recipes(): Recipe[] {
   return [
@@ -269,7 +300,16 @@ export default function RecipeGallery({
   onClose: () => void;
 }) {
   const { translate: t } = useTranslation();
-  const all = recipes();
+  const { allows } = useAccess();
+  // A recipe is offered only when *every* channel it sends on is connected —
+  // the one allOf rule in the app, composed here rather than complicating the
+  // table, which is anyOf throughout. The sweep and blank recipes send on none,
+  // so the gallery is never empty.
+  const all = recipes().filter((recipe) =>
+    [...channelsUsed(recipe.steps)].every((channel) =>
+      allows(`channel.${channel}`),
+    ),
+  );
   const order: Recipe["kind"][] = ["lead", "date", "schedule", "blank"];
 
   return (

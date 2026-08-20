@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { LoaderCircle, ShieldAlert } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
+import { useIntegrations } from "@/hooks/useIntegrations";
 import { useWabaSpend } from "@/queries/useWabaSpend";
 import {
   useHealthEvents,
@@ -39,16 +39,8 @@ export default function AccountHealth() {
   const [range, setRange] = useState<number>(30);
   const [selected, setSelected] = useState<string | null>(null);
 
-  const { data: addresses, isLoading: addressesLoading } =
-    useOrganizationsAddresses();
-
-  const whatsappNumbers = useMemo(
-    () =>
-      (addresses ?? []).filter(
-        (a) => a.service === "whatsapp" && a.status === "connected",
-      ),
-    [addresses],
-  );
+  const { allRows, isLoading: addressesLoading } = useIntegrations();
+  const whatsappNumbers = allRows.whatsapp;
 
   const address = selected ?? whatsappNumbers[0]?.address ?? null;
 
