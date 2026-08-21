@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
+import { useSignedEmailHtml } from "@/hooks/useSignedEmailHtml";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentOrganization } from "@/queries/useOrganizations";
 import type {
@@ -42,7 +43,9 @@ export default function EmailPreviewFrame({
   className,
   onStats,
 }: {
-  /** Compiled email HTML, straight from the builder's export. */
+  /** Compiled email HTML, straight from the builder's export. A saved
+   *  template's images are `internal://media/...` references, which this
+   *  component signs for display — see `useSignedEmailHtml`. */
   html: string;
   subject: string;
   preheader?: string | null;
@@ -66,9 +69,15 @@ export default function EmailPreviewFrame({
 
   const values = useMemo(() => contactValues(contact), [contact]);
 
+  // A stored template points at storage, not at anything a browser can fetch.
+  // Signed here rather than at each call site so every preview surface — bulk
+  // send, an automation's email step, the builder's "preview as" overlay —
+  // shows the images the recipient will actually get.
+  const signedHtml = useSignedEmailHtml(html);
+
   const rendered = useMemo(
-    () => renderHtml(html, variables, values),
-    [html, variables, values],
+    () => renderHtml(signedHtml, variables, values),
+    [signedHtml, variables, values],
   );
 
   const fallbacks = rendered.resolutions.filter((r) => !r.fromContact).length;
