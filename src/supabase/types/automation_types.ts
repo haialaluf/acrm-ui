@@ -153,7 +153,10 @@ export type TemplateStep = StepBase & {
   /** public.message_templates.id — Meta's own template id. */
   templateId: string;
   variables?: TemplateVariable[];
-  /** Public https URL for a template whose header is IMAGE/VIDEO/DOCUMENT. */
+  /** A template whose header is IMAGE/VIDEO/DOCUMENT points here — either an
+   *  `internal://media/...` storage reference (resolved to a fresh signed URL
+   *  by whatsapp-dispatcher at send time) or an external `https://` URL,
+   *  passed through unresolved. */
   headerMedia?: string;
   /** The picked file's own name, kept for the editor's file card and preview —
    *  a storage URL ends in a uuid, which tells the next person nothing. The

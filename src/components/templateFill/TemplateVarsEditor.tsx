@@ -45,7 +45,6 @@ export default function TemplateVarsEditor<F extends string>({
     value: string;
     name: string;
     note?: string;
-    expiresIn?: number;
     onChange: (url: string, name: string, size?: number) => void;
   };
   /** Shown when the template has nothing to fill in at all. */
@@ -84,7 +83,6 @@ export default function TemplateVarsEditor<F extends string>({
           name={media.name}
           example={example}
           note={media.note}
-          expiresIn={media.expiresIn}
           onChange={media.onChange}
         />
       )}

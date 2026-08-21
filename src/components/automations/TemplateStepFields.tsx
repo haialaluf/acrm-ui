@@ -16,8 +16,8 @@ import {
   type VarBinding,
 } from "@/components/templateFill/types";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSignedMediaUrl } from "@/hooks/useSignedMediaUrl";
 import { useApprovedTemplates } from "@/queries/useAutomations";
-import { DURABLE_MEDIA_SIGNED_URL_TTL_SECONDS } from "@/utils/uploadMediaToBucket";
 import type {
   TemplateData,
   TemplateStep,
@@ -96,6 +96,7 @@ export default function TemplateStepFields({
   const bindings = toBindings(step.variables);
   const media = headerMediaFormat(components);
   const intro = row ? varsIntro(components, t) : null;
+  const headerMediaPreviewUrl = useSignedMediaUrl(step.headerMedia);
 
   const setBinding = (
     scope: Scope,
@@ -170,9 +171,6 @@ export default function TemplateStepFields({
                   note: t(
                     "The same file is sent to every contact who reaches this step.",
                   ),
-                  // A flow keeps sending this file long after today, so its link
-                  // must outlive the week a broadcast's does.
-                  expiresIn: DURABLE_MEDIA_SIGNED_URL_TTL_SECONDS,
                   onChange: (url, name) =>
                     onChange({
                       ...step,
@@ -201,7 +199,7 @@ export default function TemplateStepFields({
                   }),
                   language: row.language,
                   media: {
-                    url: step.headerMedia ?? "",
+                    url: headerMediaPreviewUrl ?? "",
                     name: step.headerMediaName ?? "",
                   },
                   copyCodeLabel: t("Copy code"),

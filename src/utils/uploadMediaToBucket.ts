@@ -1,20 +1,11 @@
 import { supabase } from "@/supabase/client";
 
-/** Signed-URL lifetime for media uploaded to our bucket (7 days). Meta fetches
- *  header media at delivery time (broadcasts) and at template-review time
- *  (sample assets), so this only needs to outlive those; a week is a generous
- *  margin for scheduled/large sends and slow reviews. */
-export const MEDIA_SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 7;
-
-/** Signed-URL lifetime for media an *automation* step points at (5 years).
- *
- *  The 7-day default above assumes the file is fetched by Meta within days of
- *  being picked, which is true of a broadcast and false of an automation: a
- *  welcome flow configured today is still sending that header image next year,
- *  and a link that expired in the meantime fails the send with Meta's opaque
- *  131053. Until the dispatcher re-signs storage paths at delivery time, the
- *  step stores a URL that outlives the flow. */
-export const DURABLE_MEDIA_SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 365 * 5;
+/** Internal storage reference prefix, matching the API's BASE_URI
+ *  (`_shared/media.ts`). Nothing signs a URL at upload time any more — the
+ *  dispatcher that actually sends the message resolves this to a fresh,
+ *  short-lived signed URL at send time, cached per shared asset so a
+ *  broadcast signs it once rather than once per recipient. */
+export const MEDIA_INTERNAL_URI_PREFIX = "internal://media";
 
 /** Guess a file extension for the stored object from the mime type, falling
  *  back to the source name's suffix. Keeps the object name tidy; the served
@@ -29,8 +20,10 @@ function extensionFor(mimeType: string, fallbackName?: string): string {
   return "bin";
 }
 
-/** Store a blob in the private `media` bucket and return a time-limited signed
- *  URL that Meta can fetch without exposing the bucket publicly.
+/** Store a blob in the private `media` bucket and return an unsigned internal
+ *  reference to it — not a signed URL. Whatever eventually sends this asset
+ *  (whatsapp-dispatcher, email-dispatcher, instagram-dispatcher) resolves it
+ *  to a real signed URL at send time.
  *
  *  Path follows the org-scoped convention required by the bucket's RLS
  *  (`storage.foldername(name)[2]` must be an authorized org id):
@@ -39,7 +32,6 @@ export async function uploadMediaToBucket(
   blob: Blob,
   orgId: string,
   fileName?: string,
-  expiresIn: number = MEDIA_SIGNED_URL_TTL_SECONDS,
 ): Promise<string> {
   const ext = extensionFor(blob.type, fileName);
   const path = `organizations/${orgId}/attachments/${crypto.randomUUID()}.${ext}`;
@@ -54,14 +46,5 @@ export async function uploadMediaToBucket(
     throw new Error(`Failed to store media: ${uploadError.message}`);
   }
 
-  const { data, error: signError } = await supabase.storage
-    .from("media")
-    .createSignedUrl(path, expiresIn);
-  if (signError || !data?.signedUrl) {
-    throw new Error(
-      `Failed to sign media URL: ${signError?.message ?? "unknown error"}`,
-    );
-  }
-
-  return data.signedUrl;
+  return `${MEDIA_INTERNAL_URI_PREFIX}/${path}`;
 }

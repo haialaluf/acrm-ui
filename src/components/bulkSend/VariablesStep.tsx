@@ -16,6 +16,7 @@ import {
   templateSlots,
 } from "@/components/templateFill/types";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSignedMediaUrl } from "@/hooks/useSignedMediaUrl";
 import { type TemplateData } from "@/supabase/client";
 
 import {
@@ -54,6 +55,7 @@ export default function VariablesStep({
   onNext: () => void;
 }) {
   const { translate: t } = useTranslation();
+  const headerMediaPreviewUrl = useSignedMediaUrl(headerMedia || undefined);
 
   const mediaFormat = headerMediaFormatOf(template.components);
   // A media header requires a valid public URL before the user can continue.
@@ -122,7 +124,7 @@ export default function VariablesStep({
                 }),
                 language: template.language,
                 media: {
-                  url: headerMedia,
+                  url: headerMediaPreviewUrl ?? "",
                   name: headerMediaName,
                   size: headerMediaSize,
                 },

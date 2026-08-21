@@ -26,6 +26,7 @@ import {
 import type { Editor, JSONContent } from "@tiptap/core";
 import Spinner from "@/components/Spinner";
 import { useTranslation } from "@/hooks/useTranslation";
+import useBoundStore from "@/stores/useBoundStore";
 import { isRtl, type Language } from "@/stores/uiSlice";
 import type {
   EmailOrganizationAddressExtra,
@@ -39,6 +40,7 @@ import MailyCanvas from "./MailyCanvas";
 import MediaTab from "./MediaTab";
 import SetupTab from "./SetupTab";
 import VariablesTab from "./VariablesTab";
+import { uploadEmbeddedImages } from "./embedImages";
 import { auditVariables } from "./renderTemplate";
 import { insertVariable } from "./mailyVariables";
 import { renderMaily } from "./renderMaily";
@@ -106,6 +108,7 @@ export default function EmailTemplateBuilder({
 }) {
   const { translate: t, currentLanguage } = useTranslation();
   const navigate = useNavigate();
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
 
   const editorRef = useRef<Editor | null>(null);
   const [editor, setEditor] = useState<Editor | null>(null);
@@ -197,13 +200,19 @@ export default function EmailTemplateBuilder({
     // draft dirty. Read at the call, since that is when the payload is taken.
     const sentAt = editSeq.current;
     try {
-      await onSave({ project: contentRef.current ?? undefined, html });
+      // `project` keeps its `data:` images forever (see embedImages.ts) — only
+      // the compiled html that actually gets sent needs storage references, so
+      // this is the one point where a save touches the network for images.
+      const sendableHtml = orgId
+        ? await uploadEmbeddedImages(html, orgId)
+        : html;
+      await onSave({ project: contentRef.current ?? undefined, html: sendableHtml });
       if (editSeq.current === sentAt) setDirty(false);
     } catch {
       // The reason is already on screen through `saveError`. All this has to do
       // is leave the draft marked unsaved so the button still offers to retry.
     }
-  }, [compile, onSave]);
+  }, [compile, onSave, orgId]);
 
   const saveRef = useRef(save);
   saveRef.current = save;
@@ -243,9 +252,12 @@ export default function EmailTemplateBuilder({
 
       const sentAt = editSeq.current;
       try {
+        const sendableHtml = orgId
+          ? await uploadEmbeddedImages(html, orgId)
+          : html;
         await onSave({
           project: contentRef.current ?? undefined,
-          html,
+          html: sendableHtml,
           status,
         });
         if (editSeq.current === sentAt) setDirty(false);
@@ -254,7 +266,7 @@ export default function EmailTemplateBuilder({
         // stays unsaved.
       }
     },
-    [compile, draft.subject, draft.variables, onSave, requireName, t],
+    [compile, draft.subject, draft.variables, onSave, orgId, requireName, t],
   );
 
   const handleEditor = useCallback((instance: Editor) => {

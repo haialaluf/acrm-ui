@@ -1,4 +1,5 @@
 import type { TemplateData } from "@/supabase/client";
+import { MEDIA_INTERNAL_URI_PREFIX } from "@/utils/uploadMediaToBucket";
 
 /**
  * The shared vocabulary for filling an approved WhatsApp template's `{{n}}`
@@ -43,12 +44,15 @@ export function countVars(text: string | undefined | null): number {
   return (text?.match(/\{\{\d+\}\}/g) || []).length;
 }
 
-/** WhatsApp fetches header media from a public URL (`link`), so only http(s)
- *  URLs are accepted. The dispatcher forwards template payloads to Meta
- *  verbatim — it does not upload header media — so a private/internal URI would
- *  fail to deliver. */
+/** WhatsApp fetches header media from a public URL (`link`), so it must end
+ *  up as an http(s) URL by the time it reaches Meta — but whatsapp-dispatcher
+ *  now resolves our own `internal://media/...` storage references to a
+ *  signed link at send time, so those are valid here too (matches the
+ *  backend's isValidMediaUrl in _shared/whatsapp_templates.ts). */
 export function isValidMediaUrl(url: string): boolean {
-  return /^https?:\/\/\S+$/i.test(url.trim());
+  const trimmed = url.trim();
+  return /^https?:\/\/\S+$/i.test(trimmed) ||
+    trimmed.startsWith(`${MEDIA_INTERNAL_URI_PREFIX}/`);
 }
 
 export function headerComponent(components: Components) {

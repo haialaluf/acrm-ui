@@ -16,7 +16,6 @@
 "use no memo";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { Editor as MailyEditor } from "@maily-to/core";
 import {
   ImageUploadExtension,
@@ -28,13 +27,12 @@ import type { JSONContent } from "@tiptap/core";
 import { Lock } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentOrganization } from "@/queries/useOrganizations";
-import { queryKeys } from "@/queries/queryKeys";
 import useBoundStore from "@/stores/useBoundStore";
-import { uploadMediaToBucket } from "@/utils/uploadMediaToBucket";
 import type {
   EmailTemplateExtra,
   EmailTemplateVariable,
 } from "@/supabase/client";
+import { blobToDataUri } from "./embedImages";
 import {
   renderVariable,
   toMailyVariables,
@@ -98,12 +96,6 @@ export default function MailyCanvas({
   const orgIdRef = useRef(orgId);
   orgIdRef.current = orgId;
 
-  // Same reason as the refs above: the upload extension is built once, but a
-  // file dropped on the document has to show up in the Media tab's library.
-  const queryClient = useQueryClient();
-  const queryClientRef = useRef(queryClient);
-  queryClientRef.current = queryClient;
-
   const autosaveRef = useRef(onAutosave);
   autosaveRef.current = onAutosave;
 
@@ -141,19 +133,14 @@ export default function MailyCanvas({
       renderVariable,
     }),
     ImageUploadExtension.configure({
-      // Images go to the org's private `media` bucket rather than a vendor CDN,
-      // via the same helper the WhatsApp editor and the Media tab use.
+      // Read straight to a data URI rather than uploading — the document
+      // should never hold a URL that can expire (see embedImages.ts). The
+      // file only reaches the org's private `media` bucket at save time,
+      // once, when the compiled html is produced.
       onImageUpload: async (file: Blob) => {
-        const currentOrgId = orgIdRef.current;
-        if (!currentOrgId) throw new Error("No active organization");
+        if (!orgIdRef.current) throw new Error("No active organization");
 
-        const src = await uploadMediaToBucket(file, currentOrgId);
-
-        void queryClientRef.current.invalidateQueries({
-          queryKey: queryKeys.media.all(currentOrgId, "image/"),
-        });
-
-        return src;
+        return await blobToDataUri(file);
       },
     }),
   ]);
