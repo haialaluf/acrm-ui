@@ -38,6 +38,7 @@ import { Route as AuthStatsUsageRouteImport } from './routes/_auth/stats/usage'
 import { Route as AuthStatsQuotasRouteImport } from './routes/_auth/stats/quotas'
 import { Route as AuthStatsHealthRouteImport } from './routes/_auth/stats/health'
 import { Route as AuthStatsEmailRouteImport } from './routes/_auth/stats/email'
+import { Route as AuthSettingsConnectClaudeRouteImport } from './routes/_auth/settings/connect-claude'
 import { Route as AuthConversationsBulkSendRouteImport } from './routes/_auth/conversations/bulk-send'
 import { Route as AuthContactsNewRouteImport } from './routes/_auth/contacts/new'
 import { Route as AuthContactsImportRouteImport } from './routes/_auth/contacts/import'
@@ -233,6 +234,12 @@ const AuthStatsEmailRoute = AuthStatsEmailRouteImport.update({
   path: '/email',
   getParentRoute: () => AuthStatsRoute,
 } as any)
+const AuthSettingsConnectClaudeRoute =
+  AuthSettingsConnectClaudeRouteImport.update({
+    id: '/settings/connect-claude',
+    path: '/settings/connect-claude',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthConversationsBulkSendRoute =
   AuthConversationsBulkSendRouteImport.update({
     id: '/conversations/bulk-send',
@@ -534,6 +541,7 @@ export interface FileRoutesByFullPath {
   '/contacts/import': typeof AuthContactsImportRoute
   '/contacts/new': typeof AuthContactsNewRoute
   '/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
+  '/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
   '/stats/email': typeof AuthStatsEmailRoute
   '/stats/health': typeof AuthStatsHealthRoute
   '/stats/quotas': typeof AuthStatsQuotasRoute
@@ -612,6 +620,7 @@ export interface FileRoutesByTo {
   '/contacts/import': typeof AuthContactsImportRoute
   '/contacts/new': typeof AuthContactsNewRoute
   '/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
+  '/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
   '/stats/email': typeof AuthStatsEmailRoute
   '/stats/health': typeof AuthStatsHealthRoute
   '/stats/quotas': typeof AuthStatsQuotasRoute
@@ -693,6 +702,7 @@ export interface FileRoutesById {
   '/_auth/contacts/import': typeof AuthContactsImportRoute
   '/_auth/contacts/new': typeof AuthContactsNewRoute
   '/_auth/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
+  '/_auth/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
   '/_auth/stats/email': typeof AuthStatsEmailRoute
   '/_auth/stats/health': typeof AuthStatsHealthRoute
   '/_auth/stats/quotas': typeof AuthStatsQuotasRoute
@@ -774,6 +784,7 @@ export interface FileRouteTypes {
     | '/contacts/import'
     | '/contacts/new'
     | '/conversations/bulk-send'
+    | '/settings/connect-claude'
     | '/stats/email'
     | '/stats/health'
     | '/stats/quotas'
@@ -852,6 +863,7 @@ export interface FileRouteTypes {
     | '/contacts/import'
     | '/contacts/new'
     | '/conversations/bulk-send'
+    | '/settings/connect-claude'
     | '/stats/email'
     | '/stats/health'
     | '/stats/quotas'
@@ -932,6 +944,7 @@ export interface FileRouteTypes {
     | '/_auth/contacts/import'
     | '/_auth/contacts/new'
     | '/_auth/conversations/bulk-send'
+    | '/_auth/settings/connect-claude'
     | '/_auth/stats/email'
     | '/_auth/stats/health'
     | '/_auth/stats/quotas'
@@ -1212,6 +1225,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/stats/email'
       preLoaderRoute: typeof AuthStatsEmailRouteImport
       parentRoute: typeof AuthStatsRoute
+    }
+    '/_auth/settings/connect-claude': {
+      id: '/_auth/settings/connect-claude'
+      path: '/settings/connect-claude'
+      fullPath: '/settings/connect-claude'
+      preLoaderRoute: typeof AuthSettingsConnectClaudeRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth/conversations/bulk-send': {
       id: '/_auth/conversations/bulk-send'
@@ -1592,6 +1612,7 @@ interface AuthRouteChildren {
   AuthContactsImportRoute: typeof AuthContactsImportRoute
   AuthContactsNewRoute: typeof AuthContactsNewRoute
   AuthConversationsBulkSendRoute: typeof AuthConversationsBulkSendRoute
+  AuthSettingsConnectClaudeRoute: typeof AuthSettingsConnectClaudeRoute
   AuthTemplatesTemplateIdRoute: typeof AuthTemplatesTemplateIdRoute
   AuthTemplatesNewRoute: typeof AuthTemplatesNewRoute
   AuthAgentsIndexRoute: typeof AuthAgentsIndexRoute
@@ -1657,6 +1678,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthContactsImportRoute: AuthContactsImportRoute,
   AuthContactsNewRoute: AuthContactsNewRoute,
   AuthConversationsBulkSendRoute: AuthConversationsBulkSendRoute,
+  AuthSettingsConnectClaudeRoute: AuthSettingsConnectClaudeRoute,
   AuthTemplatesTemplateIdRoute: AuthTemplatesTemplateIdRoute,
   AuthTemplatesNewRoute: AuthTemplatesNewRoute,
   AuthAgentsIndexRoute: AuthAgentsIndexRoute,
