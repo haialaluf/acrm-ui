@@ -215,9 +215,13 @@ export type OutboundChannel = "whatsapp" | "email";
 
 /**
  * The channels this organization can send on, in the order the toggles show
- * them — email first, which is what makes it the default a two-channel
- * organization lands on. A WhatsApp-only organization still lands on WhatsApp,
- * because email is simply absent from the list.
+ * them — WhatsApp first, which is what makes it the default a two-channel
+ * organization lands on. An email-only organization still lands on email,
+ * because WhatsApp is simply absent from the list.
+ *
+ * Keep this order matching `ChannelToggle`'s options: the toggle renders its
+ * own fixed order and filters by this list, so a divergence would show the
+ * halves in one order while defaulting to the other one's first entry.
  *
  * Reach for this only where the list itself is needed (the channel toggles,
  * bulk-send's `available`); a yes/no answer is `allows("channel.email")`.
@@ -227,8 +231,8 @@ export function useOutboundChannels() {
 
   const channels = useMemo<OutboundChannel[]>(() => {
     const list: OutboundChannel[] = [];
-    if (allows("channel.email")) list.push("email");
     if (allows("channel.whatsapp")) list.push("whatsapp");
+    if (allows("channel.email")) list.push("email");
     return list;
   }, [allows]);
 

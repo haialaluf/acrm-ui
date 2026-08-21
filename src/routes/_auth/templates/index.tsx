@@ -40,8 +40,8 @@ function TemplatesIndexBody() {
 
   // Null until someone picks, so the default can follow what the organization
   // actually has connected rather than being frozen at first render. That
-  // default is `channels[0]`, which is email-first by `useOutboundChannels`'
-  // push order — a WhatsApp-only org still lands on WhatsApp because email is
+  // default is `channels[0]`, which is WhatsApp-first by `useOutboundChannels`'
+  // push order — an email-only org still lands on email because WhatsApp is
   // simply absent from the list.
   //
   // A pick is honoured only while that channel is still connected, so a

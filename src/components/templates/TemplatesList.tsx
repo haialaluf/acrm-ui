@@ -59,20 +59,20 @@ export function ChannelToggle({
           onChange={onChannel}
           options={[
             {
-              value: "email" as const,
-              label: (
-                <span className="inline-flex items-center gap-[6px] py-[2px]">
-                  <Mail size={15} />
-                  <span className="text-[13px]">{t("Email")}</span>
-                </span>
-              ),
-            },
-            {
               value: "whatsapp" as const,
               label: (
                 <span className="inline-flex items-center gap-[6px] py-[2px]">
                   <WhatsAppOutlined style={{ fontSize: "15px" }} />
                   <span className="text-[13px]">{t("WhatsApp")}</span>
+                </span>
+              ),
+            },
+            {
+              value: "email" as const,
+              label: (
+                <span className="inline-flex items-center gap-[6px] py-[2px]">
+                  <Mail size={15} />
+                  <span className="text-[13px]">{t("Email")}</span>
                 </span>
               ),
             },
