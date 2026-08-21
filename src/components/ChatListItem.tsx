@@ -17,7 +17,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(localizedFormat);
 import { TickContext } from "@/contexts/useTick";
 import { useTranslation } from "@/hooks/useTranslation";
-import { AtSign, Bot, Mail, Pause } from "lucide-react";
+import { AtSign, Bot, Handshake, Mail, Pause } from "lucide-react";
 
 import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
 import { useContactByAddress } from "@/queries/useContacts";
@@ -146,8 +146,14 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
 
   const isPinned = conversation?.extra?.pinned;
 
-  // Paused by a person or a handoff, or off org-wide (default agent "None").
+  // Paused by a person, or off org-wide (default agent "None"). A handoff no
+  // longer pauses the assistant — see `handoff` below for that badge instead.
   const isPaused = assistantState(conversation, org?.extra) !== "active";
+
+  // Set when the agent handed this conversation off to a person and cleared
+  // the moment one of them actually replies here — so its presence means
+  // still waiting.
+  const handoff = conversation?.extra?.handoff;
 
   const igExtra =
     conversation?.service === "instagram"
@@ -303,6 +309,15 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                 {/* Pause - AI assistant paused */}
                 {isPaused && (
                   <Pause className="h-[19px] w-[19px] ml-[6px] fill-muted-foreground stroke-0" />
+                )}
+                {/* Handoff - waiting on a person, doesn't pause the assistant */}
+                {handoff && (
+                  <span
+                    className="ml-[6px]"
+                    title={`${t("Waiting on a person")}: ${handoff.reason}`}
+                  >
+                    <Handshake className="h-[17px] w-[17px] text-muted-foreground" />
+                  </span>
                 )}
                 {/* Pin - For now just conversations can be fixed */}
                 {isPinned && (

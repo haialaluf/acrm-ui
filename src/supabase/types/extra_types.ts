@@ -240,6 +240,11 @@ export type ConversationExtra = {
   archived?: string | null;
   pinned?: string | null;
   default_agent_id?: string | null;
+  handoff?: {
+    at: string;
+    reason: string;
+    agent_id: string;
+  } | null;
   draft?: {
     text: string;
     origin: string;
