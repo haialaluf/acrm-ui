@@ -5,37 +5,30 @@ import { useSuppressedAddresses } from "@/queries/useEmailHealth";
 import { Card, CardHead, formatNumber, TONE } from "../primitives";
 import { suppressionReason, type SuppressionKind } from "./suppressionReason";
 
-const ORDER: SuppressionKind[] = [
-  "complaint",
-  "hard_bounce",
-  "unsubscribed",
-  "other",
-];
+const ORDER: SuppressionKind[] = ["complaint", "hard_bounce", "other"];
 
 const LABEL: Record<SuppressionKind, string> = {
   complaint: "Reported as spam",
   hard_bounce: "Invalid address",
-  unsubscribed: "Unsubscribed",
-  other: "Removed",
+  other: "Repeated bounces",
 };
 
 const TONE_FOR: Record<SuppressionKind, "destructive" | "warning" | "neutral"> =
   {
     complaint: "destructive",
     hard_bounce: "warning",
-    unsubscribed: "neutral",
     other: "neutral",
   };
 
 /**
- * Who this organization may no longer email, and why.
+ * Who Amazon SES has flagged as undeliverable, and why.
  *
  * The counts matter more than the addresses here, because the *mix* is the
- * diagnosis: a list that is mostly unsubscribes is working as designed, one
- * that is mostly invalid addresses was not collected from real recipients, and
- * any meaningful number of spam reports is the thing that gets an account
- * paused. The full list, with the un-suppress action, lives on the email
- * integration page.
+ * diagnosis: a list that is mostly invalid addresses was not collected from
+ * real recipients, and any meaningful number of spam reports is the thing
+ * that gets an account paused. A plain unsubscribe-link click never appears
+ * here — see `useSuppressedAddresses`. The full list, with the un-suppress
+ * action, lives on the email integration page.
  */
 export default function SuppressionSummary() {
   const { translate: t } = useTranslation();
@@ -46,7 +39,6 @@ export default function SuppressionSummary() {
     const tally: Record<SuppressionKind, number> = {
       complaint: 0,
       hard_bounce: 0,
-      unsubscribed: 0,
       other: 0,
     };
 
@@ -65,7 +57,7 @@ export default function SuppressionSummary() {
       />
       {total === 0 ? (
         <div className="text-[13px] text-muted-foreground py-[8px]">
-          {t("Nobody has unsubscribed, bounced or reported your email yet.")}
+          {t("Nobody has bounced or reported your email yet.")}
         </div>
       ) : (
         <>

@@ -70,8 +70,12 @@ export default function ChatFooter() {
 
   const { data: contact } = useContactByAddress(conv?.contact_address);
   const { data: contactAddress } = useContactAddress(conv?.contact_address);
-  const isRemoved =
-    contact?.status === "removed" || contactAddress?.status === "removed";
+  // 'removed' is contacts.status, the single "remove me" flag regardless of
+  // which channel the request came in on. 'inactive' is this address row's
+  // own status — this exact number/mailbox is undeliverable, which says
+  // nothing about the contact's other channels.
+  const isRemoved = contact?.status === "removed";
+  const isInactive = contactAddress?.status === "inactive";
 
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout>>();
 
@@ -228,8 +232,12 @@ export default function ChatFooter() {
           </div>
         )}
         <DisabledSection
-          disabled={isRemoved}
-          description={t("This contact asked to be removed")}
+          disabled={isRemoved || isInactive}
+          description={
+            isRemoved
+              ? t("This contact asked to be removed")
+              : t("This address is unreachable")
+          }
         >
           <div
             className={

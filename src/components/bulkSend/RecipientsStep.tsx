@@ -26,12 +26,15 @@ import QuotaMeter from "./QuotaMeter";
 import type { Channel } from "./types";
 
 /**
- * Reachability and opt-out are both per-channel, and the two must agree.
+ * Reachability is per-channel; opt-out is not.
  *
- * A contact who unsubscribed from email is still a valid WhatsApp recipient and
- * vice versa — the opt-outs live on different `contacts_addresses` rows exactly
- * so that one cannot silence the other. `contacts.status` is the org-wide
- * "remove me from everything" and outranks both.
+ * `contacts.status` is the single "remove me from everything" flag — the same
+ * field regardless of which channel the request came in on (WhatsApp `הסר` or
+ * an email unsubscribe click) — so it applies to every channel equally. Each
+ * address row's own `status` is a *narrower*, channel-specific signal:
+ * `'inactive'` means this exact address is undeliverable (a bounced/
+ * complained mailbox, a superseded WhatsApp number), and does not say
+ * anything about the contact's other channels.
  */
 const REACH: Record<
   Channel,
@@ -72,10 +75,17 @@ export default function RecipientsStep({
   // useCallback so it is a stable dependency of the `selectable` memo below —
   // a fresh closure each render would recompute that filter on every keystroke
   // in the search box.
-  const isRemoved = useCallback(
-    (c: ContactWithAddressesRow) =>
-      c.status === "removed" || reach.status(c) === "removed",
-    [reach],
+  const disabledReason = useCallback(
+    (c: ContactWithAddressesRow) => {
+      if (c.status === "removed") {
+        return t("This contact asked to be removed");
+      }
+      if (reach.status(c) === "inactive") {
+        return t("This address is unreachable");
+      }
+      return undefined;
+    },
+    [reach, t],
   );
 
   const withAddress = useMemo(
@@ -96,14 +106,12 @@ export default function RecipientsStep({
   }
 
   const selectable = useMemo(
-    () => filtered.filter((c) => !isRemoved(c)),
-    [filtered, isRemoved],
+    () => filtered.filter((c) => !disabledReason(c)),
+    [filtered, disabledReason],
   );
 
   const allSelected =
     selectable.length > 0 && selectable.every((c) => selectedIds.has(c.id));
-
-  const removedReason = t("This contact asked to be removed");
 
   return (
     <>
@@ -142,15 +150,15 @@ export default function RecipientsStep({
 
         <div className="px-[8px] pb-[12px] flex flex-col gap-[2px]">
           {filtered.map((c) => {
-            const removed = isRemoved(c);
+            const reason = disabledReason(c);
             return (
               <ContactRow
                 key={c.id}
                 contact={c}
                 checked={selectedIds.has(c.id)}
                 onToggle={() => toggleId(c.id)}
-                disabled={removed}
-                disabledReason={removed ? removedReason : undefined}
+                disabled={!!reason}
+                disabledReason={reason}
               />
             );
           })}

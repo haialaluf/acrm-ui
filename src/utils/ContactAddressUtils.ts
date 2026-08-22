@@ -35,7 +35,7 @@ export function contactEmailRow(
   contact: ContactWithAddressesRow,
 ): ContactAddressRow | undefined {
   return contact.addresses?.find(
-    (a) => a.service === "email" && a.status !== "removed",
+    (a) => a.service === "email" && a.status !== "inactive",
   );
 }
 
@@ -47,9 +47,12 @@ export function contactPhone(
 }
 
 /**
- * Status of the contact's phone address, which is what the WhatsApp opt-out
- * (`הסר`) sets to `'removed'`. Deliberately scoped to the phone row: an email
- * unsubscribe marks the *email* row removed and must not disable WhatsApp.
+ * Status of the contact's phone address row — `'inactive'` once Meta reports
+ * it undeliverable (a superseded BSUID, or delivery error 131026). An
+ * explicit "remove me" (WhatsApp `הסר`, or an email unsubscribe click) is a
+ * different signal entirely: it sets `contacts.status`, the same field
+ * regardless of which channel the request came in on, not this row's status.
+ * Use `contact.status` for that; this is address-level reachability only.
  */
 export function contactPhoneStatus(
   contact: ContactWithAddressesRow,
@@ -63,9 +66,9 @@ export function contactPhoneStatus(
  * `contacts.email` is unused: every write path (manual create/edit, CSV
  * import, Meta Lead Ads, the AI agent, the MCP operator tool) now always
  * upserts an address row instead, so this row is the one source of truth.
- * Excludes a removed/unsubscribed row so callers that mean "is this contact
- * reachable" don't get a dead address back — use `contactEmailStatus` if you
- * need to know *why* it's excluded.
+ * Excludes an inactive (bounced/complained) row so callers that mean "is this
+ * contact reachable" don't get a dead address back — use `contactEmailStatus`
+ * if you need to know *why* it's excluded.
  */
 export function contactEmail(
   contact: ContactWithAddressesRow,
@@ -74,14 +77,16 @@ export function contactEmail(
 }
 
 /**
- * Status of the contact's email address row — `'removed'` once they have
- * unsubscribed, hard-bounced or been marked as a complaint.
+ * Status of the contact's email address row — `'inactive'` once Amazon SES
+ * reports a hard bounce, a complaint, or a soft-bounce pattern against this
+ * exact mailbox. An unsubscribe-link click is a different signal: like
+ * WhatsApp's `הסר`, it sets `contacts.status`, not this row.
  *
- * Undefined when no row exists at all, which means "never opted out":
+ * Undefined when no row exists at all, which means "never flagged":
  * suppression is recorded, never inferred (the same rule
  * `_shared/email_suppression.ts` follows server-side). Deliberately does NOT
- * go through `contactEmail` above — that excludes a removed row, and this is
- * exactly the function that needs to see it.
+ * go through `contactEmail` above — that excludes an inactive row, and this
+ * is exactly the function that needs to see it.
  */
 export function contactEmailStatus(
   contact: ContactWithAddressesRow,

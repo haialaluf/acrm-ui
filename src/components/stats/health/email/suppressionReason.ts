@@ -4,17 +4,14 @@ import type { Tone } from "../primitives";
 /**
  * Why an address may no longer be emailed.
  *
- * Three different SQL functions write `contacts_addresses.extra.opt_out`, each
- * with its own `source`, and the distinction matters to the person reading the
- * list: an unsubscribe is the system working as intended, a hard bounce is a
- * bad address, and a spam complaint is the one that endangers the whole
- * account's ability to send.
+ * Every row this reads has `status = 'inactive'`, which only an SES feedback
+ * signal ever writes — a plain unsubscribe-link click sets `contacts.status`
+ * instead (see `useSuppressedAddresses`), so it never reaches here. The
+ * distinction that remains still matters to the person reading the list: a
+ * hard bounce is a bad address, and a spam complaint is the one that
+ * endangers the whole account's ability to send.
  */
-export type SuppressionKind =
-  | "unsubscribed"
-  | "hard_bounce"
-  | "complaint"
-  | "other";
+export type SuppressionKind = "hard_bounce" | "complaint" | "other";
 
 export type SuppressionReason = {
   kind: SuppressionKind;
@@ -39,19 +36,7 @@ export function suppressionReason(
 
   const source = str(optOut.source);
   const reason = str(optOut.reason);
-  // `apply_unsubscribe` stamps no `reason`, so fall back to the row's own
-  // timestamp rather than showing nothing.
   const at = str(optOut.at) ?? row.updated_at;
-
-  if (source === "unsubscribe_link") {
-    return {
-      kind: "unsubscribed",
-      label: "Unsubscribed",
-      tone: "neutral",
-      detail: null,
-      at,
-    };
-  }
 
   if (source === "ses_feedback") {
     if (reason?.startsWith("complaint")) {
@@ -75,8 +60,8 @@ export function suppressionReason(
     }
   }
 
-  // Everything else, including the WhatsApp keyword handler's opt-outs, which
-  // share this table.
+  // A soft-bounce escalation (extra.soft_bounce, no extra.opt_out) or any
+  // other unrecognized shape.
   return {
     kind: "other",
     label: "Removed",

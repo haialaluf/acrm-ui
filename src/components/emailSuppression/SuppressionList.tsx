@@ -16,22 +16,24 @@ const FILTERS: { key: SuppressionKind | "all"; label: string }[] = [
   { key: "all", label: "All" },
   { key: "complaint", label: "Spam reports" },
   { key: "hard_bounce", label: "Invalid" },
-  { key: "unsubscribed", label: "Unsubscribed" },
 ];
 
 /**
- * Everyone this organization may no longer email, and why.
+ * Everyone Amazon SES has flagged as undeliverable, and why.
  *
- * Until this existed, `contacts_addresses.status = 'removed'` was written by
- * three separate paths and surfaced in exactly one place — a greyed-out row in
- * the bulk-send wizard — so there was no way to answer "who did we stop
- * mailing, and was it because they complained?".
+ * `contacts_addresses.status = 'inactive'` (email service) is written by two
+ * SES-feedback paths and surfaced here — a greyed-out row in the bulk-send
+ * wizard is the only other place it showed. A plain unsubscribe-link click
+ * does not appear in this list: it sets `contacts.status = 'removed'` on the
+ * contact instead (the same "remove me" flag WhatsApp's `הסר` sets), which is
+ * a person's own choice rather than a deliverability problem — nothing to
+ * "un-suppress" here.
  *
  * The un-suppress action is deliberately gated and deliberately noisy. Putting
  * back an address that hard-bounced means mailing an address that does not
  * exist; putting back one that reported spam is how a sending domain gets
- * paused. It is a legitimate thing to want (someone fixed a typo'd address,
- * a colleague clicked unsubscribe by accident) and a bad thing to do casually.
+ * paused. It is a legitimate thing to want (someone fixed a typo'd address)
+ * and a bad thing to do casually.
  */
 export default function SuppressionList({ isOwner }: { isOwner: boolean }) {
   const { translate: t } = useTranslation();
@@ -85,7 +87,7 @@ export default function SuppressionList({ isOwner }: { isOwner: boolean }) {
       ) : !visible.length ? (
         <p className="text-[13px] text-muted-foreground py-[8px] m-0">
           {filter === "all"
-            ? t("Nobody has unsubscribed, bounced or reported your email yet.")
+            ? t("Nobody has bounced or reported your email yet.")
             : t("No addresses in this category.")}
         </p>
       ) : (
@@ -140,9 +142,10 @@ export default function SuppressionList({ isOwner }: { isOwner: boolean }) {
           open
           title={t("Re-enable this address?")}
           body={
-            // The warning is specific to why they were blocked, because the
-            // three reasons carry very different risk. A generic "are you
-            // sure?" would flatten a spam complaint into an unsubscribe.
+            // The warning is specific to why they were blocked: a complaint
+            // risks the whole sending domain, a hard bounce is a dead
+            // address, and repeated soft bounces are the pattern that becomes
+            // one. A generic "are you sure?" would flatten those together.
             confirmingReason?.kind === "complaint"
               ? t(
                   "This person reported your email as spam. Emailing them again risks getting your sending domain paused by Amazon SES.",
@@ -152,7 +155,7 @@ export default function SuppressionList({ isOwner }: { isOwner: boolean }) {
                     "This address does not exist. Sending to it again will bounce and count against your bounce rate.",
                   )
                 : t(
-                    "This person asked not to receive email from you. Only re-enable this if they have asked to be added back.",
+                    "This address has bounced repeatedly. Only re-enable it if you know the problem is fixed.",
                   )
           }
           confirmLabel={t("Re-enable")}

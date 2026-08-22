@@ -105,12 +105,16 @@ export function useEmailHealthEvents(address: string | null | undefined) {
 /**
  * Addresses this organization may no longer email, newest first.
  *
- * `status = 'removed'` on a contacts_addresses row is the single opt-out
- * primitive, written by three different paths — `apply_unsubscribe` (the
- * recipient clicked the footer link), `apply_email_suppression` (SES reported a
- * hard bounce or a spam complaint) and the WhatsApp keyword handler. Which one
- * it was is in `extra.opt_out.source`, and until now it was recorded and never
- * shown anywhere.
+ * `status = 'inactive'` on a contacts_addresses row is written by two SES
+ * feedback paths — `apply_email_suppression` (a hard bounce or a spam
+ * complaint) and `record_soft_bounce` (a soft-bounce pattern). Which one it
+ * was is in `extra.opt_out.source` (or `extra.soft_bounce`).
+ *
+ * An email unsubscribe-link click is NOT in this list: like WhatsApp's `הסר`,
+ * it sets `contacts.status = 'removed'` on the contact — the org-wide "remove
+ * me" flag, not a mark on this address row — since unsubscribing is the same
+ * explicit removal request regardless of channel. This query only ever shows
+ * a deliverability problem SES itself reported.
  */
 export function useSuppressedAddresses(limit = 200) {
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
@@ -123,7 +127,7 @@ export function useSuppressedAddresses(limit = 200) {
         .select("*")
         .eq("organization_id", orgId!)
         .eq("service", "email")
-        .eq("status", "removed")
+        .eq("status", "inactive")
         .order("updated_at", { ascending: false })
         .limit(limit)
         .throwOnError(),
