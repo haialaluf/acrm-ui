@@ -29,3 +29,9 @@ dist-booking/
 
 # Unsubscribe site build output (vite.unsubscribe.config.ts)
 dist-unsubscribe/
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+.design-sync/styles.compiled.css
