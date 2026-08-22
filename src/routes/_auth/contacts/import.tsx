@@ -14,7 +14,6 @@ import SectionFooter from "@/components/SectionFooter";
 import Button from "@/components/Button";
 import ContactTagSelect from "@/components/ContactTagSelect";
 import { useTranslation } from "@/hooks/useTranslation";
-import { isRtl, type Language } from "@/stores/uiSlice";
 import { useContacts } from "@/queries/useContacts";
 import {
   useImportContacts,
@@ -29,6 +28,8 @@ import {
 } from "@/utils/parseContactsFile";
 import { isValidPhoneNumber, normalizePhoneNumber } from "@/utils/FormatUtils";
 import { checkEmail } from "@/utils/emailValidation";
+import { fill } from "@/utils/fill";
+import Radio from "@/components/bulkSend/Radio";
 
 export const Route = createFileRoute("/_auth/contacts/import")({
   component: ImportContacts,
@@ -57,7 +58,7 @@ type ResolvedRow = {
   /** Per-contact tags parsed from the mapped column (merged with global tags). */
   tags: string[];
   /** Existing contact this row duplicates, when status === "dup". */
-  existing?: { id: string; tags: string[] };
+  existing?: { id: string; name: string | null; tags: string[] };
 };
 
 const NAME_RE = /^(full[ _]?name|name|nombre|first ?name|nombres?|שם)/i;
@@ -89,7 +90,7 @@ function parseTags(cell: string): string[] {
 }
 
 function ImportContacts() {
-  const { translate: t, currentLanguage } = useTranslation();
+  const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { data: contacts } = useContacts();
   const importContacts = useImportContacts();
@@ -104,31 +105,23 @@ function ImportContacts() {
     tags: null,
   });
   const [tags, setTags] = useState<string[]>([]);
-  const [skipDupes, setSkipDupes] = useState(true);
-  const [updateExisting, setUpdateExisting] = useState(false);
+  const [strategy, setStrategy] = useState<"skip" | "merge">("skip");
   const [parseError, setParseError] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
   const [result, setResult] = useState<ImportContactsResult | null>(null);
 
-  // Real progress reported by the mutation as each batch / update resolves.
+  // Real progress reported by the mutation as each batch resolves.
   const { processed, total } = importContacts.progress;
   const progress = total ? Math.round((processed / total) * 100) : 0;
 
-  /** `{n}`-style interpolation on top of the dictionary lookup. */
-  const fill = (key: string, vars: Record<string, string | number>) => {
-    let s = t(key);
-    for (const [k, v] of Object.entries(vars))
-      s = s.replace(`{${k}}`, String(v));
-    return s;
-  };
-
   // Existing phone numbers (stored normalized in the DB) → contact, for dup checks.
   const existingByPhone = useMemo(() => {
-    const map = new Map<string, { id: string; tags: string[] }>();
+    const map = new Map<string, { id: string; name: string | null; tags: string[] }>();
     for (const contact of contacts ?? []) {
       const tagList = (contact as { tags?: string[] | null }).tags ?? [];
       for (const addr of contact.addresses ?? []) {
         if (addr.address)
-          map.set(addr.address, { id: contact.id, tags: tagList });
+          map.set(addr.address, { id: contact.id, name: contact.name, tags: tagList });
       }
     }
     return map;
@@ -194,7 +187,11 @@ function ImportContacts() {
   const previewRows = useMemo(() => {
     if (!file) return [];
     return file.allRows
-      .map((cells, i) => ({ cells, status: rows[i]?.status ?? "ok" }))
+      .map((cells, i) => ({
+        cells,
+        status: rows[i]?.status ?? "ok",
+        existing: rows[i]?.existing,
+      }))
       .sort(
         (a, b) => (a.status === "err" ? 0 : 1) - (b.status === "err" ? 0 : 1),
       )
@@ -217,7 +214,8 @@ function ImportContacts() {
     return { ok, err, dup, emailDropped, total: rows.length };
   }, [rows]);
 
-  const importableCount = skipDupes ? counts.ok : counts.ok + counts.dup;
+  const importableCount =
+    strategy === "skip" ? counts.ok : counts.ok + counts.dup;
   const mappingReady = mapping.name != null && mapping.phone != null;
 
   function resetToPick() {
@@ -225,6 +223,7 @@ function ImportContacts() {
     setTags([]);
     setResult(null);
     setParseError(null);
+    setImportError(null);
     setMapping({
       name: null,
       surname: null,
@@ -261,32 +260,26 @@ function ImportContacts() {
   }
 
   function startImport() {
-    // Split rows into inserts vs. updates based on the dedup options.
-    const okRows = rows.filter((r) => r.status === "ok");
-    const dupRows = rows.filter((r) => r.status === "dup");
-
-    let toInsert = okRows;
-    let toUpdate: ResolvedRow[] = [];
-    if (!skipDupes) {
-      if (updateExisting) toUpdate = dupRows;
-      else toInsert = [...okRows, ...dupRows];
-    }
+    // Every "ok" row always goes through upsert_contact. A known "dup" row
+    // is only sent when strategy is 'merge' — under 'skip' it would just be
+    // a wasted round trip guaranteed to come back skipped, so it's excluded
+    // client-side, mirroring `importableCount` above.
+    const importRows = rows.filter(
+      (r) => r.status === "ok" || (r.status === "dup" && strategy === "merge"),
+    );
 
     setState("importing");
+    setImportError(null);
 
     importContacts.mutate(
       {
-        contacts: toInsert.map((r) => ({
+        strategy,
+        contacts: importRows.map((r) => ({
           name: r.name || null,
           surname: r.surname || null,
           phone: r.phone,
           email: r.email || null,
           tags: r.tags,
-        })),
-        updates: toUpdate.map((r) => ({
-          contactId: r.existing!.id,
-          existingTags: r.existing!.tags,
-          rowTags: r.tags,
         })),
         tags,
       },
@@ -297,14 +290,13 @@ function ImportContacts() {
           setTimeout(() => setState("done"), 350);
         },
         onError: () => {
-          setParseError(t("Could not read the file"));
+          setImportError(t("Could not import contacts. Please try again."));
           setState("uploaded");
         },
       },
     );
   }
 
-  const rtl = isRtl(currentLanguage as Language);
   const importedTotal = result
     ? result.added + result.updated
     : importableCount;
@@ -349,11 +341,23 @@ function ImportContacts() {
 
               <ValidationBanner
                 counts={counts}
-                skipDupes={skipDupes}
+                strategy={strategy}
                 importable={importableCount}
-                fill={fill}
                 t={t}
               />
+
+              {importError && (
+                <div
+                  className="flex items-start gap-2 rounded-xl px-3 py-2 text-[13px]"
+                  style={{
+                    background: "oklch(from var(--destructive) l c h / 0.1)",
+                    color: "var(--destructive)",
+                  }}
+                >
+                  <TriangleAlert className="w-4 h-4 mt-[1px] shrink-0" />
+                  <span>{importError}</span>
+                </div>
+              )}
 
               {/* Preview */}
               <div className="flex flex-col gap-2">
@@ -362,7 +366,7 @@ function ImportContacts() {
                     {t("Preview")}
                   </div>
                   <div className="text-[12px] text-muted-foreground">
-                    {fill("{n} of {m} rows", {
+                    {fill(t, "{n} of {m} rows", {
                       n: previewRows.length,
                       m: file.rows,
                     })}
@@ -387,7 +391,7 @@ function ImportContacts() {
                       </tr>
                     </thead>
                     <tbody>
-                      {previewRows.map(({ cells, status }, ri) => (
+                      {previewRows.map(({ cells, status, existing }, ri) => (
                         <tr
                           key={ri}
                           className={
@@ -403,7 +407,14 @@ function ImportContacts() {
                               <span className="row-tag err">!</span>
                             )}
                             {status === "dup" && (
-                              <span className="row-tag dup">⎘</span>
+                              <span
+                                className="row-tag dup"
+                                title={fill(t, "Duplicate of {name}", {
+                                  name: existing?.name || t("existing contact"),
+                                })}
+                              >
+                                ⎘
+                              </span>
                             )}
                             {status === "ok" && (
                               <span className="row-tag ok">✓</span>
@@ -497,30 +508,65 @@ function ImportContacts() {
               {/* Options */}
               <div className="flex flex-col gap-3">
                 <div className="label" style={{ margin: 0 }}>
-                  {t("Options")}
+                  {t("Duplicate phone numbers")}
                 </div>
-                <Toggle
-                  checked={skipDupes}
-                  onChange={(v) => {
-                    setSkipDupes(v);
-                    if (v) setUpdateExisting(false);
+                <div
+                  className="rounded-[12px] overflow-hidden"
+                  style={{
+                    background: "var(--background)",
+                    border: "1px solid var(--border)",
                   }}
-                  rtl={rtl}
-                  label={t("Skip duplicates")}
-                  hint={t(
-                    "Contacts with a phone number that already exists will be skipped",
-                  )}
-                />
-                <Toggle
-                  checked={updateExisting}
-                  onChange={setUpdateExisting}
-                  disabled={skipDupes}
-                  rtl={rtl}
-                  label={t("Update existing records")}
-                  hint={t(
-                    "Add the new tags to existing contacts identified as duplicates",
-                  )}
-                />
+                >
+                  <button
+                    type="button"
+                    onClick={() => setStrategy("skip")}
+                    className="w-full flex items-start gap-[10px] p-[12px] text-start border-none cursor-pointer"
+                    style={{
+                      background:
+                        strategy === "skip"
+                          ? "oklch(from var(--primary) l c h / 0.04)"
+                          : "transparent",
+                    }}
+                  >
+                    <div className="mt-[2px]">
+                      <Radio checked={strategy === "skip"} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[14px]">{t("Skip duplicates")}</div>
+                      <div className="text-[12px] text-muted-foreground">
+                        {t(
+                          "Contacts with a phone number that already exists will be skipped",
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                  <div style={{ height: 1, background: "var(--border)" }} />
+                  <button
+                    type="button"
+                    onClick={() => setStrategy("merge")}
+                    className="w-full flex items-start gap-[10px] p-[12px] text-start border-none cursor-pointer"
+                    style={{
+                      background:
+                        strategy === "merge"
+                          ? "oklch(from var(--primary) l c h / 0.04)"
+                          : "transparent",
+                    }}
+                  >
+                    <div className="mt-[2px]">
+                      <Radio checked={strategy === "merge"} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[14px]">
+                        {t("Merge into existing")}
+                      </div>
+                      <div className="text-[12px] text-muted-foreground">
+                        {t(
+                          "Contacts with a phone number that already exists will be merged, filling in blanks and adding the new tags",
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -542,7 +588,7 @@ function ImportContacts() {
                 </div>
                 <div className="text-[18px]">{t("Importing contacts…")}</div>
                 <div className="text-[14px] text-muted-foreground">
-                  {fill("{n} of {m}", {
+                  {fill(t, "{n} of {m}", {
                     n: processed,
                     m: total || importableCount,
                   })}
@@ -583,7 +629,7 @@ function ImportContacts() {
                   style={{ maxWidth: 320 }}
                 >
                   {importedTotal > 0
-                    ? fill("{n} new contacts added to your list.", {
+                    ? fill(t, "{n} new contacts added to your list.", {
                         n: result?.added ?? 0,
                       })
                     : t("No new contacts were added.")}
@@ -607,12 +653,14 @@ function ImportContacts() {
                 {counts.dup > 0 && (
                   <SummaryRow
                     label={
-                      skipDupes
+                      strategy === "skip"
                         ? t("Duplicates (skipped)")
-                        : t("Duplicates (updated)")
+                        : t("Duplicates (merged)")
                     }
                     accent="dup"
-                    value={skipDupes ? counts.dup : (result?.updated ?? 0)}
+                    value={
+                      strategy === "skip" ? counts.dup : (result?.updated ?? 0)
+                    }
                   />
                 )}
                 {counts.err > 0 && (
@@ -620,6 +668,24 @@ function ImportContacts() {
                     label={t("Errors (not imported)")}
                     accent="err"
                     value={counts.err}
+                  />
+                )}
+                {/* A conflict the RPC discovered at write time — not one the
+                    file-level dup check already knew about (those are counted
+                    above, and under 'skip' never even reach the RPC). A
+                    silent skip must never look like success. */}
+                {(result?.skipped ?? 0) > 0 && (
+                  <SummaryRow
+                    label={t("Skipped (address already in use)")}
+                    accent="dup"
+                    value={result?.skipped ?? 0}
+                  />
+                )}
+                {(result?.failed ?? 0) > 0 && (
+                  <SummaryRow
+                    label={t("Failed to import")}
+                    accent="err"
+                    value={result?.failed ?? 0}
                   />
                 )}
                 {/* The contact was imported; only the address was dropped. Said
@@ -677,7 +743,7 @@ function ImportContacts() {
             onClick={startImport}
             invalid={importableCount === 0 || !mappingReady}
           >
-            {fill("Import {n} contacts", { n: importableCount })}
+            {fill(t, "Import {n} contacts", { n: importableCount })}
           </Button>
         </SectionFooter>
       )}
@@ -815,15 +881,13 @@ function FileCard({
 
 function ValidationBanner({
   counts,
-  skipDupes,
+  strategy,
   importable,
-  fill,
   t,
 }: {
   counts: { ok: number; err: number; dup: number; total: number };
-  skipDupes: boolean;
+  strategy: "skip" | "merge";
   importable: number;
-  fill: (key: string, vars: Record<string, string | number>) => string;
   t: (s: string) => string;
 }) {
   if (counts.err === 0 && counts.dup === 0) {
@@ -837,7 +901,7 @@ function ValidationBanner({
       >
         <Check className="w-4 h-4 shrink-0" strokeWidth={2.5} />
         <span>
-          {fill("Clean file — {n} rows ready to import", {
+          {fill(t, "Clean file — {n} rows ready to import", {
             n: counts.total,
           })}
         </span>
@@ -860,7 +924,7 @@ function ValidationBanner({
         {counts.err > 0 && (
           <span>
             ·{" "}
-            {fill("{n} rows with errors (will not be imported)", {
+            {fill(t, "{n} rows with errors (will not be imported)", {
               n: counts.err,
             })}
           </span>
@@ -868,13 +932,14 @@ function ValidationBanner({
         {counts.dup > 0 && (
           <span>
             ·{" "}
-            {skipDupes
-              ? fill("{n} duplicates (will be skipped)", { n: counts.dup })
-              : fill("{n} duplicates (will be updated)", { n: counts.dup })}
+            {strategy === "skip"
+              ? fill(t, "{n} duplicates (will be skipped)", { n: counts.dup })
+              : fill(t, "{n} duplicates (will be merged)", { n: counts.dup })}
           </span>
         )}
         <span>
-          · {fill("{n} rows will be imported successfully", { n: importable })}
+          ·{" "}
+          {fill(t, "{n} rows will be imported successfully", { n: importable })}
         </span>
       </div>
     </div>
@@ -960,69 +1025,6 @@ function FieldMapRow({
         ))}
       </select>
     </>
-  );
-}
-
-function Toggle({
-  checked,
-  onChange,
-  label,
-  hint,
-  disabled,
-  rtl,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-  hint?: string;
-  disabled?: boolean;
-  rtl: boolean;
-}) {
-  const travel = rtl ? -14 : 14;
-  return (
-    <label
-      className="flex items-start gap-3"
-      style={{
-        cursor: disabled ? "default" : "pointer",
-        opacity: disabled ? 0.5 : 1,
-      }}
-    >
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        disabled={disabled}
-        onClick={() => onChange(!checked)}
-        style={{
-          width: 36,
-          height: 22,
-          borderRadius: 9999,
-          padding: 2,
-          background: checked ? "var(--primary)" : "var(--input)",
-          border: "none",
-          transition: "background .15s ease",
-          flexShrink: 0,
-        }}
-      >
-        <span
-          style={{
-            display: "block",
-            width: 18,
-            height: 18,
-            borderRadius: 9999,
-            background: "white",
-            transform: checked ? `translateX(${travel}px)` : "translateX(0)",
-            transition: "transform .15s ease",
-          }}
-        />
-      </button>
-      <div className="flex flex-col">
-        <span className="text-[14px]">{label}</span>
-        {hint && (
-          <span className="text-[12px] text-muted-foreground">{hint}</span>
-        )}
-      </div>
-    </label>
   );
 }
 
