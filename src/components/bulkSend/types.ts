@@ -4,7 +4,7 @@ import {
 } from "@/supabase/client";
 import * as fill from "@/components/templateFill/types";
 import type { OutboundChannel } from "@/hooks/useAccess";
-import { contactPhone } from "@/utils/ContactAddressUtils";
+import { contactEmail, contactPhone } from "@/utils/ContactAddressUtils";
 
 /* Shared types, constants, and pure helpers for the bulk-send wizard. */
 
@@ -319,7 +319,7 @@ export function contactField(
 ): string {
   if (field === "name") return c.name || "";
   if (field === "surname") return c.surname || "";
-  if (field === "email") return c.email || "";
+  if (field === "email") return contactEmail(c) || "";
   if (field === "phone") return contactPhone(c) || "";
   return "";
 }

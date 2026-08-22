@@ -27,8 +27,13 @@ import Avatar from "@/components/Avatar";
 import FieldError from "@/components/FieldError";
 import EmailSuggestion from "@/components/EmailSuggestion";
 import { validateEmailField } from "@/utils/emailValidation";
+import { contactEmail } from "@/utils/ContactAddressUtils";
 
-type ContactFormValues = ContactWithAddressesUpdate;
+// `email` is hand-added: contacts.email is dropped from the generated Row/
+// Update types (it's unused — see 03-02_contacts.sql), but the form still
+// carries it as a plain field, routed through the address pipeline by
+// useUpdateContact rather than the contacts table update.
+type ContactFormValues = ContactWithAddressesUpdate & { email?: string | null };
 
 export const Route = createFileRoute("/_auth/contacts/$contactId")({
   component: ContactDetail,
@@ -65,6 +70,21 @@ function ContactDetail() {
     [contact],
   );
 
+  // contact.email (the raw column) is unused; the address of the contact's
+  // service='email' row is the real value. Its address row is also dropped
+  // from the addresses list below — it is edited through the Email field
+  // above, not the phone/instagram list, which only special-cases instagram
+  // and would otherwise render it as a bogus "Phone" entry.
+  const formValues = useMemo(
+    () =>
+      contact && {
+        ...contact,
+        email: contactEmail(contact) ?? null,
+        addresses: contact.addresses.filter((a) => a.service !== "email"),
+      },
+    [contact],
+  );
+
   const {
     register,
     handleSubmit,
@@ -73,7 +93,7 @@ function ContactDetail() {
     formState: { isDirty, isValid, errors },
   } = useForm<ContactFormValues>({
     mode: "onTouched",
-    values: contact,
+    values: formValues,
   });
 
   const { fields, append, remove } = useFieldArray({

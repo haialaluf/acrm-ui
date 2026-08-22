@@ -8,6 +8,7 @@ import { useContactSources } from "@/queries/useContactSources";
 import type { ContactActivity } from "@/queries/useContactMessageActivity";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import { datePickerTokens } from "@/components/antdTokens";
+import { contactEmail } from "@/utils/ContactAddressUtils";
 
 /**
  * Filter shape shared by the contact list and the bulk-send wizard recipients
@@ -97,7 +98,7 @@ export function applyContactFilter<T extends ContactWithAddressesRow>(
     f.notSentSince != null;
   return contacts.filter((c) => {
     if (q) {
-      const hay = `${c.name ?? ""} ${c.email ?? ""} ${c.notes ?? ""} ${(
+      const hay = `${c.name ?? ""} ${contactEmail(c) ?? ""} ${c.notes ?? ""} ${(
         c.addresses ?? []
       )
         .map((a) => a.address)

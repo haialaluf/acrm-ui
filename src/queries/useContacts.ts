@@ -131,6 +131,8 @@ export function useCreateContact() {
       const { addresses, tags, email, ...contactData } = data;
 
       // Create contact
+      // NOTE: `email` is intentionally left off this insert — contacts.email
+      // is unused, and it flows through the address pipeline below instead.
       const { data: contact } = await supabase
         .from("contacts")
         // `tags` is a contacts column not yet present in the generated
@@ -139,17 +141,35 @@ export function useCreateContact() {
         .insert({
           ...contactData,
           ...(tags?.length ? { tags } : {}),
-          ...(email != null ? { email } : {}),
           organization_id: orgId,
         } as ContactInsert)
         .select()
         .single()
         .throwOnError();
 
-      // Link addresses to contact (deduplicate by normalized address)
-      const toLink = addresses
+      // Fold the single email field into the same address list phone/
+      // instagram addresses go through, service-tagged so the normalization
+      // below skips it (an email is not a phone number).
+      const allAddresses = [
+        ...addresses,
+        ...(email?.trim()
+          ? [{ address: email.trim(), service: "email" as const }]
+          : []),
+      ];
+
+      // Link addresses to contact (deduplicate by normalized address). Only
+      // phone-based (whatsapp) addresses get normalized — instagram ids and
+      // email addresses pass through untouched, same rule useUpdateContact
+      // uses below.
+      const toLink = allAddresses
         .filter((a) => Boolean(a.address))
-        .map((a) => ({ ...a, address: normalizePhoneNumber(a.address!) }))
+        .map((a) => ({
+          ...a,
+          address:
+            a.service === "instagram" || a.service === "email"
+              ? a.address!
+              : normalizePhoneNumber(a.address!),
+        }))
         .filter(
           (a, i, arr) => arr.findIndex((x) => x.address === a.address) === i,
         );
@@ -163,7 +183,7 @@ export function useCreateContact() {
                 ({
                   ...a,
                   organization_id: orgId,
-                  service: "whatsapp" as const,
+                  service: a.service ?? ("whatsapp" as const),
                   contact_id: contact.id,
                 }) as ContactAddressInsert,
             ),
@@ -192,7 +212,10 @@ export function useUpdateContact() {
       if (!orgId) throw new Error("No active organization");
       if (!data.id) throw new Error("No contact id");
 
-      const { addresses: rawNewAddresses, ...newContact } = data;
+      const { addresses: rawNewAddresses, email, ...newContact } = data;
+      // `email` never reaches the contacts table update — contacts.email is
+      // unused; it flows through the same address pipeline as every other
+      // address below.
 
       const { data: contact } = await supabase
         .from("contacts")
@@ -209,13 +232,26 @@ export function useUpdateContact() {
 
       const oldAddressesString = oldAddresses.map((a) => a.address) ?? [];
 
+      // Synthesize the single email field into the same addresses list the
+      // phone/instagram useFieldArray rows go through, service-tagged so it
+      // is never run through normalizePhoneNumber below. Clearing the field
+      // (empty string) falls naturally into the toUnlink diff below, same as
+      // removing a phone row — no special-casing needed.
+      const rawAllAddresses = [
+        ...rawNewAddresses,
+        ...(email?.trim()
+          ? [{ address: email.trim(), service: "email" as const }]
+          : []),
+      ];
+
       // Only phone-based (whatsapp) addresses get normalized. Instagram
-      // addresses are igsids, not phone numbers — normalizing them would
-      // corrupt the routing key, so pass them through untouched.
-      const newAddresses = rawNewAddresses.map((a) => ({
+      // addresses are igsids and email addresses are addresses, neither are
+      // phone numbers — normalizing them would corrupt the routing key, so
+      // pass them through untouched.
+      const newAddresses = rawAllAddresses.map((a) => ({
         ...a,
         address:
-          a.service === "instagram"
+          a.service === "instagram" || a.service === "email"
             ? a.address!
             : normalizePhoneNumber(a.address!),
       }));

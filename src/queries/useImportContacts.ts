@@ -108,7 +108,8 @@ export function useImportContacts() {
                 organization_id: orgId,
                 ...(c.surname ? { surname: c.surname } : {}),
                 ...(contactTags.length ? { tags: contactTags } : {}),
-                ...(c.email ? { email: c.email } : {}),
+                // `email` is intentionally left off this insert — contacts.email
+                // is unused; it's linked as an address below instead.
               } as ContactInsert;
             }),
           )
@@ -136,6 +137,32 @@ export function useImportContacts() {
           await supabase
             .from("contacts_addresses")
             .upsert(links, {
+              onConflict: "organization_id, address",
+              defaultToNull: false,
+            })
+            .throwOnError();
+        }
+
+        // Same for email, deduplicated by address the same way.
+        const emailLinks = inserted
+          .map(
+            (contact, i) =>
+              ({
+                organization_id: orgId,
+                service: "email" as const,
+                contact_id: contact.id,
+                address: batch[i].email?.trim().toLowerCase() ?? "",
+              }) as ContactAddressInsert,
+          )
+          .filter((a) => a.address)
+          .filter(
+            (a, i, arr) => arr.findIndex((x) => x.address === a.address) === i,
+          );
+
+        if (emailLinks.length) {
+          await supabase
+            .from("contacts_addresses")
+            .upsert(emailLinks, {
               onConflict: "organization_id, address",
               defaultToNull: false,
             })

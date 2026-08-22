@@ -3,6 +3,7 @@ import type {
   EmailTemplateVariable,
   EmailVariableField,
 } from "@/supabase/client";
+import { contactEmail } from "@/utils/ContactAddressUtils";
 
 /* Send-time substitution, run here only to preview it.
  *
@@ -49,7 +50,7 @@ export function contactValues(
     first_name: first,
     last_name: last,
     full_name: [first, last].filter(Boolean).join(" "),
-    email: contact.email || "",
+    email: contactEmail(contact) || "",
     phone: phone || "",
   };
 }

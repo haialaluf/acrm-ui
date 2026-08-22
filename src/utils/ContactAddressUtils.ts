@@ -30,6 +30,15 @@ export function contactPhoneRow(
   return contact.addresses?.find((a) => a.service === "whatsapp");
 }
 
+/** The contact's email address row, if they have one. */
+export function contactEmailRow(
+  contact: ContactWithAddressesRow,
+): ContactAddressRow | undefined {
+  return contact.addresses?.find(
+    (a) => a.service === "email" && a.status !== "removed",
+  );
+}
+
 /** The contact's phone number — the address of their WhatsApp row. */
 export function contactPhone(
   contact: ContactWithAddressesRow,
@@ -49,49 +58,35 @@ export function contactPhoneStatus(
 }
 
 /**
- * The contact's email address.
+ * The contact's email address — the address of their `service='email'` row.
  *
- * Read off `contacts.email`, NOT off the `service='email'` address row — the
- * mirror image of the phone rule above, and for a reason worth stating. The
- * address rows for email exist only where something has created them: the
- * `20260808165833` backfill did it for contacts that already existed, and
- * `mint_unsubscribe_links` does it at send time, but nothing maintains one when
- * a contact is created or edited. So a contact added yesterday has an email and
- * no email row, and filtering recipients on the row would quietly exclude them.
- *
- * Lower-cased and trimmed to match `public.normalize_email` — the address row,
- * the suppression check and the unsubscribe token are all keyed on that form,
- * so a recipient list built from the raw column would look up the wrong row.
+ * `contacts.email` is unused: every write path (manual create/edit, CSV
+ * import, Meta Lead Ads, the AI agent, the MCP operator tool) now always
+ * upserts an address row instead, so this row is the one source of truth.
+ * Excludes a removed/unsubscribed row so callers that mean "is this contact
+ * reachable" don't get a dead address back — use `contactEmailStatus` if you
+ * need to know *why* it's excluded.
  */
 export function contactEmail(
   contact: ContactWithAddressesRow,
 ): string | undefined {
-  const email = contact.email?.trim().toLowerCase();
-
-  // A '@' at position 0 has no local part. Same shape check the
-  // unsubscribe_links CHECK constraint applies, so the wizard cannot offer a
-  // recipient the send path would then refuse.
-  return email && email.indexOf("@") > 0 ? email : undefined;
+  return contactEmailRow(contact)?.address;
 }
 
 /**
  * Status of the contact's email address row — `'removed'` once they have
  * unsubscribed, hard-bounced or been marked as a complaint.
  *
- * Undefined when no row exists, which means "never opted out": suppression is
- * recorded, never inferred (the same rule `_shared/email_suppression.ts`
- * follows server-side). Matched on the normalized address for the reason given
- * in `contactEmail`.
+ * Undefined when no row exists at all, which means "never opted out":
+ * suppression is recorded, never inferred (the same rule
+ * `_shared/email_suppression.ts` follows server-side). Deliberately does NOT
+ * go through `contactEmail` above — that excludes a removed row, and this is
+ * exactly the function that needs to see it.
  */
 export function contactEmailStatus(
   contact: ContactWithAddressesRow,
 ): string | undefined {
-  const email = contactEmail(contact);
-  if (!email) return undefined;
-
-  return contact.addresses?.find(
-    (a) => a.service === "email" && a.address === email,
-  )?.status;
+  return contact.addresses?.find((a) => a.service === "email")?.status;
 }
 
 /**
