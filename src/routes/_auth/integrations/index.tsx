@@ -83,6 +83,7 @@ function IntegrationsIndex() {
             }
             title={t("Email")}
             description={t("Send from your own domain")}
+            wrapDescription
             onClick={() =>
               navigate({
                 to: "/integrations/email",
@@ -101,6 +102,7 @@ function IntegrationsIndex() {
             }
             title={t("Facebook Leads")}
             description={t("Instant Form leads become contacts automatically")}
+            wrapDescription
             onClick={() =>
               navigate({
                 to: "/integrations/facebook",
@@ -116,6 +118,7 @@ function IntegrationsIndex() {
             }
             title={t("API Leads")}
             description={t("Post contacts to your own endpoint URL")}
+            wrapDescription
             onClick={() =>
               navigate({
                 to: "/integrations/api",

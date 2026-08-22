@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 export default function SectionItem({
   title,
   description,
+  wrapDescription,
   aside,
   actions,
   onClick,
@@ -13,6 +14,13 @@ export default function SectionItem({
 }: {
   title: ReactNode;
   description?: ReactNode;
+  /**
+   * Let the description use a second line instead of being cut off. For rows
+   * whose description is a written sentence rather than a data preview: a
+   * truncated sentence is unreadable, while a truncated message preview is
+   * still doing its job. The row grows to fit rather than staying at 72px.
+   */
+  wrapDescription?: boolean;
   aside?: ReactNode;
   actions?: ReactNode;
   onClick?: () => void;
@@ -32,7 +40,9 @@ export default function SectionItem({
     <div
       title={tooltip}
       className={
-        `h-[72px] flex rounded-xl group ${className || ""} ` +
+        `flex rounded-xl group ${
+          wrapDescription ? "min-h-[72px] py-[10px]" : "h-[72px]"
+        } ${className || ""} ` +
         (interactive ? " cursor-pointer" : "") +
         (selected
           ? " bg-primary/8 hover:bg-primary/8"
@@ -57,12 +67,18 @@ export default function SectionItem({
           <div className="truncate text-foreground text-[16px]">{title}</div>
         </div>
 
-        {/* Lower Row: Description */}
+        {/* Lower Row: Description.
+            Flat rather than a flex wrapper around the text: inside a flex
+            container the text becomes an anonymous flex item, and
+            `text-overflow: ellipsis` has nothing to apply to — the sentence
+            got clipped mid-word with no "…" to say so. */}
         {description && (
-          <div className="flex justify-between mt-[2px] items-start">
-            <div className="min-w-0 flex items-start text-muted-foreground text-[14px] truncate w-full">
-              {description}
-            </div>
+          <div
+            className={`mt-[2px] min-w-0 text-muted-foreground text-[14px] ${
+              wrapDescription ? "line-clamp-2" : "truncate"
+            }`}
+          >
+            {description}
           </div>
         )}
       </div>
