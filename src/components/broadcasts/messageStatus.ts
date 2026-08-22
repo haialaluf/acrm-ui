@@ -120,15 +120,46 @@ const EMAIL_KIND_LABELS: Partial<Record<MessageStatusKind, string>> = {
   read: "Opened",
 };
 
+/** Label for one bucket. Split out from messageStatusLabel so a row can be
+ *  labelled by the bucket the user filtered to rather than by the message's
+ *  own furthest state. */
+export function messageKindLabel(
+  kind: MessageStatusKind,
+  t: (s: string) => string,
+  service?: string | null,
+): string {
+  return t(
+    (service === "email" ? EMAIL_KIND_LABELS[kind] : undefined) ??
+      KIND_LABELS[kind],
+  );
+}
+
 export function messageStatusLabel(
   status: Json,
   t: (s: string) => string,
   service?: string | null,
 ): string {
-  const kind = messageStatusKind(status);
-  const label =
-    (service === "email" ? EMAIL_KIND_LABELS[kind] : undefined) ??
-    KIND_LABELS[kind];
+  return messageKindLabel(messageStatusKind(status), t, service);
+}
 
-  return t(label);
+/**
+ * When one bucket was reached, from the ISO timestamp its own status key
+ * holds (see OutgoingStatus — every key is a `new Date().toISOString()`).
+ * Null when the message never reached that state.
+ *
+ * `pending` deliberately has none: its timestamp is when the broadcast was
+ * *queued*, which for a scheduled batch is hours before it goes out — the
+ * caller shows messages.timestamp (the send slot) instead, which is what
+ * "Pending" is actually waiting for.
+ */
+export function messageStatusTime(
+  status: Json,
+  kind: MessageStatusKind,
+): string | null {
+  const s = (status ?? {}) as Record<string, unknown>;
+  // `sent` covers two keys: the dispatcher writes `accepted` when the provider
+  // takes the message, the webhook writes `sent` when it actually leaves.
+  // Prefer the latter, fall back to the former.
+  const raw = kind === "sent" ? (s.sent ?? s.accepted) : s[kind];
+  return kind === "pending" || typeof raw !== "string" ? null : raw;
 }

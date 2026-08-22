@@ -1,4 +1,5 @@
 import { useState } from "react";
+import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import Button from "@/components/Button";
@@ -13,8 +14,13 @@ import {
   useCancelBroadcastBatch,
 } from "@/queries/useBroadcasts";
 import { batchStatus, batchStatusLabel, batchStatusTone } from "./batchStatus";
-import { formatScheduledDate } from "./formatScheduledDate";
-import { messageMatchesStatus, messageStatusLabel } from "./messageStatus";
+import { formatBatchDay, formatBatchTime } from "./formatScheduledDate";
+import {
+  messageKindLabel,
+  messageMatchesStatus,
+  messageStatusKind,
+  messageStatusTime,
+} from "./messageStatus";
 import type { MessageStatusKind } from "./messageStatus";
 
 /** One clickable stat tile: a status bucket, its count, and how to paint it. */
@@ -57,12 +63,18 @@ export default function BroadcastBatchDetail({
 
   const status = batchStatus({
     scheduled_date: batch.scheduled_date ?? scheduledDate,
+    scheduled_at: batch.scheduled_at,
     recipient_count: batch.recipient_count ?? 0,
     pending_count: batch.pending_count ?? 0,
     failed_count: batch.failed_count ?? 0,
     cancelled_count: batch.cancelled_count ?? 0,
   });
   const canCancel = (batch.pending_count ?? 0) > 0;
+  const schedule = {
+    scheduled_date: batch.scheduled_date ?? scheduledDate,
+    scheduled_at: batch.scheduled_at,
+  };
+  const sendTime = formatBatchTime(schedule);
 
   const filteredMessages = messages?.filter(
     (m) => !statusFilter || messageMatchesStatus(m.status, statusFilter),
@@ -193,11 +205,10 @@ export default function BroadcastBatchDetail({
 
       <div className="overflow-y-auto grow p-[24px] max-w-[900px] mx-auto w-full flex flex-col gap-[20px]">
         <div className="text-[14px] text-muted-foreground">
-          {formatScheduledDate(
-            batch.scheduled_date ?? scheduledDate,
-            t,
-            currentLanguage,
-          )}{" "}
+          <span className="text-foreground">
+            {formatBatchDay(schedule, t, currentLanguage)}
+            {sendTime && ` ${sendTime}`}
+          </span>{" "}
           · {t("Batch")} {(batch.batch_index ?? 0) + 1}/{batch.batches_total}
         </div>
 
@@ -252,8 +263,27 @@ export default function BroadcastBatchDetail({
                 <span className="text-[14px]">
                   {m.contact_name || m.contact_address}
                 </span>
-                <span className="text-[12px] text-muted-foreground">
-                  {messageStatusLabel(m.status, t, m.service)}
+                <span className="flex items-center gap-[10px] text-[12px] text-muted-foreground">
+                  {(() => {
+                    // A filtered list answers a question about *that* bucket
+                    // ("when was this delivered?"), so the row reports the
+                    // clicked bucket and the moment it was reached. Unfiltered,
+                    // it reports how far the message got and when that
+                    // happened. Either way the time belongs to the label next
+                    // to it, rather than always being the send time.
+                    const kind = statusFilter ?? messageStatusKind(m.status);
+                    const at = messageStatusTime(m.status, kind) ?? m.timestamp;
+                    return (
+                      <>
+                        {at && (
+                          <span className="tabular-nums">
+                            {dayjs(at).format("HH:mm")}
+                          </span>
+                        )}
+                        <span>{messageKindLabel(kind, t, m.service)}</span>
+                      </>
+                    );
+                  })()}
                 </span>
               </div>
             ))}

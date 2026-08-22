@@ -11,6 +11,7 @@ import {
   useCancelBroadcastBatch,
 } from "@/queries/useBroadcasts";
 import { batchStatus, isUpcomingBatch } from "./batchStatus";
+import { batchSortValue } from "./formatScheduledDate";
 import { encodeBatchKey } from "./batchKey";
 import BroadcastCard from "./BroadcastCard";
 
@@ -42,6 +43,7 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
       upcoming: isUpcomingBatch(
         batchStatus({
           scheduled_date: b.scheduled_date,
+          scheduled_at: b.scheduled_at,
           recipient_count: b.recipient_count ?? 0,
           pending_count: b.pending_count ?? 0,
           failed_count: b.failed_count ?? 0,
@@ -51,16 +53,15 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
     }));
 
   // Soonest first for what is still coming, most recent first for what is done.
+  // By send instant rather than by day: two batches of the same campaign can
+  // share a date at different hours, and the day alone leaves their order to
+  // however the RPC happened to return them.
   const upcoming = rows
     .filter((r) => r.upcoming)
-    .sort((a, b) =>
-      a.batch.scheduled_date.localeCompare(b.batch.scheduled_date),
-    );
+    .sort((a, b) => batchSortValue(a.batch) - batchSortValue(b.batch));
   const history = rows
     .filter((r) => !r.upcoming)
-    .sort((a, b) =>
-      b.batch.scheduled_date.localeCompare(a.batch.scheduled_date),
-    );
+    .sort((a, b) => batchSortValue(b.batch) - batchSortValue(a.batch));
 
   const activeRow = activeKey ? rows.find((r) => r.key === activeKey) : null;
   const activeTab: Tab =

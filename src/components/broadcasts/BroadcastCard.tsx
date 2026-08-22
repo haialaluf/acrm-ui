@@ -1,4 +1,4 @@
-import { Calendar, Mail, Users, XCircle } from "lucide-react";
+import { Calendar, Clock, Mail, Users, XCircle } from "lucide-react";
 import { WhatsAppOutlined } from "@ant-design/icons";
 import StatusBadge from "@/components/StatusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -9,7 +9,7 @@ import {
   batchStatusTone,
   isUpcomingBatch,
 } from "./batchStatus";
-import { formatScheduledDate } from "./formatScheduledDate";
+import { formatBatchDay, formatBatchTime } from "./formatScheduledDate";
 
 /**
  * One broadcast batch as a card in the left panel — the design's campaign
@@ -38,6 +38,7 @@ export default function BroadcastCard({
 
   const status = batchStatus({
     scheduled_date: batch.scheduled_date,
+    scheduled_at: batch.scheduled_at,
     recipient_count: recipients,
     pending_count: pending,
     failed_count: failed,
@@ -49,6 +50,7 @@ export default function BroadcastCard({
   // actually arrived — same ratio the design's card shows.
   const deliveredPct = sent ? Math.round((delivered / sent) * 100) : 0;
   const batchesTotal = batch.batches_total ?? 1;
+  const sendTime = formatBatchTime(batch);
 
   return (
     <div
@@ -92,8 +94,16 @@ export default function BroadcastCard({
       <div className="flex items-center gap-[8px] mt-[10px] text-[12px] text-muted-foreground text-nowrap">
         <Calendar className="w-[14px] h-[14px] shrink-0" />
         <span className="text-foreground truncate">
-          {formatScheduledDate(batch.scheduled_date, t, currentLanguage)}
+          {formatBatchDay(batch, t, currentLanguage)}
         </span>
+        {/* The hour the batch actually goes out — the wizard asks for it per
+            batch, so a card without it reads as a whole free day. */}
+        {sendTime && (
+          <span className="flex items-center gap-[4px] shrink-0">
+            <Clock className="w-[13px] h-[13px]" />
+            <span className="text-foreground">{sendTime}</span>
+          </span>
+        )}
         {batchesTotal > 1 && (
           <span className="rounded-full px-[7px] py-[1px] bg-muted shrink-0">
             {t("Batch")} {(batch.batch_index ?? 0) + 1}/{batchesTotal}
