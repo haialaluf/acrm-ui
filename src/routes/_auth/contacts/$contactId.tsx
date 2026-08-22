@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -11,6 +12,7 @@ import SectionBody from "@/components/SectionBody";
 import SectionFooter from "@/components/SectionFooter";
 import Button from "@/components/Button";
 import ContactTagSelect from "@/components/ContactTagSelect";
+import ConfirmModal from "@/components/ConfirmModal";
 import { Plus, X } from "lucide-react";
 import { useMemo } from "react";
 import type {
@@ -21,13 +23,17 @@ import type {
 import {
   isValidPhoneNumber,
   formatPhoneNumber,
+  ltrIsolate,
   nameInitials,
+  normalizePhoneNumber,
 } from "@/utils/FormatUtils";
 import Avatar from "@/components/Avatar";
 import FieldError from "@/components/FieldError";
 import EmailSuggestion from "@/components/EmailSuggestion";
 import { validateEmailField } from "@/utils/emailValidation";
 import { contactEmail } from "@/utils/ContactAddressUtils";
+import { useAddressConflicts, type AddressConflict } from "@/hooks/useAddressConflicts";
+import { fill } from "@/utils/fill";
 
 // `email` is hand-added: contacts.email is dropped from the generated Row/
 // Update types (it's unused — see 03-02_contacts.sql), but the form still
@@ -39,6 +45,28 @@ export const Route = createFileRoute("/_auth/contacts/$contactId")({
   component: ContactDetail,
 });
 
+/** The RPC-shaped address list for only the NEW rows this submit would add —
+ * existing addresses are read-only in this form and can never collide. */
+function buildNewAddresses(
+  data: ContactFormValues,
+  originalAddresses: Set<string>,
+) {
+  return [
+    ...(data.addresses ?? [])
+      .filter((a) => a.address && !originalAddresses.has(a.address))
+      .map((a) => ({
+        service: a.service ?? "whatsapp",
+        address:
+          a.service === "instagram"
+            ? a.address!
+            : normalizePhoneNumber(a.address!),
+      })),
+    ...(data.email?.trim() && !originalAddresses.has(data.email.trim().toLowerCase())
+      ? [{ service: "email", address: data.email.trim().toLowerCase() }]
+      : []),
+  ];
+}
+
 function ContactDetail() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
@@ -46,6 +74,12 @@ function ContactDetail() {
   const { data: contact } = useContact(contactId);
   const deleteContact = useDeleteContact();
   const updateContact = useUpdateContact();
+  const { conflictsByAddress, checkOnBlur, findConflictBeforeSubmit } =
+    useAddressConflicts(contactId);
+  const [pendingConflict, setPendingConflict] = useState<{
+    data: ContactFormValues;
+    conflict: AddressConflict;
+  } | null>(null);
 
   // Track original addresses (these will be readonly)
   const originalAddresses = useMemo(
@@ -101,6 +135,28 @@ function ContactDetail() {
     name: "addresses",
   });
 
+  function submit(data: ContactFormValues, strategy: "skip" | "merge") {
+    updateContact.mutate(
+      { ...data, strategy },
+      { onSuccess: () => setPendingConflict(null) },
+    );
+  }
+
+  async function onValidSubmit(data: ContactFormValues) {
+    const conflict = await findConflictBeforeSubmit(
+      buildNewAddresses(data, originalAddresses),
+    );
+    if (conflict) {
+      setPendingConflict({ data, conflict });
+      return;
+    }
+    submit(data, "skip");
+  }
+
+  const emailReg = register("email", {
+    validate: validateEmailField,
+  });
+
   return (
     contact && (
       <>
@@ -132,10 +188,7 @@ function ContactDetail() {
             </div>
           )}
 
-          <form
-            id="contact-form"
-            onSubmit={handleSubmit((data) => updateContact.mutate(data))}
-          >
+          <form id="contact-form" onSubmit={handleSubmit(onValidSubmit)}>
             <label>
               <div className="label">{t("Name")}</div>
               <input
@@ -162,16 +215,30 @@ function ContactDetail() {
                 type="email"
                 className="text"
                 placeholder={t("email@example.com")}
-                {...register("email", {
-                  // The phone field is already validated; this one relied on the
-                  // browser's `type="email"` grammar, which accepts `a@b` and
-                  // `john@localhost`. A bad address here becomes a hard bounce
-                  // charged against the sending domain's reputation.
-                  validate: validateEmailField,
-                })}
+                {...emailReg}
+                onBlur={(e) => {
+                  emailReg.onBlur(e);
+                  const value = e.target.value.trim().toLowerCase();
+                  if (
+                    value &&
+                    validateEmailField(value) === true &&
+                    !originalAddresses.has(value)
+                  ) {
+                    checkOnBlur("email", value);
+                  }
+                }}
               />
               <FieldError error={errors.email} />
               <EmailSuggestion value={watch("email")} />
+              {watch("email") &&
+                conflictsByAddress[watch("email")!.trim().toLowerCase()] && (
+                  <ConflictWarning
+                    conflict={
+                      conflictsByAddress[watch("email")!.trim().toLowerCase()]
+                    }
+                    t={t}
+                  />
+                )}
             </label>
 
             {/* Shared with the AI agent, in both directions: what is typed
@@ -244,6 +311,16 @@ function ContactDetail() {
                 );
               }
 
+              const reg = register(`addresses.${idx}.address`, {
+                validate: (value) =>
+                  !value || isValidPhoneNumber(value) || "Invalid number",
+              });
+              const rawValue = watch(`addresses.${idx}.address`);
+              const conflict =
+                !isExisting && rawValue && isValidPhoneNumber(rawValue)
+                  ? conflictsByAddress[normalizePhoneNumber(rawValue)]
+                  : undefined;
+
               return (
                 <label key={field.id}>
                   <div className="label">
@@ -263,12 +340,19 @@ function ContactDetail() {
                         type="tel"
                         className={`text ${errors.addresses?.[idx]?.address ? "border-destructive" : ""}`}
                         placeholder={t("+54 9 11 1234 5678")}
-                        {...register(`addresses.${idx}.address`, {
-                          validate: (value) =>
-                            !value ||
-                            isValidPhoneNumber(value) ||
-                            "Invalid number",
-                        })}
+                        {...reg}
+                        onBlur={(e) => {
+                          reg.onBlur(e);
+                          if (
+                            e.target.value &&
+                            isValidPhoneNumber(e.target.value)
+                          ) {
+                            checkOnBlur(
+                              "whatsapp",
+                              normalizePhoneNumber(e.target.value),
+                            );
+                          }
+                        }}
                       />
                     )}
                     <button
@@ -281,6 +365,7 @@ function ContactDetail() {
                     </button>
                   </div>
                   <FieldError error={errors.addresses?.[idx]?.address} />
+                  {conflict && <ConflictWarning conflict={conflict} t={t} />}
                 </label>
               );
             })}
@@ -314,6 +399,19 @@ function ContactDetail() {
                 ))}
               </div>
             )}
+
+            {updateContact.error && (
+              <p className="text-destructive text-[13px]">
+                {t("Could not save the contact. Please try again.")}
+              </p>
+            )}
+            {updateContact.data?.action === "skipped" && (
+              <p className="text-destructive text-[13px]">
+                {t(
+                  "This address now belongs to another contact. Refresh and try again.",
+                )}
+              </p>
+            )}
           </form>
         </SectionBody>
 
@@ -328,7 +426,55 @@ function ContactDetail() {
             {t("Update")}
           </Button>
         </SectionFooter>
+
+        {pendingConflict && (
+          <ConfirmModal
+            open
+            title={t("Merge contacts?")}
+            body={
+              <span>
+                {ltrIsolate(pendingConflict.conflict.address)}{" "}
+                {fillOwner(t, pendingConflict.conflict)}
+              </span>
+            }
+            confirmLabel={t("Merge")}
+            danger
+            loading={updateContact.isPending}
+            onConfirm={() => submit(pendingConflict.data, "merge")}
+            onCancel={() => setPendingConflict(null)}
+          />
+        )}
       </>
     )
+  );
+}
+
+function fillOwner(t: (s: string) => string, conflict: AddressConflict) {
+  const owner = conflict.contact_name || t("another contact");
+  const count = conflict.conversation_count;
+  return count > 0
+    ? fill(
+        t,
+        "belongs to {name}. Merge the two contacts? {n} conversations will move. This cannot be undone.",
+        { name: owner, n: count },
+      )
+    : fill(t, "belongs to {name}. Merge the two contacts? This cannot be undone.", {
+        name: owner,
+      });
+}
+
+function ConflictWarning({
+  conflict,
+  t,
+}: {
+  conflict: AddressConflict;
+  t: (s: string) => string;
+}) {
+  return (
+    <div className="text-warning-strong text-[11.5px]">
+      {t("Already belongs to")}{" "}
+      <span dir="ltr">{conflict.contact_name || t("another contact")}</span> —{" "}
+      {t("saving will offer to merge the two contacts")}
+    </div>
   );
 }

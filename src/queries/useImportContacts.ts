@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  supabase,
-  type ContactAddressInsert,
-  type ContactInsert,
-} from "@/supabase/client";
+import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 import { normalizePhoneNumber } from "@/utils/FormatUtils";
 import { queryKeys } from "./queryKeys";
@@ -20,55 +16,75 @@ export type ImportContactInput = {
   tags: string[];
 };
 
-/** An existing contact whose tags should be merged (the "update" path). */
-export type ImportContactUpdate = {
-  contactId: string;
-  /** The contact's current tags, so we can union without losing any. */
-  existingTags: string[];
-  /** Per-contact tags from the mapped column; unioned with the global tags. */
-  rowTags: string[];
-};
-
 export type ImportContactsArgs = {
-  /** New contacts to create. */
+  /** No default — every upsert_contact caller names it explicitly. */
+  strategy: "skip" | "merge";
   contacts: ImportContactInput[];
-  /** Existing duplicates to update with the shared tags (when enabled). */
-  updates: ImportContactUpdate[];
-  /** Tags applied to every imported / updated contact. */
+  /** Tags applied to every imported / merged contact. */
   tags: string[];
 };
 
 export type ImportContactsResult = {
   added: number;
+  /** Rows that resolved onto an existing contact (merged or field-updated). */
   updated: number;
+  /** Rows declined because `strategy` was 'skip' and the address collided. */
+  skipped: number;
+  /** Rows whose `upsert_contact` call itself failed (network/validation). */
+  failed: number;
 };
 
-/** Live progress, updated each time a batch / update resolves. */
+/** Live progress, updated as each individual row resolves. */
 export type ImportProgress = {
-  /** Rows processed so far (inserted + updated). */
   processed: number;
-  /** Total rows to process (contacts + updates). */
   total: number;
 };
 
-/** Insert/update in batches so we never send an unbounded payload. */
-const BATCH_SIZE = 50;
-
-function chunk<T>(items: T[], size: number): T[][] {
-  const batches: T[][] = [];
-  for (let i = 0; i < items.length; i += size) {
-    batches.push(items.slice(i, i + size));
-  }
-  return batches;
-}
+/** Max simultaneous `upsert_contact` calls in flight — bounded so a large
+ * file never opens hundreds/thousands of concurrent connections, while still
+ * keeping meaningful throughput (unlike a fully serial loop). */
+const CONCURRENCY = 8;
 
 /**
- * Bulk-import contacts from a parsed file.
+ * Run `items` through `worker` with at most `CONCURRENCY` in flight at once,
+ * calling `onEach` as each individual item resolves (not per-batch) so
+ * progress ticks smoothly rather than jumping in chunks.
+ */
+async function runPool<T, R>(
+  items: T[],
+  worker: (item: T) => Promise<R>,
+  onEach: (result: R) => void,
+): Promise<void> {
+  let cursor = 0;
+
+  async function runNext(): Promise<void> {
+    while (cursor < items.length) {
+      const i = cursor++;
+      const result = await worker(items[i]);
+      onEach(result);
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(CONCURRENCY, items.length) },
+    () => runNext(),
+  );
+  await Promise.all(workers);
+}
+
+type RowOutcome = { action: string } | { error: true };
+
+/**
+ * Bulk-import contacts from a parsed file through `upsert_contact` — the same
+ * one write path every other contact-creating surface uses, so a duplicate
+ * phone number is resolved by `strategy` instead of silently stealing the
+ * address or creating an orphaned second contact.
  *
- * For now this runs against Supabase directly, mirroring `useCreateContact`'s
- * insert path (contacts + linked addresses + tags). It is isolated behind this
- * hook so it can be swapped for the dedicated import endpoint later without
- * touching the route — the mutation interface stays the same.
+ * `p_contact_id` is always omitted (even for a client-detected duplicate):
+ * `upsert_contact` discovers the address collision itself and, per
+ * `strategy`, either skips the write or merges into the existing contact —
+ * so a client-known dup and an RPC-discovered one are resolved identically,
+ * without a separate "updates" batch.
  */
 export function useImportContacts() {
   const queryClient = useQueryClient();
@@ -80,128 +96,69 @@ export function useImportContacts() {
 
   const mutation = useMutation({
     mutationFn: async ({
+      strategy,
       contacts,
-      updates,
       tags,
     }: ImportContactsArgs): Promise<ImportContactsResult> => {
       if (!orgId) throw new Error("No active organization");
 
-      setProgress({ processed: 0, total: contacts.length + updates.length });
+      setProgress({ processed: 0, total: contacts.length });
 
-      let added = 0;
+      const result: ImportContactsResult = {
+        added: 0,
+        updated: 0,
+        skipped: 0,
+        failed: 0,
+      };
 
-      // Insert new contacts in batches of BATCH_SIZE so a large file never
-      // sends one unbounded payload. Within each batch, `insert([...]).select()`
-      // returns rows in the same order as the payload, so we can pair each
-      // returned id back to its phone for address linking.
-      for (const batch of chunk(contacts, BATCH_SIZE)) {
-        const { data: inserted } = await supabase
-          .from("contacts")
-          // `tags` / `email` are columns not yet in the generated db_types.ts;
-          // drop this cast once the types are regenerated (see useContactTags).
-          .insert(
-            batch.map((c) => {
-              // Union the global tags with this row's mapped-column tags.
-              const contactTags = [...new Set([...tags, ...c.tags])];
-              return {
+      await runPool<ImportContactInput, RowOutcome>(
+        contacts,
+        async (c): Promise<RowOutcome> => {
+          try {
+            const contactTags = [...new Set([...tags, ...c.tags])];
+            const p_addresses = [
+              {
+                service: "whatsapp",
+                address: normalizePhoneNumber(c.phone),
+              },
+              ...(c.email ? [{ service: "email", address: c.email }] : []),
+            ];
+
+            const { data, error } = await supabase.rpc("upsert_contact", {
+              p_organization_id: orgId,
+              p_strategy: strategy,
+              p_contact: {
                 name: c.name,
-                organization_id: orgId,
-                ...(c.surname ? { surname: c.surname } : {}),
-                ...(contactTags.length ? { tags: contactTags } : {}),
-                // `email` is intentionally left off this insert — contacts.email
-                // is unused; it's linked as an address below instead.
-              } as ContactInsert;
-            }),
-          )
-          .select()
-          .throwOnError();
+                surname: c.surname,
+                tags: contactTags,
+              },
+              p_addresses,
+            });
 
-        added += inserted.length;
+            if (error) throw error;
+            return data as unknown as { action: string };
+          } catch {
+            // A single row's failure (network blip, RPC validation error)
+            // must not abort the rest of the file — count it and move on.
+            return { error: true };
+          }
+        },
+        (outcome) => {
+          if ("error" in outcome) result.failed++;
+          else if (outcome.action === "skipped") result.skipped++;
+          else if (outcome.action === "created") result.added++;
+          else result.updated++; // 'updated' or 'merged'
 
-        // Link each contact's phone, deduplicated by normalized address.
-        const links = inserted
-          .map(
-            (contact, i) =>
-              ({
-                organization_id: orgId,
-                service: "whatsapp" as const,
-                contact_id: contact.id,
-                address: normalizePhoneNumber(batch[i].phone),
-              }) as ContactAddressInsert,
-          )
-          .filter(
-            (a, i, arr) => arr.findIndex((x) => x.address === a.address) === i,
-          );
+          setProgress((p) => ({ ...p, processed: p.processed + 1 }));
+        },
+      );
 
-        if (links.length) {
-          await supabase
-            .from("contacts_addresses")
-            .upsert(links, {
-              onConflict: "organization_id, address",
-              defaultToNull: false,
-            })
-            .throwOnError();
-        }
-
-        // Same for email, deduplicated by address the same way.
-        const emailLinks = inserted
-          .map(
-            (contact, i) =>
-              ({
-                organization_id: orgId,
-                service: "email" as const,
-                contact_id: contact.id,
-                address: batch[i].email?.trim().toLowerCase() ?? "",
-              }) as ContactAddressInsert,
-          )
-          .filter((a) => a.address)
-          .filter(
-            (a, i, arr) => arr.findIndex((x) => x.address === a.address) === i,
-          );
-
-        if (emailLinks.length) {
-          await supabase
-            .from("contacts_addresses")
-            .upsert(emailLinks, {
-              onConflict: "organization_id, address",
-              defaultToNull: false,
-            })
-            .throwOnError();
-        }
-
-        setProgress((p) => ({ ...p, processed: p.processed + batch.length }));
-      }
-
-      // Merge the shared tags into existing duplicates (union, no removals).
-      // Contacts that end up with the same merged tag set can share a single
-      // `.in("id", [...])` update, so group by that set and then chunk each
-      // group by BATCH_SIZE to keep payloads bounded (mirrors the insert path).
-      let updated = 0;
-      const groups = new Map<string, { merged: string[]; ids: string[] }>();
-      for (const u of updates) {
-        const merged = [...new Set([...u.existingTags, ...tags, ...u.rowTags])];
-        const key = JSON.stringify(merged);
-        const group = groups.get(key) ?? { merged, ids: [] };
-        group.ids.push(u.contactId);
-        groups.set(key, group);
-      }
-
-      for (const { merged, ids } of groups.values()) {
-        for (const batch of chunk(ids, BATCH_SIZE)) {
-          await supabase
-            .from("contacts")
-            .update({ tags: merged } as ContactInsert)
-            .in("id", batch)
-            .eq("organization_id", orgId)
-            .throwOnError();
-          updated += batch.length;
-          setProgress((p) => ({ ...p, processed: p.processed + batch.length }));
-        }
-      }
-
-      return { added, updated };
+      return result;
     },
-    onSuccess: () => {
+    // Rows are written one at a time, so a partial failure still leaves
+    // earlier rows committed — invalidate on both outcomes so a retry (and
+    // its duplicate detection) never works off a stale contacts cache.
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.contacts.all(orgId),
       });

@@ -2080,6 +2080,7 @@ export type Database = {
           step_id: string
         }[]
       }
+      better_name: { Args: { p_a: string; p_b: string }; Returns: string }
       book_slot: {
         Args: {
           p_calendar_id: string
@@ -2269,6 +2270,17 @@ export type Database = {
         Args: { p_address: string; p_organization_id: string }
         Returns: string
       }
+      fold_contact_fields: {
+        Args: {
+          p_extra: Json
+          p_name: string
+          p_notes: string
+          p_surname: string
+          p_tags: string[]
+          p_target_id: string
+        }
+        Returns: undefined
+      }
       get_authorized_orgs: {
         Args: { role?: Database["public"]["Enums"]["role"] }
         Returns: string[]
@@ -2356,6 +2368,10 @@ export type Database = {
       }
       release_automation_lock: { Args: never; Returns: undefined }
       release_dispatch_lock: { Args: never; Returns: undefined }
+      resolve_contact_addresses: {
+        Args: { p_addresses: Json; p_organization_id: string }
+        Returns: Json
+      }
       send_broadcast: {
         Args: { _conversations?: Json; _messages?: Json }
         Returns: number
@@ -2367,6 +2383,16 @@ export type Database = {
       try_claim_dispatch_lock: {
         Args: { p_ttl_seconds?: number }
         Returns: boolean
+      }
+      upsert_contact: {
+        Args: {
+          p_addresses: Json
+          p_contact: Json
+          p_contact_id?: string
+          p_organization_id: string
+          p_strategy: string
+        }
+        Returns: Json
       }
       whatsapp_daily_metrics: {
         Args: { p_days?: number; p_organization_id: string }
