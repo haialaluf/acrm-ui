@@ -15,30 +15,43 @@ function dayInput(batch: Scheduled) {
 }
 
 /** Relative day label for a date or instant, forward and backward — unlike
- *  Chat.tsx's formatDate, batches can be future-dated. */
-function formatScheduledDate(
-  dateStr: string,
-  t: (s: string) => string,
-  locale: string,
-) {
-  const d = dayjs(dateStr).locale(locale);
+ *  Chat.tsx's formatDate, batches can be future-dated. `null` once the day is
+ *  far enough out that only the calendar date is meaningful. */
+function relativeDayLabel(d: dayjs.Dayjs, t: (s: string) => string) {
   const diff = d.startOf("day").diff(dayjs().startOf("day"), "day");
 
   if (diff === 0) return t("Today");
   if (diff === 1) return t("Tomorrow");
   if (diff === -1) return t("Yesterday");
-  if (diff > 1 && diff <= 6) return d.format("dddd");
-  if (diff < -1 && diff >= -6) return d.format("dddd");
-  return d.format("DD MMMM, YYYY");
+  if (diff >= -6 && diff <= 6) return d.format("dddd");
+  return null;
 }
 
-/** Day label for a batch — "Today", "Tomorrow", "Thursday", "14 March, 2026". */
+/** Day label for a batch — "Today", "Tomorrow", "Thursday", "14 March, 2026".
+ *  Kept short for the list cards; see `formatBatchDayLong` for the detail. */
 export function formatBatchDay(
   batch: Scheduled,
   t: (s: string) => string,
   locale: string,
 ) {
-  return formatScheduledDate(dayInput(batch), t, locale);
+  const d = dayjs(dayInput(batch)).locale(locale);
+  return relativeDayLabel(d, t) ?? d.format("DD MMMM, YYYY");
+}
+
+/** Day label with the calendar date spelled out — "Thursday, 27 August 2026".
+ *  A relative label alone doesn't say *which* Thursday, and the detail screen
+ *  has the room the cards don't. Days past the relative window already read as
+ *  a date, so they are returned unchanged rather than doubled up. */
+export function formatBatchDayLong(
+  batch: Scheduled,
+  t: (s: string) => string,
+  locale: string,
+) {
+  const d = dayjs(dayInput(batch)).locale(locale);
+  const relative = relativeDayLabel(d, t);
+  return relative
+    ? `${relative}, ${d.format("D MMMM YYYY")}`
+    : d.format("DD MMMM, YYYY");
 }
 
 /**

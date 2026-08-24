@@ -14,7 +14,7 @@ import {
   useCancelBroadcastBatch,
 } from "@/queries/useBroadcasts";
 import { batchStatus, batchStatusLabel, batchStatusTone } from "./batchStatus";
-import { formatBatchDay, formatBatchTime } from "./formatScheduledDate";
+import { formatBatchDayLong, formatBatchTime } from "./formatScheduledDate";
 import {
   messageKindLabel,
   messageMatchesStatus,
@@ -211,7 +211,7 @@ export default function BroadcastBatchDetail({
       <div className="overflow-y-auto grow p-[24px] max-w-[900px] mx-auto w-full flex flex-col gap-[20px]">
         <div className="text-[14px] text-muted-foreground">
           <span className="text-foreground">
-            {formatBatchDay(schedule, t, currentLanguage)}
+            {formatBatchDayLong(schedule, t, currentLanguage)}
             {sendTime && ` ${sendTime}`}
           </span>{" "}
           · {t("Batch")} {(batch.batch_index ?? 0) + 1}/{batch.batches_total}
