@@ -86,6 +86,8 @@ export type ChatState = {
 
 export type ChatActions = {
   pushConversations: (convs: ConversationRow[]) => void;
+  /** Drops a deleted thread and everything derived from it. */
+  removeThread: (key: string) => void;
   pushMessages: (msgs: MessageRow[]) => void;
   pushThreadPage: (rows: ThreadPageRow[]) => void;
   /** Realtime arrival — the only path that moves the unread counter. */
@@ -186,6 +188,7 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
   mediaLoads: new Map(),
   pushConversations: (convs: ConversationRow[]) =>
     set((state) => applyConversations(state, convs)),
+  removeThread: (key: string) => set((state) => removeThreadState(state, key)),
   pushMessages: (msgs: MessageRow[]) =>
     set((state) => applyMessages(state, msgs)),
   pushThreadPage: (rows: ThreadPageRow[]) =>
@@ -447,5 +450,51 @@ function applyMessages(
 
   return {
     chat: { ...state.chat, messages, threads, orphanMessages },
+  };
+}
+
+/**
+ * Erases a thread from the store after its conversation rows were deleted.
+ *
+ * Everything keyed by the thread has to go, not just the row: a new message
+ * from the same counterpart rebuilds a thread under the *same* key (see
+ * `threadKey`), so a surviving message map or draft would resurrect history the
+ * user just deleted.
+ */
+function removeThreadState(state: AppState, key: string): Partial<AppState> {
+  const thread = state.chat.threads.get(key);
+
+  const convIds = thread?.convIds ?? [];
+
+  const conversations = new Map(state.chat.conversations);
+  const threads = new Map(state.chat.threads);
+  const messages = new Map(state.chat.messages);
+  const orphanMessages = new Map(state.chat.orphanMessages);
+  const textDrafts = new Map(state.chat.textDrafts);
+  const fileDrafts = new Map(state.chat.fileDrafts);
+  const replyDrafts = new Map(state.chat.replyDrafts);
+
+  for (const id of convIds) {
+    conversations.delete(id);
+    orphanMessages.delete(id);
+  }
+
+  threads.delete(key);
+  messages.delete(key);
+  textDrafts.delete(key);
+  fileDrafts.delete(key);
+  replyDrafts.delete(key);
+
+  return {
+    chat: {
+      ...state.chat,
+      conversations,
+      threads,
+      messages,
+      orphanMessages,
+      textDrafts,
+      fileDrafts,
+      replyDrafts,
+    },
   };
 }

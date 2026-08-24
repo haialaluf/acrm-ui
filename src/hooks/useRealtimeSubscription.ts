@@ -38,6 +38,12 @@ export const useRealtimeSubscription = () => {
 
           const conversation = payload.new as ConversationRow;
 
+          // A DELETE carries an empty `new`; pushing it would create a junk
+          // thread keyed on undefined. (Deletes rarely reach here at all — the
+          // `organization_id` filter cannot match a payload that, under the
+          // default replica identity, holds only the primary key.)
+          if (!conversation?.id) return;
+
           pushConversations([conversation]);
         },
       )

@@ -207,7 +207,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
 
   return (
     conversation && (
-      <ItemActions trigger={["contextMenu"]} itemId={itemId}>
+      <ItemActions trigger={["contextMenu"]} itemId={itemId} name={displayName}>
         <div
           className={
             "chat-list-item h-[72px] flex cursor-pointer rounded-xl group" +
@@ -341,7 +341,11 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                     </span>
                   </div>
                 )}
-                <ItemActions trigger={["click"]} itemId={itemId}>
+                <ItemActions
+                  trigger={["click"]}
+                  itemId={itemId}
+                  name={displayName}
+                >
                   <svg
                     className="h-[20px] w-[19px] ml-[6px] text-muted-foreground hidden group-hover:block pointer-coarse:block"
                     onClick={(e) => e.stopPropagation()}

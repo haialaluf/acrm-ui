@@ -126,7 +126,7 @@ export function startConversation(conv: ConversationInsert) {
 }
 
 /** Conversation ids of the thread a row belongs to, from the store. */
-function threadConvIds(conversation: ConversationRow) {
+export function threadConvIds(conversation: ConversationRow) {
   const key = threadKey(conversation);
 
   return (
