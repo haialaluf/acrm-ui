@@ -203,8 +203,13 @@ export function useUpdateContact() {
       if (!orgId) throw new Error("No active organization");
       if (!data.id) throw new Error("No contact id");
 
-      const { addresses: rawNewAddresses, email, strategy, id, ...newContact } =
-        data;
+      const {
+        addresses: rawNewAddresses,
+        email,
+        strategy,
+        id,
+        ...newContact
+      } = data;
 
       const cached = queryClient.getQueryData<{
         data: ContactWithAddressesRow;

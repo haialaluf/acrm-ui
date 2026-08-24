@@ -95,7 +95,9 @@ export default function HeaderTypeField({
                 >
                   <Icon size={15} />
                   {/* Labels would overflow on phones — icons only below md. */}
-                  <span className="hidden md:inline text-[13px]">{o.label}</span>
+                  <span className="hidden md:inline text-[13px]">
+                    {o.label}
+                  </span>
                 </span>
               ),
             };

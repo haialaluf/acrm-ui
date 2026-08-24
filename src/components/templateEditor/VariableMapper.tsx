@@ -59,9 +59,7 @@ export default function VariableMapper({
   return (
     <div className="var-panel">
       <div className="text-[11px] text-muted-foreground mb-[8px]">
-        {t(
-          "Variables — replaced with each contact's details when you send",
-        )}
+        {t("Variables — replaced with each contact's details when you send")}
       </div>
       <ConfigProvider theme={selectTheme}>
         {vars.map((v, i) => (

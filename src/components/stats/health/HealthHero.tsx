@@ -11,12 +11,7 @@ import {
 } from "./healthState";
 import type { MetricsAggregate } from "./metrics";
 import type { WabaSpend } from "@/queries/useWabaSpend";
-import {
-  TONE,
-  formatCurrency,
-  formatNumber,
-  type Tone,
-} from "./primitives";
+import { TONE, formatCurrency, formatNumber, type Tone } from "./primitives";
 
 const RISK_TONE: Record<RiskLevel, Tone> = {
   safe: "success",
@@ -163,9 +158,10 @@ function spendTileContent(
   if (spend?.unavailable_reason !== "billed_through_partner") {
     return {
       label: t("Amount spent"),
-      value: spend?.amount == null
-        ? "—"
-        : formatCurrency(spend.amount, spend.currency),
+      value:
+        spend?.amount == null
+          ? "—"
+          : formatCurrency(spend.amount, spend.currency),
       note: `${t("Meta-billed cost")} ${window}`,
     };
   }
@@ -174,9 +170,10 @@ function spendTileContent(
     const { amount, unpriced_messages } = spend.estimate;
     // Messages the rate card cannot price are left out of the total, so say
     // so — an estimate that quietly omits traffic reads as a real figure.
-    const gap = unpriced_messages > 0
-      ? ` · ${formatNumber(unpriced_messages)} ${t("messages have no rate yet")}`
-      : "";
+    const gap =
+      unpriced_messages > 0
+        ? ` · ${formatNumber(unpriced_messages)} ${t("messages have no rate yet")}`
+        : "";
 
     return {
       label: t("Amount spent"),

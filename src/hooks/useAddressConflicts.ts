@@ -67,11 +67,14 @@ export function useAddressConflicts(excludeContactId?: string) {
     if (candidates.length === 0) return null;
     const resolved = await resolveAddresses(orgId, candidates);
     return (
-      resolved.find(
-        (r) => r.contact_id && r.contact_id !== excludeContactId,
-      ) ?? null
+      resolved.find((r) => r.contact_id && r.contact_id !== excludeContactId) ??
+      null
     );
   }
 
-  return { conflictsByAddress: byAddress, checkOnBlur, findConflictBeforeSubmit };
+  return {
+    conflictsByAddress: byAddress,
+    checkOnBlur,
+    findConflictBeforeSubmit,
+  };
 }

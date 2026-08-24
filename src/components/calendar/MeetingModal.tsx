@@ -64,7 +64,7 @@ function TimeField({
       const target = e.target as HTMLElement;
       if (
         target.closest(
-          ".meeting-time-popup .ant-picker-time-panel-column:last-child .ant-picker-time-panel-cell"
+          ".meeting-time-popup .ant-picker-time-panel-column:last-child .ant-picker-time-panel-cell",
         )
       ) {
         setOpen(false);

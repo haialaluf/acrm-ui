@@ -87,11 +87,7 @@ export default function DoneStep({
               value={total}
               color="var(--foreground)"
             />
-            <StatTile
-              label={t("Sent")}
-              value={0}
-              color="var(--destructive)"
-            />
+            <StatTile label={t("Sent")} value={0} color="var(--destructive)" />
           </div>
         </div>
 

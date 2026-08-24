@@ -9,7 +9,8 @@ export const PREVIEW_SIGNED_URL_TTL_SECONDS = 60 * 60;
 
 /** Object path inside our private `media` bucket, as it appears in a storage
  *  URL: `…/storage/v1/object/sign/media/<path>?token=…`. */
-const MEDIA_OBJECT_URL = /\/storage\/v1\/object\/(?:sign|public)\/media\/([^?]+)/;
+const MEDIA_OBJECT_URL =
+  /\/storage\/v1\/object\/(?:sign|public)\/media\/([^?]+)/;
 
 /** Matches the API's unsigned internal storage reference
  *  (`internal://media/<path>`), used everywhere a signed URL used to be

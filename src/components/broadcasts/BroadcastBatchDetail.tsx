@@ -155,37 +155,37 @@ export default function BroadcastBatchDetail({
   // complaint matters far more than its count suggests.
   const emailTiles: StatTileSpec[] =
     batch.service === "email"
-      ? ([
-          {
-            kind: "bounced",
-            label: t("Bounced"),
-            value: batch.bounced_count ?? 0,
-            color: "var(--destructive)",
-          },
-          {
-            kind: "soft_bounced",
-            label: t("Soft bounced"),
-            value: batch.soft_bounced_count ?? 0,
-            // `-strong`, not the bare hue: StatTile paints this as the large
-            // number's text colour, and global.css warns the mid-lightness
-            // fills fall below contrast when used as text.
-            color: "var(--warning-strong)",
-          },
-          {
-            kind: "complained",
-            label: t("Spam reports"),
-            value: batch.complained_count ?? 0,
-            color: "var(--destructive)",
-          },
-          {
-            kind: "suppressed",
-            label: t("Opted out"),
-            value: batch.suppressed_count ?? 0,
-            color: "var(--muted-foreground)",
-          },
-        ] satisfies StatTileSpec[]).filter(
-          (tile) => tile.kind === "complained" || tile.value > 0,
-        )
+      ? (
+          [
+            {
+              kind: "bounced",
+              label: t("Bounced"),
+              value: batch.bounced_count ?? 0,
+              color: "var(--destructive)",
+            },
+            {
+              kind: "soft_bounced",
+              label: t("Soft bounced"),
+              value: batch.soft_bounced_count ?? 0,
+              // `-strong`, not the bare hue: StatTile paints this as the large
+              // number's text colour, and global.css warns the mid-lightness
+              // fills fall below contrast when used as text.
+              color: "var(--warning-strong)",
+            },
+            {
+              kind: "complained",
+              label: t("Spam reports"),
+              value: batch.complained_count ?? 0,
+              color: "var(--destructive)",
+            },
+            {
+              kind: "suppressed",
+              label: t("Opted out"),
+              value: batch.suppressed_count ?? 0,
+              color: "var(--muted-foreground)",
+            },
+          ] satisfies StatTileSpec[]
+        ).filter((tile) => tile.kind === "complained" || tile.value > 0)
       : [];
 
   const tiles = [...coreTiles, ...emailTiles];
@@ -316,9 +316,7 @@ export default function BroadcastBatchDetail({
         body={
           <>
             <p className="text-[15px] text-foreground">
-              {t(
-                "This will cancel the still-pending messages in this batch.",
-              )}
+              {t("This will cancel the still-pending messages in this batch.")}
             </p>
             <p className="text-[13px] text-muted-foreground mt-2">
               {t("This action cannot be undone.")}

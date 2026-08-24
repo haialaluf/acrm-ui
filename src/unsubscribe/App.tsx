@@ -165,23 +165,30 @@ function Panel({
   return (
     <Card
       icon={
-        done
-          ? <Check className="h-[22px] w-[22px]" />
-          : <MailX className="h-[22px] w-[22px]" />
+        done ? (
+          <Check className="h-[22px] w-[22px]" />
+        ) : (
+          <MailX className="h-[22px] w-[22px]" />
+        )
       }
-      title={done
-        ? t("You've been unsubscribed")
-        : t("Unsubscribe from these emails?")}
+      title={
+        done
+          ? t("You've been unsubscribed")
+          : t("Unsubscribe from these emails?")
+      }
       // Whole sentences with a {{1}} slot, never concatenated fragments: Hebrew
       // puts the organization name in a different place, and gluing translated
       // pieces together in English order produces nonsense there.
-      body={done
-        ? t("You won't receive further emails from {{1}}.").replace(
-          "{{1}}",
-          ctx.organization_name,
-        )
-        : t("{{1}} will stop sending marketing emails to this address:")
-          .replace("{{1}}", ctx.organization_name)}
+      body={
+        done
+          ? t("You won't receive further emails from {{1}}.").replace(
+              "{{1}}",
+              ctx.organization_name,
+            )
+          : t(
+              "{{1}} will stop sending marketing emails to this address:",
+            ).replace("{{1}}", ctx.organization_name)
+      }
     >
       {!done && (
         <>

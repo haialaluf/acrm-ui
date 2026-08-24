@@ -43,8 +43,14 @@ export const MESSAGE_SOURCE_SERVICES = ["whatsapp", "instagram"] as const;
  */
 export const SYNC_SOURCE_SERVICES = ["whatsapp", "instagram"] as const;
 
-/** `whatsapp` -> `whatsapp_message`. */
-export function messageSource(service: Service | string): string {
+/**
+ * `whatsapp` -> `whatsapp_message`.
+ *
+ * `string & {}` rather than a bare `string`: the column is free text, so any
+ * value has to be accepted, but the intersection keeps the known services from
+ * collapsing into `string` and losing their autocomplete.
+ */
+export function messageSource(service: Service | (string & {})): string {
   return `${service}_message`;
 }
 

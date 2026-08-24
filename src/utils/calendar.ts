@@ -73,9 +73,9 @@ export function toMin(t: string): number {
 }
 
 export function toHHMM(v: number): string {
-  return `${String(Math.floor(v / 60)).padStart(2, "0")}:${
-    String(v % 60).padStart(2, "0")
-  }`;
+  return `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(
+    v % 60,
+  ).padStart(2, "0")}`;
 }
 
 // Windows on a day, earliest first.
@@ -310,7 +310,7 @@ export function daysSummary(
   t: (s: string) => string,
 ): string {
   const activeIdx = WEEKDAYS.map((d, i) =>
-    hours[d.key]?.length ? i : -1
+    hours[d.key]?.length ? i : -1,
   ).filter((i) => i >= 0);
   if (activeIdx.length === 0) return t("No days");
   const initial = (i: number) => t(WEEKDAYS[i].label);

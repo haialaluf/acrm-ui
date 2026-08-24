@@ -206,7 +206,10 @@ export default function EmailTemplateBuilder({
       const sendableHtml = orgId
         ? await uploadEmbeddedImages(html, orgId)
         : html;
-      await onSave({ project: contentRef.current ?? undefined, html: sendableHtml });
+      await onSave({
+        project: contentRef.current ?? undefined,
+        html: sendableHtml,
+      });
       if (editSeq.current === sentAt) setDirty(false);
     } catch {
       // The reason is already on screen through `saveError`. All this has to do

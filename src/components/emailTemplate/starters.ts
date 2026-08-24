@@ -96,9 +96,7 @@ function doc(...content: JSONContent[]): JSONContent {
 
 /* ── the layouts ─────────────────────────────────────────────────────────── */
 
-const BLANK = doc(
-  paragraph(text("Start writing, or press / to add a block.")),
-);
+const BLANK = doc(paragraph(text("Start writing, or press / to add a block.")));
 
 const ANNOUNCEMENT = doc(
   image(1200, 640),
@@ -113,7 +111,11 @@ const ANNOUNCEMENT = doc(
 
 const NEWSLETTER = doc(
   heading(1, text("What we're reading")),
-  paragraph(text("Hi "), slot(1), text(" — three things worth your time this month.")),
+  paragraph(
+    text("Hi "),
+    slot(1),
+    text(" — three things worth your time this month."),
+  ),
   heading(2, text("One")),
   paragraph(text("A sentence or two, then a link.")),
   divider,

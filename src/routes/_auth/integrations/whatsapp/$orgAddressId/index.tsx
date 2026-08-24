@@ -212,7 +212,7 @@ function WhatsAppDetails() {
                 <li>{t("Open the WhatsApp Business app")}</li>
                 <li>{t("Go to Settings > Account > Business Platform")}</li>
                 <li>
-                  {t("Tap the connected platform and select \"Disconnect\"")}
+                  {t('Tap the connected platform and select "Disconnect"')}
                 </li>
               </ol>
             </div>

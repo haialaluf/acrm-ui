@@ -259,7 +259,9 @@ export default function StepPanel({
       // "analyze"; a personal assistant is reachable only through "Chat with
       // this agent", never an automation.
       const assignable = (agents ?? []).filter(
-        (a) => !a.ai || (a.kind !== "back_office" && a.kind !== "personal_assistant"),
+        (a) =>
+          !a.ai ||
+          (a.kind !== "back_office" && a.kind !== "personal_assistant"),
       );
       const chosen = (step.agentIds ?? [])
         .map((id) => assignable.find((a) => a.id === id))

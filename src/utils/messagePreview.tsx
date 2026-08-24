@@ -126,7 +126,8 @@ export function messagePreviewText(
     // the flattened text the recipient sees — show that rather than the raw
     // payload. The JSON stays as the fallback for parts with nothing
     // human-readable.
-    if (message.content.kind === "media_placeholder") return mediaPreviewContent;
+    if (message.content.kind === "media_placeholder")
+      return mediaPreviewContent;
 
     return message.content.text || JSON.stringify(message.content.data);
   }

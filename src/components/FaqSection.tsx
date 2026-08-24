@@ -104,7 +104,9 @@ export default function FaqSection<T extends FieldValues>({
             <textarea
               className="text"
               rows={3}
-              placeholder={t("It depends on the scope — tell me what you need.")}
+              placeholder={t(
+                "It depends on the scope — tell me what you need.",
+              )}
               disabled={disabled}
               {...register(`extra.faq.${i}.answer` as Path<T>)}
             />

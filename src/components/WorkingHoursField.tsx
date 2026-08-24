@@ -47,7 +47,11 @@ export default function WorkingHoursField({
     onChange(next);
   }
 
-  function setWindow(key: Weekday, index: number, patch: Partial<WorkingHoursDay>) {
+  function setWindow(
+    key: Weekday,
+    index: number,
+    patch: Partial<WorkingHoursDay>,
+  ) {
     const windows = value[key];
     if (!windows) return;
     onChange({
@@ -114,7 +118,9 @@ export default function WorkingHoursField({
                         <Switch
                           checked={on}
                           disabled={disabled}
-                          onCheckedChange={(checked) => toggleDay(d.key, checked)}
+                          onCheckedChange={(checked) =>
+                            toggleDay(d.key, checked)
+                          }
                         />
                         <div className="text-[14px] w-[80px] shrink-0 text-foreground">
                           {t(d.label)}

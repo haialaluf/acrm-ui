@@ -33,7 +33,7 @@ npx supabase secrets set UNSUBSCRIBE_BASE_URL=https://unsubscribe.delacrm.com
 ```
 
 > **Order matters for the backfill.** The migration that creates
-> `service='email'` rows must land *after* the app stopped reading
+> `service='email'` rows must land _after_ the app stopped reading
 > `addresses[0]` as "the phone" (`src/utils/ContactAddressUtils.ts`). Both are in
 > this change set, so a normal deploy is fine — just do not cherry-pick the
 > migration on its own.
@@ -76,11 +76,11 @@ on Cloudflare the CNAME is created for you.
 touch this site. It needs one new repository secret plus the two the booking
 workflow already uses:
 
-| Secret | Value |
-| --- | --- |
-| `VITE_UNSUBSCRIBE_API_URL` | `https://<project-ref>.supabase.co/functions/v1` |
-| `CLOUDFLARE_API_TOKEN` | already set — account-level **Cloudflare Pages: Edit** |
-| `CLOUDFLARE_ACCOUNT_ID` | already set |
+| Secret                     | Value                                                  |
+| -------------------------- | ------------------------------------------------------ |
+| `VITE_UNSUBSCRIBE_API_URL` | `https://<project-ref>.supabase.co/functions/v1`       |
+| `CLOUDFLARE_API_TOKEN`     | already set — account-level **Cloudflare Pages: Edit** |
+| `CLOUDFLARE_ACCOUNT_ID`    | already set                                            |
 
 There is deliberately **no** `VITE_UNSUBSCRIBE_BASE_URL`. Its booking
 counterpart exists only because `templateButtons.tsx` has to recognise a booking
@@ -97,10 +97,10 @@ asset answers **405** — which mailbox providers count against the sender.
 
 So the two URLs are deliberately different hosts:
 
-| Purpose | URL | Built by |
-| --- | --- | --- |
-| Footer link a human clicks | `https://unsubscribe.delacrm.com/<token>` | `unsubscribeUrl()` |
-| `List-Unsubscribe` header | `https://<ref>.supabase.co/functions/v1/unsubscribe/<token>/one-click` | `unsubscribeHeaderUrl()` |
+| Purpose                    | URL                                                                    | Built by                 |
+| -------------------------- | ---------------------------------------------------------------------- | ------------------------ |
+| Footer link a human clicks | `https://unsubscribe.delacrm.com/<token>`                              | `unsubscribeUrl()`       |
+| `List-Unsubscribe` header  | `https://<ref>.supabase.co/functions/v1/unsubscribe/<token>/one-click` | `unsubscribeHeaderUrl()` |
 
 Both live in `acrm-api/supabase/functions/_shared/email_render.ts`. The function
 also answers `GET /one-click` with a 302 to the pretty URL, so clients that

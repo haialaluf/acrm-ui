@@ -143,10 +143,9 @@ export default function Scheduler({
         </h1>
         <p className="mb-[22px] text-[14px] leading-[1.5] text-muted-foreground">
           {contactName
-            ? t("Hi {{1}}, pick a time that works and we'll confirm the meeting.").replace(
-                "{{1}}",
-                contactName,
-              )
+            ? t(
+                "Hi {{1}}, pick a time that works and we'll confirm the meeting.",
+              ).replace("{{1}}", contactName)
             : t("Pick a time that works and we'll confirm the meeting.")}
         </p>
 
@@ -158,9 +157,10 @@ export default function Scheduler({
             <span>{zoneLabel(tz, lang)}</span>
             {visitorIsElsewhere(tz) && (
               <span className="block text-[12px] text-muted-foreground">
-                {t(
-                  "Times are shown in {{1}}'s time zone",
-                ).replace("{{1}}", link.organization_name)}
+                {t("Times are shown in {{1}}'s time zone").replace(
+                  "{{1}}",
+                  link.organization_name,
+                )}
               </span>
             )}
           </MetaItem>
@@ -245,7 +245,9 @@ function bookingErrorMessage(error: unknown, t: Translate): string {
       case "slot_unavailable":
         return t("That time was just taken. Please pick another.");
       case "too_many_appointments":
-        return t("You already have several appointments booked with this link.");
+        return t(
+          "You already have several appointments booked with this link.",
+        );
     }
   }
   return t("We couldn't confirm the appointment. Please try again.");

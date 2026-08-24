@@ -20,10 +20,7 @@ function ConnectClaude() {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedCommand, setCopiedCommand] = useState(false);
 
-  function copy(
-    value: string,
-    setCopied: (value: boolean) => void,
-  ) {
+  function copy(value: string, setCopied: (value: boolean) => void) {
     void navigator.clipboard.writeText(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -52,9 +49,11 @@ function ConnectClaude() {
               title={t("Copy URL")}
               onClick={() => copy(MCP_URL, setCopiedUrl)}
             >
-              {copiedUrl
-                ? <Check className="w-[16px] h-[16px] text-primary" />
-                : <Copy className="w-[16px] h-[16px] text-muted-foreground" />}
+              {copiedUrl ? (
+                <Check className="w-[16px] h-[16px] text-primary" />
+              ) : (
+                <Copy className="w-[16px] h-[16px] text-muted-foreground" />
+              )}
             </button>
           </div>
           <p className="text-[13px] text-muted-foreground">
@@ -76,9 +75,11 @@ function ConnectClaude() {
               title={t("Copy command")}
               onClick={() => copy(CLI_COMMAND, setCopiedCommand)}
             >
-              {copiedCommand
-                ? <Check className="w-[16px] h-[16px] text-primary" />
-                : <Copy className="w-[16px] h-[16px] text-muted-foreground" />}
+              {copiedCommand ? (
+                <Check className="w-[16px] h-[16px] text-primary" />
+              ) : (
+                <Copy className="w-[16px] h-[16px] text-muted-foreground" />
+              )}
             </button>
           </div>
         </div>
@@ -102,8 +103,7 @@ function ConnectClaude() {
             {t("API Keys")}
           </a>{" "}
           {t("page instead — send it as the")}{" "}
-          <code className="font-mono">api-key</code>{" "}
-          {t("header.")}
+          <code className="font-mono">api-key</code> {t("header.")}
         </p>
       </SectionBody>
     </>

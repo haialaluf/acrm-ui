@@ -54,7 +54,8 @@ export default function ChatFooter() {
   const setThreadReplyDraft = useBoundStore(
     (store) => store.chat.setThreadReplyDraft,
   );
-  const clearReplyDraft = () => setThreadReplyDraft(activeThreadKey || "", null);
+  const clearReplyDraft = () =>
+    setThreadReplyDraft(activeThreadKey || "", null);
 
   const fileDrafts = useBoundStore((store) =>
     store.chat.fileDrafts.get(store.ui.activeThreadKey || ""),

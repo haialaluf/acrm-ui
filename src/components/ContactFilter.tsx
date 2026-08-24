@@ -188,7 +188,10 @@ function rangePresets(t: (s: string) => string) {
       label: t("Last 24 hours"),
       value: [dayjs().subtract(24, "hour"), dayjs()],
     },
-    { label: t("Today"), value: [dayjs().startOf("day"), dayjs().endOf("day")] },
+    {
+      label: t("Today"),
+      value: [dayjs().startOf("day"), dayjs().endOf("day")],
+    },
     {
       label: t("Last 7 days"),
       value: [dayjs().subtract(6, "day").startOf("day"), dayjs().endOf("day")],

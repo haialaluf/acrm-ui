@@ -78,9 +78,7 @@ export default function CalendarForm({ calendar }: { calendar?: CalendarRow }) {
 
   return (
     <>
-      <SectionHeader
-        title={isEdit ? t("Edit calendar") : t("New calendar")}
-      />
+      <SectionHeader title={isEdit ? t("Edit calendar") : t("New calendar")} />
 
       <SectionBody>
         <form

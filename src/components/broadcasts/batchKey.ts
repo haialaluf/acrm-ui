@@ -15,9 +15,10 @@ export function encodeBatchKey(createdAt: string, scheduledDate: string) {
   return btoa(raw).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-export function decodeBatchKey(
-  batchKey: string,
-): { createdAt: string; scheduledDate: string } {
+export function decodeBatchKey(batchKey: string): {
+  createdAt: string;
+  scheduledDate: string;
+} {
   let b64 = batchKey.replace(/-/g, "+").replace(/_/g, "/");
   while (b64.length % 4) b64 += "=";
   const raw = atob(b64);

@@ -44,7 +44,9 @@ export default function WhatsAppPreview({
 
   const inner = isEmptyMessage(d) ? (
     <div className="wa-empty">
-      {t("Your message will appear here, exactly as the customer sees it in WhatsApp.")}
+      {t(
+        "Your message will appear here, exactly as the customer sees it in WhatsApp.",
+      )}
     </div>
   ) : (
     <WhatsAppBubble data={d} time={clock} showIcons />

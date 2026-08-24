@@ -53,10 +53,9 @@ export default function Confirmation({
         {t("You're booked!")}
       </h1>
       <p className="mt-[8px] mb-[26px] text-[15px] text-muted-foreground">
-        {t("{{1}} will see you then. Save the time so you don't forget.").replace(
-          "{{1}}",
-          link.organization_name,
-        )}
+        {t(
+          "{{1}} will see you then. Save the time so you don't forget.",
+        ).replace("{{1}}", link.organization_name)}
       </p>
 
       <div className="mb-[26px] flex w-full max-w-[400px] flex-col gap-[13px] rounded-[14px] bg-muted px-[22px] py-[20px]">

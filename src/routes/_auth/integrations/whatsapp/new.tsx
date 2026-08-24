@@ -60,9 +60,7 @@ function WhatsAppNew() {
             className="text-primary text-sm font-medium cursor-pointer self-start"
             onClick={() => setShowAdvanced((v) => !v)}
           >
-            {showAdvanced
-              ? t("Hide advanced options")
-              : t("Advanced options")}
+            {showAdvanced ? t("Hide advanced options") : t("Advanced options")}
           </button>
 
           {showAdvanced && (

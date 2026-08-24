@@ -83,7 +83,6 @@ export function assistantState(
     : "active";
 }
 
-
 export function organizationDefaultAgent<
   T extends { id: string; created_at: string; extra: { mode?: string } | null },
 >(aiAgents: T[], orgExtra: OrganizationExtra | null | undefined) {

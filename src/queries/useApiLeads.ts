@@ -41,7 +41,9 @@ async function toError(error: unknown): Promise<Error> {
       .catch(() => null)) as { error?: string; cause?: string } | null;
 
     if (body?.error) {
-      return new Error(body.cause ? `${body.error}: ${body.cause}` : body.error);
+      return new Error(
+        body.cause ? `${body.error}: ${body.cause}` : body.error,
+      );
     }
   }
 

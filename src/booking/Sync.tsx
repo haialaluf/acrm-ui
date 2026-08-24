@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { CalendarDays, Check, ChevronDown, Copy, Smartphone } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  ChevronDown,
+  Copy,
+  Smartphone,
+} from "lucide-react";
 import Spinner from "@/components/Spinner";
 import { getSyncContext, type SyncContext } from "./api";
 import type { Translate } from "./i18n";
@@ -108,9 +114,14 @@ export default function Sync({ token, t }: { token: string; t: Translate }) {
         <Step n="1" text={t("Tap the button above, then Allow.")} />
         <Step
           n="2"
-          text={t("Open Settings — you'll see “Profile Downloaded” near the top.")}
+          text={t(
+            "Open Settings — you'll see “Profile Downloaded” near the top.",
+          )}
         />
-        <Step n="3" text={t("Tap it, then Install, and enter your passcode.")} />
+        <Step
+          n="3"
+          text={t("Tap it, then Install, and enter your passcode.")}
+        />
       </ol>
 
       {/* Only where the profile really is unsigned — a deployment with no

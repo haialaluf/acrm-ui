@@ -51,8 +51,10 @@ export function countVars(text: string | undefined | null): number {
  *  backend's isValidMediaUrl in _shared/whatsapp_templates.ts). */
 export function isValidMediaUrl(url: string): boolean {
   const trimmed = url.trim();
-  return /^https?:\/\/\S+$/i.test(trimmed) ||
-    trimmed.startsWith(`${MEDIA_INTERNAL_URI_PREFIX}/`);
+  return (
+    /^https?:\/\/\S+$/i.test(trimmed) ||
+    trimmed.startsWith(`${MEDIA_INTERNAL_URI_PREFIX}/`)
+  );
 }
 
 export function headerComponent(components: Components) {

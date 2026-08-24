@@ -68,11 +68,7 @@ export default function SectionHeader({
             <X className="w-[24px] h-[24px]" />
           </button>
         ) : (
-          <LinkButton
-            to=".."
-            className="me-[8px] ms-[-8px]"
-            title={t("Back")}
-          >
+          <LinkButton to=".." className="me-[8px] ms-[-8px]" title={t("Back")}>
             <ArrowLeft className="w-[24px] h-[24px]" />
           </LinkButton>
         ))}

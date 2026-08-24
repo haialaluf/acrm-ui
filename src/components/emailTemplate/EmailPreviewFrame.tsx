@@ -105,7 +105,10 @@ export default function EmailPreviewFrame({
     <div className="w-full rounded-[6px] overflow-hidden shadow-lg">
       {/* The inbox row: what the recipient reads before opening anything.
           Always LTR — the inbox chrome is the client's, not the email's. */}
-      <div className="bg-white border-b border-[#e4e7e4] p-[11px_16px]" dir="ltr">
+      <div
+        className="bg-white border-b border-[#e4e7e4] p-[11px_16px]"
+        dir="ltr"
+      >
         <div className="text-[14px] font-semibold text-[#1c2320]" dir="auto">
           {renderText(subject, variables, values) || t("No subject")}
         </div>
@@ -136,7 +139,8 @@ export function previewStatsLabel(
   if (stats.resolved === 0) {
     return t("This email has no variables placed in it.");
   }
-  if (stats.fallbacks === 0) return t("Every value came from the contact record.");
+  if (stats.fallbacks === 0)
+    return t("Every value came from the contact record.");
 
   return `${stats.fallbacks} ${t("of")} ${stats.resolved} ${t(
     "values fell back",

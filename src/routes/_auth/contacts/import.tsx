@@ -116,12 +116,19 @@ function ImportContacts() {
 
   // Existing phone numbers (stored normalized in the DB) → contact, for dup checks.
   const existingByPhone = useMemo(() => {
-    const map = new Map<string, { id: string; name: string | null; tags: string[] }>();
+    const map = new Map<
+      string,
+      { id: string; name: string | null; tags: string[] }
+    >();
     for (const contact of contacts ?? []) {
       const tagList = (contact as { tags?: string[] | null }).tags ?? [];
       for (const addr of contact.addresses ?? []) {
         if (addr.address)
-          map.set(addr.address, { id: contact.id, name: contact.name, tags: tagList });
+          map.set(addr.address, {
+            id: contact.id,
+            name: contact.name,
+            tags: tagList,
+          });
       }
     }
     return map;

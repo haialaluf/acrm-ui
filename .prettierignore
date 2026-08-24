@@ -7,3 +7,6 @@ dist
 dist-booking
 .wrangler
 src/deprecated
+
+# Claude Design scaffolding (also excluded from tsconfig + ESLint)
+.design-sync

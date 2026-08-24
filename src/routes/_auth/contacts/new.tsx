@@ -11,11 +11,18 @@ import ContactTagSelect from "@/components/ContactTagSelect";
 import ConfirmModal from "@/components/ConfirmModal";
 import { Plus, X } from "lucide-react";
 import type { ContactWithAddressesInsert } from "@/supabase/client";
-import { isValidPhoneNumber, ltrIsolate, normalizePhoneNumber } from "@/utils/FormatUtils";
+import {
+  isValidPhoneNumber,
+  ltrIsolate,
+  normalizePhoneNumber,
+} from "@/utils/FormatUtils";
 import FieldError from "@/components/FieldError";
 import EmailSuggestion from "@/components/EmailSuggestion";
 import { validateEmailField } from "@/utils/emailValidation";
-import { useAddressConflicts, type AddressConflict } from "@/hooks/useAddressConflicts";
+import {
+  useAddressConflicts,
+  type AddressConflict,
+} from "@/hooks/useAddressConflicts";
 import { fill } from "@/utils/fill";
 
 // `tags` is a contacts column not yet present in the generated db_types.ts;
@@ -211,8 +218,14 @@ function ContactNew() {
                     {...reg}
                     onBlur={(e) => {
                       reg.onBlur(e);
-                      if (e.target.value && isValidPhoneNumber(e.target.value)) {
-                        checkOnBlur("whatsapp", normalizePhoneNumber(e.target.value));
+                      if (
+                        e.target.value &&
+                        isValidPhoneNumber(e.target.value)
+                      ) {
+                        checkOnBlur(
+                          "whatsapp",
+                          normalizePhoneNumber(e.target.value),
+                        );
                       }
                     }}
                   />
@@ -298,9 +311,13 @@ function fillOwner(t: (s: string) => string, conflict: AddressConflict) {
         "belongs to {name}. Merge the two contacts? {n} conversations will move. This cannot be undone.",
         { name: owner, n: count },
       )
-    : fill(t, "belongs to {name}. Merge the two contacts? This cannot be undone.", {
-        name: owner,
-      });
+    : fill(
+        t,
+        "belongs to {name}. Merge the two contacts? This cannot be undone.",
+        {
+          name: owner,
+        },
+      );
 }
 
 function ConflictWarning({

@@ -118,7 +118,11 @@ export async function getSyncContext(
   token: string,
 ): Promise<SyncContext | InvalidLink> {
   try {
-    return await request<SyncContext>(`/connect/${token}`, undefined, CALDAV_BASE);
+    return await request<SyncContext>(
+      `/connect/${token}`,
+      undefined,
+      CALDAV_BASE,
+    );
   } catch (e) {
     if (e instanceof BookingError && e.status === 404) return { valid: false };
     throw e;

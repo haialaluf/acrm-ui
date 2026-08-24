@@ -32,7 +32,10 @@ import FieldError from "@/components/FieldError";
 import EmailSuggestion from "@/components/EmailSuggestion";
 import { validateEmailField } from "@/utils/emailValidation";
 import { contactEmail } from "@/utils/ContactAddressUtils";
-import { useAddressConflicts, type AddressConflict } from "@/hooks/useAddressConflicts";
+import {
+  useAddressConflicts,
+  type AddressConflict,
+} from "@/hooks/useAddressConflicts";
 import { fill } from "@/utils/fill";
 
 // `email` is hand-added: contacts.email is dropped from the generated Row/
@@ -61,7 +64,8 @@ function buildNewAddresses(
             ? a.address!
             : normalizePhoneNumber(a.address!),
       })),
-    ...(data.email?.trim() && !originalAddresses.has(data.email.trim().toLowerCase())
+    ...(data.email?.trim() &&
+    !originalAddresses.has(data.email.trim().toLowerCase())
       ? [{ service: "email", address: data.email.trim().toLowerCase() }]
       : []),
   ];
@@ -458,9 +462,13 @@ function fillOwner(t: (s: string) => string, conflict: AddressConflict) {
         "belongs to {name}. Merge the two contacts? {n} conversations will move. This cannot be undone.",
         { name: owner, n: count },
       )
-    : fill(t, "belongs to {name}. Merge the two contacts? This cannot be undone.", {
-        name: owner,
-      });
+    : fill(
+        t,
+        "belongs to {name}. Merge the two contacts? This cannot be undone.",
+        {
+          name: owner,
+        },
+      );
 }
 
 function ConflictWarning({

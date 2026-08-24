@@ -55,7 +55,9 @@ export default function App({ initialLang }: { initialLang: Language }) {
   useEffect(() => {
     document.documentElement.dir = isRtl(lang) ? "rtl" : "ltr";
     document.documentElement.lang = lang;
-    document.title = isSync ? t("Add to your calendar") : t("Book an appointment");
+    document.title = isSync
+      ? t("Add to your calendar")
+      : t("Book an appointment");
   }, [lang, t, isSync]);
 
   useEffect(() => {

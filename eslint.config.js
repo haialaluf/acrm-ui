@@ -21,6 +21,8 @@ export default defineConfig([
     "dist-booking", // booking site build output
     "dist-unsubscribe", // unsubscribe site build output
     ".wrangler", // wrangler's local dev scratch dir
+    ".design-sync", // Claude Design scaffolding; excluded from tsconfig
+    "ds-bundle", // design-system bundle build output (git-ignored)
   ]),
   ...pluginQuery.configs["flat/recommended"],
   {

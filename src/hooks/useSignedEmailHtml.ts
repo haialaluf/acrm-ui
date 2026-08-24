@@ -41,7 +41,7 @@ export function useSignedEmailHtml(html?: string): string {
     queryKey: ["signed-email-media", uris],
     queryFn: async () => {
       const paths = uris.map((uri) =>
-        decodeURIComponent(uri.slice(MEDIA_INTERNAL_URI_PREFIX.length + 1))
+        decodeURIComponent(uri.slice(MEDIA_INTERNAL_URI_PREFIX.length + 1)),
       );
 
       const { data, error } = await supabase.storage

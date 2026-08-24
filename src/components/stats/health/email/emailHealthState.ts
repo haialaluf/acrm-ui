@@ -113,8 +113,9 @@ export function coalesceEmailHealth(
   if (!snapshots.length) return null;
 
   const newest = snapshots[0];
-  const firstOf = <T>(pick: (row: EmailHealthSnapshotRow) => T | null): T | null =>
-    snapshots.map(pick).find((v) => v != null) ?? null;
+  const firstOf = <T>(
+    pick: (row: EmailHealthSnapshotRow) => T | null,
+  ): T | null => snapshots.map(pick).find((v) => v != null) ?? null;
 
   const findingsRow = snapshots.find((row) => row.findings != null);
 

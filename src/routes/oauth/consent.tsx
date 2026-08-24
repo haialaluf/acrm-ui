@@ -128,8 +128,7 @@ function OAuthConsent() {
                 {t(
                   "⚠️ Unrecognized app. Only continue if you started this connection yourself",
                 )}
-                {host ? ` (${host}).` : "."}{" "}
-                {t("If you didn't, choose Deny.")}
+                {host ? ` (${host}).` : "."} {t("If you didn't, choose Deny.")}
               </div>
             )}
 

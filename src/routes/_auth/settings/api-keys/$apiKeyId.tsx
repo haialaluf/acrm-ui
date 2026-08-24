@@ -55,9 +55,7 @@ function ApiKeyDetail() {
           <form>
             <div className="instructions">
               <p>
-                {t(
-                  "Configure the following HTTP headers for authentication:",
-                )}
+                {t("Configure the following HTTP headers for authentication:")}
               </p>
               <ul>
                 <li>

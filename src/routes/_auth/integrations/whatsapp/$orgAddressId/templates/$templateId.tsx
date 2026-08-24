@@ -31,9 +31,7 @@ function EditTemplate() {
 
   if (!template) {
     return (
-      <div className="p-4 text-muted-foreground">
-        {t("Template not found")}
-      </div>
+      <div className="p-4 text-muted-foreground">{t("Template not found")}</div>
     );
   }
 
