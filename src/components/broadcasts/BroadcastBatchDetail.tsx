@@ -192,9 +192,14 @@ export default function BroadcastBatchDetail({
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-muted">
+      {/* The back button is mobile-only: the list panel and menu rail are
+          hidden while a batch is open full-screen, so without it the detail is
+          a dead end. The hash is dropped on purpose — keeping it would re-open
+          the active conversation's center panel instead of the list. */}
       <SectionHeader
         title={batch.template_name ?? t("Broadcast")}
-        hideBackButton
+        onBack={() => navigate({ to: "/broadcasts", hash: undefined })}
+        mobileOnlyBack
         action={
           <StatusBadge
             label={batchStatusLabel(status, t)}

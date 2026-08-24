@@ -14,6 +14,8 @@ export default function SectionHeader({
   deleteLoading,
   action,
   hideBackButton,
+  onBack,
+  mobileOnlyBack,
 }: {
   title: string;
   closeButton?: boolean;
@@ -27,6 +29,13 @@ export default function SectionHeader({
   // URL is deeper than the header's own route, so `to=".."` would resolve to a
   // pathless parent and navigate nowhere.
   hideBackButton?: boolean;
+  // Explicit back handler, shown instead of the depth-based `to=".."` link.
+  // Layout-rendered center panels need this for the same reason they need
+  // `hideBackButton`: the relative link can't resolve from their route.
+  onBack?: () => void;
+  // Hide the back control at md+ — for center panels that are full-screen on
+  // mobile (list and menu rail hidden) but sit next to their list on desktop.
+  mobileOnlyBack?: boolean;
 }) {
   const { translate: t } = useTranslation();
   const location = useLocation();
@@ -34,13 +43,23 @@ export default function SectionHeader({
 
   const showBackButton =
     !hideBackButton &&
-    location.pathname.split("/").filter(Boolean).length >= 2;
+    (!!onBack || location.pathname.split("/").filter(Boolean).length >= 2);
 
   return (
     <div className="header items-center truncate">
       {/* Back button */}
       {showBackButton &&
-        (closeButton ? (
+        (onBack ? (
+          <button
+            className={`p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]${
+              mobileOnlyBack ? " md:hidden" : ""
+            }`}
+            title={t("Back")}
+            onClick={onBack}
+          >
+            <ArrowLeft className="w-[24px] h-[24px]" />
+          </button>
+        ) : closeButton ? (
           <button
             className="p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]"
             title={t("Close")}
@@ -59,7 +78,15 @@ export default function SectionHeader({
         ))}
 
       {/* Section title */}
-      <div className={showBackButton ? "text-[16px]" : "text-[22px]"}>
+      <div
+        className={
+          !showBackButton
+            ? "text-[22px]"
+            : mobileOnlyBack
+              ? "text-[16px] md:text-[22px]"
+              : "text-[16px]"
+        }
+      >
         {t(title)}
       </div>
 
