@@ -5,6 +5,8 @@ import ConfirmModal from "@/components/ConfirmModal";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
 import HideIfNotPermitted from "@/components/HideIfNotPermitted";
+import useBoundStore from "@/stores/useBoundStore";
+import type { BroadcastsTab } from "@/stores/uiSlice";
 import {
   type BroadcastBatchRow,
   useBroadcastBatches,
@@ -14,8 +16,6 @@ import { batchStatus, isUpcomingBatch } from "./batchStatus";
 import { batchSortValue } from "./formatScheduledDate";
 import { encodeBatchKey } from "./batchKey";
 import BroadcastCard from "./BroadcastCard";
-
-type Tab = "upcoming" | "history";
 
 // Master list of the org's broadcast batches — one card per day-batch, not per
 // campaign (a 5-day split send shows as 5 cards). Rendered in the left panel
@@ -29,8 +29,11 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
   const cancelBatch = useCancelBroadcastBatch();
 
   // null until the user picks a tab, so the default can follow the data (and
-  // the open batch) instead of being frozen at first render.
-  const [tab, setTab] = useState<Tab | null>(null);
+  // the open batch) instead of being frozen at first render. Kept in the store
+  // because this panel unmounts on the /broadcasts <-> /broadcasts/$batchKey
+  // switch, which would otherwise drop a History selection on every back.
+  const tab = useBoundStore((state) => state.ui.broadcastsTab);
+  const setTab = useBoundStore((state) => state.ui.setBroadcastsTab);
   const [cancelTarget, setCancelTarget] = useState<BroadcastBatchRow | null>(
     null,
   );
@@ -64,7 +67,7 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
     .sort((a, b) => batchSortValue(b.batch) - batchSortValue(a.batch));
 
   const activeRow = activeKey ? rows.find((r) => r.key === activeKey) : null;
-  const activeTab: Tab =
+  const activeTab: BroadcastsTab =
     tab ??
     (activeRow
       ? activeRow.upcoming

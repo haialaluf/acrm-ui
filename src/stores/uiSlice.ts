@@ -23,6 +23,10 @@ export const Filters = {
 
 export type Filters = (typeof Filters)[keyof typeof Filters];
 
+/** The broadcasts list's Upcoming/History split. `null` = no explicit choice
+ *  yet, so the list picks the tab that fits the data (or the open batch). */
+export type BroadcastsTab = "upcoming" | "history";
+
 export const filters: {
   [key in Filters]: (conv: ConversationRow, msg?: MessageRow) => boolean;
 } = {
@@ -94,6 +98,11 @@ export type UIState = {
   filter: keyof typeof filters;
   searchPattern: string;
   tagsFilter: string[];
+  /** Which broadcasts sub-tab is selected. Lives here rather than in
+   *  BroadcastsList because the left panel unmounts when the route switches
+   *  between /broadcasts and /broadcasts/$batchKey, which would snap the user
+   *  back to "Upcoming" every time they leave a batch. */
+  broadcastsTab: BroadcastsTab | null;
   isLoading: boolean;
   language: Language;
   /** Request that the resizable left panel snap to its maximum width. Set by
@@ -111,6 +120,7 @@ export type UIActions = {
   setFilter: (filter: keyof typeof filters) => void;
   setSearchPattern: (searchPattern: string) => void;
   setTagsFilter: (tagsFilter: string[]) => void;
+  setBroadcastsTab: (tab: BroadcastsTab | null) => void;
   setTemplateDraft: (convId: string, draft: TemplateDraft | null) => void;
   setLanguage: (lang: Language) => void;
 };
@@ -136,6 +146,7 @@ export const createUISlice: StateCreator<Partial<AppState>> = (
   filter: "todas" as keyof typeof filters,
   searchPattern: "",
   tagsFilter: [],
+  broadcastsTab: null,
   isLoading: false,
   language: detectDefaultLanguage(),
   panelExpanded: false,
@@ -193,6 +204,13 @@ export const createUISlice: StateCreator<Partial<AppState>> = (
       ui: {
         ...state.ui,
         tagsFilter,
+      },
+    })),
+  setBroadcastsTab: (broadcastsTab: BroadcastsTab | null) =>
+    set((state) => ({
+      ui: {
+        ...state.ui,
+        broadcastsTab,
       },
     })),
   setTemplateDraft: (convId: string, draft: TemplateDraft | null) =>
