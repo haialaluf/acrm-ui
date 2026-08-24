@@ -70,37 +70,6 @@ export default function Menu() {
           <MessageSquareText className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
 
-        <HideIfNotPermitted surface="/broadcasts">
-          <LinkButton
-            to="/broadcasts"
-            title={t("Broadcasts")}
-            isActive={pathname.startsWith("/broadcasts")}
-            className="mt-[10px]"
-          >
-            <Megaphone className="w-[24px] h-[24px] stroke-[2]" />
-          </LinkButton>
-        </HideIfNotPermitted>
-
-        <HideIfNotPermitted surface="/automations">
-          <LinkButton
-            to="/automations"
-            title={t("Automations")}
-            isActive={pathname.startsWith("/automations")}
-            className="mt-[10px]"
-          >
-            <Workflow className="w-[24px] h-[24px] stroke-[2]" />
-          </LinkButton>
-        </HideIfNotPermitted>
-
-        <LinkButton
-          to="/agents"
-          title={t("Agents")}
-          isActive={pathname.startsWith("/agents")}
-          className="mt-[10px]"
-        >
-          <Bot className="w-[24px] h-[24px] stroke-[2]" />
-        </LinkButton>
-
         <HideIfNotPermitted surface="/contacts">
           <LinkButton
             to="/contacts"
@@ -109,6 +78,17 @@ export default function Menu() {
             className="mt-[10px]"
           >
             <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
+          </LinkButton>
+        </HideIfNotPermitted>
+
+        <HideIfNotPermitted surface="/broadcasts">
+          <LinkButton
+            to="/broadcasts"
+            title={t("Broadcasts")}
+            isActive={pathname.startsWith("/broadcasts")}
+            className="mt-[10px]"
+          >
+            <Megaphone className="w-[24px] h-[24px] stroke-[2]" />
           </LinkButton>
         </HideIfNotPermitted>
 
@@ -135,13 +115,24 @@ export default function Menu() {
         </HideIfNotPermitted>
 
         <LinkButton
-          to="/integrations"
-          title={t("Integrations")}
-          isActive={pathname.startsWith("/integrations")}
+          to="/agents"
+          title={t("Agents")}
+          isActive={pathname.startsWith("/agents")}
           className="mt-[10px]"
         >
-          <Unplug className="w-[24px] h-[24px] stroke-[2]" />
+          <Bot className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
+
+        <HideIfNotPermitted surface="/automations">
+          <LinkButton
+            to="/automations"
+            title={t("Automations")}
+            isActive={pathname.startsWith("/automations")}
+            className="mt-[10px]"
+          >
+            <Workflow className="w-[24px] h-[24px] stroke-[2]" />
+          </LinkButton>
+        </HideIfNotPermitted>
 
         <LinkButton
           to="/stats"
@@ -150,6 +141,15 @@ export default function Menu() {
           className="mt-[10px]"
         >
           <BarChart3 className="w-[24px] h-[24px] stroke-[2]" />
+        </LinkButton>
+
+        <LinkButton
+          to="/integrations"
+          title={t("Integrations")}
+          isActive={pathname.startsWith("/integrations")}
+          className="mt-[10px]"
+        >
+          <Unplug className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
       </div>
       {/* Lower section */}
