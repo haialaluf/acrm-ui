@@ -63,6 +63,20 @@ export function formatBatchTime(batch: Scheduled) {
   return batch.scheduled_at ? dayjs(batch.scheduled_at).format("HH:mm") : "";
 }
 
+/**
+ * Clock time for one event inside a batch — a recipient being sent, delivered,
+ * cancelled — prefixed with its date when that date is not the batch's own send
+ * day. The rows sit under a header that already names the batch's day, so a
+ * bare "14:45" reads as that day; wrong for a batch cancelled days before its
+ * slot, or a receipt that lands after it.
+ */
+export function formatEventTime(at: string, batch: Scheduled, locale: string) {
+  const d = dayjs(at).locale(locale);
+  return d.isSame(dayjs(dayInput(batch)), "day")
+    ? d.format("HH:mm")
+    : d.format("D MMM HH:mm");
+}
+
 /** Sortable instant for a batch — the exact send time, or its day at midnight
  *  local when that is all there is. */
 export function batchSortValue(batch: Scheduled) {

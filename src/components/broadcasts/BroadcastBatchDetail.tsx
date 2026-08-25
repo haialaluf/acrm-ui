@@ -1,5 +1,4 @@
 import { useState } from "react";
-import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import Button from "@/components/Button";
@@ -14,7 +13,11 @@ import {
   useCancelBroadcastBatch,
 } from "@/queries/useBroadcasts";
 import { batchStatus, batchStatusLabel, batchStatusTone } from "./batchStatus";
-import { formatBatchDayLong, formatBatchTime } from "./formatScheduledDate";
+import {
+  formatBatchDayLong,
+  formatBatchTime,
+  formatEventTime,
+} from "./formatScheduledDate";
 import {
   messageKindLabel,
   messageMatchesStatus,
@@ -282,7 +285,7 @@ export default function BroadcastBatchDetail({
                       <>
                         {at && (
                           <span className="tabular-nums">
-                            {dayjs(at).format("HH:mm")}
+                            {formatEventTime(at, schedule, currentLanguage)}
                           </span>
                         )}
                         <span>{messageKindLabel(kind, t, m.service)}</span>
