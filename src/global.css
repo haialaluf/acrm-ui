@@ -929,6 +929,13 @@ select.mapping:focus {
 .wa-bubble.has-media .wa-bubble-pad {
   padding-top: 6px;
 }
+/* Before a file is picked there is no image to report a width, so the bubble
+   would hug its text (often just the timestamp) and squeeze the "your image"
+   placeholder down to a sliver. Hold a realistic media width until a real
+   image loads and sets an explicit inline width. */
+.wa-bubble.has-media {
+  min-width: 180px;
+}
 .wa-htext {
   font-weight: 600;
   font-size: 15.5px;
