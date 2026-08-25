@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   useFieldArray,
   useWatch,
   type Control,
   type UseFormRegister,
 } from "react-hook-form";
+import { Dropdown } from "antd";
 import { Plus, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
@@ -47,17 +48,6 @@ function AddButtonMenu({
 }) {
   const { translate: t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node))
-        setOpen(false);
-    };
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, [open]);
 
   const counts = buttons.reduce<Record<string, number>>((acc, b) => {
     acc[b.kind] = (acc[b.kind] || 0) + 1;
@@ -82,59 +72,76 @@ function AddButtonMenu({
     return null;
   }
 
+  const panel = (
+    <div
+      className="min-w-[280px] p-[6px] rounded-[12px] border border-border bg-popover shadow-lg"
+      role="menu"
+    >
+      <div className="px-[8px] pt-[4px] pb-[6px] text-[11px] text-muted-foreground">
+        {t("Choose a button type")}
+      </div>
+      {BUTTON_KINDS.map((k) => {
+        const reason = disabledReason(k);
+        return (
+          <button
+            key={k}
+            type="button"
+            role="menuitem"
+            className="w-full flex items-center gap-[10px] p-[10px] rounded-[8px] text-start text-[14px] text-foreground hover:bg-accent disabled:opacity-40 disabled:cursor-default"
+            disabled={!!reason}
+            onClick={() => {
+              onAdd(k);
+              setOpen(false);
+            }}
+          >
+            <span
+              className={`w-[32px] h-[32px] rounded-[9px] inline-flex items-center justify-center shrink-0 ${CHIP_CLASS[k]}`}
+            >
+              <ButtonKindIcon kind={k} className="w-[16px] h-[16px]" />
+            </span>
+            <div className="flex-1 min-w-0">
+              <div>{t(KIND_LABEL[k])}</div>
+              <div className="text-[11px] text-muted-foreground">
+                {reason || t(KIND_HINT[k])}
+              </div>
+            </div>
+            <div className="text-[11px] text-muted-foreground min-w-[30px] text-end">
+              {counts[k] || 0}/{BTN_LIMITS[k].max}
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
-    <div className="relative" ref={ref}>
+    // Rendered into the trigger's own wrapper rather than <body>: the form
+    // scrolls, and a body-portaled popup stays anchored to a trigger that has
+    // scrolled away, so antd shifts it against the viewport edge and it slides
+    // off under the sidebar. Inside the wrapper it just scrolls with the
+    // content. rc-trigger still intersects every scrolling ancestor's clip rect
+    // when it decides to flip, so it flips above the trigger near the bottom.
+    // No `placement`: antd picks bottomLeft in LTR and bottomRight in RTL from
+    // ConfigProvider's direction. Hardcoding one would break Hebrew.
+    <Dropdown
+      open={open}
+      onOpenChange={setOpen}
+      trigger={["click"]}
+      disabled={total >= BTN_TOTAL_MAX}
+      popupRender={() => panel}
+      getPopupContainer={(node) => node.parentElement ?? document.body}
+    >
       <button
         type="button"
         className="inline-flex items-center gap-[3px] text-primary text-[14px] disabled:opacity-50"
-        onClick={() => setOpen((o) => !o)}
         disabled={total >= BTN_TOTAL_MAX}
+        aria-haspopup="menu"
+        aria-expanded={open}
       >
         <Plus className="w-[16px] h-[16px]" />
         {total === 0 ? t("Add button") : t("Add another button")}
       </button>
-
-      {open && (
-        <div
-          className="absolute top-[calc(100%+6px)] start-0 z-30 min-w-[280px] p-[6px] rounded-[12px] border border-border bg-popover shadow-lg"
-          role="menu"
-        >
-          <div className="px-[8px] pt-[4px] pb-[6px] text-[11px] text-muted-foreground">
-            {t("Choose a button type")}
-          </div>
-          {BUTTON_KINDS.map((k) => {
-            const reason = disabledReason(k);
-            return (
-              <button
-                key={k}
-                type="button"
-                className="w-full flex items-center gap-[10px] p-[10px] rounded-[8px] text-start text-[14px] text-foreground hover:bg-accent disabled:opacity-40 disabled:cursor-default"
-                disabled={!!reason}
-                onClick={() => {
-                  onAdd(k);
-                  setOpen(false);
-                }}
-              >
-                <span
-                  className={`w-[32px] h-[32px] rounded-[9px] inline-flex items-center justify-center shrink-0 ${CHIP_CLASS[k]}`}
-                >
-                  <ButtonKindIcon kind={k} className="w-[16px] h-[16px]" />
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div>{t(KIND_LABEL[k])}</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    {reason || t(KIND_HINT[k])}
-                  </div>
-                </div>
-                <div className="text-[11px] text-muted-foreground min-w-[30px] text-end">
-                  {counts[k] || 0}/{BTN_LIMITS[k].max}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
+    </Dropdown>
   );
 }
 
@@ -482,7 +489,7 @@ export default function TemplateButtonsField({
         ))
       )}
 
-      <div className="mt-[10px]">
+      <div className="relative mt-[10px]">
         <AddButtonMenu
           buttons={buttons}
           category={category}
