@@ -7,14 +7,16 @@ import { queryKeys } from "./queryKeys";
  * One row of useBroadcastBatches — a single day-batch of a broadcast.
  *
  * `scheduled_at` (the batch's exact send instant, as opposed to `scheduled_date`,
- * its day) is spliced in by hand because db_types.ts is regenerated from the
- * live database and this column ships with the migration that adds it. Drop
- * the intersection — not the field, which the generated type will then carry
+ * its day) and `activity_at` (when the batch actually resolved — sent, failed or
+ * cancelled) are spliced in by hand because db_types.ts is regenerated from the
+ * live database and these columns ship with the migrations that add them. Drop
+ * the intersection — not the fields, which the generated type will then carry
  * on its own — after the next `supabase gen types` run.
  */
 export type BroadcastBatchRow =
   Database["public"]["Functions"]["list_broadcast_batches"]["Returns"][number] & {
     scheduled_at: string | null;
+    activity_at: string | null;
   };
 
 /**
@@ -35,7 +37,7 @@ export function useBroadcastBatches() {
         .throwOnError(),
     enabled: !!userId && !!orgId,
     // Cast for the same reason as the type above: the RPC really does return
-    // scheduled_at, the generated types just don't know it yet.
+    // scheduled_at and activity_at, the generated types just don't know it yet.
     select: (data) => (data.data ?? []) as BroadcastBatchRow[],
   });
 }

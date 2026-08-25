@@ -68,3 +68,18 @@ export function formatBatchTime(batch: Scheduled) {
 export function batchSortValue(batch: Scheduled) {
   return dayjs(dayInput(batch)).valueOf();
 }
+
+/**
+ * Sortable instant for history — when the batch actually resolved (sent, failed
+ * or cancelled) rather than when it was meant to go out. A batch scheduled for
+ * next week and cancelled today belongs where it was cancelled, not pinned to
+ * the top of the list behind a date it never reached. Falls back to the send
+ * instant for a row with no resolution timestamp.
+ */
+export function batchActivityValue(
+  batch: Scheduled & { activity_at?: string | null },
+) {
+  return batch.activity_at
+    ? dayjs(batch.activity_at).valueOf()
+    : batchSortValue(batch);
+}
