@@ -23,10 +23,16 @@
     <meta property="og:title" content="Book an appointment" />
     <meta property="og:description" content="Pick a time that works for you." />
     <!-- Absolute: relative OG image paths are unreliable across crawlers. Same
-         hardcoded origin as `bookingBaseUrl()`'s default in the API. -->
+         hardcoded origin as `bookingBaseUrl()`'s default in the API.
+         Its own file, not the shared `apple-touch-icon.png`: Meta's crawler
+         caches scraped images by URL and ignores origin cache headers, so
+         replacing the bytes at a URL it has already fetched does nothing — a
+         bad card is only fixable by pointing at a URL it has never seen. Give
+         this image a new name whenever its contents change. Must be opaque:
+         WhatsApp and Instagram flatten alpha onto a checkerboard. -->
     <meta
       property="og:image"
-      content="https://calendar.delacrm.com/apple-touch-icon.png"
+      content="https://calendar.delacrm.com/og-booking.png"
     />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="512" />
