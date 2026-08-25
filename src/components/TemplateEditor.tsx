@@ -28,6 +28,7 @@ import { getVarNumbers, renumberVars } from "./templateVars";
 import type { HeaderType, TemplateFormData } from "./templateEditorTypes";
 import { useCreateTemplate, useUpdateTemplate } from "@/queries/useTemplates";
 import { useSetMessagePreview } from "@/hooks/useMessagePreview";
+import { useSignedMediaUrl } from "@/hooks/useSignedMediaUrl";
 import { isRtl, type Language } from "@/stores/uiSlice";
 import useBoundStore from "@/stores/useBoundStore";
 
@@ -160,11 +161,15 @@ export default function TemplateEditor({
   const previewButtons: PreviewButton[] = (buttons || []).map((b) =>
     buttonDefToPreview(formButtonToComponent(b), t("Copy code")),
   );
+  // `mediaUrl` is an unsigned `internal://media/...` reference, which no <img>
+  // can load — re-sign it for display only. The raw reference is what gets
+  // submitted (see buildHeaderComponent); the edge function resolves it there.
+  const previewMediaUrl = useSignedMediaUrl(mediaUrl || undefined);
   const previewData: MessagePreviewData = {
     headerType,
     headerText: headerType === "TEXT" ? headerText : "",
     headerVars,
-    mediaUrl,
+    mediaUrl: previewMediaUrl || "",
     mediaName,
     body,
     bodyVars: bodyVarNumbers.map((_, i) => bodyVariables?.[i]?.value || ""),
@@ -209,9 +214,10 @@ export default function TemplateEditor({
       };
     }
     // IMAGE / VIDEO / DOCUMENT: Meta requires a sample asset to review the
-    // template. We submit the uploaded sample's signed URL as header_handle; the
-    // edge function swaps it for a real Meta asset handle (Resumable Upload API)
-    // before creating. An unchanged existing handle (edit) passes through as-is.
+    // template. We submit the uploaded sample's internal storage reference as
+    // header_handle; the edge function reads those bytes and swaps them for a
+    // real Meta asset handle (Resumable Upload API) before creating. An
+    // unchanged existing handle (edit) passes through as-is.
     // The real per-message file is still attached at send time (see bulk-send).
     return {
       type: "HEADER" as const,
