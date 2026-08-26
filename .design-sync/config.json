@@ -1,14 +1,12 @@
 {
-  "projectId": "d4ea0cf6-f723-461d-ad03-75fbeef19628",
+  "projectId": "b75abb2c-17e7-4bcc-ae09-084f083398ab",
   "pkg": "acrm-ui",
   "globalName": "AcrmUi",
   "shape": "package",
   "srcDir": "src",
   "tsconfig": ".design-sync/tsconfig.sync.json",
   "cssEntry": ".design-sync/styles.compiled.css",
-  "guidelinesGlob": [
-    "docs/design/**/*.md"
-  ],
+  "guidelinesGlob": ["docs/design/**/*.md"],
   "overrides": {
     "Button": {
       "cardMode": "column"

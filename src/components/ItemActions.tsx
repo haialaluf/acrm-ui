@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Dropdown, type MenuProps } from "antd";
-import { Trash2 } from "lucide-react";
+import { Archive, ArchiveRestore, Pin, PinOff, Trash2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import useBoundStore from "@/stores/useBoundStore";
 import { type MessageRow } from "@/supabase/client";
@@ -70,6 +70,11 @@ export default function ItemActions({
         ? t("Unarchive chat")
         : t("Archive chat"),
       key: "1",
+      icon: isArchived(conversation, mostRecentMsg) ? (
+        <ArchiveRestore className="w-[15px] h-[15px]" />
+      ) : (
+        <Archive className="w-[15px] h-[15px]" />
+      ),
       onClick: () =>
         updateConvExtra(conversation, {
           archived: isArchived(conversation, mostRecentMsg)
@@ -80,6 +85,11 @@ export default function ItemActions({
     {
       label: isPinned ? t("Unpin chat") : t("Pin chat"),
       key: "2",
+      icon: isPinned ? (
+        <PinOff className="w-[15px] h-[15px]" />
+      ) : (
+        <Pin className="w-[15px] h-[15px]" />
+      ),
       onClick: () =>
         updateConvExtra(conversation, {
           pinned: isPinned ? null : new Date().toISOString(),
