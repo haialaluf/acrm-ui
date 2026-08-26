@@ -145,7 +145,10 @@ export default function ConversationAgentSelect({
   }));
 
   return (
-    <div className="flex items-center gap-[10px] max-w-[250px] pl-[10px] pr-[12px] py-[5px] rounded-full border border-border bg-popover">
+    // `min-w-0` is what keeps this off the contact's name: without it the pill
+    // holds its full content width and the name beside it truncates away to
+    // nothing on a phone. With it, both sides give ground.
+    <div className="flex items-center gap-[10px] min-w-0 max-w-[250px] pl-[10px] pr-[12px] py-[5px] rounded-full border border-border bg-popover">
       <Dropdown
         trigger={["click"]}
         menu={{ items, selectable: true, selectedKeys: [shown.id] }}
@@ -162,11 +165,14 @@ export default function ConversationAgentSelect({
           ) : (
             <Bot className="w-[14px] h-[14px] shrink-0" />
           )}
-          <span className="truncate">{shown.name}</span>
+          {/* On a phone the header cannot hold the agent's name and the
+              contact's phone number at once, and the number is the one you
+              cannot look up from here. The name stays a tap away in the menu. */}
+          <span className="hidden sm:inline truncate">{shown.name}</span>
           {/* The agent is assigned but temporarily quiet — say so here, since
               this is also where it is brought back. */}
           {state === "paused" && (
-            <span className="shrink-0">· {pauseLabel}</span>
+            <span className="hidden sm:inline shrink-0">· {pauseLabel}</span>
           )}
           <ChevronDown className="w-[13px] h-[13px] shrink-0" />
         </button>
