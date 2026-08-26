@@ -568,7 +568,7 @@ function ImportContacts() {
                       </div>
                       <div className="text-[12px] text-muted-foreground">
                         {t(
-                          "Contacts with a phone number that already exists will be merged, filling in blanks and adding the new tags",
+                          "Contacts with a phone number that already exists will be merged into the existing contact — filling in blanks, adding the email and the new tags, without overwriting anything",
                         )}
                       </div>
                     </div>
@@ -940,8 +940,12 @@ function ValidationBanner({
           <span>
             ·{" "}
             {strategy === "skip"
-              ? fill(t, "{n} duplicates (will be skipped)", { n: counts.dup })
-              : fill(t, "{n} duplicates (will be merged)", { n: counts.dup })}
+              ? fill(t, "{n} duplicate phone numbers (will be skipped)", {
+                  n: counts.dup,
+                })
+              : fill(t, "{n} duplicate phone numbers (will be merged)", {
+                  n: counts.dup,
+                })}
           </span>
         )}
         <span>
