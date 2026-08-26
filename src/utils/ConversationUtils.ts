@@ -62,7 +62,7 @@ export function primaryConversation(convs: ConversationRow[]) {
   return byNewest.find((c) => c.status === "active") ?? byNewest[0];
 }
 
-const PAUSED_CONV_WINDOW = 12 * 60 * 60 * 1000;
+export const PAUSED_CONV_WINDOW = 12 * 60 * 60 * 1000;
 
 export function assistantState(
   conversation: ConversationRow | undefined,
@@ -81,6 +81,20 @@ export function assistantState(
   return paused && +new Date(paused) > +new Date() - PAUSED_CONV_WINDOW
     ? "paused"
     : "active";
+}
+
+/**
+ * How long a paused thread has left before its agent answers again, in ms.
+ * 0 when the thread is not paused, or the window has already run out — the
+ * same boundary `assistantState` uses to stop calling it "paused".
+ */
+export function pauseRemainingMs(
+  conversation: ConversationRow | undefined,
+): number {
+  const paused = conversation?.extra?.paused;
+  if (!paused) return 0;
+
+  return Math.max(0, +new Date(paused) + PAUSED_CONV_WINDOW - Date.now());
 }
 
 export function organizationDefaultAgent<

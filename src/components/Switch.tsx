@@ -4,11 +4,22 @@ interface SwitchProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
+  /** Track colour while on. `warning` is for something that is switched on but
+   *  deliberately quiet for now, which is not the same as being off. */
+  tone?: "primary" | "warning";
 }
 
 const Switch = forwardRef<HTMLInputElement, SwitchProps>(
   (
-    { className, checked, onCheckedChange, disabled, onChange, ...props },
+    {
+      className,
+      checked,
+      onCheckedChange,
+      disabled,
+      onChange,
+      tone = "primary",
+      ...props
+    },
     ref,
   ) => {
     return (
@@ -42,7 +53,7 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
             after:h-[16px] 
             after:w-[16px] 
             after:transition-all 
-            peer-checked:bg-primary
+            ${tone === "warning" ? "peer-checked:bg-warning" : "peer-checked:bg-primary"}
             cursor-pointer
             ${disabled ? "opacity-50 cursor-not-allowed" : ""}
           `}
