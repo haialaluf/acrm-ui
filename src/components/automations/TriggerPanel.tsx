@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { ConfigProvider, TimePicker } from "antd";
+import type { Dayjs } from "dayjs";
 import type {
   AutomationEventName,
   AutomationTrigger,
@@ -10,16 +13,63 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useContactTags } from "@/queries/useContactTags";
 import { useContactSourceOptions } from "@/queries/useContactSources";
 import { useCalendars } from "@/queries/useCalendars";
+import { timePickerTokens } from "@/components/antdTokens";
 import {
   Callout,
   CheckList,
   Divider,
   Field,
-  inputBase,
   inputClass,
   Segmented,
   selectClass,
 } from "./Fields";
+
+// antd has no separate "TimePicker" theme key — it reuses DatePicker's.
+const timePickerTheme = { components: { DatePicker: timePickerTokens } };
+
+// A HH:mm picker is a multi-column ("complex") picker, so antd deliberately
+// keeps its popup open after a cell click — `needConfirm={false}` only hides
+// the confirm button, it doesn't auto-close. So we control `open` ourselves
+// and close (committing the time) once the user clicks a minute cell, the
+// last column, which completes the pick.
+function AddTimeInput({ onAdd }: { onAdd: (time: string) => void }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.closest(
+          ".trigger-time-popup .ant-picker-time-panel-column:last-child .ant-picker-time-panel-cell",
+        )
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [open]);
+
+  return (
+    <div dir="ltr">
+      <ConfigProvider theme={timePickerTheme}>
+        <TimePicker
+          size="small"
+          open={open}
+          onOpenChange={setOpen}
+          format="HH:mm"
+          minuteStep={5}
+          needConfirm={false}
+          allowClear={false}
+          className="w-[100px]"
+          classNames={{ popup: { root: "trigger-time-popup" } }}
+          onChange={(d: Dayjs | null) => d && onAdd(d.format("HH:mm"))}
+        />
+      </ConfigProvider>
+    </div>
+  );
+}
 
 /**
  * Trigger configuration: the three kinds, and what each needs.
@@ -299,15 +349,12 @@ export default function TriggerPanel({
                   </button>
                 </span>
               ))}
-              <input
-                className={inputBase + " w-[118px] px-2 py-1"}
-                type="time"
-                onChange={(e) => {
-                  if (!e.target.value) return;
-                  if (trigger.times?.includes(e.target.value)) return;
+              <AddTimeInput
+                onAdd={(value) => {
+                  if (trigger.times?.includes(value)) return;
                   onChange({
                     ...trigger,
-                    times: [...(trigger.times ?? []), e.target.value].sort(),
+                    times: [...(trigger.times ?? []), value].sort(),
                   });
                 }}
               />

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useBlocker, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, BarChart3, Info, Trash2 } from "lucide-react";
 import { Switch } from "antd";
 import type { AutomationStep, AutomationTrigger } from "@/supabase/client";
+import ConfirmModal from "@/components/ConfirmModal";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgents } from "@/queries/useAgents";
 import { useCalendars } from "@/queries/useCalendars";
@@ -66,6 +67,15 @@ export default function AutomationEditor({ id }: { id: string }) {
   } | null>(null);
 
   const { data: stepStats } = useAutomationStepStats(id, showStats);
+
+  // Leaving with unsaved edits — the back button, a sidebar link, a browser
+  // back/refresh — silently discards them, since the definition only lives in
+  // local state until "Save" is pressed. Block navigation and ask first.
+  const leaveBlocker = useBlocker({
+    shouldBlockFn: () => dirty,
+    enableBeforeUnload: dirty,
+    withResolver: true,
+  });
 
   // Load the saved definition into local state once, and again whenever the
   // server copy changes underneath an unedited editor.
@@ -268,10 +278,14 @@ export default function AutomationEditor({ id }: { id: string }) {
             </button>
             <button
               type="button"
-              className="rounded-lg border border-border bg-card px-[10px] py-[5px] text-[12.5px] hover:bg-muted"
-              onClick={() => setSelected("trigger")}
+              disabled={updateAutomation.isPending}
+              className="rounded-lg border border-border bg-card px-[10px] py-[5px] text-[12.5px] hover:bg-muted disabled:opacity-45"
+              onClick={async () => {
+                if (dirty) await save();
+                setSelected("trigger");
+              }}
             >
-              {t("Done")}
+              {dirty ? t("Save") : t("Done")}
             </button>
           </div>
         )}
@@ -317,6 +331,17 @@ export default function AutomationEditor({ id }: { id: string }) {
           }}
         />
       )}
+
+      <ConfirmModal
+        open={leaveBlocker.status === "blocked"}
+        title={t("Discard unsaved changes?")}
+        body={t(
+          "This automation has unsaved changes. Leaving now will discard them.",
+        )}
+        confirmLabel={t("Discard changes")}
+        onConfirm={() => leaveBlocker.proceed?.()}
+        onCancel={() => leaveBlocker.reset?.()}
+      />
     </div>
   );
 }
