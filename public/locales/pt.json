@@ -1147,5 +1147,16 @@
   "Duplicates (merged)": "Duplicados (mesclados)",
   "{n} duplicate phone numbers (will be merged)": "{n} números de telefone duplicados (serão mesclados)",
   "Skipped (address already in use)": "Ignorados (endereço já em uso)",
-  "Failed to import": "Falha ao importar"
+  "Failed to import": "Falha ao importar",
+  "Add Instagram": "Adicionar Instagram",
+  "Search by username": "Buscar por nome de usuário",
+  "Nobody has messaged your Instagram account yet": "Ninguém enviou mensagem para sua conta do Instagram ainda",
+  "Already added": "Já adicionado",
+  "Linked to {name}": "Vinculado a {name}",
+  "Not linked to a contact": "Não vinculado a um contato",
+  "Only people who have messaged your Instagram account appear here — Instagram gives no way to reach someone by username alone.": "Aqui aparecem apenas pessoas que enviaram mensagem para sua conta do Instagram — o Instagram não permite alcançar alguém apenas pelo nome de usuário.",
+  "Link to contact": "Vincular a um contato",
+  "Search name or number": "Buscar nome ou número",
+  "Could not link the address. Please try again.": "Não foi possível vincular o endereço. Tente novamente.",
+  "Create a new contact": "Criar um novo contato"
 }

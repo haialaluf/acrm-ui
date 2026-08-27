@@ -303,6 +303,66 @@ export function useUpdateContact() {
   });
 }
 
+/**
+ * Attach one conversation address to an existing contact.
+ *
+ * The inbox shows a thread with no contact behind it whenever an address was
+ * never linked — an Instagram DM from someone new, a WhatsApp number that
+ * arrived before the contact existed. This is the "that's actually Nir" move:
+ * the address joins the contact instead of the user retyping the person.
+ *
+ * Goes through `upsert_contact` with `strategy: 'merge'` rather than writing
+ * `contacts_addresses.contact_id` directly, so an address that turns out to
+ * belong to a second contact folds the two together (conversations included)
+ * on the one write path, exactly as the contact form does.
+ */
+export function useLinkAddressToContact() {
+  const queryClient = useQueryClient();
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  return useMutation({
+    mutationFn: async ({
+      contactId,
+      service,
+      address,
+    }: {
+      contactId: string;
+      service: string;
+      address: string;
+    }): Promise<UpsertContactResult> => {
+      if (!orgId) throw new Error("No active organization");
+
+      const { data, error } = await supabase.rpc("upsert_contact", {
+        p_organization_id: orgId,
+        p_strategy: "merge",
+        // Nothing about the contact itself changes — this call exists to link
+        // the address, and an empty payload leaves every field as it is
+        // (`fold_contact_fields` fills blanks, it never blanks a value).
+        p_contact: {},
+        p_addresses: [{ service, address }],
+        p_contact_id: contactId,
+      });
+
+      if (error) throw error;
+      return data as unknown as UpsertContactResult;
+    },
+    onSuccess: (_result, { address }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.contacts.all(orgId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.contacts.byAddress(orgId, address),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.contacts.addressDetail(orgId, address),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.contacts.instagramAddresses(orgId),
+      });
+    },
+  });
+}
+
 export function useDeleteContact() {
   const queryClient = useQueryClient();
   const orgId = useBoundStore((state) => state.ui.activeOrgId);

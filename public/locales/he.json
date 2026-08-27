@@ -1399,5 +1399,16 @@
   "Duplicates (merged)": "כפילויות (מוזגו)",
   "{n} duplicate phone numbers (will be merged)": "{n} מספרי טלפון כפולים (ימוזגו)",
   "Skipped (address already in use)": "דולגו (הכתובת כבר בשימוש)",
-  "Failed to import": "ייבוא נכשל"
+  "Failed to import": "ייבוא נכשל",
+  "Add Instagram": "הוספת אינסטגרם",
+  "Search by username": "חיפוש לפי שם משתמש",
+  "Nobody has messaged your Instagram account yet": "אף אחד עדיין לא שלח הודעה לחשבון האינסטגרם שלך",
+  "Already added": "כבר נוסף",
+  "Linked to {name}": "מקושר ל־{name}",
+  "Not linked to a contact": "לא מקושר לאיש קשר",
+  "Only people who have messaged your Instagram account appear here — Instagram gives no way to reach someone by username alone.": "כאן מופיעים רק אנשים ששלחו הודעה לחשבון האינסטגרם שלך — אינסטגרם לא מאפשרת להגיע למישהו לפי שם משתמש בלבד.",
+  "Link to contact": "קישור לאיש קשר",
+  "Search name or number": "חיפוש שם או מספר",
+  "Could not link the address. Please try again.": "לא ניתן היה לקשר את הכתובת. נסו שוב.",
+  "Create a new contact": "יצירת איש קשר חדש"
 }

@@ -10,8 +10,9 @@ import Button from "@/components/Button";
 import ContactTagSelect from "@/components/ContactTagSelect";
 import ConfirmModal from "@/components/ConfirmModal";
 import { Plus, X } from "lucide-react";
-import type { ContactWithAddressesInsert } from "@/supabase/client";
+import type { ContactWithAddressesInsert, Service } from "@/supabase/client";
 import {
+  formatPhoneNumber,
   isValidPhoneNumber,
   ltrIsolate,
   normalizePhoneNumber,
@@ -32,8 +33,28 @@ type ContactFormValues = ContactWithAddressesInsert & {
   email?: string | null;
 };
 
+/**
+ * Opened from a conversation whose address belongs to nobody yet ("Create a
+ * new contact" in LinkAddressToContactModal): the address rides in the URL so
+ * the new contact is born already linked to the thread.
+ */
+type NewContactSearch = {
+  address?: string;
+  service?: string;
+  /** Display name to seed the Name field with — an IG profile name, a push name. */
+  name?: string;
+  /** Instagram @username, so the read-only row shows a handle and not an igsid. */
+  username?: string;
+};
+
 export const Route = createFileRoute("/_auth/contacts/new")({
   component: ContactNew,
+  validateSearch: (search: Record<string, unknown>): NewContactSearch => ({
+    address: typeof search.address === "string" ? search.address : undefined,
+    service: typeof search.service === "string" ? search.service : undefined,
+    name: typeof search.name === "string" ? search.name : undefined,
+    username: typeof search.username === "string" ? search.username : undefined,
+  }),
 });
 
 /** The RPC-shaped address list this form's fields resolve to. */
@@ -42,8 +63,14 @@ function buildAddresses(data: ContactFormValues) {
     ...data.addresses
       .filter((a) => a.address)
       .map((a) => ({
-        service: "whatsapp",
-        address: normalizePhoneNumber(a.address!),
+        service: a.service ?? "whatsapp",
+        // Only phone-based addresses get normalized: an igsid is an id, not a
+        // number, and running it through the phone normalizer would corrupt
+        // the routing key.
+        address:
+          a.service && a.service !== "whatsapp"
+            ? a.address!
+            : normalizePhoneNumber(a.address!),
       })),
     ...(data.email?.trim()
       ? [{ service: "email", address: data.email.trim().toLowerCase() }]
@@ -62,6 +89,14 @@ function ContactNew() {
     conflict: AddressConflict;
   } | null>(null);
 
+  // An address handed over from a conversation (see NewContactSearch): a phone
+  // seeds the first phone field, an email the Email field, and anything else
+  // (Instagram, Facebook) rides along as a read-only row — those addresses are
+  // platform ids there is nothing to type into.
+  const prefill = Route.useSearch();
+  const prefillService = prefill.service as Service | undefined;
+  const prefillIsPhone = !prefill.address || prefill.service === "whatsapp";
+
   const {
     register,
     handleSubmit,
@@ -71,7 +106,22 @@ function ContactNew() {
   } = useForm<ContactFormValues>({
     mode: "onTouched",
     defaultValues: {
-      addresses: [{ address: "" }],
+      name: prefill.name ?? "",
+      email: prefill.service === "email" ? prefill.address : "",
+      addresses:
+        prefill.address && !prefillIsPhone
+          ? [
+              { address: prefill.address, service: prefillService },
+              { address: "" },
+            ]
+          : [
+              {
+                address:
+                  prefillIsPhone && prefill.address
+                    ? formatPhoneNumber(prefill.address)
+                    : "",
+              },
+            ],
       tags: [],
     },
   });
@@ -195,6 +245,29 @@ function ContactNew() {
           </div>
 
           {fields.map((field, idx) => {
+            // Instagram/Facebook addresses are platform ids, not numbers: show
+            // the handle read-only rather than running an igsid through the
+            // phone formatter (which turned it into a bogus "+1 05158…").
+            if (field.service && field.service !== "whatsapp") {
+              return (
+                <label key={field.id}>
+                  <div className="label">
+                    {field.service === "instagram" ? "Instagram" : "Facebook"}
+                  </div>
+                  <input
+                    type="text"
+                    className="text"
+                    value={
+                      prefill.username
+                        ? `@${prefill.username}`
+                        : (field.address ?? "")
+                    }
+                    readOnly
+                  />
+                </label>
+              );
+            }
+
             const reg = register(`addresses.${idx}.address`, {
               validate: (value) =>
                 !value || isValidPhoneNumber(value) || "Invalid number",

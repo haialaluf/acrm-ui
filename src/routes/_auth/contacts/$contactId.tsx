@@ -13,7 +13,7 @@ import SectionFooter from "@/components/SectionFooter";
 import Button from "@/components/Button";
 import ContactTagSelect from "@/components/ContactTagSelect";
 import ConfirmModal from "@/components/ConfirmModal";
-import { Plus, X } from "lucide-react";
+import { Instagram, Plus, X } from "lucide-react";
 import { useMemo } from "react";
 import type {
   ContactExtra,
@@ -37,6 +37,10 @@ import {
   type AddressConflict,
 } from "@/hooks/useAddressConflicts";
 import { fill } from "@/utils/fill";
+import InstagramAddressPicker, {
+  type InstagramAddressRow,
+} from "@/components/contacts/InstagramAddressPicker";
+import { useIntegrations } from "@/hooks/useIntegrations";
 
 // `email` is hand-added: contacts.email is dropped from the generated Row/
 // Update types (it's unused — see 03-02_contacts.sql), but the form still
@@ -84,6 +88,8 @@ function ContactDetail() {
     data: ContactFormValues;
     conflict: AddressConflict;
   } | null>(null);
+  const [pickingInstagram, setPickingInstagram] = useState(false);
+  const { connected } = useIntegrations();
 
   // Track original addresses (these will be readonly)
   const originalAddresses = useMemo(
@@ -138,6 +144,25 @@ function ContactDetail() {
     control,
     name: "addresses",
   });
+
+  // One Instagram account per contact: every read of "the contact's Instagram"
+  // takes the first matching address row, so a second one would sit there
+  // unreachable. Offer the picker only while there is none.
+  const hasInstagram = fields.some((field) => field.service === "instagram");
+
+  function pickInstagram(row: InstagramAddressRow) {
+    setPickingInstagram(false);
+    append({
+      address: row.address,
+      service: "instagram",
+      // Carried so the row renders as @username right away — the picker read
+      // it from the same `contacts_addresses` row the form is about to link.
+      extra: row.extra,
+    });
+    // The same ownership pre-check the phone and email fields run on blur: an
+    // igsid another contact already owns has to warn here, not at submit.
+    void checkOnBlur("instagram", row.address);
+  }
 
   function submit(data: ContactFormValues, strategy: "skip" | "merge") {
     updateContact.mutate(
@@ -298,19 +323,36 @@ function ContactDetail() {
               // instead of running the id through the phone formatter, which
               // made it show up as a bogus "+1 05158…" phone number.
               if (field.service === "instagram") {
+                const igConflict = isExisting
+                  ? undefined
+                  : conflictsByAddress[field.address ?? ""];
+
                 return (
                   <label key={field.id}>
                     <div className="label">Instagram{syncedSuffix}</div>
-                    <input
-                      type="text"
-                      className="text"
-                      value={
-                        extra?.username
-                          ? `@${extra.username}`
-                          : (field.address ?? "")
-                      }
-                      readOnly
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        className="text"
+                        value={
+                          extra?.username
+                            ? `@${extra.username}`
+                            : (field.address ?? "")
+                        }
+                        readOnly
+                      />
+                      <button
+                        type="button"
+                        className="p-[8px] rounded-full hover:bg-muted transition-colors"
+                        onClick={() => remove(idx)}
+                        title={t("Delete")}
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    {igConflict && (
+                      <ConflictWarning conflict={igConflict} t={t} />
+                    )}
                   </label>
                 );
               }
@@ -374,15 +416,31 @@ function ContactDetail() {
               );
             })}
 
-            {/* Add phone number button */}
-            <button
-              type="button"
-              className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-full font-medium transition-colors w-fit text-[14px] flex items-center gap-2"
-              onClick={() => append({ address: "" })}
-            >
-              <Plus className="w-4 h-4" />
-              {t("Add phone")}
-            </button>
+            {/* Add-address buttons. Instagram is a picker rather than a
+                second text field: its addresses are igsids we can only learn
+                from an inbound message (see InstagramAddressPicker), so there
+                is nothing meaningful to type. */}
+            <div className="flex flex-wrap gap-[10px]">
+              <button
+                type="button"
+                className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-full font-medium transition-colors w-fit text-[14px] flex items-center gap-2"
+                onClick={() => append({ address: "" })}
+              >
+                <Plus className="w-4 h-4" />
+                {t("Add phone")}
+              </button>
+
+              {connected.instagram && !hasInstagram && (
+                <button
+                  type="button"
+                  className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-full font-medium transition-colors w-fit text-[14px] flex items-center gap-2"
+                  onClick={() => setPickingInstagram(true)}
+                >
+                  <Instagram className="w-4 h-4" />
+                  {t("Add Instagram")}
+                </button>
+              )}
+            </div>
 
             {/* Answers to an Instant Form's custom questions. Name, email and
                 phone already have their own fields above; only the
@@ -430,6 +488,13 @@ function ContactDetail() {
             {t("Update")}
           </Button>
         </SectionFooter>
+
+        <InstagramAddressPicker
+          open={pickingInstagram}
+          excluded={new Set(fields.map((field) => field.address ?? ""))}
+          onPick={pickInstagram}
+          onCancel={() => setPickingInstagram(false)}
+        />
 
         {pendingConflict && (
           <ConfirmModal

@@ -246,3 +246,4 @@ export type ApiKeyInsert = Database["public"]["Tables"]["api_keys"]["Insert"];
 export type ApiKeyUpdate = Database["public"]["Tables"]["api_keys"]["Update"];
 
 export type Role = Database["public"]["Enums"]["role"];
+export type Service = Database["public"]["Enums"]["service"];

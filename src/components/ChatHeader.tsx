@@ -6,8 +6,10 @@ import {
 import Avatar from "./Avatar";
 import useBoundStore from "@/stores/useBoundStore";
 import { useTranslation } from "@/hooks/useTranslation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Link2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import LinkAddressToContactModal from "./LinkAddressToContactModal";
 import { useContactByAddress } from "@/queries/useContacts";
 import { useContactAddress } from "@/queries/useContactsAddresses";
 import type { InstagramContactAddressExtra } from "@/supabase/client";
@@ -57,6 +59,13 @@ export default function Header() {
   const convInitials = nameInitials(convName || "?");
 
   const { translate: t } = useTranslation();
+  const [linking, setLinking] = useState(false);
+
+  // A thread whose address belongs to no contact: the inbox can only show it as
+  // a bare number or an @handle, and nothing about the person is stored. Offer
+  // to attach it — for every service, since an unlinked WhatsApp number is the
+  // same "?" problem as an unlinked Instagram DM.
+  const unlinked = !contact?.id && !!address && service !== "local";
 
   // Opens the contact in the left panel, next to the still-open chat. On mobile
   // that panel is hidden while a thread is active, so the hash (= the thread) is
@@ -126,11 +135,37 @@ export default function Header() {
       {/* Who answers this thread. Not offered on `local` test chats: there the
           conversation exists to talk to one specific agent, and reassigning it
           would leave the chat pointing at someone else. */}
-      <div className="flex items-center justify-end grow min-w-0">
+      <div className="flex items-center justify-end grow min-w-0 gap-[10px]">
+        {unlinked && (
+          <button
+            type="button"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full font-medium transition-colors text-[14px] flex items-center gap-2 shrink-0"
+            onClick={() => setLinking(true)}
+          >
+            <Link2 className="w-4 h-4" />
+            {t("Link to contact")}
+          </button>
+        )}
         {conversation && service !== "local" && (
           <ConversationAgentSelect conversation={conversation} />
         )}
       </div>
+
+      {unlinked && address && (
+        <LinkAddressToContactModal
+          open={linking}
+          address={address}
+          service={service!}
+          suggestedName={
+            conversation?.name ||
+            contactAddressName(contactAddress) ||
+            igExtra?.name ||
+            undefined
+          }
+          username={igExtra?.username}
+          onClose={() => setLinking(false)}
+        />
+      )}
     </div>
   );
 }
