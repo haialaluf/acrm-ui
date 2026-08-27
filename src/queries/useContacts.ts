@@ -325,10 +325,20 @@ export function useLinkAddressToContact() {
       contactId,
       service,
       address,
+      keepName,
     }: {
       contactId: string;
       service: string;
       address: string;
+      /**
+       * Name to force onto the surviving contact when this call merges two
+       * records. `upsert_contact` keeps the OLDER contact as the survivor and
+       * `better_name` keeps the survivor's own name, so merging a long-lived
+       * "@handle" stub into a person added yesterday would otherwise leave the
+       * handle as the merged contact's name — the opposite of what "merge into
+       * this contact" means to whoever picked it.
+       */
+      keepName?: { name: string | null; surname: string | null };
     }): Promise<UpsertContactResult> => {
       if (!orgId) throw new Error("No active organization");
 
@@ -344,7 +354,19 @@ export function useLinkAddressToContact() {
       });
 
       if (error) throw error;
-      return data as unknown as UpsertContactResult;
+      const result = data as unknown as UpsertContactResult;
+
+      // Only when the survivor is not the contact the user picked: the merge
+      // went the other way round, so restate the intended name.
+      if (keepName && result.contact_id && result.contact_id !== contactId) {
+        await supabase
+          .from("contacts")
+          .update({ name: keepName.name, surname: keepName.surname })
+          .eq("id", result.contact_id)
+          .throwOnError();
+      }
+
+      return result;
     },
     onSuccess: (_result, { address }) => {
       queryClient.invalidateQueries({

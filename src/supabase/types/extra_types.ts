@@ -282,6 +282,7 @@ export type InstagramContactAddressExtra = {
   biography?: string;
   profile_picture_url?: string;
   name_fetched_at?: string;
+  name_failed_at?: string;
   replaces_address?: string;
   replaced_by_address?: string;
 };

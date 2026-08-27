@@ -1158,5 +1158,8 @@
   "Link to contact": "Vincular a um contato",
   "Search name or number": "Buscar nome ou número",
   "Could not link the address. Please try again.": "Não foi possível vincular o endereço. Tente novamente.",
-  "Create a new contact": "Criar um novo contato"
+  "Create a new contact": "Criar um novo contato",
+  "Merge with another contact": "Mesclar com outro contato",
+  "Everything on {name} moves to the contact you pick": "Tudo de {name} passa para o contato que você escolher",
+  "Could not merge the contacts. Please try again.": "Não foi possível mesclar os contatos. Tente novamente."
 }

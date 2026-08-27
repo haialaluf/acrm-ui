@@ -14,7 +14,10 @@ import { useContactByAddress } from "@/queries/useContacts";
 import { useContactAddress } from "@/queries/useContactsAddresses";
 import type { InstagramContactAddressExtra } from "@/supabase/client";
 import { useActiveConversation } from "@/hooks/useThread";
-import { contactAddressName } from "@/utils/ContactAddressUtils";
+import {
+  contactAddressName,
+  looksAutoCreated,
+} from "@/utils/ContactAddressUtils";
 import ConversationAgentSelect from "./ConversationAgentSelect";
 
 export default function Header() {
@@ -61,11 +64,20 @@ export default function Header() {
   const { translate: t } = useTranslation();
   const [linking, setLinking] = useState(false);
 
-  // A thread whose address belongs to no contact: the inbox can only show it as
-  // a bare number or an @handle, and nothing about the person is stored. Offer
-  // to attach it — for every service, since an unlinked WhatsApp number is the
-  // same "?" problem as an unlinked Instagram DM.
-  const unlinked = !contact?.id && !!address && service !== "local";
+  // Threads worth pointing at a different contact. Two cases, one button:
+  //
+  //  - no contact at all (an address that predates auto-creation) — link it;
+  //  - a contact the webhook minted from an @handle or nothing — merge it into
+  //    the person who is almost certainly already in the contact list under a
+  //    phone number.
+  //
+  // A thread whose contact carries a real name is left alone: offering to
+  // merge every conversation would put an irreversible action one slip away on
+  // screens where nobody needs it. The contact page keeps a permanent entry
+  // for the cases this heuristic misses.
+  const linkable = !!address && service !== "local";
+  const unlinked = linkable && !contact?.id;
+  const mergeable = linkable && !!contact?.id && looksAutoCreated(contact);
 
   // Opens the contact in the left panel, next to the still-open chat. On mobile
   // that panel is hidden while a thread is active, so the hash (= the thread) is
@@ -136,14 +148,14 @@ export default function Header() {
           conversation exists to talk to one specific agent, and reassigning it
           would leave the chat pointing at someone else. */}
       <div className="flex items-center justify-end grow min-w-0 gap-[10px]">
-        {unlinked && (
+        {(unlinked || mergeable) && (
           <button
             type="button"
             className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full font-medium transition-colors text-[14px] flex items-center gap-2 shrink-0"
             onClick={() => setLinking(true)}
           >
             <Link2 className="w-4 h-4" />
-            {t("Link to contact")}
+            {unlinked ? t("Link to contact") : t("Merge with another contact")}
           </button>
         )}
         {conversation && service !== "local" && (
@@ -151,7 +163,7 @@ export default function Header() {
         )}
       </div>
 
-      {unlinked && address && (
+      {(unlinked || mergeable) && address && (
         <LinkAddressToContactModal
           open={linking}
           address={address}
@@ -163,6 +175,15 @@ export default function Header() {
             undefined
           }
           username={igExtra?.username}
+          currentContact={
+            mergeable && contact
+              ? {
+                  id: contact.id,
+                  name: contact.name,
+                  surname: contact.surname,
+                }
+              : undefined
+          }
           onClose={() => setLinking(false)}
         />
       )}

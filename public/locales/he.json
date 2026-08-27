@@ -1410,5 +1410,8 @@
   "Link to contact": "קישור לאיש קשר",
   "Search name or number": "חיפוש שם או מספר",
   "Could not link the address. Please try again.": "לא ניתן היה לקשר את הכתובת. נסו שוב.",
-  "Create a new contact": "יצירת איש קשר חדש"
+  "Create a new contact": "יצירת איש קשר חדש",
+  "Merge with another contact": "מיזוג עם איש קשר אחר",
+  "Everything on {name} moves to the contact you pick": "כל מה שקיים אצל {name} יעבור לאיש הקשר שתבחרו",
+  "Could not merge the contacts. Please try again.": "לא ניתן היה למזג את אנשי הקשר. נסו שוב."
 }

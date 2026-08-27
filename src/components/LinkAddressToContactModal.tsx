@@ -12,15 +12,21 @@ import {
   nameInitials,
 } from "@/utils/FormatUtils";
 import { contactEmail, contactPhone } from "@/utils/ContactAddressUtils";
+import { fill } from "@/utils/fill";
 
 /**
- * Attach a conversation's address to a contact — the fix for a thread that
- * shows a bare number or an @handle because nobody ever linked it.
+ * Point a conversation's address at the right contact.
  *
- * Two ways out: pick an existing contact (the address joins them, merging the
- * two records if it turns out to belong to someone else already), or create a
- * new contact carrying the address, which is the contact form with the address
- * handed over in the URL.
+ * Two shapes, one write. Without `currentContact` it LINKS: a thread whose
+ * address belongs to nobody joins an existing contact, or seeds a new one.
+ * With `currentContact` it MERGES: the thread already has a contact — almost
+ * always the stub the inbound webhook minted from an @handle — and picking
+ * another contact folds the two into one, conversations included.
+ *
+ * Both are the same `upsert_contact` call with `strategy: 'merge'`; whether
+ * the address currently has an owner is what decides which of the two the
+ * database does. Only the copy differs, so the user is told which one they are
+ * about to get.
  */
 export default function LinkAddressToContactModal({
   open,
@@ -30,6 +36,9 @@ export default function LinkAddressToContactModal({
   suggestedName,
   /** Instagram @username, shown instead of the igsid wherever the address is. */
   username,
+  /** The contact this thread already belongs to — turns the dialog into a merge. */
+  currentContact,
+  onMerged,
   onClose,
 }: {
   open: boolean;
@@ -37,6 +46,12 @@ export default function LinkAddressToContactModal({
   service: string;
   suggestedName?: string;
   username?: string;
+  currentContact?: { id: string; name: string | null; surname: string | null };
+  /**
+   * The contact that survived the write. A merge can delete the record the
+   * caller is showing, so a screen bound to one contact has to follow it.
+   */
+  onMerged?: (survivorId: string | null) => void;
   onClose: () => void;
 }) {
   const { translate: t } = useTranslation();
@@ -66,6 +81,7 @@ export default function LinkAddressToContactModal({
     const query = search.trim().toLowerCase();
 
     return (contacts ?? [])
+      .filter((contact) => contact.id !== currentContact?.id)
       .map((contact) => ({
         contact,
         name: [contact.name, contact.surname].filter(Boolean).join(" "),
@@ -80,7 +96,7 @@ export default function LinkAddressToContactModal({
           row.email?.toLowerCase().includes(query),
       )
       .slice(0, 50);
-  }, [contacts, search]);
+  }, [contacts, search, currentContact?.id]);
 
   /** What the user sees this thread called — never a raw igsid if avoidable. */
   const addressLabel = username
@@ -110,7 +126,9 @@ export default function LinkAddressToContactModal({
     >
       <div className="flex items-start justify-between gap-3 px-5 pt-5">
         <h2 className="m-0 text-[16px] font-semibold text-foreground">
-          {t("Link to contact")}
+          {currentContact
+            ? t("Merge with another contact")
+            : t("Link to contact")}
         </h2>
         <button
           type="button"
@@ -123,7 +141,18 @@ export default function LinkAddressToContactModal({
       </div>
 
       <div className="px-5 pt-1 text-[13px] text-muted-foreground">
-        <span dir="ltr">{addressLabel}</span>
+        {currentContact ? (
+          <span>
+            {fill(t, "Everything on {name} moves to the contact you pick", {
+              name:
+                [currentContact.name, currentContact.surname]
+                  .filter(Boolean)
+                  .join(" ") || addressLabel,
+            })}
+          </span>
+        ) : (
+          <span dir="ltr">{addressLabel}</span>
+        )}
       </div>
 
       <div className="px-5 pt-3">
@@ -155,8 +184,20 @@ export default function LinkAddressToContactModal({
             disabled={linkAddress.isPending}
             onClick={() =>
               linkAddress.mutate(
-                { contactId: contact.id, service, address },
-                { onSuccess: onClose },
+                {
+                  contactId: contact.id,
+                  service,
+                  address,
+                  keepName: currentContact
+                    ? { name: contact.name, surname: contact.surname }
+                    : undefined,
+                },
+                {
+                  onSuccess: (result) => {
+                    onMerged?.(result.contact_id);
+                    onClose();
+                  },
+                },
               )
             }
             className="flex items-center gap-[12px] rounded-xl p-[8px] text-start hover:bg-accent disabled:opacity-50"
@@ -182,13 +223,18 @@ export default function LinkAddressToContactModal({
 
       {linkAddress.error && (
         <p className="px-5 pt-3 text-[13px] text-destructive">
-          {t("Could not link the address. Please try again.")}
+          {currentContact
+            ? t("Could not merge the contacts. Please try again.")
+            : t("Could not link the address. Please try again.")}
         </p>
       )}
 
       <div className="flex items-center justify-between gap-3 px-5 pb-5 pt-[14px]">
+        {/* Creating a contact only makes sense while the address has none —
+            merging is about two records that already exist. */}
         <button
           type="button"
+          hidden={!!currentContact}
           className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-full font-medium transition-colors text-[14px] flex items-center gap-2"
           onClick={() => {
             onClose();
