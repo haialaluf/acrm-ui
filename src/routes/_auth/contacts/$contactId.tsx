@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useRouter,
+} from "@tanstack/react-router";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
@@ -79,6 +83,7 @@ function buildNewAddresses(
 function ContactDetail() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
+  const router = useRouter();
   const { contactId } = Route.useParams();
   const { data: contact } = useContact(contactId);
   const deleteContact = useDeleteContact();
@@ -198,6 +203,17 @@ function ContactDetail() {
       <>
         <SectionHeader
           title={contact.name || t("No name")}
+          // The contact page is opened both from the contacts list and from a
+          // chat's header, so the depth-based `to=".."` back link is wrong half
+          // the time — it always lands on /contacts. Step back through history
+          // instead, falling back to the list on a direct/deep-link entry.
+          onBack={() => {
+            if (router.history.canGoBack()) {
+              router.history.back();
+            } else {
+              void navigate({ to: "..", hash: (prevHash) => prevHash! });
+            }
+          }}
           onDelete={() => {
             deleteContact.mutate(contactId, {
               onSuccess: () =>
