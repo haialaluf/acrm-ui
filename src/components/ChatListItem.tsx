@@ -17,7 +17,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(localizedFormat);
 import { TickContext } from "@/contexts/useTick";
 import { useTranslation } from "@/hooks/useTranslation";
-import { AtSign, Bot, Handshake, Mail, Pause } from "lucide-react";
+import { AtSign, Bot, Hand, Mail, Pause } from "lucide-react";
 
 import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
 import { useContactByAddress } from "@/queries/useContacts";
@@ -316,7 +316,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                     className="ml-[6px]"
                     title={`${t("Waiting on a person")}: ${handoff.reason}`}
                   >
-                    <Handshake className="h-[17px] w-[17px] text-muted-foreground" />
+                    <Hand className="h-[17px] w-[17px] text-muted-foreground" />
                   </span>
                 )}
                 {/* Pin - For now just conversations can be fixed */}
