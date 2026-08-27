@@ -1415,5 +1415,6 @@
   "Merge with another contact": "מיזוג עם איש קשר אחר",
   "Everything on {name} moves to the contact you pick": "כל מה שקיים אצל {name} יעבור לאיש הקשר שתבחרו",
   "Could not merge the contacts. Please try again.": "לא ניתן היה למזג את אנשי הקשר. נסו שוב.",
-  "Merge contact": "מיזוג איש קשר"
+  "Merge contact": "מיזוג איש קשר",
+  "This number comes from your phone's contacts — remove it there to remove it here": "המספר הזה מגיע מאנשי הקשר בטלפון שלך — מחק אותו שם כדי להסיר אותו כאן"
 }

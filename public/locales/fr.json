@@ -1130,5 +1130,6 @@
   "Merge with another contact": "Fusionner avec un autre contact",
   "Everything on {name} moves to the contact you pick": "Tout ce qui appartient à {name} sera transféré au contact choisi",
   "Could not merge the contacts. Please try again.": "Impossible de fusionner les contacts. Veuillez réessayer.",
-  "Merge contact": "Fusionner le contact"
+  "Merge contact": "Fusionner le contact",
+  "This number comes from your phone's contacts — remove it there to remove it here": "Ce numéro provient des contacts de votre téléphone — supprimez-le là-bas pour le supprimer ici"
 }

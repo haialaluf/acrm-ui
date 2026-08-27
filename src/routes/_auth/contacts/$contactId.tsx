@@ -129,7 +129,17 @@ function ContactDetail() {
       contact && {
         ...contact,
         email: contactEmail(contact) ?? null,
-        addresses: contact.addresses.filter((a) => a.service !== "email"),
+        // Phones first, Instagram last. The rows arrive in created_at order,
+        // so an Instagram account added before a second phone rendered
+        // between the two phones. Sort is stable, so phones keep their
+        // relative created_at order within the group.
+        addresses: contact.addresses
+          .filter((a) => a.service !== "email")
+          .sort(
+            (a, b) =>
+              Number(a.service === "instagram") -
+              Number(b.service === "instagram"),
+          ),
       },
     [contact],
   );
@@ -145,10 +155,20 @@ function ContactDetail() {
     values: formValues,
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, insert, remove } = useFieldArray({
     control,
     name: "addresses",
   });
+
+  // Phone rows are numbered by their position among the phones, not by their
+  // index in the address list — an Instagram row sitting in the list used to
+  // consume a number without showing it ("Phone 1, Instagram, Phone 3").
+  const phoneNumbering = new Map<string, number>();
+  for (const field of fields) {
+    if (field.service !== "instagram") {
+      phoneNumbering.set(field.id, phoneNumbering.size + 1);
+    }
+  }
 
   // One Instagram account per contact: every read of "the contact's Instagram"
   // takes the first matching address row, so a second one would sit there
@@ -331,8 +351,14 @@ function ContactDetail() {
               const extra = field.extra as
                 | { synced?: { action?: string }; username?: string }
                 | undefined;
-              const syncedSuffix =
-                extra?.synced?.action === "add" ? " (" + t("Synced") + ")" : "";
+              // A synced address is owned by the phone's contact book, not by
+              // this form: `manage_contact_on_address_sync` restores the link
+              // on any UPDATE that nulls contact_id, so a delete here would
+              // silently come back on the next refetch. Point the user at the
+              // one place the removal actually sticks instead of offering an X
+              // that does nothing.
+              const isSynced = extra?.synced?.action === "add";
+              const syncedSuffix = isSynced ? " (" + t("Synced") + ")" : "";
 
               // Instagram addresses are internal IG-scoped ids (igsid), not
               // phone numbers. Show the @username (or the raw id) read-only
@@ -386,7 +412,7 @@ function ContactDetail() {
               return (
                 <label key={field.id}>
                   <div className="label">
-                    {t("Phone")} {idx + 1}
+                    {t("Phone")} {phoneNumbering.get(field.id)}
                     {syncedSuffix}
                   </div>
                   <div className="flex items-center gap-2">
@@ -417,15 +443,24 @@ function ContactDetail() {
                         }}
                       />
                     )}
-                    <button
-                      type="button"
-                      className="p-[8px] rounded-full hover:bg-muted transition-colors"
-                      onClick={() => remove(idx)}
-                      title={t("Delete")}
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
+                    {!isSynced && (
+                      <button
+                        type="button"
+                        className="p-[8px] rounded-full hover:bg-muted transition-colors"
+                        onClick={() => remove(idx)}
+                        title={t("Delete")}
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    )}
                   </div>
+                  {isSynced && (
+                    <div className="text-muted-foreground text-[11.5px] mt-[3px]">
+                      {t(
+                        "This number comes from your phone's contacts — remove it there to remove it here",
+                      )}
+                    </div>
+                  )}
                   <FieldError error={errors.addresses?.[idx]?.address} />
                   {conflict && <ConflictWarning conflict={conflict} t={t} />}
                 </label>
@@ -440,7 +475,15 @@ function ContactDetail() {
               <button
                 type="button"
                 className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-full font-medium transition-colors w-fit text-[14px] flex items-center gap-2"
-                onClick={() => append({ address: "" })}
+                onClick={() => {
+                  // Insert ahead of the Instagram row rather than appending,
+                  // so a new phone joins the phones instead of landing below
+                  // Instagram and breaking the grouping the sort establishes.
+                  const igIdx = fields.findIndex(
+                    (f) => f.service === "instagram",
+                  );
+                  insert(igIdx === -1 ? fields.length : igIdx, { address: "" });
+                }}
               >
                 <Plus className="w-4 h-4" />
                 {t("Add phone")}

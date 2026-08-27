@@ -1163,5 +1163,6 @@
   "Merge with another contact": "Mesclar com outro contato",
   "Everything on {name} moves to the contact you pick": "Tudo de {name} passa para o contato que você escolher",
   "Could not merge the contacts. Please try again.": "Não foi possível mesclar os contatos. Tente novamente.",
-  "Merge contact": "Mesclar contato"
+  "Merge contact": "Mesclar contato",
+  "This number comes from your phone's contacts — remove it there to remove it here": "Este número vem dos contactos do seu telemóvel — remova-o lá para removê-lo aqui"
 }
