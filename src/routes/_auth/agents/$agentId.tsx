@@ -23,11 +23,7 @@ import PersonaSection from "@/components/PersonaSection";
 import SkillsSection from "@/components/SkillsSection";
 import FaqSection from "@/components/FaqSection";
 import SwitchField from "@/components/SwitchField";
-import {
-  DEFAULT_AGENT_MODEL,
-  MODEL_OPTIONS,
-  modelLabel,
-} from "@/models/catalog";
+import { MODEL_OPTIONS } from "@/models/catalog";
 
 export const Route = createFileRoute("/_auth/agents/$agentId")({
   component: AgentDetail,
@@ -221,7 +217,7 @@ function AgentDetail() {
                   control={control}
                   label={t("Model")}
                   options={MODEL_OPTIONS}
-                  placeholder={modelLabel(DEFAULT_AGENT_MODEL)}
+                  placeholder={t("Default")}
                 />
               </SectionField>
             </fieldset>

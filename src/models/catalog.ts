@@ -2,7 +2,11 @@
 // (acrm-api/supabase/functions/_shared/models.ts). The UI only needs the id and
 // the display label to render the pickers — the provider mapping is applied
 // server-side at request time, so nothing here writes `extra.api_url`.
-// Keep the ids, labels and defaults in sync with the API.
+// Keep the ids and labels in sync with the API.
+//
+// The platform defaults (DEFAULT_AGENT_MODEL / DEFAULT_SKILL_MODEL) are
+// deliberately NOT mirrored: an unset `extra.model` lets the API pick, so the
+// UI never names a concrete default and there is nothing here to drift.
 //
 // Every id listed here must have a matching billing.costs row, or the agent run
 // fails with "No pricing found".
@@ -15,29 +19,22 @@ export type ModelCatalogEntry = {
 };
 
 export const MODEL_CATALOG: ModelCatalogEntry[] = [
-  { id: "qwen/qwen3.6-27b", label: "Qwen3.6 27B" },
-  { id: "openai/gpt-oss-20b", label: "GPT-OSS 20B" },
-  { id: "llama-3.3-70b-versatile", label: "Llama 3.3 70B" },
-  { id: "gemini-3-flash-preview", label: "Gemini 3 Flash" },
-  { id: "gemini-3.6-flash", label: "Gemini 3.6 Flash" },
-  { id: "claude-sonnet-4-6", label: "Claude Sonnet 4.6" },
-  { id: "gpt-5.4-mini", label: "GPT-5.4 mini" },
-  // GPT-OSS 120B moved from groq to fireworks — see acrm-api/models.ts.
+  { id: "gemini-3.7-flash", label: "Gemini 3.7 Flash" },
+  { id: "gemini-3.5-flash-lite", label: "Gemini 3.5 Flash-Lite" },
+  { id: "claude-sonnet-5", label: "Claude Sonnet 5" },
+  { id: "gpt-5.6-luna", label: "GPT-5.6 Luna" },
   { id: "accounts/fireworks/models/gpt-oss-120b", label: "GPT-OSS 120B" },
   {
-    // Dated id: the unversioned alias 404s on fireworks.
     id: "accounts/fireworks/models/deepseek-v4-flash-0731",
     label: "DeepSeek V4 Flash",
   },
+  { id: "accounts/fireworks/models/minimax-m3", label: "MiniMax M3" },
+  { id: "accounts/fireworks/models/qwen3p7-plus", label: "Qwen3.7 Plus" },
 ];
 
 export const MODEL_OPTIONS: SelectOption[] = MODEL_CATALOG.map(
   ({ id, label }) => ({ value: id, label }),
 );
-
-// Mirrors DEFAULT_AGENT_MODEL / DEFAULT_SKILL_MODEL in the API.
-export const DEFAULT_AGENT_MODEL = "gemini-3-flash-preview";
-export const DEFAULT_SKILL_MODEL = "qwen/qwen3.6-27b";
 
 export function modelLabel(id: string): string {
   return MODEL_CATALOG.find((m) => m.id === id)?.label ?? id;

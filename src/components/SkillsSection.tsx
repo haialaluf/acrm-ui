@@ -23,11 +23,7 @@ import SelectField, { type SelectOption } from "@/components/SelectField";
 import TextAreaField from "@/components/TextAreaField";
 import Switch from "@/components/Switch";
 import { useCalendars } from "@/queries/useCalendars";
-import {
-  DEFAULT_SKILL_MODEL,
-  MODEL_OPTIONS,
-  modelLabel,
-} from "@/models/catalog";
+import { MODEL_OPTIONS } from "@/models/catalog";
 import {
   type SkillCatalogEntry,
   type SkillConfigField,
@@ -66,10 +62,9 @@ export default function SkillsSection<T extends FieldValues>({
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // "" is the explicit "use the platform default" choice — the API reads it as
-  // falsy and falls back to DEFAULT_SKILL_MODEL.
-  const defaultSkillModelLabel = `${t("Default")} (${modelLabel(
-    DEFAULT_SKILL_MODEL,
-  )})`;
+  // falsy and falls back to its own DEFAULT_SKILL_MODEL (see acrm-api
+  // _shared/models.ts). The UI does not name the concrete model.
+  const defaultSkillModelLabel = t("Default");
 
   const skillModelOptions: SelectOption[] = [
     { value: "", label: defaultSkillModelLabel },

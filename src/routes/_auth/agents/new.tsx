@@ -14,11 +14,7 @@ import PersonaSection from "@/components/PersonaSection";
 import SkillsSection from "@/components/SkillsSection";
 import FaqSection from "@/components/FaqSection";
 import SwitchField from "@/components/SwitchField";
-import {
-  DEFAULT_AGENT_MODEL,
-  MODEL_OPTIONS,
-  modelLabel,
-} from "@/models/catalog";
+import { MODEL_OPTIONS } from "@/models/catalog";
 
 export const Route = createFileRoute("/_auth/agents/new")({
   component: AddAgent,
@@ -46,7 +42,8 @@ function AddAgent() {
       extra: {
         mode: "active",
         protocol: "chat_completions",
-        model: DEFAULT_AGENT_MODEL,
+        // `model` left unset: the API applies its platform default
+        // (see acrm-api _shared/models.ts).
         skills: [],
         faq: [],
         on_topic_only: true,
@@ -182,7 +179,7 @@ function AddAgent() {
                 control={control}
                 label={t("Model")}
                 options={MODEL_OPTIONS}
-                placeholder={modelLabel(DEFAULT_AGENT_MODEL)}
+                placeholder={t("Default")}
               />
             </SectionField>
           </fieldset>
