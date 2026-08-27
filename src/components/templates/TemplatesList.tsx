@@ -23,6 +23,49 @@ import type { OutboundChannel } from "@/hooks/useAccess";
  *  organization can send on, and two independent spellings could drift. */
 export type TemplateChannel = OutboundChannel;
 
+/** Meta's review verdict as a colour, mirroring `statusDot` for email. Amber
+ *  is a wait, red is something to fix, grey is switched off: a template still
+ *  in review is not a failure, which is all the single destructive pill used
+ *  to be able to say about it.
+ *
+ *  Local rather than a shared module like the email vocabulary, because
+ *  nothing outside this list renders a WhatsApp status yet. */
+const WA_STATUS: Record<TemplateData["status"], { dot: string; pill: string }> =
+  {
+    APPROVED: { dot: "bg-success", pill: "" },
+    PENDING: { dot: "bg-warning", pill: "bg-warning/20 text-warning-strong" },
+    IN_APPEAL: { dot: "bg-warning", pill: "bg-warning/20 text-warning-strong" },
+    PENDING_DELETION: {
+      dot: "bg-warning",
+      pill: "bg-warning/20 text-warning-strong",
+    },
+    REJECTED: {
+      dot: "bg-destructive",
+      pill: "bg-destructive/20 text-destructive",
+    },
+    DISABLED: {
+      dot: "bg-destructive",
+      pill: "bg-destructive/20 text-destructive",
+    },
+    LIMIT_EXCEEDED: {
+      dot: "bg-destructive",
+      pill: "bg-destructive/20 text-destructive",
+    },
+    PAUSED: { dot: "bg-input", pill: "bg-muted text-muted-foreground" },
+    DELETED: { dot: "bg-input", pill: "bg-muted text-muted-foreground" },
+  };
+
+/** Meta adds statuses without asking us, so an unknown one gets a neutral
+ *  treatment rather than crashing the row. */
+function waStatus(status: string) {
+  return (
+    WA_STATUS[status as TemplateData["status"]] ?? {
+      dot: "bg-muted-foreground",
+      pill: "bg-muted text-muted-foreground",
+    }
+  );
+}
+
 const segmentedTheme = {
   components: {
     Segmented: {
@@ -92,6 +135,7 @@ export function ChannelToggle({
 export default function TemplatesList({
   templates,
   isLoading,
+  error,
   onCreate,
   onSelect,
   renderMeta,
@@ -101,6 +145,10 @@ export default function TemplatesList({
    *  itself resolved asynchronously — `useTemplates(undefined)` is disabled, so
    *  its own `isLoading` is false while the address is still in flight. */
   isLoading?: boolean;
+  /** A failed load must say so — without it a list that could not be fetched
+   *  is indistinguishable from a number with no templates yet. Same reasoning
+   *  as `EmailTemplatesList` below. */
+  error?: Error | null;
   onCreate: () => void;
   onSelect: (template: TemplateData) => void;
   /** Extra detail appended to a row's description line. Exists for the
@@ -130,33 +178,63 @@ export default function TemplatesList({
         </div>
       )}
 
-      {templates?.map((template) => (
-        <SectionItem
-          key={template.id}
-          title={template.name}
-          description={
-            <div className="flex gap-2 items-center">
-              <span className="capitalize">
-                {template.category.toLowerCase()}
-              </span>
-              {template.status !== "APPROVED" && (
-                <span className="text-xs bg-destructive/20 text-destructive px-2 py-0.5 rounded-full capitalize">
-                  {template.status.toLowerCase()}
-                </span>
-              )}
-              {renderMeta?.(template)}
+      {!isLoading && error && (
+        <div className="m-[10px] flex gap-[9px] items-start rounded-[10px] bg-destructive/10 p-[10px_12px] text-[12.5px] leading-[1.5] text-destructive-strong">
+          <AlertTriangle size={14} className="mt-[2px] shrink-0" />
+          <div>
+            {t("Couldn't load your WhatsApp templates.")}
+            <div className="text-muted-foreground text-[11.5px] mt-[3px]">
+              {error.message}
             </div>
-          }
-          aside={
-            <div className="p-[8px] bg-muted rounded-full">
-              <LayoutTemplate className="w-[24px] h-[24px] text-muted-foreground" />
-            </div>
-          }
-          onClick={() => onSelect(template)}
-        />
-      ))}
+          </div>
+        </div>
+      )}
 
-      {!isLoading && templates?.length === 0 && (
+      {templates?.map((template) => {
+        const status = waStatus(template.status);
+        // Meta's own spelling, made readable: PENDING_DELETION reads as
+        // "pending deletion". Untranslated, as the pill has always been.
+        const label = template.status.toLowerCase().replace(/_/g, " ");
+
+        return (
+          <SectionItem
+            key={template.id}
+            title={template.name}
+            description={
+              <div className="flex gap-2 items-center">
+                {/* The status the list used to show only when it was bad. Meta
+                    reviews every template, so where one stands is worth a
+                    glance even when the answer is "approved". */}
+                <span
+                  className={
+                    "w-[7px] h-[7px] rounded-full shrink-0 " + status.dot
+                  }
+                  title={label}
+                />
+                <span className="capitalize">
+                  {template.category.toLowerCase()}
+                </span>
+                {template.status !== "APPROVED" && (
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full capitalize ${status.pill}`}
+                  >
+                    {label}
+                  </span>
+                )}
+                {renderMeta?.(template)}
+              </div>
+            }
+            aside={
+              <div className="p-[8px] bg-muted rounded-full">
+                <LayoutTemplate className="w-[24px] h-[24px] text-muted-foreground" />
+              </div>
+            }
+            onClick={() => onSelect(template)}
+          />
+        );
+      })}
+
+      {!isLoading && !error && templates?.length === 0 && (
         <div className="p-8 text-center text-muted-foreground text-sm">
           {t("No templates available.")}
         </div>

@@ -1098,6 +1098,7 @@
   "draft": "טיוטה",
   "paused": "מושהית",
   "Couldn't load your email templates.": "לא הצלחנו לטעון את תבניות האימייל שלכם.",
+  "Couldn't load your WhatsApp templates.": "לא הצלחנו לטעון את תבניות הוואטסאפ שלכם.",
   "Unsubscribe": "הסרה מרשימת התפוצה",
   "Unsubscribe from these emails?": "להסיר את הכתובת מרשימת התפוצה?",
   "{{1}} will stop sending marketing emails to this address:": "‏{{1}} יפסיקו לשלוח הודעות שיווקיות לכתובת הזו:",

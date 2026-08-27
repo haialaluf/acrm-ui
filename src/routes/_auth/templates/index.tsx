@@ -50,8 +50,11 @@ function TemplatesIndexBody() {
   const channel: TemplateChannel =
     picked && channels.includes(picked) ? picked : channels[0];
 
-  const { data: templates, isLoading: templatesLoading } =
-    useTemplates(address);
+  const {
+    data: templates,
+    isLoading: templatesLoading,
+    error: templatesError,
+  } = useTemplates(address);
   const {
     data: emailTemplates,
     isLoading: emailTemplatesLoading,
@@ -74,6 +77,7 @@ function TemplatesIndexBody() {
         <TemplatesList
           templates={templates}
           isLoading={templatesLoading}
+          error={templatesError}
           onCreate={() =>
             navigate({ to: "/templates/new", hash: (prevHash) => prevHash! })
           }

@@ -1131,6 +1131,7 @@
   "draft": "borrador",
   "paused": "pausada",
   "Couldn't load your email templates.": "No se pudieron cargar tus plantillas de correo.",
+  "Couldn't load your WhatsApp templates.": "No se pudieron cargar tus plantillas de WhatsApp.",
   "Publish": "Publicar",
   "Unpublish": "Despublicar",
   "Only live templates can be sent to contacts.": "Solo se pueden enviar a los contactos las plantillas activas.",

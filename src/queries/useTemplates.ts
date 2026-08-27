@@ -11,7 +11,7 @@ export function useTemplates(organizationAddress?: string) {
     queryFn: async () => {
       if (!organizationAddress) return [];
 
-      const { data } = await supabase.functions.invoke(
+      const { data, error } = await supabase.functions.invoke(
         "whatsapp-management/templates",
         {
           method: "PUT",
@@ -21,6 +21,11 @@ export function useTemplates(organizationAddress?: string) {
           },
         },
       );
+
+      // Without this the list can only fail as a TypeError on `data.data`,
+      // which reaches the UI as "Cannot read properties of null" — the
+      // mutations below already surface Meta's own words this way.
+      if (error) await throwFunctionError(error);
 
       return (data.data as TemplateData[]) || [];
     },

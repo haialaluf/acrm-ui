@@ -1088,6 +1088,7 @@
   "draft": "rascunho",
   "paused": "em pausa",
   "Couldn't load your email templates.": "Não foi possível carregar os seus modelos de e-mail.",
+  "Couldn't load your WhatsApp templates.": "Não foi possível carregar os seus modelos do WhatsApp.",
   "Publish": "Publicar",
   "Unpublish": "Cancelar publicação",
   "Only live templates can be sent to contacts.": "Só é possível enviar modelos ativos aos contactos.",

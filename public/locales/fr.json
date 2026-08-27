@@ -1055,6 +1055,7 @@
   "draft": "brouillon",
   "paused": "en pause",
   "Couldn't load your email templates.": "Impossible de charger vos modèles d'e-mail.",
+  "Couldn't load your WhatsApp templates.": "Impossible de charger vos modèles WhatsApp.",
   "Publish": "Publier",
   "Unpublish": "Dépublier",
   "Only live templates can be sent to contacts.": "Seuls les modèles actifs peuvent être envoyés aux contacts.",
