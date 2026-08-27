@@ -135,6 +135,11 @@ function ContactNew() {
     navigate({
       to: `/contacts/${contactId}`,
       hash: (prevHash: string | undefined) => prevHash!,
+      // Replace rather than push: the contact now exists, so this form is a
+      // dead end. The detail page steps back through history, and a pushed
+      // entry would bounce the user into an empty "New contact" form instead
+      // of the list (or the conversation) they came from.
+      replace: true,
     });
   }
 
