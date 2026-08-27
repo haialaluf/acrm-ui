@@ -1413,5 +1413,6 @@
   "Create a new contact": "יצירת איש קשר חדש",
   "Merge with another contact": "מיזוג עם איש קשר אחר",
   "Everything on {name} moves to the contact you pick": "כל מה שקיים אצל {name} יעבור לאיש הקשר שתבחרו",
-  "Could not merge the contacts. Please try again.": "לא ניתן היה למזג את אנשי הקשר. נסו שוב."
+  "Could not merge the contacts. Please try again.": "לא ניתן היה למזג את אנשי הקשר. נסו שוב.",
+  "Merge contact": "מיזוג איש קשר"
 }

@@ -6,7 +6,7 @@ import {
 import Avatar from "./Avatar";
 import useBoundStore from "@/stores/useBoundStore";
 import { useTranslation } from "@/hooks/useTranslation";
-import { ArrowLeft, Link2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Link2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import LinkAddressToContactModal from "./LinkAddressToContactModal";
@@ -78,6 +78,7 @@ export default function Header() {
   const linkable = !!address && service !== "local";
   const unlinked = linkable && !contact?.id;
   const mergeable = linkable && !!contact?.id && looksAutoCreated(contact);
+  const label = unlinked ? t("Link to contact") : t("Merge contact");
 
   // Opens the contact in the left panel, next to the still-open chat. On mobile
   // that panel is hidden while a thread is active, so the hash (= the thread) is
@@ -109,30 +110,73 @@ export default function Header() {
         <ArrowLeft className="w-[24px] h-[24px] text-foreground" />
       </button>
 
-      {/* Contact info - opens the contact details panel */}
-      <button
-        type="button"
+      {/* Contact info — avatar and name open the contact panel. Split into two
+          buttons rather than one so the line underneath can be a control of its
+          own on a phone; the wrapper carries the hover so it still reads as a
+          single target. */}
+      <div
         className={
-          "flex items-center min-w-0 text-start rounded-lg -m-[4px] p-[4px] " +
-          (contact?.id ? "hover:bg-muted cursor-pointer" : "cursor-default")
+          "flex items-center min-w-0 rounded-lg -m-[4px] p-[4px] " +
+          (contact?.id ? "hover:bg-muted" : "")
         }
-        title={contact?.id ? t("Contact details") : undefined}
-        disabled={!contact?.id}
-        onClick={openContactDetails}
       >
-        <div className="profile-picture pr-[15px]">
-          <Avatar
-            src={igExtra?.profile_picture_url}
-            fallback={convInitials}
-            size={40}
-            className="bg-accent text-accent-foreground border border-border text-[16px]"
-          />
-        </div>
-        <div className="info flex flex-col justify-center mr-[12px] truncate">
-          <div className="text-[16px] text-foreground truncate">
-            {displayName}
+        <button
+          type="button"
+          className={
+            "flex items-center shrink-0 " +
+            (contact?.id ? "cursor-pointer" : "cursor-default")
+          }
+          title={contact?.id ? t("Contact details") : undefined}
+          disabled={!contact?.id}
+          onClick={openContactDetails}
+        >
+          <div className="profile-picture pr-[15px]">
+            <Avatar
+              src={igExtra?.profile_picture_url}
+              fallback={convInitials}
+              size={40}
+              className="bg-accent text-accent-foreground border border-border text-[16px]"
+            />
           </div>
-          <div className="text-[13px] text-muted-foreground truncate">
+        </button>
+
+        <div className="info flex flex-col justify-center mr-[12px] min-w-0">
+          <button
+            type="button"
+            className={
+              "text-[16px] text-foreground truncate text-start " +
+              (contact?.id ? "cursor-pointer" : "cursor-default")
+            }
+            title={contact?.id ? t("Contact details") : undefined}
+            disabled={!contact?.id}
+            onClick={openContactDetails}
+          >
+            {displayName}
+          </button>
+
+          {/* On a phone the action takes this line. It is the one place in the
+              header that costs no width — and on exactly the threads that need
+              linking, the line it replaces only repeats the id already shown
+              above it. The desktop header keeps both: address here, button
+              beside the name. */}
+          {(unlinked || mergeable) && (
+            <button
+              type="button"
+              className="md:hidden flex items-center gap-[4px] text-[13px] font-semibold text-primary text-start"
+              onClick={() => setLinking(true)}
+            >
+              <Link2 className="w-[14px] h-[14px] shrink-0" />
+              <span className="truncate">{label}</span>
+              <ChevronRight className="w-[14px] h-[14px] shrink-0" />
+            </button>
+          )}
+
+          <div
+            className={
+              "text-[13px] text-muted-foreground truncate" +
+              (unlinked || mergeable ? " hidden md:block" : "")
+            }
+          >
             {service === "local" && t("Test contact")}
             {service === "whatsapp" &&
               address &&
@@ -142,22 +186,26 @@ export default function Header() {
               `@${igExtra.username}`}
           </div>
         </div>
-      </button>
+      </div>
+
+      {/* Sits with the name rather than with the agent select: it acts on who
+          this conversation is, not on who answers it. Desktop only — the phone
+          gets the same action on the line under the name. */}
+      {(unlinked || mergeable) && (
+        <button
+          type="button"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full font-medium transition-colors text-[14px] hidden md:flex items-center gap-2 shrink-0 ms-[4px]"
+          onClick={() => setLinking(true)}
+        >
+          <Link2 className="w-4 h-4" />
+          {label}
+        </button>
+      )}
 
       {/* Who answers this thread. Not offered on `local` test chats: there the
           conversation exists to talk to one specific agent, and reassigning it
           would leave the chat pointing at someone else. */}
       <div className="flex items-center justify-end grow min-w-0 gap-[10px]">
-        {(unlinked || mergeable) && (
-          <button
-            type="button"
-            className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full font-medium transition-colors text-[14px] flex items-center gap-2 shrink-0"
-            onClick={() => setLinking(true)}
-          >
-            <Link2 className="w-4 h-4" />
-            {unlinked ? t("Link to contact") : t("Merge with another contact")}
-          </button>
-        )}
         {conversation && service !== "local" && (
           <ConversationAgentSelect conversation={conversation} />
         )}
