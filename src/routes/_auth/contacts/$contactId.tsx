@@ -17,7 +17,7 @@ import SectionFooter from "@/components/SectionFooter";
 import Button from "@/components/Button";
 import ContactTagSelect from "@/components/ContactTagSelect";
 import ConfirmModal from "@/components/ConfirmModal";
-import { Instagram, Merge, Plus, X } from "lucide-react";
+import { Instagram, Plus, X } from "lucide-react";
 import { useMemo } from "react";
 import type {
   ContactExtra,
@@ -45,7 +45,6 @@ import InstagramAddressPicker, {
   type InstagramAddressRow,
 } from "@/components/contacts/InstagramAddressPicker";
 import { useIntegrations } from "@/hooks/useIntegrations";
-import LinkAddressToContactModal from "@/components/LinkAddressToContactModal";
 
 // `email` is hand-added: contacts.email is dropped from the generated Row/
 // Update types (it's unused — see 03-02_contacts.sql), but the form still
@@ -95,7 +94,6 @@ function ContactDetail() {
     conflict: AddressConflict;
   } | null>(null);
   const [pickingInstagram, setPickingInstagram] = useState(false);
-  const [merging, setMerging] = useState(false);
   const { connected } = useIntegrations();
 
   // Track original addresses (these will be readonly)
@@ -103,11 +101,6 @@ function ContactDetail() {
     () => new Set(contact?.addresses.map((a) => a.address) ?? []),
     [contact],
   );
-
-  // `upsert_contact` reconciles two contacts through a shared address, so the
-  // merge needs one of this contact's own addresses to travel on. A contact
-  // with none (an import that only carried a name) has nothing to merge with.
-  const mergeAddress = contact?.addresses.at(0);
 
   // Instagram profile details (avatar, @username) are read live from the
   // linked address, which the webhook keeps fresh — they are not copied onto
@@ -453,17 +446,6 @@ function ContactDetail() {
                 {t("Add phone")}
               </button>
 
-              {mergeAddress && (
-                <button
-                  type="button"
-                  className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-full font-medium transition-colors w-fit text-[14px] flex items-center gap-2"
-                  onClick={() => setMerging(true)}
-                >
-                  <Merge className="w-4 h-4" />
-                  {t("Merge with another contact")}
-                </button>
-              )}
-
               {connected.instagram && !hasInstagram && (
                 <button
                   type="button"
@@ -522,33 +504,6 @@ function ContactDetail() {
             {t("Update")}
           </Button>
         </SectionFooter>
-
-        {mergeAddress && (
-          <LinkAddressToContactModal
-            open={merging}
-            address={mergeAddress.address}
-            service={mergeAddress.service}
-            username={igExtra?.username}
-            currentContact={{
-              id: contact.id,
-              name: contact.name,
-              surname: contact.surname,
-            }}
-            // The merge keeps the older of the two records, which may not be
-            // this one — follow the survivor rather than sitting on a deleted
-            // contact's page.
-            onMerged={(survivorId) => {
-              if (survivorId && survivorId !== contactId) {
-                void navigate({
-                  to: "/contacts/$contactId",
-                  params: { contactId: survivorId },
-                  hash: (prevHash: string | undefined) => prevHash!,
-                });
-              }
-            }}
-            onClose={() => setMerging(false)}
-          />
-        )}
 
         <InstagramAddressPicker
           open={pickingInstagram}
