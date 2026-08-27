@@ -184,6 +184,7 @@ export default function Header() {
             {service === "instagram" &&
               igExtra?.username &&
               `@${igExtra.username}`}
+            {service === "email" && address}
           </div>
         </div>
       </div>
