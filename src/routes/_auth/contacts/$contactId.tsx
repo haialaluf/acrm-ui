@@ -400,37 +400,51 @@ function ContactDetail() {
                 <div className="label">{t("Channels")}</div>
 
                 {/* One channel at a time. The count on each chip is what keeps
-                    an empty channel visible without opening it. */}
+                    an empty channel visible without opening it. Below md the
+                    three named chips overflow the panel, so only the open one
+                    keeps its name there — the icon and the count carry the
+                    other two, and the row still fits without scrolling. */}
                 <div className="flex gap-[8px] mb-[18px]">
-                  {CHANNELS.map((key) => (
-                    <button
-                      key={key}
-                      type="button"
-                      className={
-                        "text-[14px] text-nowrap px-[12px] py-[6px] rounded-full flex items-center gap-[6px] " +
-                        (channel === key
-                          ? "text-foreground bg-primary/10 border border-primary"
-                          : "text-foreground bg-background hover:bg-accent border border-border")
-                      }
-                      onClick={() => setChannel(key)}
-                    >
-                      {key === "whatsapp" ? (
-                        <MessageCircle className="w-[15px] h-[15px] text-[#25D366]" />
-                      ) : key === "instagram" ? (
-                        <Instagram className="w-[15px] h-[15px] text-[#E1306C]" />
-                      ) : (
-                        <Mail className="w-[15px] h-[15px] text-blue-500" />
-                      )}
-                      {key === "whatsapp"
+                  {CHANNELS.map((key) => {
+                    const label =
+                      key === "whatsapp"
                         ? "WhatsApp"
                         : key === "instagram"
                           ? "Instagram"
-                          : t("Email")}
-                      <span className="text-[12px] text-muted-foreground">
-                        {counts[key]}
-                      </span>
-                    </button>
-                  ))}
+                          : t("Email");
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        title={label}
+                        aria-label={label}
+                        aria-pressed={channel === key}
+                        className={
+                          "text-[14px] text-nowrap px-[12px] py-[6px] rounded-full flex items-center gap-[6px] " +
+                          (channel === key
+                            ? "text-foreground bg-primary/10 border border-primary"
+                            : "text-foreground bg-background hover:bg-accent border border-border")
+                        }
+                        onClick={() => setChannel(key)}
+                      >
+                        {key === "whatsapp" ? (
+                          <MessageCircle className="w-[15px] h-[15px] text-[#25D366]" />
+                        ) : key === "instagram" ? (
+                          <Instagram className="w-[15px] h-[15px] text-[#E1306C]" />
+                        ) : (
+                          <Mail className="w-[15px] h-[15px] text-blue-500" />
+                        )}
+                        <span
+                          className={channel === key ? "" : "hidden md:inline"}
+                        >
+                          {label}
+                        </span>
+                        <span className="text-[12px] text-muted-foreground">
+                          {counts[key]}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div className="flex flex-col gap-[12px]">
