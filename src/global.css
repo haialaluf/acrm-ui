@@ -59,6 +59,30 @@
   /* Connector strokes on the flow canvas — lighter than --border, which is
      doing edge work rather than drawing lines across open background. */
   --flow-line: oklch(0.86 0.01 150);
+
+  /* Tonal green surface for icon tiles and the contacts Select chip.
+     Deliberately NOT --secondary: that token inverts to near-white in `.dark`,
+     so a tile built on it turns into a white block in dark mode. Same rule as
+     `.avatar-tint` instead — hue and chroma are fixed, only lightness moves
+     between themes. */
+  --tonal: oklch(0.92 0.035 152);
+  --tonal-foreground: oklch(0.45 0.13 152);
+
+  /* Depth for the one dominant action on a screen. The stops stay inside the
+     --primary hue (151–154), so this is --primary with a light source rather
+     than a second brand colour. */
+  --primary-gradient: linear-gradient(
+    180deg,
+    oklch(0.665 0.16 151),
+    oklch(0.578 0.155 154)
+  );
+  --primary-glow:
+    0 4px 14px oklch(0.62 0.16 152 / 0.3), inset 0 1px 0 oklch(1 0 0 / 0.22);
+  --primary-glow-pressed:
+    0 2px 7px oklch(0.62 0.16 152 / 0.26), inset 0 1px 0 oklch(1 0 0 / 0.16);
+  /* Icon tile sitting on --primary-gradient. Lightens the green in light mode
+     and darkens it in dark, where --primary itself is the lighter surface. */
+  --tile-on-primary: oklch(1 0 0 / 0.2);
 }
 
 .dark {
@@ -106,6 +130,20 @@
   --step-logic: oklch(0.7 0.15 292);
   --step-crm: oklch(0.7 0.15 248);
   --flow-line: oklch(0.4 0.02 160);
+
+  --tonal: oklch(0.34 0.045 152);
+  --tonal-foreground: oklch(0.84 0.08 152);
+
+  --primary-gradient: linear-gradient(
+    180deg,
+    oklch(0.735 0.15 151),
+    oklch(0.662 0.148 154)
+  );
+  --primary-glow:
+    0 4px 14px oklch(0.16 0.02 160 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.14);
+  --primary-glow-pressed:
+    0 2px 7px oklch(0.16 0.02 160 / 0.45), inset 0 1px 0 oklch(1 0 0 / 0.1);
+  --tile-on-primary: oklch(0.16 0.02 160 / 0.18);
 }
 
 @theme inline {
@@ -150,6 +188,9 @@
   --color-step-logic: var(--step-logic);
   --color-step-crm: var(--step-crm);
   --color-flow-line: var(--flow-line);
+
+  --color-tonal: var(--tonal);
+  --color-tonal-foreground: var(--tonal-foreground);
 }
 
 html,
@@ -251,6 +292,44 @@ button:disabled {
 
   button.destructive {
     @apply bg-transparent border border-destructive hover:bg-destructive/10 text-destructive rounded-full text-[16px] py-[8px];
+  }
+
+  /* Tonal surface: icon tiles, and chips like Contacts' Select. See --tonal for
+     why this is not --secondary. */
+  .tonal {
+    background: var(--tonal);
+    color: var(--tonal-foreground);
+  }
+
+  button.tonal:hover {
+    background: oklch(from var(--tonal) calc(l - 0.03) c h);
+  }
+
+  /* The gradient counterpart to button.primary, for the one dominant action on
+     a screen. Same token family, with depth. */
+  .btn-gradient {
+    background: var(--primary-gradient);
+    box-shadow: var(--primary-glow);
+    color: var(--primary-foreground);
+  }
+
+  .btn-gradient:hover {
+    filter: brightness(1.04);
+  }
+
+  .btn-gradient .tile {
+    background: var(--tile-on-primary);
+  }
+
+  .btn-gradient:active {
+    transform: translateY(1px);
+    box-shadow: var(--primary-glow-pressed);
+  }
+
+  .btn-gradient:disabled {
+    opacity: 0.5;
+    filter: none;
+    transform: none;
   }
 
   .header {

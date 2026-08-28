@@ -5,7 +5,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts, useDeleteContacts } from "@/queries/useContacts";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Plus, Trash2, Upload } from "lucide-react";
+import { ListChecks, Plus, Trash2, Upload } from "lucide-react";
 import Avatar, { avatarHue } from "@/components/Avatar";
 import Checkbox from "@/components/bulkSend/Checkbox";
 import Button from "@/components/Button";
@@ -120,9 +120,10 @@ function ListContacts() {
         action={
           allContacts.length > 0 && !selectionMode ? (
             <button
-              className="text-[14px] text-primary"
+              className="tonal h-[30px] ps-[10px] pe-[12px] rounded-full flex items-center gap-[6px] text-[13.5px] font-semibold"
               onClick={() => setSelectionMode(true)}
             >
+              <ListChecks className="w-[15px] h-[15px]" />
               {t("Select")}
             </button>
           ) : undefined
@@ -136,8 +137,10 @@ function ListContacts() {
       />
 
       {selectionMode && (
-        <div className="px-[20px] pb-[12px]">
-          <div className="flex items-center justify-between min-h-[36px]">
+        /* Same box as the action row below — 12px gap, then a 44px row — so
+           entering selection mode swaps the controls without moving the list. */
+        <div className="px-[20px] pt-[12px]">
+          <div className="flex items-center justify-between h-[44px]">
             {/* Select-all + count */}
             <label className="flex items-center gap-[10px] cursor-pointer">
               <Checkbox checked={allSelected} onChange={toggleSelectAll} />
@@ -169,7 +172,7 @@ function ListContacts() {
 
           {confirming && (
             <div
-              className="mt-[10px] rounded-[14px] p-[14px] border"
+              className="mt-[10px] mb-[12px] rounded-[14px] p-[14px] border"
               style={{
                 background: "oklch(from var(--destructive) l c h / 0.06)",
                 borderColor: "oklch(from var(--destructive) l c h / 0.25)",
@@ -201,11 +204,17 @@ function ListContacts() {
 
       {/* Add and Import are actions, not contacts: as 72px list rows they read
           as data and pushed the first real contact 144px down the screen. Same
-          two destinations, one 44px row, labels intact. */}
+          two destinations, one 44px row, labels intact.
+
+          Split 62/38 rather than evenly: both stay findable, but the everyday
+          action gets the width, and the asymmetry is what lets the longest
+          locale ("Ajouter un contact") stay on one line. The leading icon tiles
+          are what keep these reading as two distinct objects at only 44px —
+          drop below that height and they stop working. */}
       {!selectionMode && (
-        <div className="px-[20px] pt-[12px] flex items-center gap-[10px] shrink-0">
+        <div className="px-[20px] pt-[12px] flex items-stretch gap-[10px] shrink-0">
           <button
-            className="primary flex-1 min-w-0 h-[44px] flex items-center justify-center gap-[8px] text-[15px] font-semibold"
+            className="btn-gradient flex-[62] min-w-0 h-[44px] rounded-[12px] flex items-center gap-[9px] px-[10px]"
             onClick={() =>
               navigate({
                 to: "/contacts/new",
@@ -213,11 +222,15 @@ function ListContacts() {
               })
             }
           >
-            <Plus className="w-[18px] h-[18px]" />
-            {t("Add contact")}
+            <span className="tile w-[26px] h-[26px] rounded-[8px] flex items-center justify-center shrink-0">
+              <Plus className="w-[16px] h-[16px]" />
+            </span>
+            <span className="text-[14.5px] font-semibold truncate">
+              {t("Add contact")}
+            </span>
           </button>
           <button
-            className="flex-1 min-w-0 h-[44px] rounded-full border border-border bg-popover hover:bg-accent flex items-center justify-center gap-[8px] text-[15px] font-semibold"
+            className="flex-[38] min-w-0 h-[44px] rounded-[12px] border-[1.5px] border-input bg-popover hover:bg-accent flex items-center gap-[8px] px-[9px]"
             onClick={() =>
               navigate({
                 to: "/contacts/import",
@@ -225,8 +238,12 @@ function ListContacts() {
               })
             }
           >
-            <Upload className="w-[18px] h-[18px]" />
-            {t("Import contacts")}
+            <span className="tonal w-[26px] h-[26px] rounded-[8px] flex items-center justify-center shrink-0">
+              <Upload className="w-[16px] h-[16px]" />
+            </span>
+            <span className="text-[14.5px] font-semibold truncate">
+              {t("Import")}
+            </span>
           </button>
         </div>
       )}
@@ -254,10 +271,15 @@ function ListContacts() {
                 }
                 aside={
                   selectionMode ? (
-                    <Checkbox
-                      checked={selected.has(contact.id)}
-                      onChange={() => toggleContact(contact.id)}
-                    />
+                    // Holds the avatar's 40px footprint, left-aligned: the
+                    // checkbox lands exactly where it would anyway, and the
+                    // name and address stay put instead of sliding 20px left.
+                    <div className="w-[40px] flex items-center">
+                      <Checkbox
+                        checked={selected.has(contact.id)}
+                        onChange={() => toggleContact(contact.id)}
+                      />
+                    </div>
                   ) : (
                     <Avatar
                       src={contactInstagramPicture(contact)}
