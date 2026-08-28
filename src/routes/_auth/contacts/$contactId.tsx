@@ -268,7 +268,7 @@ function ContactDetail() {
     contact && (
       <>
         <SectionHeader
-          title={contact.name || t("No name")}
+          title={t("Contact")}
           // The contact page is opened both from the contacts list and from a
           // chat's header, so the depth-based `to=".."` back link is wrong half
           // the time — it always lands on /contacts. Step back through history
