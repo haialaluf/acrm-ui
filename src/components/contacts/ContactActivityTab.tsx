@@ -9,7 +9,10 @@ import type { ContactWithAddressesRow } from "@/supabase/client";
 
 dayjs.extend(relativeTime);
 
-/** A boxed number, matching StatTile's proportions but taking any string. */
+/** A boxed number, matching StatTile's proportions but taking any string.
+ *  Durations ("8 minutes") are split so the amount stays big and the unit sits
+ *  under it on its own line — otherwise the unit wraps mid-tile and the three
+ *  tiles stop lining up, especially at mobile widths. */
 function Tile({
   label,
   value,
@@ -19,18 +22,34 @@ function Tile({
   value: string;
   strong?: boolean;
 }) {
+  const [, amount, unit] = /^(\d+)\s+(.+)$/.exec(value) ?? [];
+  const multiWord = !amount && value.includes(" ");
+  const color = strong ? { color: "var(--success-strong)" } : undefined;
   return (
     <div
-      className="rounded-[12px] p-[12px] text-center"
+      className="rounded-[12px] px-[8px] py-[12px] min-h-[78px] flex flex-col items-center justify-center text-center"
       style={{ background: "var(--background)", border: "1px solid var(--border)" }}
     >
       <div
-        className="text-[22px] font-semibold"
-        style={strong ? { color: "var(--success-strong)" } : undefined}
+        className={
+          (multiWord ? "text-[13px]" : "text-[22px]") +
+          " font-semibold leading-[1.15] break-words"
+        }
+        style={color}
       >
-        {value}
+        {amount ?? value}
       </div>
-      <div className="text-[11px] text-muted-foreground">{label}</div>
+      {unit && (
+        <div
+          className="text-[12px] font-medium leading-[1.15] break-words"
+          style={color}
+        >
+          {unit}
+        </div>
+      )}
+      <div className="text-[11px] text-muted-foreground mt-[4px] leading-[1.2]">
+        {label}
+      </div>
     </div>
   );
 }
