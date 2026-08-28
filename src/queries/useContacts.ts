@@ -47,13 +47,16 @@ export function useContactByAddress(address: string | null | undefined) {
     queryFn: async () =>
       await supabase
         .from("contacts_addresses")
-        .select("*, contact:contacts(*)")
+        // The contact's OTHER addresses ride along: a WhatsApp thread needs
+        // them to find the Instagram row whose profile picture is the best
+        // avatar this contact has (see `contactInstagramPicture`).
+        .select("*, contact:contacts(*, addresses:contacts_addresses(*))")
         .eq("organization_id", orgId!)
         .eq("address", address!)
         .single()
         .throwOnError(),
     enabled: !!userId && !!orgId && !!address,
-    select: (data) => data.data.contact,
+    select: (data) => data.data.contact as ContactWithAddressesRow | null,
     experimental_prefetchInRender: true,
   });
 }

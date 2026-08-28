@@ -16,6 +16,7 @@ import type { InstagramContactAddressExtra } from "@/supabase/client";
 import { useActiveConversation } from "@/hooks/useThread";
 import {
   contactAddressName,
+  contactInstagramPicture,
   looksAutoCreated,
 } from "@/utils/ContactAddressUtils";
 import ConversationAgentSelect from "./ConversationAgentSelect";
@@ -132,7 +133,9 @@ export default function Header() {
         >
           <div className="profile-picture pr-[15px]">
             <Avatar
-              src={igExtra?.profile_picture_url}
+              src={
+                igExtra?.profile_picture_url ?? contactInstagramPicture(contact)
+              }
               fallback={convInitials}
               size={40}
               className="bg-accent text-accent-foreground border border-border text-[16px]"

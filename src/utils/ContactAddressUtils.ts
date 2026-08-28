@@ -95,6 +95,24 @@ export function contactEmailStatus(
 }
 
 /**
+ * The contact's Instagram profile picture, whichever thread you are looking at.
+ *
+ * Only the Instagram address row carries a picture — Meta returns it with the
+ * profile fetch and the webhook keeps it fresh. Reading it off the CONTACT
+ * rather than off the conversation's own address is what lets a WhatsApp
+ * thread show the same face as the Instagram one, instead of falling back to
+ * initials for someone we plainly have a photo of.
+ */
+export function contactInstagramPicture(
+  contact: { addresses?: ContactAddressRow[] | null } | null | undefined,
+): string | undefined {
+  const extra = contact?.addresses?.find((a) => a.service === "instagram")
+    ?.extra as { profile_picture_url?: string } | null | undefined;
+
+  return extra?.profile_picture_url ?? undefined;
+}
+
+/**
  * The display name a contact address carries, if its service records one.
  *
  * WhatsApp and Instagram rows both stash a profile name in `extra`; email rows

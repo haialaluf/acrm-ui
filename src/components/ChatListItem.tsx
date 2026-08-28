@@ -25,7 +25,10 @@ import { useContactAddress } from "@/queries/useContactsAddresses";
 import { formatPhoneNumber, nameInitials } from "@/utils/FormatUtils";
 import { useNavigate } from "@tanstack/react-router";
 import { useThreadConversation } from "@/hooks/useThread";
-import { contactAddressName } from "@/utils/ContactAddressUtils";
+import {
+  contactAddressName,
+  contactInstagramPicture,
+} from "@/utils/ContactAddressUtils";
 import { assistantState } from "@/utils/ConversationUtils";
 import { useCurrentOrganization } from "@/queries/useOrganizations";
 import { mediaPreview } from "@/utils/messagePreview";
@@ -223,7 +226,10 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
           <div className="profile-picture pl-[10px] pr-[15px] flex items-center">
             <div className="relative">
               <Avatar
-                src={igExtra?.profile_picture_url}
+                src={
+                  igExtra?.profile_picture_url ??
+                  contactInstagramPicture(contact)
+                }
                 fallback={nameInitials(name || "?")}
                 size={49}
                 className="bg-accent text-accent-foreground border border-border text-[16px]"
