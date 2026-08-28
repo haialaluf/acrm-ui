@@ -9,7 +9,10 @@ import { Plus, Trash2, Upload } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import Checkbox from "@/components/bulkSend/Checkbox";
 import Button from "@/components/Button";
-import { contactDisplayAddress } from "@/utils/ContactAddressUtils";
+import {
+  contactDisplayAddress,
+  contactInstagramPicture,
+} from "@/utils/ContactAddressUtils";
 import ContactFilter, {
   activeFilterCount,
   applyContactFilter,
@@ -216,6 +219,7 @@ function ListContacts() {
                 />
               ) : (
                 <Avatar
+                  src={contactInstagramPicture(contact)}
                   fallback={contact.name?.substring(0, 2).toUpperCase() || "?"}
                   size={40}
                   className="bg-muted text-muted-foreground"
