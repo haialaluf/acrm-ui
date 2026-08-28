@@ -401,9 +401,18 @@ function applyMessages(
 ): Partial<AppState> {
   if (!msgsMixedVersions.length) return {};
 
+  const now = Date.now();
+
   const msgs = toV1Messages(msgsMixedVersions)
-    // do not display scheduled messages (timestamp in the future)
-    .filter((m) => m.timestamp <= m.updated_at);
+    // Do not display scheduled messages (timestamp in the future). Compared
+    // against the clock, not against updated_at: a send whose row is never
+    // re-saved after its scheduled time — a cancelled one, say — keeps an
+    // updated_at older than its timestamp forever, and the updated_at form
+    // hid it for good. `conversations_page` picks the sidebar's last message
+    // with the same `timestamp <= now()` rule, so dropping it here left the
+    // thread with no message at all: blank preview, and sorted to the bottom
+    // of the list as epoch 0 until opening it loaded the rest of its history.
+    .filter((m) => +new Date(m.timestamp) <= now);
 
   const messages = new Map(state.chat.messages);
   const threads = new Map(state.chat.threads);

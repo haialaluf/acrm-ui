@@ -515,10 +515,10 @@ function BulkSendWizard() {
         skipped.push(recipient);
         continue;
       }
-      // Skip optimistic push for scheduled messages — the chat filters
-      // `timestamp <= updated_at`, so a future-timestamped message would
-      // flicker into the conversation and disappear once the server row
-      // syncs back.
+      // Skip optimistic push for scheduled messages — the chat only shows
+      // messages whose timestamp has passed, and `pushMessageToStore` stamps
+      // the optimistic copy with `now`, so a scheduled send would flicker into
+      // the conversation and disappear once the server row syncs back.
       if (!scheduledIso) {
         pushMessageToStore(record);
         todayCount++;

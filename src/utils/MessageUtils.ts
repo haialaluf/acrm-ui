@@ -54,7 +54,7 @@ export function pushMessageToStore(record: MessageInsert) {
     ...record,
     timestamp: now,
     created_at: now,
-    updated_at: now, // important because of timestamp <= updated_at filter in chatSlice.ts
+    updated_at: now,
     status: { pending: now },
   };
 
