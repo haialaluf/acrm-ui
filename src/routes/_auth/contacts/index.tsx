@@ -9,7 +9,7 @@ import { Plus, Trash2, Upload } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import Checkbox from "@/components/bulkSend/Checkbox";
 import Button from "@/components/Button";
-import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
+import { contactDisplayAddress } from "@/utils/ContactAddressUtils";
 import ContactFilter, {
   activeFilterCount,
   applyContactFilter,
@@ -206,11 +206,7 @@ function ListContacts() {
             selected={selectionMode && selected.has(contact.id)}
             title={contact.name || t("No name")}
             description={
-              contact.addresses?.at(0)?.address
-                ? ltrIsolate(
-                    formatPhoneNumber(contact.addresses.at(0)!.address),
-                  )
-                : t("No address")
+              contactDisplayAddress(contact) ?? t("No address")
             }
             aside={
               selectionMode ? (

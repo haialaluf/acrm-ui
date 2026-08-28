@@ -1,3 +1,4 @@
+import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import type {
   ContactAddressRow,
   ContactWithAddressesRow,
@@ -154,4 +155,46 @@ export function looksAutoCreated(
   // No name, an @handle, or the bare address — none of them say a human named
   // this record.
   return !name || name.startsWith("@") || /^[\d+\s-]+$/.test(name);
+}
+
+/**
+ * The one address to show under a contact's name in a list.
+ *
+ * The contact list used to print `addresses[0]` — the oldest row, for the
+ * reasons above — so the same contact's subtitle flipped between their phone
+ * and their email depending on which channel happened to write in first. This
+ * fixes an order instead: phone, then Instagram, then email, matching the
+ * channel order the contact detail page already lays its rows out in
+ * (`CHANNEL_ORDER` in `contacts/$contactId.tsx`).
+ *
+ * Each service is rendered the way that service is read: a phone number
+ * formatted and LTR-isolated so it survives an RTL line, Instagram as its
+ * `@username` because the stored address is an igsid no human recognizes, and
+ * email verbatim. Returns undefined when the contact has no address at all —
+ * the caller supplies its own translated "No address".
+ */
+export function contactDisplayAddress(
+  contact: ContactWithAddressesRow,
+): string | undefined {
+  const phone = contactPhone(contact);
+
+  if (phone) return ltrIsolate(formatPhoneNumber(phone));
+
+  const instagram = contact.addresses?.find((a) => a.service === "instagram");
+
+  if (instagram) {
+    const extra = instagram.extra as
+      | { username?: string }
+      | null
+      | undefined;
+
+    return extra?.username ? `@${extra.username}` : instagram.address;
+  }
+
+  // A bounced email is still the address this contact is known by, so the
+  // list shows it even though `contactEmail` hides it from send paths.
+  return (
+    contactEmail(contact) ??
+    contact.addresses?.find((a) => a.service === "email")?.address
+  );
 }
