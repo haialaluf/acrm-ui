@@ -8,8 +8,8 @@ import {
   type MessageRow,
   type OutgoingStatus,
 } from "@/supabase/client";
-import { InstagramOutlined, WhatsAppOutlined } from "@ant-design/icons";
 import ItemActions from "./ItemActions";
+import ServiceBadge from "./ServiceBadge";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import "dayjs/locale/pt";
@@ -17,7 +17,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(localizedFormat);
 import { TickContext } from "@/contexts/useTick";
 import { useTranslation } from "@/hooks/useTranslation";
-import { AtSign, Bot, Hand, Mail, Pause } from "lucide-react";
+import { AtSign, Hand, Pause } from "lucide-react";
 
 import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
 import { useContactByAddress } from "@/queries/useContacts";
@@ -234,23 +234,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                 size={49}
                 className="bg-accent text-accent-foreground border border-border text-[16px]"
               />
-              <div className="absolute -bottom-[1px] -right-[1px] rounded-full bg-background p-[1px] leading-none">
-                {conversation.service === "instagram" ? (
-                  <InstagramOutlined
-                    style={{ fontSize: "14px", color: "#E1306C" }}
-                  />
-                ) : conversation.service === "email" ? (
-                  <Mail className="h-[14px] w-[14px] text-blue-500" />
-                ) : conversation.service === "local" ? (
-                  // A test chat talks to the org's own bot, so the channel slot
-                  // gets a robot where the other services get their logo.
-                  <Bot className="h-[14px] w-[14px] text-muted-foreground" />
-                ) : (
-                  <WhatsAppOutlined
-                    style={{ fontSize: "14px", color: "#25D366" }}
-                  />
-                )}
-              </div>
+              <ServiceBadge service={conversation.service} />
             </div>
           </div>
           <div className="info flex flex-col justify-center grow min-w-0 pr-[15px]">

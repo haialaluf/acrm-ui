@@ -20,6 +20,7 @@ import {
   looksAutoCreated,
 } from "@/utils/ContactAddressUtils";
 import ConversationAgentSelect from "./ConversationAgentSelect";
+import ServiceBadge from "./ServiceBadge";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -132,14 +133,21 @@ export default function Header() {
           onClick={openContactDetails}
         >
           <div className="profile-picture pr-[15px]">
-            <Avatar
-              src={
-                igExtra?.profile_picture_url ?? contactInstagramPicture(contact)
-              }
-              fallback={convInitials}
-              size={40}
-              className="bg-accent text-accent-foreground border border-border text-[16px]"
-            />
+            <div className="relative">
+              <Avatar
+                src={
+                  igExtra?.profile_picture_url ??
+                  contactInstagramPicture(contact)
+                }
+                fallback={convInitials}
+                size={40}
+                className="bg-accent text-accent-foreground border border-border text-[16px]"
+              />
+              {/* 12px rather than the list's 14: the header avatar is 40px to
+                  the list's 49, and the badge is scaled with it so it reads as
+                  the same mark rather than a bigger one. */}
+              <ServiceBadge service={service} size={12} />
+            </div>
           </div>
         </button>
 
