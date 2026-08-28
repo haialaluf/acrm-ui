@@ -28,6 +28,19 @@ export const queryKeys = {
       [orgId, "contacts_addresses", "instagram"] as const,
     messageActivity: (orgId: NullableId) =>
       [orgId, "contacts", "message_activity"] as const,
+    /** The `leads` row a contact came from, when a form produced it. */
+    lead: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "contacts", contactId, "lead"] as const,
+    /** Appointments booked against one contact, for its activity tab. */
+    appointments: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "contacts", contactId, "appointments"] as const,
+    /** Threads belonging to one contact, resolved through its addresses —
+     *  which are part of the key, since they are what the query filters on. */
+    conversations: (
+      orgId: NullableId,
+      contactId: NullableId,
+      addresses: string[],
+    ) => [orgId, "contacts", contactId, "conversations", addresses] as const,
   },
   conversations: {
     /** Paginated sidebar list; every server-side filter is part of the key. */
