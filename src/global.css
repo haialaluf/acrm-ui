@@ -257,6 +257,19 @@ button:disabled {
     @apply h-[60px] py-[10px] px-[20px] flex shrink-0;
   }
 
+  /* Avatar fallback tinted by `--avatar-hue` (see `avatarHue` in Avatar.tsx).
+     Only the lightness moves between themes — hue and chroma are fixed, so a
+     column of these reads as one family in both. */
+  .avatar-tint {
+    background: oklch(0.92 0.035 var(--avatar-hue));
+    color: oklch(0.45 0.09 var(--avatar-hue));
+  }
+
+  .dark .avatar-tint {
+    background: oklch(0.34 0.045 var(--avatar-hue));
+    color: oklch(0.84 0.08 var(--avatar-hue));
+  }
+
   .spin {
     @apply animate-spin [transform-box:fill-box] [transform-origin:center] stroke-current fill-none;
   }
