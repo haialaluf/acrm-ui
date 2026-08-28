@@ -26,14 +26,11 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useSignedMediaUrl } from "@/hooks/useSignedMediaUrl";
 import { BOOKING_DURATIONS } from "@/queries/useBookingLinks";
 import {
-  type ContactWithAddressesRow,
   type EmailTemplateExtra,
   type EmailTemplateRow,
   type EmailTemplateVariable,
   type TemplateData,
 } from "@/supabase/client";
-import { contactEmail, contactPhone } from "@/utils/ContactAddressUtils";
-import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 
 import NavBtn from "./NavBtn";
 import Radio from "./Radio";
@@ -47,6 +44,8 @@ import {
   countVars,
   effectiveScheduling,
   immediateCount,
+  type Recipient,
+  recipientAddressLabel,
   resolveVar,
   type Scheduling,
   type ScheduleMode,
@@ -97,8 +96,12 @@ export default function ReviewStep({
   headerMedia: string;
   headerMediaName: string;
   headerMediaSize?: number;
-  recipients: ContactWithAddressesRow[];
-  onRemove: (id: string) => void;
+  /** One entry per address being sent to — a contact picked on two of their
+   *  numbers appears twice, and each copy is previewed and removable on its
+   *  own. */
+  recipients: Recipient[];
+  /** Removes one address from the selection, keyed by that address. */
+  onRemove: (address: string) => void;
   scheduling: Scheduling;
   setScheduling: (s: Scheduling) => void;
   scheduledAt: string;
@@ -106,7 +109,7 @@ export default function ReviewStep({
   onSend: () => void;
   dailyLimit: number | null;
   tier?: string | null;
-  batches: Batch<ContactWithAddressesRow>[];
+  batches: Batch<Recipient>[];
   batchSchedule: BatchSchedule;
   setBatchSchedule: (s: BatchSchedule) => void;
   scheduleMode: ScheduleMode;
@@ -143,18 +146,21 @@ export default function ReviewStep({
   const remaining = recipients.length - todayCount;
   const safeIdx = Math.min(idx, Math.max(0, recipients.length - 1));
   const current = recipients[safeIdx];
+  /** The contact behind the previewed address — what template variables and the
+   *  email preview resolve against. */
+  const currentContact = current?.contact;
 
   // Build the normalized preview payload for the currently-previewed contact.
   // Same builder the variables step and the automation editor use, in its
   // substituting mode: here there IS a recipient, so their values go into the
   // text and the bubble shows the exact message they receive.
   const previewData = useMemo<MessagePreviewData | null>(() => {
-    if (!current || !template) return null;
+    if (!currentContact || !template) return null;
 
     const resolveSlots = (scope: "head" | "body", text: string | undefined) =>
       Array.from({ length: countVars(text) }, (_, i) => {
         const v = vars[`${scope}.${i + 1}`];
-        return v ? resolveVar(v, current) : "";
+        return v ? resolveVar(v, currentContact) : "";
       });
 
     const head = template.components.find((c) => c.type === "HEADER");
@@ -178,7 +184,7 @@ export default function ReviewStep({
   }, [
     template,
     vars,
-    current,
+    currentContact,
     headerMediaPreviewUrl,
     headerMediaName,
     headerMediaSize,
@@ -240,31 +246,25 @@ export default function ReviewStep({
               style={{ borderBottom: "1px solid var(--border)" }}
             >
               <Avatar
-                fallback={current?.name?.substring(0, 2).toUpperCase() || "?"}
+                fallback={
+                  currentContact?.name?.substring(0, 2).toUpperCase() || "?"
+                }
                 size={32}
                 className="bg-muted text-muted-foreground"
               />
               <div className="min-w-0 flex-1">
                 <div className="text-[13px] truncate">
-                  {current?.name || "—"}
+                  {currentContact?.name || "—"}
                 </div>
                 {/* The address this copy actually goes to — the one thing on
                     this screen that differs per recipient and is worth
                     double-checking before a few hundred of them go out. */}
-                {current && channel === "email" && contactEmail(current) && (
+                {current && (
                   <div
                     className="text-[11px] truncate text-muted-foreground"
                     style={{ direction: "ltr", textAlign: "start" }}
                   >
-                    {contactEmail(current)}
-                  </div>
-                )}
-                {current && channel === "whatsapp" && contactPhone(current) && (
-                  <div
-                    className="text-[11px] truncate text-muted-foreground"
-                    style={{ direction: "ltr", textAlign: "start" }}
-                  >
-                    {ltrIsolate(formatPhoneNumber(contactPhone(current)!))}
+                    {recipientAddressLabel(current.address, channel)}
                   </div>
                 )}
               </div>
@@ -278,7 +278,7 @@ export default function ReviewStep({
                 subject={email.template.subject}
                 preheader={email.template.preheader}
                 variables={email.variables}
-                contact={current}
+                contact={currentContact}
                 dir={
                   (email.template.extra as EmailTemplateExtra | null)?.dir ??
                   "ltr"
@@ -323,16 +323,19 @@ export default function ReviewStep({
               border: "1px solid var(--border)",
             }}
           >
-            {recipients.slice(0, 60).map((c) => (
+            {recipients.slice(0, 60).map((r) => (
               <span
-                key={c.id}
+                key={r.address}
                 className="inline-flex items-center gap-[5px] rounded-full px-[8px] py-[3px] text-[12px]"
                 style={{ background: "var(--muted)" }}
+                /* Two chips for the same contact are two different addresses —
+                   the hover is what tells them apart. */
+                title={recipientAddressLabel(r.address, channel)}
               >
-                {c.name || contactPhone(c)}
+                {r.contact.name || recipientAddressLabel(r.address, channel)}
                 <button
                   type="button"
-                  onClick={() => onRemove(c.id)}
+                  onClick={() => onRemove(r.address)}
                   className="text-muted-foreground hover:text-foreground bg-transparent border-none p-0 inline-flex"
                   title={t("Remove")}
                 >

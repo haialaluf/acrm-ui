@@ -1,13 +1,16 @@
 import Avatar from "@/components/Avatar";
 import { type ContactWithAddressesRow } from "@/supabase/client";
-import { contactPhone } from "@/utils/ContactAddressUtils";
-import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 import Checkbox from "./Checkbox";
+import { recipientAddressLabel, type Channel } from "./types";
 
-/** A single selectable contact row in the recipients list. `dense` shrinks the
- *  avatar so the tags-mode preview can fit more rows. */
+/** A single selectable recipient row: the contact's name over the ONE address
+ *  this copy would go to, so a contact with two numbers reads as two rows
+ *  rather than one ambiguous entry. `dense` shrinks the avatar so the
+ *  tags-mode preview can fit more rows. */
 export default function ContactRow({
   contact,
+  address,
+  channel,
   checked,
   onToggle,
   dense,
@@ -15,13 +18,16 @@ export default function ContactRow({
   disabledReason,
 }: {
   contact: ContactWithAddressesRow;
+  /** The address this row stands for — a phone number on WhatsApp, a mailbox
+   *  on email. Shown as-is under the name; it is what the send goes to. */
+  address: string;
+  channel: Channel;
   checked: boolean;
   onToggle: () => void;
   dense?: boolean;
   disabled?: boolean;
   disabledReason?: string;
 }) {
-  const phone = contactPhone(contact);
   return (
     <label
       className={
@@ -45,14 +51,12 @@ export default function ContactRow({
       />
       <div className="flex-1 min-w-0">
         <div className="text-[14px] truncate">{contact.name || "—"}</div>
-        {phone && (
-          <div
-            className="text-[12px] text-muted-foreground truncate"
-            style={{ direction: "ltr", textAlign: "start" }}
-          >
-            {ltrIsolate(formatPhoneNumber(phone))}
-          </div>
-        )}
+        <div
+          className="text-[12px] text-muted-foreground truncate"
+          style={{ direction: "ltr", textAlign: "start" }}
+        >
+          {recipientAddressLabel(address, channel)}
+        </div>
       </div>
     </label>
   );

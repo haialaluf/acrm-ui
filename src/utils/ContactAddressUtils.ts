@@ -31,6 +31,25 @@ export function contactPhoneRow(
   return contact.addresses?.find((a) => a.service === "whatsapp");
 }
 
+/**
+ * Every address row a contact holds on one service, in `created_at` order.
+ *
+ * The singular helpers above answer "the contact's phone/email", which is all
+ * most screens need — but a contact really can have more than one of either:
+ * `contacts_addresses`' primary key is the address alone, not
+ * `(contact_id, service)`, so two phone numbers or a work and a personal
+ * mailbox are both ordinary records. Anything that has to reach *each* of them
+ * — the broadcast recipient list, which lists one row per address — reads them
+ * through here instead of silently sending to whichever one `find` returned
+ * first.
+ */
+export function contactAddressRows(
+  contact: ContactWithAddressesRow,
+  service: string,
+): ContactAddressRow[] {
+  return (contact.addresses ?? []).filter((a) => a.service === service);
+}
+
 /** The contact's email address row, if they have one. */
 export function contactEmailRow(
   contact: ContactWithAddressesRow,

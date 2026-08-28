@@ -12,42 +12,38 @@ import ContactFilter, {
   type ContactFilterValue,
 } from "@/components/ContactFilter";
 
-import { type ContactWithAddressesRow } from "@/supabase/client";
-import {
-  contactEmail,
-  contactEmailStatus,
-  contactPhone,
-  contactPhoneStatus,
-} from "@/utils/ContactAddressUtils";
-
 import ContactRow from "./ContactRow";
 import LinkBtn from "./LinkBtn";
 import QuotaMeter from "./QuotaMeter";
-import type { Channel } from "./types";
+import {
+  contactRecipients,
+  expandRecipients,
+  type Channel,
+  type Recipient,
+} from "./types";
 
 /**
- * Reachability is per-channel; opt-out is not.
+ * Reachability is per-channel and per-ADDRESS; opt-out is neither.
  *
  * `contacts.status` is the single "remove me from everything" flag — the same
  * field regardless of which channel the request came in on (WhatsApp `הסר` or
- * an email unsubscribe click) — so it applies to every channel equally. Each
- * address row's own `status` is a *narrower*, channel-specific signal:
- * `'inactive'` means this exact address is undeliverable (a bounced/
- * complained mailbox, a superseded WhatsApp number), and does not say
- * anything about the contact's other channels.
+ * an email unsubscribe click) — so it applies to every address the contact
+ * has. Each address row's own `status` is a *narrower* signal: `'inactive'`
+ * means this exact address is undeliverable (a bounced/complained mailbox, a
+ * superseded WhatsApp number) and says nothing about the contact's other
+ * addresses — which is exactly why it is read off the row being listed rather
+ * than off the contact.
  */
-const REACH: Record<
-  Channel,
-  {
-    address: (c: ContactWithAddressesRow) => string | undefined;
-    status: (c: ContactWithAddressesRow) => string | undefined;
-  }
-> = {
-  whatsapp: { address: contactPhone, status: contactPhoneStatus },
-  email: { address: contactEmail, status: contactEmailStatus },
-};
 
-/** Step 2 — pick recipients with the unified filter (search + tags + source + date). */
+/**
+ * Step 2 — pick recipients with the unified filter (search + tags + source +
+ * date).
+ *
+ * One row per ADDRESS, not per contact: a contact with two phone numbers is
+ * listed twice, once against each number, and each is selected (and sent to)
+ * on its own. `selectedIds` therefore holds addresses — unique across the org,
+ * since they are `contacts_addresses`' primary key.
+ */
 export default function RecipientsStep({
   channel,
   selectedIds,
@@ -56,9 +52,11 @@ export default function RecipientsStep({
   dailyLimit,
   tier,
 }: {
-  /** Fixed by the template chosen in step 1, and it decides who is listed at
-   *  all: an email template can only reach contacts with an email. */
+  /** Fixed by the template chosen in step 1, and it decides what is listed at
+   *  all: an email template lists email addresses, a WhatsApp one phone
+   *  numbers. */
   channel: Channel;
+  /** Selected ADDRESSES, not contact ids. */
   selectedIds: Set<string>;
   setSelectedIds: (s: Set<string>) => void;
   onNext: () => void;
@@ -70,27 +68,26 @@ export default function RecipientsStep({
   const { data: activity } = useContactMessageActivity();
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
 
-  const reach = REACH[channel];
-
   // useCallback so it is a stable dependency of the `selectable` memo below —
   // a fresh closure each render would recompute that filter on every keystroke
   // in the search box.
   const disabledReason = useCallback(
-    (c: ContactWithAddressesRow) => {
-      if (c.status === "removed") {
+    (r: Recipient) => {
+      if (r.contact.status === "removed") {
         return t("This contact asked to be removed");
       }
-      if (reach.status(c) === "inactive") {
+      if (r.status === "inactive") {
         return t("This address is unreachable");
       }
       return undefined;
     },
-    [reach, t],
+    [t],
   );
 
   const withAddress = useMemo(
-    () => (contacts ?? []).filter((c) => reach.address(c)),
-    [contacts, reach],
+    () =>
+      (contacts ?? []).filter((c) => contactRecipients(c, channel).length > 0),
+    [contacts, channel],
   );
 
   const filtered = useMemo(
@@ -98,20 +95,28 @@ export default function RecipientsStep({
     [withAddress, filter, activity],
   );
 
-  function toggleId(id: string) {
+  // The filter runs on contacts (a search hit on one of a contact's numbers is
+  // a hit on the contact), then every surviving contact is expanded into its
+  // addresses — so both of someone's numbers stay listed together.
+  const rows = useMemo(
+    () => expandRecipients(filtered, channel),
+    [filtered, channel],
+  );
+
+  function toggleAddress(address: string) {
     const next = new Set(selectedIds);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
+    if (next.has(address)) next.delete(address);
+    else next.add(address);
     setSelectedIds(next);
   }
 
   const selectable = useMemo(
-    () => filtered.filter((c) => !disabledReason(c)),
-    [filtered, disabledReason],
+    () => rows.filter((r) => !disabledReason(r)),
+    [rows, disabledReason],
   );
 
   const allSelected =
-    selectable.length > 0 && selectable.every((c) => selectedIds.has(c.id));
+    selectable.length > 0 && selectable.every((r) => selectedIds.has(r.address));
 
   return (
     <>
@@ -125,14 +130,14 @@ export default function RecipientsStep({
           />
           <div className="px-[18px] pb-[8px] flex items-center justify-between text-[12px] text-muted-foreground">
             <span>
-              {filtered.length} {t("contacts")}
+              {rows.length} {t("recipients")}
             </span>
             <div className="flex gap-[12px]">
               {!allSelected && (
                 <LinkBtn
                   onClick={() => {
                     const next = new Set(selectedIds);
-                    for (const c of selectable) next.add(c.id);
+                    for (const r of selectable) next.add(r.address);
                     setSelectedIds(next);
                   }}
                 >
@@ -149,20 +154,22 @@ export default function RecipientsStep({
         </div>
 
         <div className="px-[8px] pb-[12px] flex flex-col gap-[2px]">
-          {filtered.map((c) => {
-            const reason = disabledReason(c);
+          {rows.map((r) => {
+            const reason = disabledReason(r);
             return (
               <ContactRow
-                key={c.id}
-                contact={c}
-                checked={selectedIds.has(c.id)}
-                onToggle={() => toggleId(c.id)}
+                key={r.address}
+                contact={r.contact}
+                address={r.address}
+                channel={channel}
+                checked={selectedIds.has(r.address)}
+                onToggle={() => toggleAddress(r.address)}
                 disabled={!!reason}
                 disabledReason={reason}
               />
             );
           })}
-          {filtered.length === 0 && (
+          {rows.length === 0 && (
             <div className="py-[40px] text-center text-muted-foreground text-[14px]">
               {/* "No results" is only the right answer when a filter excluded
                   everyone. When the channel did, say so — otherwise an org

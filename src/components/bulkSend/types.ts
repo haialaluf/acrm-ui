@@ -4,7 +4,12 @@ import {
 } from "@/supabase/client";
 import * as fill from "@/components/templateFill/types";
 import type { OutboundChannel } from "@/hooks/useAccess";
-import { contactEmail, contactPhone } from "@/utils/ContactAddressUtils";
+import {
+  contactAddressRows,
+  contactEmail,
+  contactPhone,
+} from "@/utils/ContactAddressUtils";
+import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
 
 /* Shared types, constants, and pure helpers for the bulk-send wizard. */
 
@@ -29,6 +34,63 @@ export type Stage =
 /** Which channel the broadcast goes out on, fixed by the step-1 template.
  *  The same set as `TemplateChannel`; both alias the one union. */
 export type Channel = OutboundChannel;
+
+/**
+ * One send target: a contact *and the single address this copy goes to*.
+ *
+ * The wizard used to treat a contact as the unit — `Set<contact.id>` for the
+ * selection, `contactPhone`/`contactEmail` at send time — which quietly meant
+ * "whichever address row `find` hit first". A contact with two phone numbers
+ * had one of them unreachable through a broadcast, with nothing on screen
+ * saying so. The unit is the address instead: each one is its own listed,
+ * selectable, previewable row, so picking both numbers sends both copies.
+ *
+ * `address` is the selection key on its own — `contacts_addresses`' primary key
+ * is the address, so it is unique across the whole org, not just within the
+ * contact.
+ */
+export type Recipient = {
+  contact: ContactWithAddressesRow;
+  address: string;
+  /** The address row's own status — `'inactive'` is this exact address being
+   *  undeliverable, unrelated to the contact-wide opt-out in `contact.status`. */
+  status?: string;
+};
+
+/** Every address `channel` can reach this contact on, one Recipient each. */
+export function contactRecipients(
+  contact: ContactWithAddressesRow,
+  channel: Channel,
+): Recipient[] {
+  return contactAddressRows(contact, channel).map((a) => ({
+    contact,
+    address: a.address,
+    status: a.status,
+  }));
+}
+
+/** Flatten contacts into the per-address rows the recipients step lists. */
+export function expandRecipients(
+  contacts: ContactWithAddressesRow[],
+  channel: Channel,
+): Recipient[] {
+  return contacts.flatMap((c) => contactRecipients(c, channel));
+}
+
+/** An address as it should be read: phone numbers formatted and LTR-isolated
+ *  so they survive an RTL line, email verbatim. */
+export function recipientAddressLabel(
+  address: string,
+  channel: Channel,
+): string {
+  return channel === "email" ? address : ltrIsolate(formatPhoneNumber(address));
+}
+
+/** The contact ids behind a recipient list, deduped — a contact selected on two
+ *  addresses still needs only one booking / unsubscribe token minted. */
+export function recipientContactIds(recipients: Recipient[]): string[] {
+  return Array.from(new Set(recipients.map((r) => r.contact.id)));
+}
 
 export type Scheduling = "now" | "later" | "split";
 

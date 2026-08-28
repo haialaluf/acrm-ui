@@ -22,7 +22,6 @@ import { pushMessageToStore } from "@/utils/MessageUtils";
 import { startConversation } from "@/utils/ConversationUtils";
 import useBoundStore from "@/stores/useBoundStore";
 import {
-  type ContactWithAddressesRow,
   type ConversationInsert,
   type ConversationRow,
   type EmailOrganizationAddressExtra,
@@ -32,7 +31,7 @@ import {
   supabase,
   type TemplateData,
 } from "@/supabase/client";
-import { contactEmail, contactPhone } from "@/utils/ContactAddressUtils";
+import { contactPhone } from "@/utils/ContactAddressUtils";
 import { formatPhoneNumber } from "@/utils/FormatUtils";
 
 import WizardHeader from "@/components/bulkSend/WizardHeader";
@@ -62,8 +61,11 @@ import {
   defaultScheduledAt,
   effectiveScheduling,
   type EmailVarOverrides,
+  expandRecipients,
   immediateCount,
   initVars,
+  type Recipient,
+  recipientContactIds,
   type ScheduleMode,
   type Scheduling,
   type Stage,
@@ -170,6 +172,10 @@ function BulkSendWizard() {
   const [managingTemplates, setManagingTemplates] = useState<
     false | "list" | "new"
   >(false);
+  // Selected ADDRESSES, not contact ids: the recipients step lists one row per
+  // address, so a contact with two phone numbers can be sent to on both (or on
+  // just one). Addresses are unique org-wide — they are `contacts_addresses`'
+  // primary key — so they key the selection on their own.
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [vars, setVars] = useState<Record<string, VarValue>>({});
@@ -272,9 +278,13 @@ function BulkSendWizard() {
     const tpl = approved.find((t) => t.id === prefillTemplateId);
     const contact = contacts.find((c) => c.id === prefillContactId);
     if (!tpl || !contact) return;
+    // The prefill comes from a conversation, so there is a number — but it is
+    // the address, not the contact, that the selection is keyed by.
+    const phone = contactPhone(contact);
+    if (!phone) return;
     appliedPrefillRef.current = true;
     setChannel("whatsapp");
-    setSelectedIds(new Set([contact.id]));
+    setSelectedIds(new Set([phone]));
     setTemplate(tpl);
     const headN = countVars(
       tpl.components.find((c) => c.type === "HEADER")?.text,
@@ -286,15 +296,20 @@ function BulkSendWizard() {
     setStage("variables");
   }, [prefillContactId, prefillTemplateId, contacts, approved]);
 
-  /* Resolved recipients — selected contacts reachable on the chosen channel.
-   * The step-2 list already filters by the same rule, so this only re-applies
-   * it in case the channel changed after a selection was made. */
-  const recipients = useMemo<ContactWithAddressesRow[]>(() => {
-    const reachable = channel === "email" ? contactEmail : contactPhone;
-    return (contacts ?? []).filter(
-      (c) => selectedIds.has(c.id) && reachable(c),
-    );
-  }, [contacts, selectedIds, channel]);
+  /* Resolved recipients — one per selected ADDRESS on the chosen channel.
+   *
+   * Re-expanding the contacts rather than trusting the selection alone keeps
+   * a stale pick out of the send: an address deleted after it was ticked, or a
+   * selection carried over a channel switch, simply has no row to match. A
+   * contact selected on two of their numbers yields two recipients here, and
+   * two copies at send time. */
+  const recipients = useMemo<Recipient[]>(
+    () =>
+      expandRecipients(contacts ?? [], channel).filter((r) =>
+        selectedIds.has(r.address),
+      ),
+    [contacts, selectedIds, channel],
+  );
 
   /* Self-service booking links. A template carries them by pointing a dynamic
    * URL button at the booking site; when one does, every recipient needs their
@@ -350,23 +365,22 @@ function BulkSendWizard() {
     // at the chosen datetime; "split" → batch 0 now, each later batch scheduled
     // to the start of a following day. The existing per-record path already
     // skips the optimistic store push for future-timestamped rows.
-    const items: { contact: ContactWithAddressesRow; scheduledIso?: string }[] =
-      [];
+    const items: { recipient: Recipient; scheduledIso?: string }[] = [];
     if (effective === "split") {
       for (const batch of batches) {
         // Resolve the batch's send time from the user's per-batch schedule.
         // `undefined` means it goes out now (batch 0 with no chosen time).
         const iso = batchScheduledIso(batchSchedule, batch.dayOffset);
-        for (const contact of batch.list)
-          items.push({ contact, scheduledIso: iso });
+        for (const recipient of batch.list)
+          items.push({ recipient, scheduledIso: iso });
       }
     } else {
       const iso =
         effective === "later" && scheduledAt
           ? new Date(scheduledAt).toISOString()
           : undefined;
-      for (const contact of recipients)
-        items.push({ contact, scheduledIso: iso });
+      for (const recipient of recipients)
+        items.push({ recipient, scheduledIso: iso });
     }
 
     setStage("sending");
@@ -380,7 +394,7 @@ function BulkSendWizard() {
     // store and queued for a single insert.
     const conversationsToInsert: ConversationInsert[] = [];
     const messageRecords: MessageInsert[] = [];
-    const skipped: ContactWithAddressesRow[] = [];
+    const skipped: Recipient[] = [];
     // Count records sent today vs scheduled for a later day (split sends).
     let todayCount = 0;
 
@@ -392,7 +406,9 @@ function BulkSendWizard() {
       try {
         bookingTokens = await mintBookingLinks.mutateAsync({
           calendarId: bookingCalendarId,
-          contactIds: recipients.map((c) => c.id),
+          // Deduped: someone selected on two of their numbers still needs one
+          // token, and the same link goes in both copies.
+          contactIds: recipientContactIds(recipients),
           durationMinutes: bookingDuration,
         });
       } catch (e) {
@@ -416,7 +432,7 @@ function BulkSendWizard() {
     if (channel === "email") {
       try {
         await mintUnsubscribeLinks.mutateAsync({
-          contactIds: recipients.map((c) => c.id),
+          contactIds: recipientContactIds(recipients),
         });
       } catch (e) {
         console.error("minting unsubscribe links failed", e);
@@ -435,13 +451,11 @@ function BulkSendWizard() {
     const orgAddress =
       channel === "email" ? emailAddress!.address : whatsappAddress!.address;
 
-    for (const { contact, scheduledIso } of items) {
-      const address =
-        channel === "email" ? contactEmail(contact) : contactPhone(contact);
-      if (!address) {
-        skipped.push(contact);
-        continue;
-      }
+    for (const { recipient, scheduledIso } of items) {
+      // The address is the recipient — not "the contact's phone", which would
+      // collapse both of a two-number contact's rows onto whichever one came
+      // first and send them the same message twice.
+      const { contact, address } = recipient;
 
       let conv: ConversationRow | undefined = Array.from(
         storeConvs.values(),
@@ -463,7 +477,7 @@ function BulkSendWizard() {
         });
         conv = useBoundStore.getState().chat.conversations.get(record.id!);
         if (!conv) {
-          skipped.push(contact);
+          skipped.push(recipient);
           continue;
         }
         if (!conv.updated_at) {
@@ -498,7 +512,7 @@ function BulkSendWizard() {
               bookingToken: bookingTokens.get(contact.id),
             });
       if (!record) {
-        skipped.push(contact);
+        skipped.push(recipient);
         continue;
       }
       // Skip optimistic push for scheduled messages — the chat filters
