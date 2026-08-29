@@ -17,7 +17,6 @@ import { useActiveConversation } from "@/hooks/useThread";
 import {
   contactAddressName,
   contactInstagramPicture,
-  looksAutoCreated,
 } from "@/utils/ContactAddressUtils";
 import ConversationAgentSelect from "./ConversationAgentSelect";
 import ServiceBadge from "./ServiceBadge";
@@ -79,7 +78,6 @@ export default function Header() {
   // for the cases this heuristic misses.
   const linkable = !!address && service !== "local";
   const unlinked = linkable && !contact?.id;
-  const mergeable = linkable && !!contact?.id && looksAutoCreated(contact);
   const label = unlinked ? t("Link to contact") : t("Merge contact");
 
   // Opens the contact in the left panel, next to the still-open chat. On mobile
@@ -170,7 +168,7 @@ export default function Header() {
               linking, the line it replaces only repeats the id already shown
               above it. The desktop header keeps both: address here, button
               beside the name. */}
-          {(unlinked || mergeable) && (
+          {unlinked && (
             <button
               type="button"
               className="md:hidden flex items-center gap-[4px] text-[13px] font-semibold text-primary text-start"
@@ -185,7 +183,7 @@ export default function Header() {
           <div
             className={
               "text-[13px] text-muted-foreground truncate" +
-              (unlinked || mergeable ? " hidden md:block" : "")
+              (unlinked ? " hidden md:block" : "")
             }
           >
             {service === "local" && t("Test contact")}
@@ -203,7 +201,7 @@ export default function Header() {
       {/* Sits with the name rather than with the agent select: it acts on who
           this conversation is, not on who answers it. Desktop only — the phone
           gets the same action on the line under the name. */}
-      {(unlinked || mergeable) && (
+      {unlinked && (
         <button
           type="button"
           className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full font-medium transition-colors text-[14px] hidden md:flex items-center gap-2 shrink-0 ms-[4px]"
@@ -223,7 +221,7 @@ export default function Header() {
         )}
       </div>
 
-      {(unlinked || mergeable) && address && (
+      {unlinked && address && (
         <LinkAddressToContactModal
           open={linking}
           address={address}
@@ -236,13 +234,13 @@ export default function Header() {
           }
           username={igExtra?.username}
           currentContact={
-            mergeable && contact
-              ? {
-                  id: contact.id,
-                  name: contact.name,
-                  surname: contact.surname,
-                }
-              : undefined
+            contact
+            ? {
+                id: contact.id,
+                name: contact.name,
+                surname: contact.surname,
+              }
+            : undefined
           }
           onClose={() => setLinking(false)}
         />

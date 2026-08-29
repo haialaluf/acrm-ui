@@ -19,18 +19,9 @@ import { fill } from "@/utils/fill";
 import Switch from "./Switch";
 
 /**
- * Who answers this thread, as two questions rather than one list: the switch
- * says whether an agent answers at all, and the name beside it says which one.
- *
- * "Follow the organization" is deliberately not an option here — it is the
- * state you are already in. The agent the organization resolves to is shown
- * like any other and tagged "Org default"; picking it writes nothing, so the
- * thread keeps following the organization and a later change to that setting
- * still reaches this conversation. Picking any other agent pins it.
- *
- * Written to `conversation.extra.default_agent_id` for the whole thread and
- * read back by agent-client, which resolves the same three cases in the same
- * order (see its AGENT SELECTION block).
+ * Who answers this thread: the switch says whether an agent answers at all, the
+ * name beside it says which one. Written to `conversation.extra.default_agent_id`
+ * and read back by agent-client (see its AGENT SELECTION block).
  */
 export default function ConversationAgentSelect({
   conversation,
@@ -41,40 +32,29 @@ export default function ConversationAgentSelect({
   const { data: agents } = useCurrentAgents();
   const { data: org } = useCurrentOrganization();
 
-  // Turning the switch off overwrites `default_agent_id` with "none", taking
-  // any pinned agent with it. Remembering it here means flicking the switch
-  // back on returns the thread to the agent it actually had, instead of
-  // silently dropping it to the organization's.
+  // Lets a flick of the switch back on restore the agent the thread had, rather
+  // than dropping it to the organization's.
   const [lastPinned, setLastPinned] = useState<string | null>(null);
 
-  // The pause countdown below is read straight off the clock, so nothing would
-  // move it on its own. A minute is finer than the label's own resolution
-  // everywhere except the last hour, where it is exactly right.
+  // Re-renders the pause countdown once a minute.
   const [, setTick] = useState(0);
 
-  // Back-office and personal-assistant agents are left out along with
-  // inactive ones: agent-client never lets either kind answer a contact
-  // automatically (see its AGENT SELECTION block) — a personal assistant is
-  // reachable only through "Chat with this agent" — so offering one here
-  // would promise a reply that never comes.
+  // Kinds agent-client never lets answer a contact automatically.
   const aiAgents = (agents ?? []).filter(
     (a) => a.ai && a.kind !== "back_office" && a.kind !== "personal_assistant",
   ) as AIAgentRow[];
 
-  // Inactive agents are left out: agent-client skips them when resolving the
-  // conversation's agent, so offering one here would promise a reply that never
-  // comes.
   const selectable = aiAgents.filter((a) => a.extra?.mode !== "inactive");
 
   const assigned = conversation.extra?.default_agent_id;
-  // An id that no longer resolves (agent deleted or since deactivated) falls
-  // through to the organization's agent, which is what agent-client does with
-  // it too.
   const pinned = selectable.find((a) => a.id === assigned);
   const orgDefault = organizationDefaultAgent(aiAgents, org?.extra);
 
+  // On only when agent-client would actually reply. Every reason it wouldn't —
+  // "None" pinned here, automatic replies off org-wide, or the 12h pause a human
+  // reply starts — reads as off.
   const state = assistantState(conversation, org?.extra);
-  const on = state !== "off";
+  const on = state === "active";
 
   useEffect(() => {
     if (state !== "paused") return;
@@ -83,20 +63,16 @@ export default function ConversationAgentSelect({
     return () => clearInterval(id);
   }, [state]);
 
-  // The agent answering now, or — while the switch is off — the one that comes
-  // back when it is turned on.
+  // The agent answering now, or the one that comes back when the switch is
+  // turned on.
   const shown =
     pinned ??
     selectable.find((a) => a.id === lastPinned) ??
     orgDefault ??
     selectable[0];
 
-  // Nothing to switch between: with no agent that could ever answer, a control
-  // offering to turn one on would be lying.
   if (!shown) return null;
 
-  // Hours until the last one, then minutes — "1h left" is a worse answer than
-  // "40m left" to the only question being asked, which is whether to wait.
   const remainingMs = state === "paused" ? pauseRemainingMs(conversation) : 0;
   const pauseLabel =
     remainingMs >= 60 * 60 * 1000
@@ -108,9 +84,8 @@ export default function ConversationAgentSelect({
   const chooseAgent = (agentId: string) => {
     setLastPinned(agentId);
     void updateConvExtra(conversation, {
+      // `null` keeps the thread following the organization; an id pins it.
       default_agent_id: agentId === orgDefault?.id ? null : agentId,
-      // Choosing an agent is also how a thread comes back early from the 12h
-      // pause a human reply — or a handoff — puts it in.
       paused: null,
     });
   };
@@ -122,8 +97,6 @@ export default function ConversationAgentSelect({
     }
 
     setLastPinned(shown.id);
-    // The pause is left alone: the thread is already silent, and clearing it
-    // would only restart the agent the moment the switch comes back on.
     void updateConvExtra(conversation, { default_agent_id: NO_DEFAULT_AGENT });
   };
 
@@ -132,8 +105,6 @@ export default function ConversationAgentSelect({
     label: (
       <span className="flex items-center gap-[8px]">
         <span className="truncate">{a.name}</span>
-        {/* Which agent the organization resolves to is worth showing: it is
-            the one that keeps following the organization when picked. */}
         {a.id === orgDefault?.id && (
           <span className="ml-auto shrink-0 text-[10px] uppercase tracking-wide text-muted-foreground">
             {t("Org default")}
@@ -145,9 +116,6 @@ export default function ConversationAgentSelect({
   }));
 
   return (
-    // `min-w-0` is what keeps this off the contact's name: without it the pill
-    // holds its full content width and the name beside it truncates away to
-    // nothing on a phone. With it, both sides give ground.
     <div className="flex items-center gap-[10px] min-w-0 max-w-[250px] pl-[10px] pr-[12px] py-[5px] rounded-full border border-border bg-popover">
       <Dropdown
         trigger={["click"]}
@@ -165,12 +133,7 @@ export default function ConversationAgentSelect({
           ) : (
             <Bot className="w-[14px] h-[14px] shrink-0" />
           )}
-          {/* On a phone the header cannot hold the agent's name and the
-              contact's phone number at once, and the number is the one you
-              cannot look up from here. The name stays a tap away in the menu. */}
           <span className="hidden sm:inline truncate">{shown.name}</span>
-          {/* The agent is assigned but temporarily quiet — say so here, since
-              this is also where it is brought back. */}
           {state === "paused" && (
             <span className="hidden sm:inline shrink-0">· {pauseLabel}</span>
           )}
@@ -180,7 +143,6 @@ export default function ConversationAgentSelect({
       <Switch
         className="shrink-0"
         checked={on}
-        tone={state === "paused" ? "warning" : "primary"}
         onCheckedChange={toggle}
         aria-label={t("Who answers this conversation")}
       />

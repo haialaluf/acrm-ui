@@ -26,6 +26,7 @@ import StatsCenter from "@/components/stats/StatsCenter";
 import CalendarCenter from "@/components/calendar/CalendarCenter";
 import BroadcastCenter from "@/components/broadcasts/BroadcastCenter";
 import LiveMessagePreview from "@/components/messagePreview/LiveMessagePreview";
+import PlanLimitBanner from "@/components/PlanLimitBanner";
 
 export const Route = createFileRoute("/_auth")({
   component: AppLayout,
@@ -164,140 +165,162 @@ function AppLayout() {
     !isTemplateEditorRoute &&
     !isFullWidthRoute;
 
-  return (
-    <div
-      className={"app-grid" + (isResizing ? "" : " animate-columns")}
-      style={
-        isFullWidthRoute
-          ? // Two columns: the menu, then the builder across the rest. The
-            // third track is collapsed rather than removed so the grid keeps
-            // animating between shapes instead of snapping.
-            { gridTemplateColumns: `${getMenuWidth()}px 1fr 0px` }
-          : panelWidth !== null
-            ? { gridTemplateColumns: `${getMenuWidth()}px ${panelWidth}px 1fr` }
-            : undefined
-      }
-    >
-      {/* Menu - Fixed width */}
-      <div className={showCenterPanel ? "hidden md:flex" : "flex"}>
-        <Menu />
-      </div>
-      {/* Left Panel - Router Outlet */}
-      <div
-        ref={panelRef}
-        className={
-          "flex-col overflow-hidden border-border bg-background text-foreground col-span-2 md:col-span-1 relative " +
-          // No divider when this column is the last one on screen.
-          (isFullWidthRoute ? "" : "md:border-r ") +
-          (showCenterPanel ? "hidden md:flex" : "flex")
-        }
-      >
-        {blockedForNoIntegrations ? (
-          <Navigate to="/integrations" hash={(prevHash) => prevHash!} replace />
-        ) : holdingForIntegrations ? (
-          <div className="flex h-full items-center justify-center">
-            <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : (
-          <Outlet />
-        )}
-        {/* Resize Handle — a full-width route (email builder, automation
-            editor) owns its whole column, so there is no boundary to drag. */}
-        {!isFullWidthRoute && (
-          <div className="resize-handle z-[60]" onMouseDown={handleMouseDown} />
-        )}
-      </div>
+  // The grid owns the viewport on its own (height:100dvh/width:100vw in CSS);
+  // the plan-limit banner sits above it, so hand the grid the remaining space
+  // instead — inline height/width win over the stylesheet.
+  const gridStyle = {
+    height: "100%",
+    width: "100%",
+    ...(isFullWidthRoute
+      ? // Two columns: the menu, then the builder across the rest. The third
+        // track is collapsed rather than removed so the grid keeps animating
+        // between shapes instead of snapping.
+        { gridTemplateColumns: `${getMenuWidth()}px 1fr 0px` }
+      : panelWidth !== null
+        ? { gridTemplateColumns: `${getMenuWidth()}px ${panelWidth}px 1fr` }
+        : null),
+  };
 
-      {/* Center Panel */}
+  return (
+    <div className="flex h-[100dvh] w-screen flex-col overflow-hidden">
+      <PlanLimitBanner />
       <div
-        className={
-          "flex-col min-w-0 relative overflow-hidden col-span-full md:col-span-1" +
-          (isFullWidthRoute
-            ? // Its column is 0px wide; keep it out of the layout entirely so a
-              // stray open conversation cannot paint a sliver beside the canvas.
-              " hidden"
-            : isTemplateEditorRoute
-              ? " hidden md:flex bg-muted"
-              : isStatsRoute
-                ? isStatsDetail
-                  ? " flex bg-muted"
-                  : " hidden md:flex bg-muted"
-                : isCalendarBoardRoute
-                  ? " flex bg-background"
-                  : isBroadcastDetailRoute
-                    ? " flex bg-background"
-                    : activeThreadKey
-                      ? " flex bg-chat"
-                      : " hidden md:flex bg-muted")
-        }
-        onDragEnter={() => setIsHoveringFiles(true)}
-        onDrop={() => setIsHoveringFiles(false)}
+        className={"app-grid" + (isResizing ? "" : " animate-columns")}
+        style={gridStyle}
       >
-        {isTemplateEditorRoute ? (
-          <div className="flex items-center justify-center h-full overflow-auto">
-            <LiveMessagePreview variant="phone" />
-          </div>
-        ) : isStatsRoute ? (
-          <div className="overflow-y-auto h-full">
-            <StatsCenter />
-          </div>
-        ) : isCalendarBoardRoute ? (
-          <CalendarCenter />
-        ) : isBroadcastDetailRoute ? (
-          <BroadcastCenter />
-        ) : activeThreadKey ? (
-          <>
-            {isHoveringFiles && <FilePicker setHovering={setIsHoveringFiles} />}
-            <FilePreviewer />
-            <ChatHeader />
-            <Chat />
-            <ChatFooter />
-          </>
-        ) : (
-          <div className="flex gap-[32px] items-center justify-center h-full">
-            {!activeOrgId && (
-              <ActionCard
-                icon={<Building2 className="w-[24px] h-[24px]" />}
-                title={t("Create organization")}
-                to="/settings/organization/new"
-              />
-            )}
-            {activeOrgId && (
-              <>
-                {/* An agent with no channel to answer on has nothing to do, so
+        {/* Menu - Fixed width */}
+        <div className={showCenterPanel ? "hidden md:flex" : "flex"}>
+          <Menu />
+        </div>
+        {/* Left Panel - Router Outlet */}
+        <div
+          ref={panelRef}
+          className={
+            "flex-col overflow-hidden border-border bg-background text-foreground col-span-2 md:col-span-1 relative " +
+            // No divider when this column is the last one on screen.
+            (isFullWidthRoute ? "" : "md:border-r ") +
+            (showCenterPanel ? "hidden md:flex" : "flex")
+          }
+        >
+          {blockedForNoIntegrations ? (
+            <Navigate
+              to="/integrations"
+              hash={(prevHash) => prevHash!}
+              replace
+            />
+          ) : holdingForIntegrations ? (
+            <div className="flex h-full items-center justify-center">
+              <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <Outlet />
+          )}
+          {/* Resize Handle — a full-width route (email builder, automation
+            editor) owns its whole column, so there is no boundary to drag. */}
+          {!isFullWidthRoute && (
+            <div
+              className="resize-handle z-[60]"
+              onMouseDown={handleMouseDown}
+            />
+          )}
+        </div>
+
+        {/* Center Panel */}
+        <div
+          className={
+            "flex-col min-w-0 relative overflow-hidden col-span-full md:col-span-1" +
+            (isFullWidthRoute
+              ? // Its column is 0px wide; keep it out of the layout entirely so a
+                // stray open conversation cannot paint a sliver beside the canvas.
+                " hidden"
+              : isTemplateEditorRoute
+                ? " hidden md:flex bg-muted"
+                : isStatsRoute
+                  ? isStatsDetail
+                    ? " flex bg-muted"
+                    : " hidden md:flex bg-muted"
+                  : isCalendarBoardRoute
+                    ? " flex bg-background"
+                    : isBroadcastDetailRoute
+                      ? " flex bg-background"
+                      : activeThreadKey
+                        ? " flex bg-chat"
+                        : " hidden md:flex bg-muted")
+          }
+          onDragEnter={() => setIsHoveringFiles(true)}
+          onDrop={() => setIsHoveringFiles(false)}
+        >
+          {isTemplateEditorRoute ? (
+            <div className="flex items-center justify-center h-full overflow-auto">
+              <LiveMessagePreview variant="phone" />
+            </div>
+          ) : isStatsRoute ? (
+            <div className="overflow-y-auto h-full">
+              <StatsCenter />
+            </div>
+          ) : isCalendarBoardRoute ? (
+            <CalendarCenter />
+          ) : isBroadcastDetailRoute ? (
+            <BroadcastCenter />
+          ) : activeThreadKey ? (
+            <>
+              {isHoveringFiles && (
+                <FilePicker setHovering={setIsHoveringFiles} />
+              )}
+              <FilePreviewer />
+              <ChatHeader />
+              <Chat />
+              <ChatFooter />
+            </>
+          ) : (
+            <div className="flex gap-[32px] items-center justify-center h-full">
+              {!activeOrgId && (
+                <ActionCard
+                  icon={<Building2 className="w-[24px] h-[24px]" />}
+                  title={t("Create organization")}
+                  to="/settings/organization/new"
+                />
+              )}
+              {activeOrgId && (
+                <>
+                  {/* An agent with no channel to answer on has nothing to do, so
                     connecting comes first. */}
-                {!hasAiAgents && (
-                  <ActionCard
-                    icon={<Bot className="w-[24px] h-[24px]" />}
-                    title={t("Create agent")}
-                    to="/agents/new"
-                  />
-                )}
-                {hasAiAgents && (
-                  <HideIfNotPermitted surface="home.startConversation">
+                  {!hasAiAgents && (
                     <ActionCard
-                      icon={<MessageSquarePlus className="w-[24px] h-[24px]" />}
-                      title={t("Start conversation")}
-                      to="/conversations/bulk-send"
+                      icon={<Bot className="w-[24px] h-[24px]" />}
+                      title={t("Create agent")}
+                      to="/agents/new"
                     />
-                  </HideIfNotPermitted>
-                )}
-                {/* Names no particular integration — a card that said
+                  )}
+                  {hasAiAgents && (
+                    <HideIfNotPermitted surface="home.startConversation">
+                      <ActionCard
+                        icon={
+                          <MessageSquarePlus className="w-[24px] h-[24px]" />
+                        }
+                        title={t("Start conversation")}
+                        to="/conversations/bulk-send"
+                      />
+                    </HideIfNotPermitted>
+                  )}
+                  {/* Names no particular integration — a card that said
                     "Configure WhatsApp" would be advertising a channel to
                     someone who may want any of the other five. Suppressed on
                     /integrations itself, where the list beside it is already the
                     answer and the card would only point at the current page. */}
-                {needsIntegrations && !pathname.startsWith("/integrations") && (
-                  <ActionCard
-                    icon={<Unplug className="w-[24px] h-[24px]" />}
-                    title={t("Integrations")}
-                    to="/integrations"
-                  />
-                )}
-              </>
-            )}
-          </div>
-        )}
+                  {needsIntegrations &&
+                    !pathname.startsWith("/integrations") && (
+                      <ActionCard
+                        icon={<Unplug className="w-[24px] h-[24px]" />}
+                        title={t("Integrations")}
+                        to="/integrations"
+                      />
+                    )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

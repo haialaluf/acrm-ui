@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Plus } from "lucide-react";
+import { Lock, Plus } from "lucide-react";
 import {
   newMessage,
   pushMessageToStore,
@@ -21,6 +21,7 @@ import { useCSWindow } from "@/hooks/useCSWindow";
 import { useAccess } from "@/hooks/useAccess";
 import QuotedMessage from "./Message/QuotedMessage";
 import { channelMessageId } from "@/utils/messageRefs";
+import { usePlanLimits } from "@/queries/usePlanLimits";
 
 export default function ChatFooter() {
   const activeThreadKey = useBoundStore((store) => store.ui.activeThreadKey);
@@ -88,6 +89,14 @@ export default function ChatFooter() {
   // WhatsApp's customer service window lasts 24 hours since the contact's last
   // message. Shared with the reaction picker, which is gated by the same rule.
   const { inCSWindow, remaining } = useCSWindow();
+
+  // A reached message/conversation plan limit pauses every send, template or
+  // not — surface it and disable the composer rather than letting the send
+  // fail at dispatch.
+  const { blocking } = usePlanLimits();
+  const sendingBlocked = blocking.some(
+    (r) => r.key === "messages" || r.key === "conversations",
+  );
 
   const { allows } = useAccess();
   /**
@@ -232,12 +241,30 @@ export default function ChatFooter() {
             <QuotedMessage message={replyTarget} onClose={clearReplyDraft} />
           </div>
         )}
+        {sendingBlocked && (
+          <div
+            className="mb-[6px] flex items-center gap-[8px] rounded-[12px] px-[12px] py-[8px] text-[12.5px]"
+            style={{
+              background: "oklch(from var(--destructive) l c h / 0.08)",
+              color: "var(--destructive-strong)",
+            }}
+          >
+            <Lock className="h-[14px] w-[14px] shrink-0" />
+            <span className="min-w-0">
+              {t(
+                "Sending is paused — you've used every message in this month's plan. Contact support to upgrade.",
+              )}
+            </span>
+          </div>
+        )}
         <DisabledSection
-          disabled={isRemoved || isInactive}
+          disabled={isRemoved || isInactive || sendingBlocked}
           description={
             isRemoved
               ? t("This contact asked to be removed")
-              : t("This address is unreachable")
+              : isInactive
+                ? t("This address is unreachable")
+                : t("Sending is paused until your plan resets or you upgrade")
           }
         >
           <div

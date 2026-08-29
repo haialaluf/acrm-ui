@@ -154,29 +154,6 @@ export function contactAddressName(
 }
 
 /**
- * Whether a contact looks like one the inbound webhook minted rather than one
- * a person entered.
- *
- * `linkMissingContacts` creates a contact the moment an unknown address writes
- * in, naming it from whatever the profile fetch returned — an @handle, or
- * nothing at all when Meta gives us no profile. Those are exactly the records
- * that turn out to be someone already in the contact list under a phone
- * number, so they are where the merge action belongs. A contact carrying a
- * real name is left alone: it is far likelier to be a person than a duplicate.
- */
-export function looksAutoCreated(
-  contact: { name?: string | null } | null | undefined,
-): boolean {
-  if (!contact) return false;
-
-  const name = (contact.name ?? "").trim();
-
-  // No name, an @handle, or the bare address — none of them say a human named
-  // this record.
-  return !name || name.startsWith("@") || /^[\d+\s-]+$/.test(name);
-}
-
-/**
  * The one address to show under a contact's name in a list.
  *
  * The contact list used to print `addresses[0]` — the oldest row, for the

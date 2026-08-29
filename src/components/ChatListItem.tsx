@@ -17,7 +17,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(localizedFormat);
 import { TickContext } from "@/contexts/useTick";
 import { useTranslation } from "@/hooks/useTranslation";
-import { AtSign, Hand, Pause } from "lucide-react";
+import { AtSign, Hand } from "lucide-react";
 
 import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
 import { useContactByAddress } from "@/queries/useContacts";
@@ -29,8 +29,6 @@ import {
   contactAddressName,
   contactInstagramPicture,
 } from "@/utils/ContactAddressUtils";
-import { assistantState } from "@/utils/ConversationUtils";
-import { useCurrentOrganization } from "@/queries/useOrganizations";
 import { mediaPreview } from "@/utils/messagePreview";
 
 function statusIcon(status: OutgoingStatus, t: (text: string) => string) {
@@ -78,7 +76,6 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
 
   const { data: agent } = useCurrentAgent();
   const { data: agents } = useCurrentAgents();
-  const { data: org } = useCurrentOrganization();
   const isAdmin = ["admin", "owner"].includes(agent?.extra?.role || "");
 
   // The sidebar only ever holds the thread's most recent message (or whatever
@@ -148,10 +145,6 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
   const tick = useContext(TickContext); // one-minute ticks
 
   const isPinned = conversation?.extra?.pinned;
-
-  // Paused by a person, or off org-wide (default agent "None"). A handoff no
-  // longer pauses the assistant — see `handoff` below for that badge instead.
-  const isPaused = assistantState(conversation, org?.extra) !== "active";
 
   // Set when the agent handed this conversation off to a person and cleared
   // the moment one of them actually replies here — so its presence means
@@ -296,10 +289,6 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
               </div>
 
               <div className="flex flex-row items-center">
-                {/* Pause - AI assistant paused */}
-                {isPaused && (
-                  <Pause className="h-[19px] w-[19px] ml-[6px] fill-muted-foreground stroke-0" />
-                )}
                 {/* Handoff - waiting on a person, doesn't pause the assistant */}
                 {handoff && (
                   <span
