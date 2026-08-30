@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Calendar, MessageSquare, Send, UserPlus } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useContactMessageActivity } from "@/queries/useContactMessageActivity";
+import { useContactActivity } from "@/queries/useContactActivity";
 import { useContactAppointments } from "@/queries/useContactAppointments";
 import { useContactLead } from "@/queries/useContactLead";
 import type { ContactWithAddressesRow } from "@/supabase/client";
@@ -28,7 +28,10 @@ function Tile({
   return (
     <div
       className="rounded-[12px] px-[8px] py-[12px] min-h-[78px] flex flex-col items-center justify-center text-center"
-      style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+      style={{
+        background: "var(--background)",
+        border: "1px solid var(--border)",
+      }}
     >
       <div
         className={
@@ -95,11 +98,12 @@ export default function ContactActivityTab({
   contact: ContactWithAddressesRow;
 }) {
   const { translate: t } = useTranslation();
-  const { data: activityByContact } = useContactMessageActivity();
+  const { data: activity } = useContactActivity(
+    (contact.addresses ?? []).map((a) => a.address),
+  );
   const { data: appointments } = useContactAppointments(contact.id);
   const { data: lead } = useContactLead(contact.id);
 
-  const activity = activityByContact.get(contact.id);
   const meetings = appointments ?? [];
 
   const ago = (ms: number | null | undefined) =>

@@ -19,7 +19,7 @@ import ContactFilter, {
   emptyContactFilter,
   type ContactFilterValue,
 } from "@/components/ContactFilter";
-import { useContactMessageActivity } from "@/queries/useContactMessageActivity";
+import { useContactActivityMatch } from "@/queries/useContactActivity";
 
 /**
  * The A-Z index letter a contact files under. Anything that does not start
@@ -41,9 +41,9 @@ function ListContacts() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { data: contacts } = useContacts();
-  const { data: activity } = useContactMessageActivity();
   const deleteContacts = useDeleteContacts();
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
+  const { match: activityMatch } = useContactActivityMatch(filter);
 
   const [selectionMode, setSelectionMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -51,8 +51,8 @@ function ListContacts() {
 
   const allContacts = useMemo(() => contacts ?? [], [contacts]);
   const filtered = useMemo(
-    () => applyContactFilter(allContacts, filter, activity),
-    [allContacts, filter, activity],
+    () => applyContactFilter(allContacts, filter, activityMatch),
+    [allContacts, filter, activityMatch],
   );
 
   /** `filtered` split into A-Z sections. Sorted here rather than relying on the
@@ -118,14 +118,43 @@ function ListContacts() {
       <SectionHeader
         title={t("Contacts")}
         action={
-          allContacts.length > 0 && !selectionMode ? (
-            <button
-              className="tonal h-[30px] ps-[10px] pe-[12px] rounded-full flex items-center gap-[6px] text-[13.5px] font-semibold"
-              onClick={() => setSelectionMode(true)}
-            >
-              <ListChecks className="w-[15px] h-[15px]" />
-              {t("Select")}
-            </button>
+          !selectionMode ? (
+            <div className="flex items-center gap-[8px]">
+              {allContacts.length > 0 && (
+                <button
+                  className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center border border-border text-tonal-foreground hover:bg-accent"
+                  title={t("Select")}
+                  onClick={() => setSelectionMode(true)}
+                >
+                  <ListChecks className="w-[17px] h-[17px]" />
+                </button>
+              )}
+              <button
+                className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center border border-border text-tonal-foreground hover:bg-accent"
+                title={t("Import contacts")}
+                onClick={() =>
+                  navigate({
+                    to: "/contacts/import",
+                    hash: (prevHash: string | undefined) => prevHash!,
+                  })
+                }
+              >
+                <Upload className="w-[17px] h-[17px]" />
+              </button>
+              <button
+                className="btn-gradient h-[36px] ps-[12px] pe-[15px] rounded-full flex items-center gap-[7px] text-[14px] font-semibold"
+                title={t("Add contact")}
+                onClick={() =>
+                  navigate({
+                    to: "/contacts/new",
+                    hash: (prevHash: string | undefined) => prevHash!,
+                  })
+                }
+              >
+                <Plus className="w-[17px] h-[17px]" />
+                {t("Add")}
+              </button>
+            </div>
           ) : undefined
         }
       />
@@ -202,52 +231,6 @@ function ListContacts() {
         </div>
       )}
 
-      {/* Add and Import are actions, not contacts: as 72px list rows they read
-          as data and pushed the first real contact 144px down the screen. Same
-          two destinations, one 44px row, labels intact.
-
-          Split 62/38 rather than evenly: both stay findable, but the everyday
-          action gets the width, and the asymmetry is what lets the longest
-          locale ("Ajouter un contact") stay on one line. The leading icon tiles
-          are what keep these reading as two distinct objects at only 44px —
-          drop below that height and they stop working. */}
-      {!selectionMode && (
-        <div className="px-[20px] pt-[12px] flex items-stretch gap-[10px] shrink-0">
-          <button
-            className="btn-gradient flex-[62] min-w-0 h-[44px] rounded-[12px] flex items-center gap-[9px] px-[10px]"
-            onClick={() =>
-              navigate({
-                to: "/contacts/new",
-                hash: (prevHash: string | undefined) => prevHash!,
-              })
-            }
-          >
-            <span className="tile w-[26px] h-[26px] rounded-[8px] flex items-center justify-center shrink-0">
-              <Plus className="w-[16px] h-[16px]" />
-            </span>
-            <span className="text-[14.5px] font-semibold truncate">
-              {t("Add contact")}
-            </span>
-          </button>
-          <button
-            className="flex-[38] min-w-0 h-[44px] rounded-[12px] border-[1.5px] border-input bg-popover hover:bg-accent flex items-center gap-[8px] px-[9px]"
-            onClick={() =>
-              navigate({
-                to: "/contacts/import",
-                hash: (prevHash: string | undefined) => prevHash!,
-              })
-            }
-          >
-            <span className="tonal w-[26px] h-[26px] rounded-[8px] flex items-center justify-center shrink-0">
-              <Upload className="w-[16px] h-[16px]" />
-            </span>
-            <span className="text-[14.5px] font-semibold truncate">
-              {t("Import")}
-            </span>
-          </button>
-        </div>
-      )}
-
       <SectionBody>
         {hasAnyFilter && filtered.length === 0 && (
           <div className="py-[32px] text-center text-muted-foreground text-[14px]">
@@ -266,9 +249,7 @@ function ListContacts() {
                 key={contact.id}
                 selected={selectionMode && selected.has(contact.id)}
                 title={contact.name || t("No name")}
-                description={
-                  contactDisplayAddress(contact) ?? t("No address")
-                }
+                description={contactDisplayAddress(contact) ?? t("No address")}
                 aside={
                   selectionMode ? (
                     // Holds the avatar's 40px footprint, left-aligned: the

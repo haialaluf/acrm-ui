@@ -26,8 +26,28 @@ export const queryKeys = {
     /** Every Instagram address the org knows, for the "Add Instagram" picker. */
     instagramAddresses: (orgId: NullableId) =>
       [orgId, "contacts_addresses", "instagram"] as const,
-    messageActivity: (orgId: NullableId) =>
-      [orgId, "contacts", "message_activity"] as const,
+    /** Last received / sent timestamps for one contact, keyed by its (sorted)
+     *  addresses — see `useContactActivity`. */
+    activity: (orgId: NullableId, addresses: string[]) =>
+      [orgId, "contacts", "activity", addresses] as const,
+    /** Server-resolved recency-filter sets, keyed by the four since-thresholds
+     *  (ms epoch or null) — see `useContactActivityMatch`. */
+    activityMatch: (
+      orgId: NullableId,
+      recvSince: number | null,
+      notRecvSince: number | null,
+      sentSince: number | null,
+      notSentSince: number | null,
+    ) =>
+      [
+        orgId,
+        "contacts",
+        "activity_match",
+        recvSince,
+        notRecvSince,
+        sentSince,
+        notSentSince,
+      ] as const,
     /** The `leads` row a contact came from, when a form produced it. */
     lead: (orgId: NullableId, contactId: NullableId) =>
       [orgId, "contacts", contactId, "lead"] as const,

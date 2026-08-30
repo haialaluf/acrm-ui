@@ -205,7 +205,10 @@ function ContactDetail() {
         at = i + 1;
         break;
       }
-      if ((CHANNEL_ORDER[fields[i].service ?? "whatsapp"] ?? 0) < CHANNEL_ORDER[service]) {
+      if (
+        (CHANNEL_ORDER[fields[i].service ?? "whatsapp"] ?? 0) <
+        CHANNEL_ORDER[service]
+      ) {
         at = i + 1;
         break;
       }
@@ -236,7 +239,10 @@ function ContactDetail() {
         notes: joinNotes(contact?.notes, data.notes ?? ""),
         addresses: (data.addresses ?? [])
           .filter((a) => a.address?.trim())
-          .map((a) => ({ ...a, address: storedAddress(a.service, a.address!) })),
+          .map((a) => ({
+            ...a,
+            address: storedAddress(a.service, a.address!),
+          })),
         strategy,
       },
       { onSuccess: () => setPendingConflict(null) },
@@ -291,7 +297,7 @@ function ContactDetail() {
 
         {/* Identity + tabs. Sticky above the panel's scroll so the name and the
             tab you are on stay visible however long the tab's content runs. */}
-        <div className="bg-sidebar border-b border-border px-[20px] pt-[14px] shrink-0 flex flex-col gap-[14px]">
+        <div className="bg-background border-b border-border px-[20px] pt-[14px] shrink-0 flex flex-col gap-[14px]">
           <div className="flex items-center gap-[12px]">
             <Avatar
               src={igExtra?.profile_picture_url}
@@ -510,7 +516,9 @@ function ContactDetail() {
 
               {agentNotes.length > 0 && (
                 <div className="flex flex-col gap-[16px]">
-                  <div className="label mb-0">{t("Written by your agents")}</div>
+                  <div className="label mb-0">
+                    {t("Written by your agents")}
+                  </div>
                   {agentNotes.map((note, idx) => (
                     <div key={`${note.date}-${idx}`}>
                       {idx > 0 && <div className="h-px bg-border mb-[16px]" />}
@@ -613,7 +621,6 @@ function ContactDetail() {
     )
   );
 }
-
 
 /**
  * One address, rendered by the rules of its own channel.
@@ -784,7 +791,8 @@ function AddressRow({
   }
 
   const reg = register(`addresses.${idx}.address`, {
-    validate: (value) => !value || isValidPhoneNumber(value) || "Invalid number",
+    validate: (value) =>
+      !value || isValidPhoneNumber(value) || "Invalid number",
   });
   const raw = watch(`addresses.${idx}.address`);
   const conflict =

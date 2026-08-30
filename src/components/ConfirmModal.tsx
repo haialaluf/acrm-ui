@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import Button from "@/components/Button";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -16,6 +17,14 @@ import { useTranslation } from "@/hooks/useTranslation";
  * via `showModal()` renders in the browser's top layer, so it always paints
  * above the rest of the page — no z-index or portal-container to get wrong —
  * and needs no JS animation state machine to appear.
+ *
+ * It is portalled to <body>. On mobile the left panel that hosts the chat
+ * list gets `display: none` the moment a thread becomes active (single-panel
+ * layout), and the whole app grid is a transformed/animated container. A
+ * <dialog> left inside that subtree can end up mounted-but-not-painted, and
+ * `showModal()` throws outright when an ancestor is `display: none`.
+ * Rendering it at <body> keeps it clear of both traps, and clicks inside it
+ * no longer bubble into the chat-list row's navigate handler.
  */
 export default function ConfirmModal({
   open,
@@ -44,7 +53,11 @@ export default function ConfirmModal({
     if (!dialog) return;
 
     if (open && !dialog.open) {
-      dialog.showModal();
+      try {
+        dialog.showModal();
+      } catch {
+        dialog.open = true;
+      }
     } else if (!open && dialog.open) {
       dialog.close();
     }
@@ -62,20 +75,15 @@ export default function ConfirmModal({
     };
   }, [open]);
 
-  return (
+  return createPortal(
     <dialog
       ref={dialogRef}
       onCancel={(e) => {
-        // Esc key: drive it through the same onCancel the buttons use rather
-        // than letting the dialog close itself, so callers stay in control of
-        // `open`.
         e.preventDefault();
         onCancel();
       }}
       onClick={(e) => {
-        // A click that lands on the <dialog> element itself (not one of its
-        // children) is a click on the ::backdrop — the standard way to detect
-        // "clicked outside" for a native dialog.
+        e.stopPropagation();
         if (e.target === dialogRef.current) onCancel();
       }}
       className={
@@ -121,6 +129,7 @@ export default function ConfirmModal({
           {confirmLabel}
         </Button>
       </div>
-    </dialog>
+    </dialog>,
+    document.body,
   );
 }

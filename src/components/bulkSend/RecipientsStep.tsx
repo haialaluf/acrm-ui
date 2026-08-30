@@ -5,7 +5,7 @@ import Button from "@/components/Button";
 import SectionFooter from "@/components/SectionFooter";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
-import { useContactMessageActivity } from "@/queries/useContactMessageActivity";
+import { useContactActivityMatch } from "@/queries/useContactActivity";
 import ContactFilter, {
   applyContactFilter,
   emptyContactFilter,
@@ -65,8 +65,8 @@ export default function RecipientsStep({
 }) {
   const { translate: t } = useTranslation();
   const { data: contacts } = useContacts();
-  const { data: activity } = useContactMessageActivity();
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
+  const { match: activityMatch } = useContactActivityMatch(filter);
 
   // useCallback so it is a stable dependency of the `selectable` memo below —
   // a fresh closure each render would recompute that filter on every keystroke
@@ -91,8 +91,8 @@ export default function RecipientsStep({
   );
 
   const filtered = useMemo(
-    () => applyContactFilter(withAddress, filter, activity),
-    [withAddress, filter, activity],
+    () => applyContactFilter(withAddress, filter, activityMatch),
+    [withAddress, filter, activityMatch],
   );
 
   // The filter runs on contacts (a search hit on one of a contact's numbers is
@@ -116,7 +116,8 @@ export default function RecipientsStep({
   );
 
   const allSelected =
-    selectable.length > 0 && selectable.every((r) => selectedIds.has(r.address));
+    selectable.length > 0 &&
+    selectable.every((r) => selectedIds.has(r.address));
 
   return (
     <>

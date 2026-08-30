@@ -110,8 +110,12 @@ export default function ItemActions({
             key: "4",
             icon: <Trash2 className="w-[15px] h-[15px]" />,
             danger: true,
-            onClick: () => {
-              // Clear a previous failure so a reopened dialog starts clean.
+            onClick: ({
+              domEvent,
+            }: {
+              domEvent: React.MouseEvent | React.KeyboardEvent;
+            }) => {
+              domEvent.stopPropagation();
               deleteConversation.reset();
               setConfirmDelete(true);
             },

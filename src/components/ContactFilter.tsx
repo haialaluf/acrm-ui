@@ -5,7 +5,6 @@ import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContactTags } from "@/queries/useContactTags";
 import { useContactSources } from "@/queries/useContactSources";
-import type { ContactActivity } from "@/queries/useContactMessageActivity";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import { datePickerTokens } from "@/components/antdTokens";
 import { contactEmail } from "@/utils/ContactAddressUtils";
@@ -24,7 +23,8 @@ import { contactEmail } from "@/utils/ContactAddressUtils";
  * - `notRecvSince`/`notSentSince`: ms epoch. The inverse — contacts that have
  *   *not* received / sent a message since then (last one predates it, or they
  *   never had one). Useful for finding stale / re-engagement contacts. All four
- *   read last-message timestamps from `useContactMessageActivity`.
+ *   are resolved server-side by `useContactActivityMatch`, which hands
+ *   `applyContactFilter` a ready predicate.
  */
 export interface ContactFilterValue {
   search: string;
@@ -67,35 +67,18 @@ export function activeFilterCount(f: ContactFilterValue): number {
   );
 }
 
-// "Since": passes when the contact's last message in this direction is at or
-// after `since`.
-function passSince(ts: number | null, since: number | null): boolean {
-  if (since == null) return true;
-  return ts != null && ts >= since;
-}
-
-// "Not since": passes when the contact has no message in this direction at or
-// after `since` — i.e. it never happened (ts == null) or the last one predates
-// `since`.
-function passNotSince(ts: number | null, since: number | null): boolean {
-  if (since == null) return true;
-  return ts == null || ts < since;
-}
-
 export function applyContactFilter<T extends ContactWithAddressesRow>(
   contacts: T[],
   f: ContactFilterValue,
-  activity?: Map<string, ContactActivity>,
+  /** Recency predicate from `useContactActivityMatch` — resolves the four
+   *  `*Since` fields server-side. Omitted / null when no recency filter is set
+   *  or its queries are still loading, in which case that dimension is skipped. */
+  activityMatch?: ((contact: ContactWithAddressesRow) => boolean) | null,
 ): T[] {
   const q = f.search.trim().toLowerCase().replace(/\s/g, "");
   const tagSet = new Set(f.tags);
   const excludeTagSet = new Set(f.excludeTags);
   const sourceSet = new Set(f.sources);
-  const msgActive =
-    f.recvSince != null ||
-    f.notRecvSince != null ||
-    f.sentSince != null ||
-    f.notSentSince != null;
   return contacts.filter((c) => {
     if (q) {
       const hay = `${c.name ?? ""} ${contactEmail(c) ?? ""} ${c.notes ?? ""} ${(
@@ -115,15 +98,7 @@ export function applyContactFilter<T extends ContactWithAddressesRow>(
       return false;
     if (f.dateTo != null && new Date(c.created_at).getTime() > f.dateTo)
       return false;
-    if (msgActive) {
-      const act = activity?.get(c.id);
-      const recv = act?.lastReceivedAt ?? null;
-      const sent = act?.lastSentAt ?? null;
-      if (!passSince(recv, f.recvSince)) return false;
-      if (!passNotSince(recv, f.notRecvSince)) return false;
-      if (!passSince(sent, f.sentSince)) return false;
-      if (!passNotSince(sent, f.notSentSince)) return false;
-    }
+    if (activityMatch && !activityMatch(c)) return false;
     return true;
   });
 }
