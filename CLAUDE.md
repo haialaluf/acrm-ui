@@ -10,6 +10,22 @@ Read the [Acrm API README](../acrm-api/README.md) for project context,
 architecture, deployment, and **local development workflow** (database schema
 changes, migrations, type generation).
 
+## Code style — comments
+
+The codebase currently has far too many comments; it is out of control and hard
+to read. When writing or editing code:
+
+- **Avoid comments.** Write code that explains itself through clear naming and
+  structure instead.
+- Add a comment **only when it is really needed** — a non-obvious "why", a
+  workaround, a gotcha, a spec reference. Never comment on **what** the code
+  plainly does.
+- When you touch a file and see an existing comment that adds nothing, **delete
+  it.** Leave the code cleaner than you found it.
+- Do **not** remove comments that carry real meaning: `// @ui-divergence: …`
+  tags, license headers, `eslint-disable`/`ts-expect-error` justifications, or
+  TODO/FIXME notes.
+
 ## Key Conventions
 
 - **Schema files** live in `../acrm-api/supabase/schemas/` — always edit
