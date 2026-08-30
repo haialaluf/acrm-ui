@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { CONFIG_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 
 export function useOrganizationsAddresses() {
@@ -16,6 +17,11 @@ export function useOrganizationsAddresses() {
         .throwOnError(),
     enabled: !!orgId,
     select: (data) => data.data,
+    // Feeds the app-wide connection gates. In-app connect/disconnect flows
+    // invalidate this key; an out-of-band Meta/SES status flip lands on the
+    // next window focus. The dedicated setup screen uses the polling detail
+    // query below.
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 

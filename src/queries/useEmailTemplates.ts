@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { CONFIG_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 import type {
   EmailTemplateInput,
@@ -66,6 +67,7 @@ export function useEmailTemplates() {
         organization_id,
       }),
     enabled: !!organization_id,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -78,6 +80,7 @@ export function useEmailTemplate(id?: string) {
     queryFn: async () =>
       await invokeTemplates<EmailTemplateRow>("PUT", { organization_id, id }),
     enabled: !!organization_id && !!id,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 

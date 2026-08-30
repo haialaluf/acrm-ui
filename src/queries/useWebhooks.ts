@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type Database, supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { STATIC_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 
 export type WebhookRow = Database["public"]["Tables"]["webhooks"]["Row"];
@@ -21,6 +22,7 @@ export function useWebhooks() {
         .throwOnError(),
     enabled: !!userId && !!orgId,
     select: (data) => data.data as WebhookRow[],
+    staleTime: STATIC_STALE_TIME,
   });
 }
 
@@ -41,6 +43,7 @@ export function useWebhook(id: string) {
     enabled: !!userId && !!orgId,
     select: (data) => data.data as WebhookRow,
     experimental_prefetchInRender: true,
+    staleTime: STATIC_STALE_TIME,
   });
 }
 

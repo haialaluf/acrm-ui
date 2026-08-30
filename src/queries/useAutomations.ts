@@ -6,6 +6,7 @@ import {
   supabase,
 } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { CONFIG_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 
 /** One automation as stored, with `trigger`/`steps` narrowed off jsonb. */
@@ -34,6 +35,7 @@ export function useAutomations() {
         .throwOnError(),
     enabled: !!userId && !!orgId,
     select: (data) => (data.data ?? []) as unknown as AutomationRow[],
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -53,6 +55,7 @@ export function useAutomation(id: string | null) {
         .throwOnError(),
     enabled: !!userId && !!orgId && !!id,
     select: (data) => data.data as unknown as AutomationRow,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -130,6 +133,7 @@ export function useApprovedTemplates() {
         .throwOnError(),
     enabled: !!userId && !!orgId,
     select: (data) => data.data ?? [],
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 

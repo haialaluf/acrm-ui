@@ -5,6 +5,7 @@ import {
   supabase,
 } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { CONFIG_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 
 export function useOrganizations() {
@@ -20,6 +21,7 @@ export function useOrganizations() {
         .throwOnError(),
     enabled: !!userId,
     select: (data) => data.data,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -37,6 +39,7 @@ export function useOrganization(id: string) {
         .throwOnError(),
     enabled: !!userId && !!id,
     select: (data) => data.data,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 

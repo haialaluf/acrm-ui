@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { CONTACT_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 
 export function useContactAddress(address: string | null | undefined) {
@@ -20,6 +21,7 @@ export function useContactAddress(address: string | null | undefined) {
     enabled: !!userId && !!orgId && !!address,
     select: (data) => data.data,
     experimental_prefetchInRender: true,
+    staleTime: CONTACT_STALE_TIME,
   });
 }
 
@@ -39,6 +41,7 @@ export function useContactAddresses(contactId: string | null | undefined) {
     enabled: !!userId && !!orgId && !!contactId,
     select: (data) => data.data,
     experimental_prefetchInRender: true,
+    staleTime: CONTACT_STALE_TIME,
   });
 }
 
@@ -69,5 +72,6 @@ export function useInstagramAddresses(enabled = true) {
         .throwOnError(),
     enabled: enabled && !!userId && !!orgId,
     select: (data) => data.data,
+    staleTime: CONTACT_STALE_TIME,
   });
 }

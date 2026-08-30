@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ApiKeyInsert, type ApiKeyRow, supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { STATIC_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 
 export function useApiKeys() {
@@ -18,6 +19,7 @@ export function useApiKeys() {
         .throwOnError(),
     enabled: !!userId && !!orgId,
     select: (data) => data.data as ApiKeyRow[],
+    staleTime: STATIC_STALE_TIME,
   });
 }
 
@@ -38,6 +40,7 @@ export function useApiKey(id: string) {
     enabled: !!userId && !!orgId,
     select: (data) => data.data as ApiKeyRow,
     experimental_prefetchInRender: true,
+    staleTime: STATIC_STALE_TIME,
   });
 }
 

@@ -38,6 +38,24 @@ to read. When writing or editing code:
   the API's `_shared/types/*` into `src/supabase/types/*`. See "Syncing types"
   below.
 
+## React Query — staleTime & invalidation
+
+Queries in `src/queries/*` opt into a shared `staleTime` from
+`src/queries/cacheConfig.ts` (`CONTACT_STALE_TIME`, `CONFIG_STALE_TIME`,
+`STATIC_STALE_TIME`, `BILLING_STALE_TIME`) so lists like the conversations
+sidebar don't refetch on every render, scroll or window focus.
+
+**The rule:** if a read has a non-zero `staleTime`, every `create` / `update` /
+`delete` mutation that can change what it returns **must** `invalidateQueries`
+its key. Prefer invalidating the shared **key prefix** (e.g. `[orgId,
+"contacts"]` and `[orgId, "contacts_addresses"]`) over a single exact key, so a
+row that appears under several queries is covered. `contacts` /
+`contacts_addresses` get no realtime — a missed invalidation there shows stale
+data for minutes.
+
+When adding a query, either leave it at the default (stale immediately) or set a
+`staleTime` **and** wire up its invalidations in the same change.
+
 ## Syncing types (API → UI)
 
 The UI mirrors the API's types but cannot use them verbatim — it uses

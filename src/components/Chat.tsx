@@ -126,7 +126,7 @@ export default function Chat() {
 
     if (days < 7) return dayjsTs.format("dddd"); // Jueves
 
-    return dayjsTs.format("l"); // 9/9/2024
+    return dayjsTs.format("DD/MM/YYYY");
   }
 
   function getUniqueAgentIds(messages: MessageRow[] | undefined): Set<string> {

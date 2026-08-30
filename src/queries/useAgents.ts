@@ -7,6 +7,7 @@ import {
   supabase,
 } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { CONFIG_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 import { throwFunctionError } from "./throwFunctionError";
 
@@ -26,6 +27,7 @@ export function useAgent<T = AgentRow>(id: string) {
     enabled: !!userId && !!orgId,
     select: (data) => data.data as T,
     experimental_prefetchInRender: true,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -44,6 +46,7 @@ export function useInvitations() {
     enabled: !!userId,
     select: (data) => data.data as HumanAgentRow[],
     experimental_prefetchInRender: true,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -64,6 +67,7 @@ export function useCurrentAgent() {
         .single(),
     enabled: !!userId && !!orgId,
     select: (data) => data.data as HumanAgentRow,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -81,6 +85,7 @@ export function useCurrentAgents() {
         .throwOnError(),
     enabled: !!userId && !!orgId,
     select: (data) => data.data,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 

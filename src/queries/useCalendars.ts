@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type Database, supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { CONFIG_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 
 export type CalendarRow = Database["public"]["Tables"]["calendars"]["Row"];
@@ -24,6 +25,7 @@ export function useCalendars() {
         .throwOnError(),
     enabled: !!userId && !!orgId,
     select: (data) => data.data as CalendarRow[],
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -44,6 +46,7 @@ export function useCalendar(id: string) {
     enabled: !!userId && !!orgId,
     select: (data) => data.data as CalendarRow,
     experimental_prefetchInRender: true,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 

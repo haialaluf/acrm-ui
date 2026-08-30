@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 import { normalizePhoneNumber } from "@/utils/FormatUtils";
-import { queryKeys } from "./queryKeys";
 
 /** A single row already resolved against the chosen column mapping. */
 export type ImportContactInput = {
@@ -159,8 +158,9 @@ export function useImportContacts() {
     // earlier rows committed — invalidate on both outcomes so a retry (and
     // its duplicate detection) never works off a stale contacts cache.
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.contacts.all(orgId),
+      void queryClient.invalidateQueries({ queryKey: [orgId, "contacts"] });
+      void queryClient.invalidateQueries({
+        queryKey: [orgId, "contacts_addresses"],
       });
     },
   });

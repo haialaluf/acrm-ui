@@ -1,7 +1,31 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { supabase, type TemplateData } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { CONFIG_STALE_TIME } from "./cacheConfig";
 import { throwFunctionError } from "./throwFunctionError";
+
+/**
+ * Both template reads for the org: the per-number live Graph list (`useTemplates`)
+ * and the cross-number `message_templates` mirror (`useApprovedTemplates` in
+ * useAutomations). A write through the edge function touches both.
+ */
+function invalidateTemplates(
+  queryClient: QueryClient,
+  orgId: string | null | undefined,
+  organizationAddress: string,
+) {
+  void queryClient.invalidateQueries({
+    queryKey: ["templates", orgId, organizationAddress],
+  });
+  void queryClient.invalidateQueries({
+    queryKey: [orgId, "message_templates"],
+  });
+}
 
 export function useTemplates(organizationAddress?: string) {
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
@@ -30,6 +54,9 @@ export function useTemplates(organizationAddress?: string) {
       return (data.data as TemplateData[]) || [];
     },
     enabled: !!activeOrgId && !!organizationAddress,
+    // Live Graph fetch — expensive, and a number's template list changes on
+    // Meta's side, not ours. The mutations below invalidate it on edit.
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -60,9 +87,11 @@ export function useCreateTemplate() {
       if (error) await throwFunctionError(error);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["templates", activeOrgId, variables.organizationAddress],
-      });
+      invalidateTemplates(
+        queryClient,
+        activeOrgId,
+        variables.organizationAddress,
+      );
     },
   });
 }
@@ -94,9 +123,11 @@ export function useUpdateTemplate() {
       if (error) await throwFunctionError(error);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["templates", activeOrgId, variables.organizationAddress],
-      });
+      invalidateTemplates(
+        queryClient,
+        activeOrgId,
+        variables.organizationAddress,
+      );
     },
   });
 }
@@ -128,9 +159,11 @@ export function useDeleteTemplate() {
       if (error) await throwFunctionError(error);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["templates", activeOrgId, variables.organizationAddress],
-      });
+      invalidateTemplates(
+        queryClient,
+        activeOrgId,
+        variables.organizationAddress,
+      );
     },
   });
 }

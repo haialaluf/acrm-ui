@@ -179,10 +179,16 @@ export function useUnsuppressAddress() {
       return data as { address: string; removed_from_ses: boolean };
     },
     // Every page size shares the `suppressed` prefix, so this invalidates the
-    // list however it was requested.
-    onSuccess: () =>
+    // list however it was requested. The address row's `status` also feeds the
+    // composer's "unreachable" banner via `useContactAddress`, which is cached
+    // for minutes — clear it too.
+    onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [orgId, "email_health", "suppressed"],
-      }),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [orgId, "contacts_addresses"],
+      });
+    },
   });
 }

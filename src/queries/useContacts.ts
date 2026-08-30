@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   type ContactWithAddressesInsert,
   type ContactWithAddressesRow,
@@ -8,7 +13,26 @@ import {
 import useBoundStore from "@/stores/useBoundStore";
 import { normalizePhoneNumber } from "@/utils/FormatUtils";
 import type { AddressConflict } from "@/hooks/useAddressConflicts";
+import { CONTACT_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
+
+/**
+ * Every contact / contact-address read cache for the org.
+ *
+ * `contacts` and `contacts_addresses` get no realtime, so a mutation has to
+ * push freshness by hand; the per-row queries now hold their data for minutes
+ * (see `CONTACT_STALE_TIME`), which only stays safe if every write clears both
+ * key prefixes.
+ */
+function invalidateContactCaches(
+  queryClient: QueryClient,
+  orgId: string | null | undefined,
+) {
+  void queryClient.invalidateQueries({ queryKey: [orgId, "contacts"] });
+  void queryClient.invalidateQueries({
+    queryKey: [orgId, "contacts_addresses"],
+  });
+}
 
 /** One contact-write path for every source — see `public.upsert_contact`. */
 export type UpsertContactResult = {
@@ -35,6 +59,11 @@ export function useContactAddress(address: string | null | undefined) {
         .throwOnError(),
     enabled: !!userId && !!orgId && !!address,
     select: (data) => data.data,
+    // The sidebar mounts one of these per visible row and the header/footer
+    // two more; a contact row barely changes between opens, and every write
+    // path below invalidates it. Without this each thread switch and every
+    // scroll refetches the lot.
+    staleTime: CONTACT_STALE_TIME,
   });
 }
 
@@ -58,6 +87,7 @@ export function useContactByAddress(address: string | null | undefined) {
     enabled: !!userId && !!orgId && !!address,
     select: (data) => data.data.contact as ContactWithAddressesRow | null,
     experimental_prefetchInRender: true,
+    staleTime: CONTACT_STALE_TIME,
   });
 }
 
@@ -102,6 +132,7 @@ export function useContacts() {
     },
     enabled: !!userId && !!orgId,
     select: (data) => data.data,
+    staleTime: CONTACT_STALE_TIME,
   });
 }
 
@@ -122,6 +153,7 @@ export function useContact(id: string) {
     enabled: !!userId && !!orgId && !!id,
     select: (data) => data.data as ContactWithAddressesRow,
     experimental_prefetchInRender: true,
+    staleTime: CONTACT_STALE_TIME,
   });
 }
 
@@ -185,9 +217,7 @@ export function useCreateContact() {
       return result as unknown as UpsertContactResult;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.contacts.all(orgId),
-      });
+      invalidateContactCaches(queryClient, orgId);
     },
   });
 }
@@ -299,9 +329,7 @@ export function useUpdateContact() {
       return result as unknown as UpsertContactResult;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.contacts.all(orgId),
-      });
+      invalidateContactCaches(queryClient, orgId);
     },
   });
 }
@@ -371,19 +399,8 @@ export function useLinkAddressToContact() {
 
       return result;
     },
-    onSuccess: (_result, { address }) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.contacts.all(orgId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.contacts.byAddress(orgId, address),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.contacts.addressDetail(orgId, address),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.contacts.instagramAddresses(orgId),
-      });
+    onSuccess: () => {
+      invalidateContactCaches(queryClient, orgId);
     },
   });
 }
@@ -399,9 +416,7 @@ export function useDeleteContact() {
       await supabase.from("contacts").delete().eq("id", id).throwOnError();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.contacts.all(orgId),
-      });
+      invalidateContactCaches(queryClient, orgId);
     },
   });
 }
@@ -424,9 +439,7 @@ export function useDeleteContacts() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.contacts.all(orgId),
-      });
+      invalidateContactCaches(queryClient, orgId);
     },
   });
 }

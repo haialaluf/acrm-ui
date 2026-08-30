@@ -188,7 +188,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
 
     if (days < 7) return dayjsTs.format("dddd"); // Jueves
 
-    return dayjsTs.format("l"); // 7/5/2024
+    return dayjsTs.format("DD/MM/YYYY");
   }
 
   const { mediaIcon, mediaPreviewContent } = mediaPreview(t, preview);

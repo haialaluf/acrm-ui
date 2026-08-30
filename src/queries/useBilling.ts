@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { BILLING_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 
 export function useProducts() {
@@ -34,6 +35,7 @@ export function useUsage(interval: string) {
         .throwOnError(),
     enabled: !!orgId,
     select: (data) => data.data,
+    staleTime: BILLING_STALE_TIME,
   });
 }
 
@@ -52,6 +54,7 @@ export function useUsageHistory(interval: "day" | "month") {
         .throwOnError(),
     enabled: !!orgId,
     select: (data) => data.data,
+    staleTime: BILLING_STALE_TIME,
   });
 }
 
@@ -77,6 +80,7 @@ export function useCreditGrants() {
         .throwOnError(),
     enabled: !!orgId,
     select: (data) => data.data,
+    staleTime: BILLING_STALE_TIME,
   });
 }
 
@@ -95,6 +99,7 @@ export function useSubscription() {
         .throwOnError(),
     enabled: !!orgId,
     select: (data) => data.data,
+    staleTime: BILLING_STALE_TIME,
   });
 }
 
@@ -114,6 +119,7 @@ export function useTierLimits() {
         .throwOnError(),
     enabled: !!orgId && !!tierId,
     select: (data) => data.data,
+    staleTime: BILLING_STALE_TIME,
   });
 }
 
@@ -133,5 +139,6 @@ export function usePlanProducts() {
         .throwOnError(),
     enabled: !!orgId && !!planId,
     select: (data) => data.data,
+    staleTime: BILLING_STALE_TIME,
   });
 }
