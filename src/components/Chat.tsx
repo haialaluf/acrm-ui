@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -35,6 +42,10 @@ const LOAD_MORE_THRESHOLD_PX = 400;
 
 /** Distance from the bottom that still counts as "following the conversation". */
 const STICKY_BOTTOM_PX = 120;
+
+/** How long the view keeps re-landing on the newest message after an open,
+ *  while estimated row heights are replaced by measured ones. */
+const PIN_SETTLE_MS = 1500;
 
 type EnvelopeType = { message: MessageRow; first: boolean; last: boolean };
 type SeparatorType = { text: string; first: true; last: true };
@@ -258,6 +269,8 @@ export default function Chat() {
 
     if (index < 0) return;
 
+    // A jump into history outranks the opening pin on the newest message.
+    releasePin();
     virtualizer.scrollToIndex(index, { align: "center" });
     setHighlightedId(messageId);
   }
@@ -431,6 +444,47 @@ export default function Chat() {
    *  message; until then "scrolled to the top" is meaningless. */
   const initialScrollDone = useRef(false);
 
+  /* The list is virtualized, so the jump on open aims at a `scrollHeight` built
+     from estimated row heights. Once the real bubbles measure (and images
+     finish downloading) the bottom moves, leaving the reader short of the last
+     message. So opening pins the view to the bottom for a moment instead of
+     scrolling once, and lets go as soon as the reader touches the wheel. */
+  const pinnedToBottom = useRef(false);
+  const pinTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const contentObserver = useRef<ResizeObserver | null>(null);
+
+  const releasePin = () => {
+    pinnedToBottom.current = false;
+    if (pinTimer.current) {
+      clearTimeout(pinTimer.current);
+      pinTimer.current = null;
+    }
+  };
+
+  const pinToBottom = () => {
+    pinnedToBottom.current = true;
+    if (pinTimer.current) clearTimeout(pinTimer.current);
+    pinTimer.current = setTimeout(releasePin, PIN_SETTLE_MS);
+  };
+
+  useEffect(() => releasePin, []);
+
+  // A bubble can also grow without a React commit — an image swapping its
+  // placeholder height for the real one — so watch the sized element itself.
+  const contentRef = useCallback((node: HTMLDivElement | null) => {
+    contentObserver.current?.disconnect();
+    contentObserver.current = null;
+
+    if (!node) return;
+
+    const observer = new ResizeObserver(() => {
+      if (pinnedToBottom.current) scrollToBottom(false);
+    });
+
+    observer.observe(node);
+    contentObserver.current = observer;
+  }, []);
+
   // No dependency array: this has to run on every commit that can change the
   // rows, before the browser paints, or the jump would be visible.
   useLayoutEffect(() => {
@@ -458,6 +512,7 @@ export default function Chat() {
       if (rows.length) {
         scrollToBottom(false);
         initialScrollDone.current = true;
+        pinToBottom();
       }
       return;
     }
@@ -468,7 +523,16 @@ export default function Chat() {
       if (rows.length) {
         scrollToBottom(false);
         initialScrollDone.current = true;
+        pinToBottom();
       }
+      return;
+    }
+
+    // Still landing on the newest message: the bottom is still moving as rows
+    // measure, so follow it rather than holding an offset.
+    if (pinnedToBottom.current) {
+      remember();
+      if (rows.length) scrollToBottom(false);
       return;
     }
 
@@ -587,8 +651,14 @@ export default function Chat() {
         ref={scroller}
         onScroll={() => {
           atBottom.current = isNearBottom();
+          // Leaving the bottom during the opening pin can only be the reader's
+          // doing — a scrollbar drag reaches us as nothing but this event.
+          if (!atBottom.current) releasePin();
           maybeLoadOlder();
         }}
+        onWheel={releasePin}
+        onTouchStart={releasePin}
+        onKeyDown={releasePin}
         className="grow pb-[8px] overflow-y-auto [scrollbar-gutter:stable] relative"
       >
         {isFetchingNextPage && (
@@ -598,6 +668,7 @@ export default function Chat() {
         )}
         <div className="min-h-[12px]" />
         <div
+          ref={contentRef}
           dir="ltr"
           className="relative w-full"
           style={{ height: virtualizer.getTotalSize() }}
