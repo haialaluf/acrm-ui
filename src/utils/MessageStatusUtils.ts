@@ -147,22 +147,3 @@ export function getStatusPresentation(status: OutgoingStatus): {
 
   return getStatusIcon(getHighestStatus(status));
 }
-
-/*
-const markMessagesAsRead = async (ids: string[]) => {
-  const promises = ids.map(async (id) => {
-    const { error } = await MessageService.updateIncomingMessage(id, {
-      status: {
-        read: dayjs().toISOString(),
-      },
-    });
-
-    if (error) {
-      console.error(`Could not mark as read incoming message with id ${id}`);
-      throw error;
-    }
-  });
-
-  const responses = await Promise.all(promises);
-};
-*/

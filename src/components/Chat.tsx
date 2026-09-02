@@ -22,6 +22,7 @@ import { AVATAR_COLORS } from "@/utils/colors";
 import { useActiveConversation } from "@/hooks/useThread";
 import { useCSWindow } from "@/hooks/useCSWindow";
 import { useThreadMessages } from "@/queries/useThreadMessages";
+import { useMarkThreadRead } from "@/queries/useMarkThreadRead";
 import {
   indexReactions,
   isReactionRow,
@@ -581,6 +582,45 @@ export default function Chat() {
     scrollToBottom(distance < 2000);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newestMessageId]);
+
+  /* Read receipts.
+   *
+   * Opening a thread is the only thing on this side that honestly means "a
+   * person read this", so it is the only thing that sends the blue ticks. The
+   * agent stamps its own receipt when it replies (see `agent-client`); a turn
+   * it stayed silent through leaves the thread unacknowledged, waiting here.
+   *
+   * Gated on visibility: a thread left open in a background tab has not been
+   * read, so the listener re-runs the check when the tab comes back rather than
+   * acknowledging on arrival. `lastMarked` keeps re-renders and thread
+   * re-entries from re-POSTing; the RPC is idempotent regardless, and picks the
+   * row to stamp itself. */
+  const { mutate: markThreadRead } = useMarkThreadRead();
+  const convIds = useBoundStore((store) =>
+    store.chat.threads.get(store.ui.activeThreadKey || "")?.convIds,
+  );
+  const lastMarked = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!activeThreadKey || !convIds?.length) return;
+    if (!newestMessageId || newestMessage?.direction !== "incoming") return;
+
+    const mark = () => {
+      if (document.visibilityState !== "visible") return;
+      if (lastMarked.current === newestMessageId) return;
+
+      lastMarked.current = newestMessageId;
+
+      markThreadRead(convIds);
+    };
+
+    mark();
+
+    document.addEventListener("visibilitychange", mark);
+
+    return () => document.removeEventListener("visibilitychange", mark);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeThreadKey, newestMessageId, convIds]);
 
   /* The composer's reply bar grows the footer and so shrinks this scroller,
      which the browser absorbs by leaving scrollTop alone — the newest message

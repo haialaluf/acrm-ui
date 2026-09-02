@@ -2298,6 +2298,7 @@ export type Database = {
       list_broadcast_batches: {
         Args: { p_organization_id: string }
         Returns: {
+          activity_at: string
           batch_index: number
           batches_total: number
           bounced_count: number
@@ -2309,6 +2310,7 @@ export type Database = {
           pending_count: number
           read_count: number
           recipient_count: number
+          scheduled_at: string
           scheduled_date: string
           sent_count: number
           service: Database["public"]["Enums"]["service"]
@@ -2316,6 +2318,10 @@ export type Database = {
           suppressed_count: number
           template_name: string
         }[]
+      }
+      mark_thread_read: {
+        Args: { p_conversation_ids: string[]; p_organization_id: string }
+        Returns: number
       }
       member_self_update_rules: {
         Args: {
