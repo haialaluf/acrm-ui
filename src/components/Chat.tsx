@@ -601,15 +601,31 @@ export default function Chat() {
   );
   const lastMarked = useRef<string | undefined>(undefined);
 
+  // The last INBOUND row, not the last row. An agent turn that decides to stay
+  // quiet still records an internal `[no reply sent: …]` note a few seconds
+  // later, and admins see those — so the tail of the thread is routinely
+  // `internal`, and keying off it would leave the contact's message
+  // unacknowledged exactly when the agent chose not to answer, the case this
+  // whole path exists for.
+  let newestIncomingId: string | undefined;
+
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const row = (rows[i] as { message?: MessageRow }).message;
+
+    if (row?.direction === "incoming") {
+      newestIncomingId = row.id;
+      break;
+    }
+  }
+
   useEffect(() => {
-    if (!activeThreadKey || !convIds?.length) return;
-    if (!newestMessageId || newestMessage?.direction !== "incoming") return;
+    if (!activeThreadKey || !convIds?.length || !newestIncomingId) return;
 
     const mark = () => {
       if (document.visibilityState !== "visible") return;
-      if (lastMarked.current === newestMessageId) return;
+      if (lastMarked.current === newestIncomingId) return;
 
-      lastMarked.current = newestMessageId;
+      lastMarked.current = newestIncomingId;
 
       markThreadRead(convIds);
     };
@@ -620,7 +636,7 @@ export default function Chat() {
 
     return () => document.removeEventListener("visibilitychange", mark);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeThreadKey, newestMessageId, convIds]);
+  }, [activeThreadKey, newestIncomingId, convIds]);
 
   /* The composer's reply bar grows the footer and so shrinks this scroller,
      which the browser absorbs by leaving scrollTop alone — the newest message
