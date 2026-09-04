@@ -436,6 +436,9 @@ export type AIAgentExtra = {
   // API's `renderReplyScope`. Undefined ⇒ on: the guard is the default posture.
   on_topic_only?: boolean;
   send_inline_files_up_to_size_mb?: number;
+  // Minutes the agent stays silent after a person from the business replies in
+  // the thread. Undefined ⇒ `PAUSED_CONV_WINDOW`; 0 ⇒ never pause.
+  pause_after_human_reply_minutes?: number;
   tools?: ToolConfig[];
   persona?: AgentPersona;
   skills?: SkillInstance[];

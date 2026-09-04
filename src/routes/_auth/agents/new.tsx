@@ -8,6 +8,7 @@ import SectionBody from "@/components/SectionBody";
 import { type AIAgentInsert } from "@/supabase/client";
 import Button from "@/components/Button";
 import SelectField from "@/components/SelectField";
+import DurationField from "@/components/DurationField";
 import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
 import PersonaSection from "@/components/PersonaSection";
@@ -180,6 +181,17 @@ function AddAgent() {
                 label={t("Model")}
                 options={MODEL_OPTIONS}
                 placeholder={t("Default")}
+              />
+
+              <DurationField
+                name="extra.pause_after_human_reply_minutes"
+                control={control}
+                label={t("Pause after a human replies")}
+                description={t(
+                  "How long this agent stays silent after someone from the business answers in the thread. Leave blank for 12 hours; 0 means it never pauses.",
+                )}
+                placeholder="12"
+                disabled={!isAdmin}
               />
             </SectionField>
           </fieldset>

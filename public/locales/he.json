@@ -954,6 +954,8 @@
   "The send request left out a field Meta requires. Check the message payload against the template.": "בקשת השליחה השמיטה שדה ש-Meta דורשת. בדקו את מבנה ההודעה מול התבנית.",
   "Only reply when relevant": "להשיב רק כשזה רלוונטי",
   "Stay silent on small talk and anything outside the business's services and this agent's skills.": "לשתוק בשיחות חולין ובכל דבר שנמצא מחוץ לשירותי העסק וליכולות של הסוכן הזה.",
+  "Pause after a human replies": "השהיה אחרי תשובה של אדם",
+  "How long this agent stays silent after someone from the business answers in the thread. Leave blank for 12 hours; 0 means it never pauses.": "כמה זמן הסוכן שותק אחרי שמישהו מהעסק עונה בשיחה. השאירו ריק ל-12 שעות; 0 פירושו שהוא לא משתהה כלל.",
   "Sync": "סנכרון",
   "Sync with iPhone": "סנכרון עם אייפון",
   "Sync with iPhone calendar": "סנכרון עם יומן האייפון",

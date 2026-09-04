@@ -988,6 +988,8 @@
   "The send request left out a field Meta requires. Check the message payload against the template.": "La solicitud de envío omitió un campo que Meta requiere. Compara el contenido del mensaje con la plantilla.",
   "Only reply when relevant": "Responder solo cuando sea relevante",
   "Stay silent on small talk and anything outside the business's services and this agent's skills.": "Guarda silencio ante la charla informal y ante todo lo que quede fuera de los servicios del negocio y de las habilidades de este agente.",
+  "Pause after a human replies": "Pausa tras una respuesta humana",
+  "How long this agent stays silent after someone from the business answers in the thread. Leave blank for 12 hours; 0 means it never pauses.": "Cuánto tiempo permanece en silencio este agente después de que alguien de la empresa responde en la conversación. Déjalo en blanco para 12 horas; 0 significa que nunca se pausa.",
   "Sync": "Sincronizar",
   "Sync with iPhone": "Sincronizar con iPhone",
   "Sync with iPhone calendar": "Sincronizar con el calendario del iPhone",

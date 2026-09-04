@@ -13,6 +13,7 @@ import {
   assistantState,
   organizationDefaultAgent,
   pauseRemainingMs,
+  pauseWindowMs,
   updateConvExtra,
 } from "@/utils/ConversationUtils";
 import { fill } from "@/utils/fill";
@@ -50,10 +51,21 @@ export default function ConversationAgentSelect({
   const pinned = selectable.find((a) => a.id === assigned);
   const orgDefault = organizationDefaultAgent(aiAgents, org?.extra);
 
+  // The agent answering now, or the one that comes back when the switch is
+  // turned on. Resolved before the state because the pause window is its own
+  // setting.
+  const shown =
+    pinned ??
+    selectable.find((a) => a.id === lastPinned) ??
+    orgDefault ??
+    selectable[0];
+
+  const windowMs = pauseWindowMs(shown?.extra);
+
   // On only when agent-client would actually reply. Every reason it wouldn't —
-  // "None" pinned here, automatic replies off org-wide, or the 12h pause a human
+  // "None" pinned here, automatic replies off org-wide, or the pause a human
   // reply starts — reads as off.
-  const state = assistantState(conversation, org?.extra);
+  const state = assistantState(conversation, org?.extra, windowMs);
   const on = state === "active";
 
   useEffect(() => {
@@ -63,17 +75,10 @@ export default function ConversationAgentSelect({
     return () => clearInterval(id);
   }, [state]);
 
-  // The agent answering now, or the one that comes back when the switch is
-  // turned on.
-  const shown =
-    pinned ??
-    selectable.find((a) => a.id === lastPinned) ??
-    orgDefault ??
-    selectable[0];
-
   if (!shown) return null;
 
-  const remainingMs = state === "paused" ? pauseRemainingMs(conversation) : 0;
+  const remainingMs =
+    state === "paused" ? pauseRemainingMs(conversation, windowMs) : 0;
   const pauseLabel =
     remainingMs >= 60 * 60 * 1000
       ? fill(t, "{n}h left", { n: Math.round(remainingMs / (60 * 60 * 1000)) })

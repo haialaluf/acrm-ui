@@ -1,5 +1,6 @@
 import useBoundStore from "@/stores/useBoundStore";
 import {
+  type AIAgentExtra,
   type ConversationInsert,
   type ConversationRow,
   NO_DEFAULT_AGENT,
@@ -64,9 +65,30 @@ export function primaryConversation(convs: ConversationRow[]) {
 
 export const PAUSED_CONV_WINDOW = 12 * 60 * 60 * 1000;
 
+const MAX_PAUSE_MINUTES = 30 * 24 * 60;
+
+/**
+ * How long the agent stays silent after a human's reply, in ms. Mirrors
+ * `pauseWindowMs` in the API's `_shared/conversations.ts` — `extra` is jsonb
+ * and can hold anything, so anything out of range falls back to the default.
+ * 0 is a valid choice: the agent never pauses.
+ */
+export function pauseWindowMs(
+  agentExtra: AIAgentExtra | null | undefined,
+): number {
+  const minutes = agentExtra?.pause_after_human_reply_minutes;
+
+  return typeof minutes === "number" &&
+    minutes >= 0 &&
+    minutes <= MAX_PAUSE_MINUTES
+    ? minutes * 60 * 1000
+    : PAUSED_CONV_WINDOW;
+}
+
 export function assistantState(
   conversation: ConversationRow | undefined,
   orgExtra: OrganizationExtra | null | undefined,
+  windowMs: number = PAUSED_CONV_WINDOW,
 ): "off" | "paused" | "active" {
   const convAgentId = conversation?.extra?.default_agent_id;
 
@@ -78,7 +100,7 @@ export function assistantState(
 
   const paused = conversation?.extra?.paused;
 
-  return paused && +new Date(paused) > +new Date() - PAUSED_CONV_WINDOW
+  return paused && +new Date(paused) > +new Date() - windowMs
     ? "paused"
     : "active";
 }
@@ -90,11 +112,12 @@ export function assistantState(
  */
 export function pauseRemainingMs(
   conversation: ConversationRow | undefined,
+  windowMs: number = PAUSED_CONV_WINDOW,
 ): number {
   const paused = conversation?.extra?.paused;
   if (!paused) return 0;
 
-  return Math.max(0, +new Date(paused) + PAUSED_CONV_WINDOW - Date.now());
+  return Math.max(0, +new Date(paused) + windowMs - Date.now());
 }
 
 export function organizationDefaultAgent<
