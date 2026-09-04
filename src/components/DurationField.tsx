@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Dropdown, type MenuProps } from "antd";
+import { ChevronDown } from "lucide-react";
 import {
   type Control,
   Controller,
@@ -94,11 +96,30 @@ function DurationInputs({
 
   const amount = typeof stored === "number" ? stored / UNIT_MINUTES[unit] : "";
 
+  // The number on screen stays put, so the duration follows the unit: 2 hours
+  // becomes 2 days, not 0.08.
+  const chooseUnit = (next: TimeUnit) => {
+    setUnit(next);
+    if (typeof amount === "number") onChange(amount * UNIT_MINUTES[next]);
+  };
+
+  const units: { value: TimeUnit; label: string }[] = [
+    { value: "minutes", label: t("minutes") },
+    { value: "hours", label: t("hours") },
+    { value: "days", label: t("days") },
+  ];
+
+  const items: MenuProps["items"] = units.map((option) => ({
+    key: option.value,
+    label: option.label,
+    onClick: () => chooseUnit(option.value),
+  }));
+
   return (
-    <label>
+    <div>
       <div className="label">{label}</div>
 
-      <div className="grid grid-cols-2 gap-[9px]">
+      <div className="grid grid-cols-2 gap-[9px] items-end">
         <input
           type="number"
           min={0}
@@ -113,24 +134,22 @@ function DurationInputs({
           }}
         />
 
-        <select
-          className="text"
+        <Dropdown
+          trigger={["click"]}
           disabled={disabled}
-          value={unit}
-          onChange={(e) => {
-            const next = e.target.value as TimeUnit;
-            setUnit(next);
-            // The number on screen stays put, so the duration follows the unit:
-            // 2 hours becomes 2 days, not 0.08.
-            if (typeof amount === "number") {
-              onChange(amount * UNIT_MINUTES[next]);
-            }
-          }}
+          menu={{ items, selectable: true, selectedKeys: [unit] }}
         >
-          <option value="minutes">{t("minutes")}</option>
-          <option value="hours">{t("hours")}</option>
-          <option value="days">{t("days")}</option>
-        </select>
+          <button
+            type="button"
+            disabled={disabled}
+            className="flex w-full items-center justify-between gap-[6px] border-b-[2px] border-transparent pb-[2px] text-start text-[16px] text-foreground hover:border-input disabled:cursor-default disabled:text-muted-foreground disabled:hover:border-transparent"
+          >
+            <span className="truncate">
+              {units.find((u) => u.value === unit)?.label}
+            </span>
+            <ChevronDown className="w-[16px] h-[16px] shrink-0 text-muted-foreground" />
+          </button>
+        </Dropdown>
       </div>
 
       {description && (
@@ -138,6 +157,6 @@ function DurationInputs({
           {description}
         </div>
       )}
-    </label>
+    </div>
   );
 }

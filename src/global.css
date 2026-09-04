@@ -266,16 +266,6 @@ button:disabled {
     @apply w-full border-b-[2px] border-transparent hover:border-input pb-[2px] focus-visible:outline-none text-[16px] text-foreground placeholder:text-muted-foreground bg-transparent focus-visible:border-primary;
   }
 
-  /* Keeps a native select on the same underlined baseline as the `.text` input
-     it sits beside (the unit next to an amount). */
-  select.text {
-    @apply w-full border-b-[2px] border-transparent hover:border-input pb-[2px] focus-visible:outline-none text-[16px] text-foreground bg-transparent focus-visible:border-primary;
-  }
-
-  select.text:disabled {
-    @apply hover:border-transparent focus-visible:border-transparent text-muted-foreground cursor-default;
-  }
-
   .instructions {
     @apply text-[14px] flex flex-col gap-[8px] leading-relaxed;
   }
