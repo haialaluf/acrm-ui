@@ -43,13 +43,40 @@ export function nameInitials(name: string): string {
   return "?";
 }
 
+/**
+ * Drop the invisible bidi/formatting controls and fold the non-ASCII dashes
+ * that ride along when a number is pasted straight out of WhatsApp: on an RTL
+ * locale its contact screen wraps the number in directional marks and isolates
+ * and draws the digit-group separators with a Unicode minus. Left in, every one
+ * of these trips `hasInvalidCharacters` and the number is rejected before it is
+ * ever handed to the parser.
+ */
+export function sanitizePhoneInput(phoneNumber: string): string {
+  let out = "";
+  for (const ch of phoneNumber) {
+    const code = ch.codePointAt(0)!;
+    const isBidiControl =
+      (code >= 0x200b && code <= 0x200f) ||
+      (code >= 0x202a && code <= 0x202e) ||
+      (code >= 0x2060 && code <= 0x2064) ||
+      (code >= 0x2066 && code <= 0x2069) ||
+      code === 0xfeff;
+    if (isBidiControl) continue;
+    const isNonAsciiDash =
+      (code >= 0x2010 && code <= 0x2015) || code === 0x2212 || code === 0xfe63;
+    out += isNonAsciiDash ? "-" : ch;
+  }
+  return out.trim();
+}
+
 export function formatPhoneNumber(phoneNumber: string): string {
   try {
-    const parsed = parsePhoneNumberWithError("+" + phoneNumber, {
-      extract: false,
-    });
+    const parsed = parsePhoneNumberWithError(
+      "+" + sanitizePhoneInput(phoneNumber),
+      { extract: false },
+    );
     return parsed.formatInternational();
-  } catch (error) {
+  } catch {
     return phoneNumber;
   }
 }
@@ -88,11 +115,12 @@ const stripFormatting = (phoneNumber: string): string => {
  * Throws `Error("Invalid phone number")` when neither yields a valid number.
  */
 export function parsePhoneNumber(phoneNumber: string) {
-  if (hasInvalidCharacters(phoneNumber)) {
+  const sanitized = sanitizePhoneInput(phoneNumber);
+  if (hasInvalidCharacters(sanitized)) {
     throw new Error("Invalid phone number");
   }
 
-  const normalized = stripFormatting(phoneNumber);
+  const normalized = stripFormatting(sanitized);
   if (!normalized) {
     throw new Error("Invalid phone number");
   }
