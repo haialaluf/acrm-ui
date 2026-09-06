@@ -206,6 +206,7 @@ export function useCreateContact() {
         p_strategy: strategy,
         p_contact: {
           name: contactData.name ?? null,
+          firstname: contactData.firstname ?? null,
           surname: contactData.surname ?? null,
           notes: contactData.notes ?? null,
           tags: tags ?? [],
@@ -317,6 +318,7 @@ export function useUpdateContact() {
         p_strategy: strategy,
         p_contact: {
           name: newContact.name ?? null,
+          firstname: newContact.firstname ?? null,
           surname: newContact.surname ?? null,
           notes: newContact.notes ?? null,
           ...(newContact.tags !== undefined ? { tags: newContact.tags } : {}),

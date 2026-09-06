@@ -7,6 +7,7 @@ import { normalizePhoneNumber } from "@/utils/FormatUtils";
 /** A single row already resolved against the chosen column mapping. */
 export type ImportContactInput = {
   name: string | null;
+  firstname: string | null;
   surname: string | null;
   /** Raw phone string from the file; normalized to E.164 on insert. */
   phone: string;
@@ -128,6 +129,7 @@ export function useImportContacts() {
               p_strategy: strategy,
               p_contact: {
                 name: c.name,
+                firstname: c.firstname,
                 surname: c.surname,
                 tags: contactTags,
               },

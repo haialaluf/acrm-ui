@@ -378,6 +378,16 @@ function ContactDetail() {
               </label>
 
               <label>
+                <div className="label">{t("First name")}</div>
+                <input
+                  type="text"
+                  className="text"
+                  placeholder={t("Contact first name")}
+                  {...register("firstname")}
+                />
+              </label>
+
+              <label>
                 <div className="label">{t("Last name")}</div>
                 <input
                   type="text"

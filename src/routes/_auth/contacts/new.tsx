@@ -107,6 +107,7 @@ function ContactNew() {
     mode: "onTouched",
     defaultValues: {
       name: prefill.name ?? "",
+      firstname: "",
       email: prefill.service === "email" ? prefill.address : "",
       addresses:
         prefill.address && !prefillIsPhone
@@ -181,6 +182,16 @@ function ContactNew() {
               className="text"
               placeholder={t("Contact name")}
               {...register("name")}
+            />
+          </label>
+
+          <label>
+            <div className="label">{t("First name")}</div>
+            <input
+              type="text"
+              className="text"
+              placeholder={t("Contact first name")}
+              {...register("firstname")}
             />
           </label>
 

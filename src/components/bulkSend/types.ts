@@ -326,7 +326,12 @@ export function immediateCount<T>(
    broadcast's own vocabulary: a fixed contact-field enum, resolved against a
    contact row this wizard already holds. */
 
-export type ContactField = "name" | "surname" | "email" | "phone";
+export type ContactField =
+  | "name"
+  | "firstname"
+  | "surname"
+  | "email"
+  | "phone";
 
 /** One template variable's substitution rule, over the contact fields a
  *  broadcast can resolve. */
@@ -350,6 +355,7 @@ export function headerMediaExample(template: TemplateData): string | undefined {
 
 export const FIELD_OPTIONS: { id: ContactField; label: string }[] = [
   { id: "name", label: "Name" },
+  { id: "firstname", label: "First name" },
   { id: "surname", label: "Last name" },
   { id: "email", label: "Email" },
   { id: "phone", label: "Phone" },
@@ -380,6 +386,7 @@ export function contactField(
   field: ContactField,
 ): string {
   if (field === "name") return c.name || "";
+  if (field === "firstname") return c.firstname || "";
   if (field === "surname") return c.surname || "";
   if (field === "email") return contactEmail(c) || "";
   if (field === "phone") return contactPhone(c) || "";

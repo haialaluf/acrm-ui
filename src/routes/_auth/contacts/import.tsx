@@ -39,6 +39,7 @@ type ImportState = "pick" | "uploaded" | "importing" | "done";
 type RowStatus = "ok" | "err" | "dup";
 type Mapping = {
   name: number | null;
+  firstname: number | null;
   surname: number | null;
   phone: number | null;
   email: number | null;
@@ -49,6 +50,7 @@ type Mapping = {
 type ResolvedRow = {
   status: RowStatus;
   name: string;
+  firstname: string;
   surname: string;
   phone: string;
   /** Validated and normalized, or "" when the file's value was unusable. */
@@ -62,6 +64,7 @@ type ResolvedRow = {
 };
 
 const NAME_RE = /^(full[ _]?name|name|nombre|first ?name|nombres?|שם)/i;
+const FIRSTNAME_RE = /^(first[ _]?name|given[ _]?name|forename|nombre de pila|שם פרטי)/i;
 const SURNAME_RE = /surname|apellidos?|last ?name|family ?name|משפחה/i;
 const PHONE_RE = /phone|mobile|tel|tel[eé]fono|טלפון|נייד/i;
 const EMAIL_RE = /mail|correo|email|אימייל|דואר אלקטרוני/i;
@@ -99,6 +102,7 @@ function ImportContacts() {
   const [file, setFile] = useState<ParsedFile | null>(null);
   const [mapping, setMapping] = useState<Mapping>({
     name: null,
+    firstname: null,
     surname: null,
     phone: null,
     email: null,
@@ -140,6 +144,8 @@ function ImportContacts() {
     if (!file) return [];
     return file.allRows.map((row) => {
       const name = mapping.name != null ? (row[mapping.name] ?? "").trim() : "";
+      const firstname =
+        mapping.firstname != null ? (row[mapping.firstname] ?? "").trim() : "";
       const surname =
         mapping.surname != null ? (row[mapping.surname] ?? "").trim() : "";
       const phone =
@@ -166,6 +172,7 @@ function ImportContacts() {
         return {
           status: "err",
           name,
+          firstname,
           surname,
           phone,
           email,
@@ -178,6 +185,7 @@ function ImportContacts() {
         return {
           status: "dup",
           name,
+          firstname,
           surname,
           phone,
           email,
@@ -185,7 +193,16 @@ function ImportContacts() {
           tags,
           existing,
         };
-      return { status: "ok", name, surname, phone, email, emailDropped, tags };
+      return {
+        status: "ok",
+        name,
+        firstname,
+        surname,
+        phone,
+        email,
+        emailDropped,
+        tags,
+      };
     });
   }, [file, mapping, existingByPhone]);
 
@@ -233,6 +250,7 @@ function ImportContacts() {
     setImportError(null);
     setMapping({
       name: null,
+      firstname: null,
       surname: null,
       phone: null,
       email: null,
@@ -248,6 +266,7 @@ function ImportContacts() {
       const parsed = await parseContactsFile(picked);
       setMapping({
         name: detect(parsed.headers, NAME_RE),
+        firstname: detect(parsed.headers, FIRSTNAME_RE),
         surname: detect(parsed.headers, SURNAME_RE),
         phone: detect(parsed.headers, PHONE_RE),
         email: detect(parsed.headers, EMAIL_RE),
@@ -283,6 +302,7 @@ function ImportContacts() {
         strategy,
         contacts: importRows.map((r) => ({
           name: r.name || null,
+          firstname: r.firstname || null,
           surname: r.surname || null,
           phone: r.phone,
           email: r.email || null,
@@ -470,6 +490,11 @@ function ImportContacts() {
                   {(
                     [
                       { key: "name", label: t("Name"), required: true },
+                      {
+                        key: "firstname",
+                        label: t("First name"),
+                        required: false,
+                      },
                       {
                         key: "surname",
                         label: t("Last name"),
@@ -971,6 +996,9 @@ function FieldRoleChip({
   if (mapping.name === idx) {
     role = t("Name");
     color = "var(--primary)";
+  } else if (mapping.firstname === idx) {
+    role = t("First name");
+    color = "oklch(0.55 0.14 260)";
   } else if (mapping.surname === idx) {
     role = t("Last name");
     color = "oklch(0.55 0.14 300)";

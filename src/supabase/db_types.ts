@@ -1114,6 +1114,7 @@ export type Database = {
         Row: {
           created_at: string
           extra: Json | null
+          firstname: string | null
           id: string
           name: string | null
           notes: string | null
@@ -1127,6 +1128,7 @@ export type Database = {
         Insert: {
           created_at?: string
           extra?: Json | null
+          firstname?: string | null
           id?: string
           name?: string | null
           notes?: string | null
@@ -1140,6 +1142,7 @@ export type Database = {
         Update: {
           created_at?: string
           extra?: Json | null
+          firstname?: string | null
           id?: string
           name?: string | null
           notes?: string | null
@@ -2273,6 +2276,7 @@ export type Database = {
       fold_contact_fields: {
         Args: {
           p_extra: Json
+          p_firstname: string
           p_name: string
           p_notes: string
           p_surname: string
