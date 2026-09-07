@@ -1135,5 +1135,16 @@
   "Everything on {name} moves to the contact you pick": "Tout ce qui appartient à {name} sera transféré au contact choisi",
   "Could not merge the contacts. Please try again.": "Impossible de fusionner les contacts. Veuillez réessayer.",
   "Merge contact": "Fusionner le contact",
-  "This number comes from your phone's contacts — remove it there to remove it here": "Ce numéro provient des contacts de votre téléphone — supprimez-le là-bas pour le supprimer ici"
+  "This number comes from your phone's contacts — remove it there to remove it here": "Ce numéro provient des contacts de votre téléphone — supprimez-le là-bas pour le supprimer ici",
+  "Frequently asked questions": "Questions fréquentes",
+  "answers": "réponses",
+  "Question": "Question",
+  "How much does it cost?": "Combien ça coûte ?",
+  "Answer": "Réponse",
+  "It depends on the scope — tell me what you need.": "Ça dépend de l'ampleur du projet — dites-moi ce dont vous avez besoin.",
+  "Send this wording exactly": "Envoyer cette formulation à l'identique",
+  "For answers where the phrasing matters — disclaimers, anything you don't want reworded.": "Pour les réponses où la formulation compte — mentions légales, tout ce que vous ne voulez pas voir reformulé.",
+  "Add question": "Ajouter une question",
+  "The agent gives these answers when a client asks one of these questions. It stays silent on questions you don't list here.": "L'agent donne ces réponses quand un client pose l'une de ces questions. Il garde le silence sur les questions que vous ne listez pas ici.",
+  "The agent gives these answers when a client asks one of these questions. Questions you don't list here aren't treated as a no - the agent says it will come back with an answer.": "L'agent donne ces réponses quand un client pose l'une de ces questions. Les questions absentes de cette liste ne sont pas considérées comme un non — l'agent dit qu'il reviendra avec une réponse."
 }

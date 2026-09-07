@@ -1418,5 +1418,16 @@
   "Everything on {name} moves to the contact you pick": "כל מה שקיים אצל {name} יעבור לאיש הקשר שתבחרו",
   "Could not merge the contacts. Please try again.": "לא ניתן היה למזג את אנשי הקשר. נסו שוב.",
   "Merge contact": "מיזוג איש קשר",
-  "This number comes from your phone's contacts — remove it there to remove it here": "המספר הזה מגיע מאנשי הקשר בטלפון שלך — מחק אותו שם כדי להסיר אותו כאן"
+  "This number comes from your phone's contacts — remove it there to remove it here": "המספר הזה מגיע מאנשי הקשר בטלפון שלך — מחק אותו שם כדי להסיר אותו כאן",
+  "Frequently asked questions": "שאלות נפוצות",
+  "answers": "תשובות",
+  "Question": "שאלה",
+  "How much does it cost?": "כמה זה עולה?",
+  "Answer": "תשובה",
+  "It depends on the scope — tell me what you need.": "זה תלוי בהיקף — ספרו לי מה אתם צריכים.",
+  "Send this wording exactly": "לשלוח את הניסוח הזה במדויק",
+  "For answers where the phrasing matters — disclaimers, anything you don't want reworded.": "לתשובות שבהן הניסוח חשוב — הסתייגויות, כל דבר שאתם לא רוצים שינוסח מחדש.",
+  "Add question": "הוספת שאלה",
+  "The agent gives these answers when a client asks one of these questions. It stays silent on questions you don't list here.": "הסוכן נותן את התשובות האלה כשלקוח שואל אחת מהשאלות האלה. הוא שותק בשאלות שלא הוספתם כאן.",
+  "The agent gives these answers when a client asks one of these questions. Questions you don't list here aren't treated as a no - the agent says it will come back with an answer.": "הסוכן נותן את התשובות האלה כשלקוח שואל אחת מהשאלות האלה. שאלות שלא רשומות כאן אינן נחשבות לתשובה שלילית — הסוכן אומר שהוא יחזור עם תשובה."
 }

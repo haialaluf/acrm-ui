@@ -128,6 +128,12 @@ function AddAgent() {
                   setValue={setValue}
                 />
 
+                <FaqSection
+                  control={control}
+                  register={register}
+                  disabled={!isAdmin}
+                />
+
                 <SwitchField
                   name="extra.on_topic_only"
                   control={control}
@@ -167,14 +173,6 @@ function AddAgent() {
                     : t("You are a helpful assistant...")
                 }
               />
-              {!isBackOffice && (
-                <FaqSection
-                  control={control}
-                  register={register}
-                  disabled={!isAdmin}
-                  modalClassName="bottom-0"
-                />
-              )}
               <SelectField
                 name="extra.model"
                 control={control}

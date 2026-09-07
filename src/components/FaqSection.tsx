@@ -15,9 +15,6 @@ type FaqSectionProps<T extends FieldValues> = {
   control: Control<T>;
   register: UseFormRegister<T>;
   disabled?: boolean;
-  // Forwarded to `SectionField` — this one opens inside the Advanced panel, so
-  // it needs "bottom-0" or the default inset applies twice.
-  modalClassName?: string;
 };
 
 /**
@@ -34,7 +31,6 @@ export default function FaqSection<T extends FieldValues>({
   control,
   register,
   disabled,
-  modalClassName,
 }: FaqSectionProps<T>) {
   const { translate: t } = useTranslation();
 
@@ -59,17 +55,27 @@ export default function FaqSection<T extends FieldValues>({
     (e) => e?.question?.trim() && e?.answer?.trim(),
   ).length;
 
+  const onTopicOnly =
+    useWatch({
+      control,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      name: "extra.on_topic_only" as any,
+    }) !== false;
+
   return (
     <SectionField
       label={t("Frequently asked questions")}
       description={usable ? `${usable} ${t("answers")}` : t("None")}
       disabled={disabled}
-      modalClassName={modalClassName}
     >
       <p className="text-muted-foreground text-[14px]">
-        {t(
-          "The agent gives these answers when a client asks one of these questions. Questions you don't list here aren't treated as a no — the agent says it will come back with an answer.",
-        )}
+        {onTopicOnly
+          ? t(
+              "The agent gives these answers when a client asks one of these questions. It stays silent on questions you don't list here.",
+            )
+          : t(
+              "The agent gives these answers when a client asks one of these questions. Questions you don't list here aren't treated as a no - the agent says it will come back with an answer.",
+            )}
       </p>
 
       {fields.map((field, i) => (
