@@ -245,7 +245,23 @@ function ContactDetail() {
           })),
         strategy,
       },
-      { onSuccess: () => setPendingConflict(null) },
+      {
+        onSuccess: (result) => {
+          setPendingConflict(null);
+          // A merge keeps the OLDER contact as the survivor, which is usually
+          // the stub the address first arrived on — this contact is then
+          // deleted and the route is left pointing at a row that no longer
+          // exists (a blank panel, and the address looks like it was never
+          // added). Follow the address to the contact that now holds it.
+          if (result.contact_id && result.contact_id !== contactId) {
+            void navigate({
+              to: `/contacts/${result.contact_id}`,
+              hash: (prevHash: string | undefined) => prevHash!,
+              replace: true,
+            });
+          }
+        },
+      },
     );
   }
 
