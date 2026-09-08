@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 
-/** Square primary-tinted checkbox used in the recipient list. */
+/** Square primary-tinted checkbox used in the contact lists. */
 export default function Checkbox({
   checked,
   onChange,

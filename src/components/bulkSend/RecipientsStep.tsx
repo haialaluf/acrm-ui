@@ -3,6 +3,10 @@ import { ArrowLeft } from "lucide-react";
 
 import Button from "@/components/Button";
 import SectionFooter from "@/components/SectionFooter";
+import ContactList, {
+  type ContactRow,
+} from "@/components/contacts/ContactList";
+import ContactListToolbar from "@/components/contacts/ContactListToolbar";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
 import { useContactActivityMatch } from "@/queries/useContactActivity";
@@ -12,12 +16,10 @@ import ContactFilter, {
   type ContactFilterValue,
 } from "@/components/ContactFilter";
 
-import ContactRow from "./ContactRow";
-import LinkBtn from "./LinkBtn";
 import QuotaMeter from "./QuotaMeter";
 import {
   contactRecipients,
-  expandRecipients,
+  recipientAddressLabel,
   type Channel,
   type Recipient,
 } from "./types";
@@ -68,9 +70,9 @@ export default function RecipientsStep({
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
   const { match: activityMatch } = useContactActivityMatch(filter);
 
-  // useCallback so it is a stable dependency of the `selectable` memo below —
-  // a fresh closure each render would recompute that filter on every keystroke
-  // in the search box.
+  // useCallback so it is a stable dependency of the `rows` memo below — a
+  // fresh closure each render would rebuild the list on every keystroke in the
+  // search box.
   const disabledReason = useCallback(
     (r: Recipient) => {
       if (r.contact.status === "removed") {
@@ -98,10 +100,27 @@ export default function RecipientsStep({
   // The filter runs on contacts (a search hit on one of a contact's numbers is
   // a hit on the contact), then every surviving contact is expanded into its
   // addresses — so both of someone's numbers stay listed together.
-  const rows = useMemo(
-    () => expandRecipients(filtered, channel),
-    [filtered, channel],
+  const rows = useMemo<ContactRow[]>(
+    () =>
+      filtered.flatMap((c) =>
+        contactRecipients(c, channel).map((r) => ({
+          kind: "contact" as const,
+          key: r.address,
+          contact: r.contact,
+          subtitle: recipientAddressLabel(r.address, channel),
+          disabledReason: disabledReason(r),
+        })),
+      ),
+    [filtered, channel, disabledReason],
   );
+
+  const selectable = useMemo(
+    () => rows.filter((r) => !r.disabledReason),
+    [rows],
+  );
+
+  const allSelected =
+    selectable.length > 0 && selectable.every((r) => selectedIds.has(r.key));
 
   function toggleAddress(address: string) {
     const next = new Set(selectedIds);
@@ -110,81 +129,51 @@ export default function RecipientsStep({
     setSelectedIds(next);
   }
 
-  const selectable = useMemo(
-    () => rows.filter((r) => !disabledReason(r)),
-    [rows, disabledReason],
-  );
-
-  const allSelected =
-    selectable.length > 0 &&
-    selectable.every((r) => selectedIds.has(r.address));
-
   return (
     <>
-      <div className="grow overflow-y-auto [scrollbar-gutter:stable]">
-        <div className="sticky top-0 z-10 bg-background pt-[6px]">
-          <ContactFilter
-            value={filter}
-            onChange={setFilter}
-            contacts={withAddress}
-            className="px-[16px] pb-[8px]"
-          />
-          <div className="px-[18px] pb-[8px] flex items-center justify-between text-[12px] text-muted-foreground">
-            <span>
-              {rows.length} {t("recipients")}
-            </span>
-            <div className="flex gap-[12px]">
-              {!allSelected && (
-                <LinkBtn
-                  onClick={() => {
-                    const next = new Set(selectedIds);
-                    for (const r of selectable) next.add(r.address);
-                    setSelectedIds(next);
-                  }}
-                >
-                  {t("Select all")}
-                </LinkBtn>
-              )}
-              {selectedIds.size > 0 && (
-                <LinkBtn onClick={() => setSelectedIds(new Set())}>
-                  {t("Clear all")}
-                </LinkBtn>
-              )}
-            </div>
-          </div>
-        </div>
+      <ContactFilter
+        value={filter}
+        onChange={setFilter}
+        contacts={withAddress}
+        className="px-[16px] pt-[6px]"
+      />
 
-        <div className="px-[8px] pb-[12px] flex flex-col gap-[2px]">
-          {rows.map((r) => {
-            const reason = disabledReason(r);
-            return (
-              <ContactRow
-                key={r.address}
-                contact={r.contact}
-                address={r.address}
-                channel={channel}
-                checked={selectedIds.has(r.address)}
-                onToggle={() => toggleAddress(r.address)}
-                disabled={!!reason}
-                disabledReason={reason}
-              />
-            );
-          })}
-          {rows.length === 0 && (
-            <div className="py-[40px] text-center text-muted-foreground text-[14px]">
-              {/* "No results" is only the right answer when a filter excluded
-                  everyone. When the channel did, say so — otherwise an org
-                  whose contacts have phones but no email addresses just sees an
-                  empty list with no hint why. */}
-              {withAddress.length === 0
-                ? channel === "email"
-                  ? t("None of your contacts have an email address")
-                  : t("None of your contacts have a WhatsApp number")
-                : t("No results")}
-            </div>
-          )}
-        </div>
-      </div>
+      <ContactListToolbar
+        count={rows.length}
+        label={t("recipients")}
+        selectedCount={selectedIds.size}
+        onSelectAll={
+          allSelected
+            ? undefined
+            : () =>
+                setSelectedIds(
+                  new Set([...selectedIds, ...selectable.map((r) => r.key)]),
+                )
+        }
+        onClearAll={() => setSelectedIds(new Set())}
+      />
+
+      <ContactList
+        dense
+        rows={rows}
+        scrollResetKey={filter}
+        selectedKeys={selectedIds}
+        onToggle={toggleAddress}
+        className="px-[8px] pb-[12px]"
+        empty={
+          <div className="py-[40px] text-center text-muted-foreground text-[14px]">
+            {/* "No results" is only the right answer when a filter excluded
+                everyone. When the channel did, say so — otherwise an org whose
+                contacts have phones but no email addresses just sees an empty
+                list with no hint why. */}
+            {withAddress.length === 0
+              ? channel === "email"
+                ? t("None of your contacts have an email address")
+                : t("None of your contacts have a WhatsApp number")
+              : t("No results")}
+          </div>
+        }
+      />
 
       <SectionFooter className="gap-[10px]">
         {dailyLimit != null && (

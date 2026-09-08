@@ -1,25 +1,23 @@
-import { Fragment, useMemo, useState } from "react";
-import SectionBody from "@/components/SectionBody";
-import SectionHeader from "@/components/SectionHeader";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useContacts, useDeleteContacts } from "@/queries/useContacts";
-import SectionItem from "@/components/SectionItem";
+import { useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ListChecks, Plus, Trash2, Upload } from "lucide-react";
-import Avatar, { avatarHue } from "@/components/Avatar";
-import Checkbox from "@/components/bulkSend/Checkbox";
+
+import SectionHeader from "@/components/SectionHeader";
 import Button from "@/components/Button";
-import {
-  contactDisplayAddress,
-  contactInstagramPicture,
-} from "@/utils/ContactAddressUtils";
+import ContactList, {
+  type ContactListRow,
+} from "@/components/contacts/ContactList";
+import ContactListToolbar from "@/components/contacts/ContactListToolbar";
 import ContactFilter, {
   activeFilterCount,
   applyContactFilter,
   emptyContactFilter,
   type ContactFilterValue,
 } from "@/components/ContactFilter";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useContacts, useDeleteContacts } from "@/queries/useContacts";
 import { useContactActivityMatch } from "@/queries/useContactActivity";
+import { contactDisplayAddress } from "@/utils/ContactAddressUtils";
 
 /**
  * The A-Z index letter a contact files under. Anything that does not start
@@ -55,10 +53,11 @@ function ListContacts() {
     [allContacts, filter, activityMatch],
   );
 
-  /** `filtered` split into A-Z sections. Sorted here rather than relying on the
-     query's `order("name")`: the section letters only read correctly if the
-     order is monotonic in the same collation we group by. */
-  const grouped = useMemo(() => {
+  /** `filtered` flattened into A-Z letter headers followed by their contacts.
+     Sorted here rather than relying on the query's `order("name")`: the
+     section letters only read correctly if the order is monotonic in the same
+     collation we group by. */
+  const rows = useMemo<ContactListRow[]>(() => {
     const sorted = [...filtered].sort((a, b) => {
       const aOther = sectionLetter(a.name) === "#";
       const bOther = sectionLetter(b.name) === "#";
@@ -68,19 +67,26 @@ function ListContacts() {
       });
     });
 
-    const sections: { letter: string; contacts: typeof sorted }[] = [];
+    const out: ContactListRow[] = [];
+    let letter = "";
     for (const contact of sorted) {
-      const letter = sectionLetter(contact.name);
-      const last = sections[sections.length - 1];
-      if (last?.letter === letter) last.contacts.push(contact);
-      else sections.push({ letter, contacts: [contact] });
+      const next = sectionLetter(contact.name);
+      if (next !== letter) {
+        letter = next;
+        out.push({ kind: "letter", key: `letter:${letter}`, letter });
+      }
+      out.push({
+        kind: "contact",
+        key: contact.id,
+        contact,
+        subtitle: contactDisplayAddress(contact) ?? t("No address"),
+      });
     }
-    return sections;
-  }, [filtered]);
+    return out;
+  }, [filtered, t]);
 
   const hasAnyFilter =
     filter.search.length > 0 || activeFilterCount(filter) > 0;
-
   const allSelected =
     filtered.length > 0 && filtered.every((c) => selected.has(c.id));
 
@@ -96,20 +102,6 @@ function ListContacts() {
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
-    });
-  }
-
-  function toggleSelectAll() {
-    if (allSelected) {
-      setSelected(new Set());
-    } else {
-      setSelected(new Set(filtered.map((c) => c.id)));
-    }
-  }
-
-  function handleDelete() {
-    deleteContacts.mutate(Array.from(selected), {
-      onSuccess: exitSelection,
     });
   }
 
@@ -165,129 +157,87 @@ function ListContacts() {
         contacts={allContacts}
       />
 
-      {selectionMode && (
-        /* Same box as the action row below — 12px gap, then a 44px row — so
-           entering selection mode swaps the controls without moving the list. */
-        <div className="px-[20px] pt-[12px]">
-          <div className="flex items-center justify-between h-[44px]">
-            {/* Select-all + count */}
-            <label className="flex items-center gap-[10px] cursor-pointer">
-              <Checkbox checked={allSelected} onChange={toggleSelectAll} />
-              <span className="text-[14px]">
-                {selected.size > 0
-                  ? `${selected.size} ${t("selected")}`
-                  : t("Select all")}
-              </span>
-            </label>
-
-            {/* Actions */}
-            <div className="flex items-center gap-[14px]">
-              <button
-                className="flex items-center gap-[6px] text-[14px] text-destructive disabled:text-muted-foreground disabled:opacity-50"
-                disabled={selected.size === 0 || deleteContacts.isPending}
-                onClick={() => setConfirming(true)}
-              >
-                <Trash2 className="w-4 h-4" />
-                {t("Delete")}
-              </button>
-              <button
-                className="text-[14px] text-muted-foreground"
-                onClick={exitSelection}
-              >
-                {t("Cancel")}
-              </button>
-            </div>
-          </div>
-
-          {confirming && (
-            <div
-              className="mt-[10px] mb-[12px] rounded-[14px] p-[14px] border"
-              style={{
-                background: "oklch(from var(--destructive) l c h / 0.06)",
-                borderColor: "oklch(from var(--destructive) l c h / 0.25)",
-              }}
+      <ContactListToolbar
+        count={filtered.length}
+        label={t("contacts")}
+        selectedCount={selectionMode ? selected.size : undefined}
+        onSelectAll={
+          selectionMode && !allSelected
+            ? () => setSelected(new Set(filtered.map((c) => c.id)))
+            : undefined
+        }
+        onClearAll={selectionMode ? () => setSelected(new Set()) : undefined}
+      >
+        {selectionMode && (
+          <>
+            <button
+              className="flex items-center gap-[6px] text-[13px] text-destructive disabled:text-muted-foreground disabled:opacity-50"
+              disabled={selected.size === 0 || deleteContacts.isPending}
+              onClick={() => setConfirming(true)}
             >
-              <div className="text-[14px] leading-[1.5]">
-                {t("Delete the selected contacts?")} ({selected.size}){" "}
-                {t("This action cannot be undone.")}
-              </div>
-              <div className="flex items-center gap-[10px] mt-[12px]">
-                <Button
-                  className="bg-destructive text-white hover:bg-destructive/90 rounded-full font-semibold text-[14px] px-[22px] py-[9px]"
-                  loading={deleteContacts.isPending}
-                  onClick={handleDelete}
-                >
-                  {t("Delete")}
-                </Button>
-                <button
-                  className="text-[14px] text-muted-foreground px-[6px] py-[9px]"
-                  onClick={() => setConfirming(false)}
-                >
-                  {t("Cancel")}
-                </button>
-              </div>
-            </div>
-          )}
+              <Trash2 className="w-[14px] h-[14px]" />
+              {t("Delete")}
+            </button>
+            <button className="text-[13px]" onClick={exitSelection}>
+              {t("Cancel")}
+            </button>
+          </>
+        )}
+      </ContactListToolbar>
+
+      {confirming && (
+        <div
+          className="mx-[20px] mb-[12px] rounded-[14px] p-[14px] border"
+          style={{
+            background: "oklch(from var(--destructive) l c h / 0.06)",
+            borderColor: "oklch(from var(--destructive) l c h / 0.25)",
+          }}
+        >
+          <div className="text-[14px] leading-[1.5]">
+            {t("Delete the selected contacts?")} ({selected.size}){" "}
+            {t("This action cannot be undone.")}
+          </div>
+          <div className="flex items-center gap-[10px] mt-[12px]">
+            <Button
+              className="bg-destructive text-white hover:bg-destructive/90 rounded-full font-semibold text-[14px] px-[22px] py-[9px]"
+              loading={deleteContacts.isPending}
+              onClick={() =>
+                deleteContacts.mutate(Array.from(selected), {
+                  onSuccess: exitSelection,
+                })
+              }
+            >
+              {t("Delete")}
+            </Button>
+            <button
+              className="text-[14px] text-muted-foreground px-[6px] py-[9px]"
+              onClick={() => setConfirming(false)}
+            >
+              {t("Cancel")}
+            </button>
+          </div>
         </div>
       )}
 
-      <SectionBody>
-        {hasAnyFilter && filtered.length === 0 && (
-          <div className="py-[32px] text-center text-muted-foreground text-[14px]">
-            {t("No results")}
-          </div>
-        )}
-        {grouped.map((section) => (
-          <Fragment key={section.letter}>
-            {/* Aligned with the avatars: SectionBody's px-[10px] plus the
-                row's own pl-[10px]. */}
-            <div className="h-[28px] shrink-0 flex items-center px-[10px] text-[12px] font-semibold tracking-[0.08em] text-muted-foreground">
-              {section.letter}
+      <ContactList
+        rows={rows}
+        scrollResetKey={filter}
+        selectedKeys={selectionMode ? selected : undefined}
+        onToggle={toggleContact}
+        onOpen={(id) =>
+          navigate({
+            to: `/contacts/${id}`,
+            hash: (prevHash: string | undefined) => prevHash!,
+          })
+        }
+        empty={
+          hasAnyFilter ? (
+            <div className="py-[32px] text-center text-muted-foreground text-[14px]">
+              {t("No results")}
             </div>
-            {section.contacts.map((contact) => (
-              <SectionItem
-                key={contact.id}
-                selected={selectionMode && selected.has(contact.id)}
-                title={contact.name || t("No name")}
-                description={contactDisplayAddress(contact) ?? t("No address")}
-                aside={
-                  selectionMode ? (
-                    // Holds the avatar's 40px footprint, left-aligned: the
-                    // checkbox lands exactly where it would anyway, and the
-                    // name and address stay put instead of sliding 20px left.
-                    <div className="w-[40px] flex items-center">
-                      <Checkbox
-                        checked={selected.has(contact.id)}
-                        onChange={() => toggleContact(contact.id)}
-                      />
-                    </div>
-                  ) : (
-                    <Avatar
-                      src={contactInstagramPicture(contact)}
-                      fallback={
-                        contact.name?.substring(0, 2).toUpperCase() || "?"
-                      }
-                      size={40}
-                      // Unnamed contacts keep the flat grey: there is no name
-                      // to colour-code, and grey is itself the signal.
-                      hue={contact.name ? avatarHue(contact.id) : null}
-                      className="bg-muted text-muted-foreground"
-                    />
-                  )
-                }
-                onClick={() =>
-                  selectionMode
-                    ? toggleContact(contact.id)
-                    : navigate({
-                        to: `/contacts/${contact.id}`,
-                        hash: (prevHash: string | undefined) => prevHash!,
-                      })
-                }
-              />
-            ))}
-          </Fragment>
-        ))}
-      </SectionBody>
+          ) : null
+        }
+      />
     </>
   );
 }
