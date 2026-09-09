@@ -12,6 +12,7 @@ import {
   useBroadcastBatchMessages,
   useCancelBroadcastBatch,
 } from "@/queries/useBroadcasts";
+import { failureReason } from "@/utils/failureReason";
 import { batchStatus, batchStatusLabel, batchStatusTone } from "./batchStatus";
 import {
   formatBatchDayLong,
@@ -19,6 +20,7 @@ import {
   formatEventTime,
 } from "./formatScheduledDate";
 import {
+  FAILURE_KINDS,
   messageKindLabel,
   messageMatchesStatus,
   messageStatusKind,
@@ -259,42 +261,64 @@ export default function BroadcastBatchDetail({
           )}
 
           <div className="flex flex-col rounded-xl border border-border overflow-hidden bg-card">
-            {filteredMessages?.map((m) => (
-              <div
-                key={m.message_id}
-                className={
-                  "flex items-center justify-between px-[14px] py-[10px] border-b border-border last:border-b-0 " +
-                  (m.contact_id ? "cursor-pointer hover:bg-accent" : "")
-                }
-                onClick={() => openContact(m.contact_id)}
-              >
-                <span className="text-[14px]">
-                  {m.contact_name || m.contact_address}
-                </span>
-                <span className="flex items-center gap-[10px] text-[12px] text-muted-foreground">
-                  {(() => {
-                    // A filtered list answers a question about *that* bucket
-                    // ("when was this delivered?"), so the row reports the
-                    // clicked bucket and the moment it was reached. Unfiltered,
-                    // it reports how far the message got and when that
-                    // happened. Either way the time belongs to the label next
-                    // to it, rather than always being the send time.
-                    const kind = statusFilter ?? messageStatusKind(m.status);
-                    const at = messageStatusTime(m.status, kind) ?? m.timestamp;
-                    return (
-                      <>
-                        {at && (
-                          <span className="tabular-nums">
-                            {formatEventTime(at, schedule, currentLanguage)}
+            {filteredMessages?.map((m) => {
+              // A filtered list answers a question about *that* bucket ("when
+              // was this delivered?"), so the row reports the clicked bucket
+              // and the moment it was reached. Unfiltered, it reports how far
+              // the message got and when that happened. Either way the time
+              // belongs to the label next to it, rather than always being the
+              // send time.
+              const ownKind = messageStatusKind(m.status);
+              const kind = statusFilter ?? ownKind;
+              const at = messageStatusTime(m.status, kind) ?? m.timestamp;
+              // Gated on the message's own furthest state, not the filtered
+              // label: buckets overlap, so a failure still deserves its reason
+              // while the list is filtered to "sent".
+              const reason = FAILURE_KINDS.has(ownKind)
+                ? failureReason(m.status)
+                : null;
+
+              return (
+                <div
+                  key={m.message_id}
+                  className={
+                    "flex items-center justify-between gap-[12px] px-[14px] py-[10px] border-b border-border last:border-b-0 " +
+                    (m.contact_id ? "cursor-pointer hover:bg-accent" : "")
+                  }
+                  onClick={() => openContact(m.contact_id)}
+                >
+                  <span className="min-w-0">
+                    <span className="block text-[14px] truncate">
+                      {m.contact_name || m.contact_address}
+                    </span>
+                    {reason && (
+                      <span
+                        className="block text-[12px] mt-[2px] text-destructive leading-snug"
+                        title={reason.hint && t(reason.hint)}
+                      >
+                        {reason.code && (
+                          <span
+                            dir="ltr"
+                            className="inline-block font-mono opacity-75 me-[5px]"
+                          >
+                            {reason.code}
                           </span>
                         )}
-                        <span>{messageKindLabel(kind, t, m.service)}</span>
-                      </>
-                    );
-                  })()}
-                </span>
-              </div>
-            ))}
+                        {t(reason.title)}
+                      </span>
+                    )}
+                  </span>
+                  <span className="flex shrink-0 items-center gap-[10px] text-[12px] text-muted-foreground">
+                    {at && (
+                      <span className="tabular-nums">
+                        {formatEventTime(at, schedule, currentLanguage)}
+                      </span>
+                    )}
+                    <span>{messageKindLabel(kind, t, m.service)}</span>
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

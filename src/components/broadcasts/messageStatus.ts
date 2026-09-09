@@ -99,6 +99,18 @@ export function messageMatchesStatus(
   }
 }
 
+/** The buckets that mean the message did not reach the recipient as intended,
+ *  and so are worth pairing with the reason from `status.errors`. `complained`
+ *  is one of them even though it was delivered — the spam report is the thing
+ *  the operator needs to see. */
+export const FAILURE_KINDS = new Set<MessageStatusKind>([
+  "failed",
+  "bounced",
+  "soft_bounced",
+  "complained",
+  "suppressed",
+]);
+
 const KIND_LABELS: Record<MessageStatusKind, string> = {
   pending: "Pending",
   sent: "Sent",

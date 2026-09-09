@@ -99,10 +99,15 @@ const ERROR_CODES: Record<string, ErrorMeta> = {
   },
 };
 
+/** Copy for a Meta error code, or null when there is none for it. */
+export function knownErrorMeta(code: string): ErrorMeta | null {
+  return ERROR_CODES[code] ?? null;
+}
+
 /** Copy for a Meta error code, or a neutral fallback for unknown codes. */
 export function errorMeta(code: string): ErrorMeta {
   return (
-    ERROR_CODES[code] ?? {
+    knownErrorMeta(code) ?? {
       title: "Unrecognized error",
       hint: "This code is not one we have guidance for. Look it up in Meta's Cloud API error reference.",
     }
