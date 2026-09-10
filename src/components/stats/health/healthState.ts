@@ -1,5 +1,6 @@
 import type {
   HealthSnapshotRow,
+  LiveHealthCheck,
   MessageTemplateRow,
 } from "@/queries/useWhatsAppHealth";
 import type { DayMetrics, MetricsAggregate } from "./metrics";
@@ -125,10 +126,40 @@ function isActive(restriction: Restriction, now: Date): boolean {
   return Number.isNaN(expiry.getTime()) ? true : expiry > now;
 }
 
+/** What coalesceHealth reads from a row: a stored snapshot or a live reading. */
+type HealthObservation = Omit<
+  HealthSnapshotRow,
+  "id" | "organization_id" | "event_type"
+>;
+
+/**
+ * Puts what Meta says right now in front of the stored snapshots. The live
+ * reading wins every field it has; violations and restrictions, which only
+ * webhooks report, still come from the stored rows.
+ */
+export function withLiveReading(
+  snapshots: HealthSnapshotRow[],
+  live: LiveHealthCheck | null | undefined,
+): HealthObservation[] {
+  if (live?.status !== "live") return snapshots;
+
+  return [
+    {
+      ...live.reading,
+      organization_address: live.address,
+      source: "live",
+      violation_type: null,
+      restriction_info: null,
+      created_at: live.checked_at,
+    },
+    ...snapshots,
+  ];
+}
+
 /**
  * Current account state, assembled from several snapshots rather than one.
  *
- * The two producers write disjoint column sets: a poll row carries
+ * The producers write disjoint column sets: a poll row or live reading carries
  * `can_send_message`, `name_status`, review/verification status and
  * `health_status`; a webhook row carries `event_type`, `violation_type`,
  * `restriction_info` and sometimes `quality_rating`. Reading only the newest
@@ -138,13 +169,13 @@ function isActive(restriction: Restriction, now: Date): boolean {
  * @param snapshots newest first, as returned by `useHealthSnapshots`.
  */
 export function coalesceHealth(
-  snapshots: HealthSnapshotRow[],
+  snapshots: HealthObservation[],
   now: Date = new Date(),
 ): AccountHealthState | null {
   if (!snapshots.length) return null;
 
   const latest = <T>(
-    pick: (row: HealthSnapshotRow) => T | null | undefined,
+    pick: (row: HealthObservation) => T | null | undefined,
   ) => {
     for (const row of snapshots) {
       const value = pick(row);
@@ -157,7 +188,7 @@ export function coalesceHealth(
     snapshots.find((row) => row.violation_type != null) ?? null;
   const restrictionRow =
     snapshots.find((row) => row.restriction_info != null) ?? null;
-  const pollRow = snapshots.find((row) => row.source === "poll") ?? null;
+  const pollRow = snapshots.find((row) => row.source !== "webhook") ?? null;
 
   return {
     organizationAddress: latest((r) => r.organization_address),
@@ -181,17 +212,6 @@ export function coalesceHealth(
     lastCheckedAt: snapshots[0]?.created_at ?? null,
     lastSource: snapshots[0]?.source ?? null,
   };
-}
-
-/**
- * When the 4-hourly poller runs next. Derived, not stored: the pg_cron schedule
- * fires on the hour every four hours, UTC (whatsapp_health_poll_cron migration).
- */
-export function nextPollAt(now: Date = new Date()): Date {
-  const next = new Date(now);
-  next.setUTCMinutes(0, 0, 0);
-  next.setUTCHours(next.getUTCHours() + (4 - (now.getUTCHours() % 4)));
-  return next;
 }
 
 //===================================

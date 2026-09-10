@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { LoaderCircle, ShieldAlert } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useIntegrations } from "@/hooks/useIntegrations";
@@ -6,11 +6,18 @@ import { useWabaSpend } from "@/queries/useWabaSpend";
 import {
   useHealthEvents,
   useHealthSnapshots,
+  useLiveHealthCheck,
   useMessageTemplatesMirror,
   useTemplateSends,
   useWhatsAppDailyMetrics,
+  type LiveHealthCheck,
 } from "@/queries/useWhatsAppHealth";
-import { buildHealthIssues, coalesceHealth, deriveRisk } from "./healthState";
+import {
+  buildHealthIssues,
+  coalesceHealth,
+  deriveRisk,
+  withLiveReading,
+} from "./healthState";
 import { aggregate, filterByAddress, splitWindows } from "./metrics";
 import AccountFacts from "./AccountFacts";
 import ColdChart from "./ColdChart";
@@ -21,7 +28,7 @@ import HealthIssues from "./HealthIssues";
 import RateTiles from "./RateTiles";
 import TemplatesTable from "./TemplatesTable";
 import VolumeChart from "./VolumeChart";
-import { FilterPill, Ltr } from "./primitives";
+import { FilterPill, Ltr, TONE } from "./primitives";
 
 const RANGES = [7, 30, 90] as const;
 /** Meta's own quality window is 30 days, so template volume matches it. */
@@ -54,6 +61,7 @@ export default function AccountHealth() {
   const { data: events } = useHealthEvents(address);
   const { data: templateSends } = useTemplateSends(TEMPLATE_SEND_DAYS);
   const { data: spend } = useWabaSpend(address ?? undefined, range);
+  const live = useLiveHealthCheck(address);
 
   const { current, currentAgg, previousAgg } = useMemo(() => {
     const rows = filterByAddress(metricRows ?? [], address);
@@ -65,7 +73,10 @@ export default function AccountHealth() {
     };
   }, [metricRows, address, range]);
 
-  const state = useMemo(() => coalesceHealth(snapshots ?? []), [snapshots]);
+  const state = useMemo(
+    () => coalesceHealth(withLiveReading(snapshots ?? [], live.data)),
+    [snapshots, live.data],
+  );
 
   const issues = useMemo(
     () => buildHealthIssues(state, current, templates ?? [], t),
@@ -93,7 +104,7 @@ export default function AccountHealth() {
   // The charts are computed from `messages`, so they are just as useful before
   // the poller has ever run — blocking the whole page on a snapshot would hide
   // the data most likely to explain why sending is going wrong.
-  const hasNeverBeenChecked = !snapshotsLoading && !snapshots?.length;
+  const hasNeverBeenChecked = !snapshotsLoading && !state;
 
   return (
     <div className="@container flex flex-col gap-[14px] p-[24px] max-w-[1200px] mx-auto w-full">
@@ -124,6 +135,11 @@ export default function AccountHealth() {
                 </span>
               </>
             )}
+            <LiveCheckStatus
+              checking={live.isFetching}
+              check={live.data}
+              error={live.error}
+            />
           </div>
         </div>
         <div className="flex gap-[6px] shrink-0">
@@ -156,12 +172,21 @@ export default function AccountHealth() {
       ) : (
         <>
           {hasNeverBeenChecked ? (
-            <NotYetChecked
-              title={t("No health check has run for this number yet")}
-              body={t(
-                "The health check runs every 4 hours. Quality rating, sending limits and restrictions appear here once it has run. Your sending behaviour below is measured from your own messages and is already up to date.",
-              )}
-            />
+            live.isFetching ? (
+              <NotYetChecked
+                title={t("Checking this number with Meta…")}
+                body={t(
+                  "Quality rating, sending limits and restrictions appear here in a moment. Your sending behaviour below is measured from your own messages and is already up to date.",
+                )}
+              />
+            ) : (
+              <NotYetChecked
+                title={t("No health check has run for this number yet")}
+                body={t(
+                  "The health check runs every 4 hours. Quality rating, sending limits and restrictions appear here once it has run. Your sending behaviour below is measured from your own messages and is already up to date.",
+                )}
+              />
+            )
           ) : (
             <HealthHero
               state={state}
@@ -207,6 +232,55 @@ function Loading() {
     <div className="flex justify-center p-[32px]">
       <LoaderCircle className="w-[24px] h-[24px] animate-spin text-muted-foreground" />
     </div>
+  );
+}
+
+function LiveCheckStatus({
+  checking,
+  check,
+  error,
+}: {
+  checking: boolean;
+  check: LiveHealthCheck | null | undefined;
+  error: Error | null;
+}) {
+  const { translate: t } = useTranslation();
+  const failure =
+    error?.message ?? (check?.status === "failed" ? check.error : null);
+
+  let status: ReactNode = null;
+
+  if (checking) {
+    status = (
+      <span className="inline-flex items-center gap-[6px]">
+        <LoaderCircle className="w-[12px] h-[12px] animate-spin" />
+        {t("Checking with Meta…")}
+      </span>
+    );
+  } else if (failure) {
+    status = (
+      <span className={TONE.destructive.text} title={failure}>
+        {t("Live check failed")}
+      </span>
+    );
+  } else if (check?.status === "live") {
+    status = (
+      <span
+        className={`inline-flex items-center gap-[6px] ${TONE.success.text}`}
+      >
+        <span className={`rounded-full w-[6px] h-[6px] ${TONE.success.dot}`} />
+        {t("Live from Meta")}
+      </span>
+    );
+  }
+
+  if (!status) return null;
+
+  return (
+    <>
+      <span>·</span>
+      {status}
+    </>
   );
 }
 

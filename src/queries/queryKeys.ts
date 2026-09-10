@@ -161,6 +161,9 @@ export const queryKeys = {
     /** Poll + webhook snapshots for one number, newest first. */
     snapshots: (orgId: NullableId, address: NullableId) =>
       [orgId, "whatsapp_health", "snapshots", address] as const,
+    /** What Meta says right now (whatsapp-management/health-live), never stored. */
+    live: (orgId: NullableId, address: NullableId) =>
+      [orgId, "whatsapp_health", "live", address] as const,
     /** Per-day sending behaviour for every number (whatsapp_daily_metrics). */
     metrics: (orgId: NullableId, days: number) =>
       [orgId, "whatsapp_health", "metrics", days] as const,

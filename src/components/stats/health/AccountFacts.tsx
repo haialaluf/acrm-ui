@@ -2,7 +2,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import {
   formatTier,
   humanizeEnum,
-  nextPollAt,
   toneFor,
   type AccountHealthState,
 } from "./healthState";
@@ -121,8 +120,9 @@ export default function AccountFacts({
       )}
 
       <div className="text-[11px] text-muted-foreground mt-[12px] leading-snug">
-        {t("Refreshed every 4 hours and on every event from Meta.")}{" "}
-        {t("Next check at")} {time(nextPollAt().toISOString())}.
+        {t(
+          "Refreshed when you open this page, every 4 hours, and on every event from Meta.",
+        )}
       </div>
     </Card>
   );

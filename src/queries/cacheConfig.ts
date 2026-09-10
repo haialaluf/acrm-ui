@@ -28,3 +28,7 @@ export const STATIC_STALE_TIME = Infinity;
  *  new state the moment they return to the tab, which a focus refetch gives
  *  them — this only collapses rapid duplicate fetches. */
 export const BILLING_STALE_TIME = 10 * 1000;
+
+/** The live WhatsApp health read. Every fetch goes to Meta, so this caps it at
+ *  once a minute per number, however often the page remounts or refocuses. */
+export const LIVE_HEALTH_CHECK_STALE_TIME = 60 * 1000;

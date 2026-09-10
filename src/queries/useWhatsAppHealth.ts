@@ -2,7 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/supabase/client";
 import type { Database, Tables } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { LIVE_HEALTH_CHECK_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
+import { throwFunctionError } from "./throwFunctionError";
 
 export type HealthSnapshotRow = Tables<"whatsapp_health_snapshots">;
 export type MessageTemplateRow = Tables<"message_templates">;
@@ -142,5 +144,59 @@ export function useTemplateSends(days: number) {
         .throwOnError(),
     enabled: !!orgId,
     select: (data) => data.data ?? [],
+  });
+}
+
+export type LiveHealthReading = Pick<
+  HealthSnapshotRow,
+  | "waba_id"
+  | "quality_rating"
+  | "can_send_message"
+  | "messaging_limit"
+  | "messaging_limit_tier"
+  | "name_status"
+  | "account_review_status"
+  | "business_verification_status"
+  | "health_status"
+  | "raw"
+>;
+
+export type LiveHealthCheck =
+  | {
+      address: string;
+      status: "live";
+      checked_at: string;
+      reading: LiveHealthReading;
+    }
+  | { address: string; status: "failed"; error: string }
+  | { address: string; status: "unavailable" };
+
+/**
+ * What Meta says about this number right now. Never stored — the 4-hourly
+ * poll keeps the history in `whatsapp_health_snapshots`, and `withLiveReading`
+ * lays this on top of it.
+ */
+export function useLiveHealthCheck(address: string | null | undefined) {
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  return useQuery({
+    queryKey: queryKeys.whatsappHealth.live(orgId, address),
+    queryFn: async (): Promise<LiveHealthCheck | null> => {
+      const { data, error } = await supabase.functions.invoke<
+        LiveHealthCheck[]
+      >("whatsapp-management/health-live", {
+        method: "PUT",
+        body: { organization_id: orgId, organization_address: address },
+      });
+
+      if (error) await throwFunctionError(error);
+
+      return data?.find((check) => check.address === address) ?? null;
+    },
+    enabled: !!orgId && !!address,
+    staleTime: LIVE_HEALTH_CHECK_STALE_TIME,
+    // A Meta failure comes back as status "failed", not as an error. An error
+    // here is auth or routing, which retrying will not fix.
+    retry: false,
   });
 }
