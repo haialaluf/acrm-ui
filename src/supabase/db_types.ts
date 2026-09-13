@@ -2404,6 +2404,7 @@ export type Database = {
         }
         Returns: Json
       }
+      uuid_generate_v7: { Args: never; Returns: string }
       whatsapp_daily_metrics: {
         Args: { p_days?: number; p_organization_id: string }
         Returns: {

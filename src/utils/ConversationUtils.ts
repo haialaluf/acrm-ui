@@ -1,4 +1,5 @@
 import useBoundStore from "@/stores/useBoundStore";
+import { uuidv7 } from "@/utils/uuid";
 import {
   type AIAgentExtra,
   type ConversationInsert,
@@ -153,7 +154,7 @@ export async function pushConversationToDb(record: ConversationInsert) {
 export function startConversation(conv: ConversationInsert) {
   const record: ConversationInsert = {
     ...conv,
-    id: crypto.randomUUID(),
+    id: uuidv7(),
   };
 
   pushConversationToStore(record);

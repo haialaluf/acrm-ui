@@ -8,6 +8,7 @@ import {
   supabase,
 } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
+import { uuidv7 } from "@/utils/uuid";
 
 export function newMessage(
   conv: ConversationRow,
@@ -32,7 +33,7 @@ export function newMessage(
   // Build the insert object based on direction
   // TypeScript needs help with the union types, so we use type assertions
   return {
-    id: crypto.randomUUID(),
+    id: uuidv7(),
     organization_id: conv.organization_id,
     conversation_id: conv.id,
     service: conv.service,
