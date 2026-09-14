@@ -1921,6 +1921,736 @@ export type Database = {
           },
         ]
       }
+      visibility_actions: {
+        Row: {
+          action: string
+          approval_required: boolean
+          approved_at: string | null
+          approved_by: string | null
+          business_id: string
+          category: string | null
+          completed_at: string | null
+          created_at: string
+          error: string | null
+          evidence: Json
+          executor_id: string | null
+          expected_cost_usd: number
+          expected_impact: number | null
+          id: string
+          organization_id: string
+          platform: string | null
+          reason: string
+          result: Json | null
+          risk: string
+          run_id: string
+          started_at: string | null
+          status: string
+          target: string | null
+          updated_at: string
+        }
+        Insert: {
+          action: string
+          approval_required?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          business_id: string
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          evidence?: Json
+          executor_id?: string | null
+          expected_cost_usd?: number
+          expected_impact?: number | null
+          id?: string
+          organization_id: string
+          platform?: string | null
+          reason: string
+          result?: Json | null
+          risk?: string
+          run_id: string
+          started_at?: string | null
+          status?: string
+          target?: string | null
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          approval_required?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          business_id?: string
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          evidence?: Json
+          executor_id?: string | null
+          expected_cost_usd?: number
+          expected_impact?: number | null
+          id?: string
+          organization_id?: string
+          platform?: string | null
+          reason?: string
+          result?: Json | null
+          risk?: string
+          run_id?: string
+          started_at?: string | null
+          status?: string
+          target?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visibility_actions_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_actions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_actions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_actions_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visibility_businesses: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          extra: Json | null
+          gbp_url: string | null
+          id: string
+          instagram_url: string | null
+          name: string
+          organization_id: string
+          region: string | null
+          timezone: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          extra?: Json | null
+          gbp_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          name: string
+          organization_id: string
+          region?: string | null
+          timezone?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          extra?: Json | null
+          gbp_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          name?: string
+          organization_id?: string
+          region?: string | null
+          timezone?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visibility_businesses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visibility_competitor_stats: {
+        Row: {
+          competitor_id: string
+          created_at: string
+          id: string
+          mentions: number
+          organization_id: string
+          run_id: string
+          share: number
+          top_source_domains: Json
+        }
+        Insert: {
+          competitor_id: string
+          created_at?: string
+          id?: string
+          mentions?: number
+          organization_id: string
+          run_id: string
+          share?: number
+          top_source_domains?: Json
+        }
+        Update: {
+          competitor_id?: string
+          created_at?: string
+          id?: string
+          mentions?: number
+          organization_id?: string
+          run_id?: string
+          share?: number
+          top_source_domains?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visibility_competitor_stats_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_competitors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_competitor_stats_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_competitor_stats_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visibility_competitors: {
+        Row: {
+          business_id: string
+          canonical_url: string | null
+          created_at: string
+          domains: string[]
+          first_seen_run_id: string | null
+          id: string
+          name: string
+          normalized_name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          canonical_url?: string | null
+          created_at?: string
+          domains?: string[]
+          first_seen_run_id?: string | null
+          id?: string
+          name: string
+          normalized_name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          canonical_url?: string | null
+          created_at?: string
+          domains?: string[]
+          first_seen_run_id?: string | null
+          id?: string
+          name?: string
+          normalized_name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visibility_competitors_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_competitors_first_seen_run_id_fkey"
+            columns: ["first_seen_run_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_competitors_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visibility_events: {
+        Row: {
+          actor: string
+          business_id: string
+          created_at: string
+          data: Json | null
+          id: string
+          level: string
+          message: string
+          organization_id: string
+          run_id: string | null
+          stage: string | null
+        }
+        Insert: {
+          actor?: string
+          business_id: string
+          created_at?: string
+          data?: Json | null
+          id?: string
+          level?: string
+          message: string
+          organization_id: string
+          run_id?: string | null
+          stage?: string | null
+        }
+        Update: {
+          actor?: string
+          business_id?: string
+          created_at?: string
+          data?: Json | null
+          id?: string
+          level?: string
+          message?: string
+          organization_id?: string
+          run_id?: string | null
+          stage?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visibility_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_events_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visibility_findings: {
+        Row: {
+          area: string
+          business_id: string
+          created_at: string
+          detail: string | null
+          evidence: Json
+          evidence_level: string
+          id: string
+          organization_id: string
+          run_id: string
+          severity: string
+          title: string
+        }
+        Insert: {
+          area: string
+          business_id: string
+          created_at?: string
+          detail?: string | null
+          evidence?: Json
+          evidence_level: string
+          id?: string
+          organization_id: string
+          run_id: string
+          severity?: string
+          title: string
+        }
+        Update: {
+          area?: string
+          business_id?: string
+          created_at?: string
+          detail?: string | null
+          evidence?: Json
+          evidence_level?: string
+          id?: string
+          organization_id?: string
+          run_id?: string
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visibility_findings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_findings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_findings_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visibility_probes: {
+        Row: {
+          answer_text: string | null
+          appeared: boolean | null
+          citations: Json
+          competitors: Json
+          created_at: string
+          detection_method: string | null
+          error: string | null
+          first_position: number | null
+          id: string
+          latency_ms: number | null
+          organization_id: string
+          prompt_id: string
+          repeat_index: number
+          run_id: string
+          search_calls: number
+          search_queries: Json
+          sources: Json
+          usage: Json | null
+        }
+        Insert: {
+          answer_text?: string | null
+          appeared?: boolean | null
+          citations?: Json
+          competitors?: Json
+          created_at?: string
+          detection_method?: string | null
+          error?: string | null
+          first_position?: number | null
+          id?: string
+          latency_ms?: number | null
+          organization_id: string
+          prompt_id: string
+          repeat_index: number
+          run_id: string
+          search_calls?: number
+          search_queries?: Json
+          sources?: Json
+          usage?: Json | null
+        }
+        Update: {
+          answer_text?: string | null
+          appeared?: boolean | null
+          citations?: Json
+          competitors?: Json
+          created_at?: string
+          detection_method?: string | null
+          error?: string | null
+          first_position?: number | null
+          id?: string
+          latency_ms?: number | null
+          organization_id?: string
+          prompt_id?: string
+          repeat_index?: number
+          run_id?: string
+          search_calls?: number
+          search_queries?: Json
+          sources?: Json
+          usage?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visibility_probes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_probes_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_prompts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_probes_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visibility_prompts: {
+        Row: {
+          active: boolean
+          business_id: string
+          created_at: string
+          created_run_id: string | null
+          id: string
+          intent: string | null
+          locale: string | null
+          organization_id: string
+          prompt_set_version: number
+          text: string
+        }
+        Insert: {
+          active?: boolean
+          business_id: string
+          created_at?: string
+          created_run_id?: string | null
+          id?: string
+          intent?: string | null
+          locale?: string | null
+          organization_id: string
+          prompt_set_version?: number
+          text: string
+        }
+        Update: {
+          active?: boolean
+          business_id?: string
+          created_at?: string
+          created_run_id?: string | null
+          id?: string
+          intent?: string | null
+          locale?: string | null
+          organization_id?: string
+          prompt_set_version?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visibility_prompts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_prompts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visibility_recommendations: {
+        Row: {
+          area: string | null
+          business_id: string
+          created_at: string
+          effort: number | null
+          evidence: Json
+          evidence_level: string
+          expected_impact: number | null
+          id: string
+          organization_id: string
+          priority: number
+          rationale: string
+          run_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          area?: string | null
+          business_id: string
+          created_at?: string
+          effort?: number | null
+          evidence?: Json
+          evidence_level?: string
+          expected_impact?: number | null
+          id?: string
+          organization_id: string
+          priority?: number
+          rationale: string
+          run_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          area?: string | null
+          business_id?: string
+          created_at?: string
+          effort?: number | null
+          evidence?: Json
+          evidence_level?: string
+          expected_impact?: number | null
+          id?: string
+          organization_id?: string
+          priority?: number
+          rationale?: string
+          run_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visibility_recommendations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_recommendations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_recommendations_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visibility_runs: {
+        Row: {
+          business_id: string
+          cost_usd: number
+          created_at: string
+          cursor: Json
+          engine: string
+          finished_at: string | null
+          id: string
+          kind: string
+          last_error: string | null
+          leased_until: string | null
+          organization_id: string
+          probe_config: Json
+          probe_model: string | null
+          prompt_set_version: number | null
+          reasoning_model: string | null
+          resume_at: string | null
+          sample_size: number | null
+          scores: Json | null
+          stage: string
+          started_at: string | null
+          state: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          cost_usd?: number
+          created_at?: string
+          cursor?: Json
+          engine?: string
+          finished_at?: string | null
+          id?: string
+          kind?: string
+          last_error?: string | null
+          leased_until?: string | null
+          organization_id: string
+          probe_config?: Json
+          probe_model?: string | null
+          prompt_set_version?: number | null
+          reasoning_model?: string | null
+          resume_at?: string | null
+          sample_size?: number | null
+          scores?: Json | null
+          stage?: string
+          started_at?: string | null
+          state?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          cost_usd?: number
+          created_at?: string
+          cursor?: Json
+          engine?: string
+          finished_at?: string | null
+          id?: string
+          kind?: string
+          last_error?: string | null
+          leased_until?: string | null
+          organization_id?: string
+          probe_config?: Json
+          probe_model?: string | null
+          prompt_set_version?: number | null
+          reasoning_model?: string | null
+          resume_at?: string | null
+          sample_size?: number | null
+          scores?: Json | null
+          stage?: string
+          started_at?: string | null
+          state?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visibility_runs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "visibility_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visibility_runs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visibility_scheduler_lock: {
+        Row: {
+          id: boolean
+          locked_until: string
+        }
+        Insert: {
+          id?: boolean
+          locked_until?: string
+        }
+        Update: {
+          id?: boolean
+          locked_until?: string
+        }
+        Relationships: []
+      }
       webhooks: {
         Row: {
           created_at: string
@@ -2191,6 +2921,26 @@ export type Database = {
           updated_at: string
         }[]
       }
+      claim_visibility_runs: {
+        Args: { p_lease_seconds?: number; p_limit?: number }
+        Returns: {
+          business_id: string
+          created_at: string
+          cursor: Json
+          engine: string
+          id: string
+          kind: string
+          organization_id: string
+          probe_config: Json
+          probe_model: string
+          prompt_set_version: number
+          reasoning_model: string
+          sample_size: number
+          stage: string
+          state: Json
+          status: string
+        }[]
+      }
       contact_address_update_rules: {
         Args: {
           p_address: string
@@ -2253,6 +3003,16 @@ export type Database = {
           soft_bounced_count: number
           suppressed_count: number
         }[]
+      }
+      enqueue_visibility_run: {
+        Args: {
+          p_business_id: string
+          p_kind?: string
+          p_probe_config?: Json
+          p_probe_model?: string
+          p_reasoning_model?: string
+        }
+        Returns: string
       }
       enroll_automation_run: {
         Args: {
@@ -2378,6 +3138,7 @@ export type Database = {
       }
       release_automation_lock: { Args: never; Returns: undefined }
       release_dispatch_lock: { Args: never; Returns: undefined }
+      release_visibility_lock: { Args: never; Returns: undefined }
       resolve_contact_addresses: {
         Args: { p_addresses: Json; p_organization_id: string }
         Returns: Json
@@ -2391,6 +3152,10 @@ export type Database = {
         Returns: boolean
       }
       try_claim_dispatch_lock: {
+        Args: { p_ttl_seconds?: number }
+        Returns: boolean
+      }
+      try_claim_visibility_lock: {
         Args: { p_ttl_seconds?: number }
         Returns: boolean
       }
@@ -2499,6 +3264,7 @@ export type Database = {
           public: boolean | null
           type: Database["storage"]["Enums"]["buckettype"]
           updated_at: string | null
+          versioning_status: string
         }
         Insert: {
           allowed_mime_types?: string[] | null
@@ -2512,6 +3278,7 @@ export type Database = {
           public?: boolean | null
           type?: Database["storage"]["Enums"]["buckettype"]
           updated_at?: string | null
+          versioning_status?: string
         }
         Update: {
           allowed_mime_types?: string[] | null
@@ -2525,6 +3292,7 @@ export type Database = {
           public?: boolean | null
           type?: Database["storage"]["Enums"]["buckettype"]
           updated_at?: string | null
+          versioning_status?: string
         }
         Relationships: []
       }
@@ -2697,9 +3465,12 @@ export type Database = {
       }
       objects: {
         Row: {
+          archived_at: string | null
           bucket_id: string | null
           created_at: string | null
           id: string
+          is_delete_marker: boolean
+          is_versioned: boolean
           last_accessed_at: string | null
           metadata: Json | null
           name: string | null
@@ -2711,9 +3482,12 @@ export type Database = {
           version: string | null
         }
         Insert: {
+          archived_at?: string | null
           bucket_id?: string | null
           created_at?: string | null
           id?: string
+          is_delete_marker?: boolean
+          is_versioned?: boolean
           last_accessed_at?: string | null
           metadata?: Json | null
           name?: string | null
@@ -2725,9 +3499,12 @@ export type Database = {
           version?: string | null
         }
         Update: {
+          archived_at?: string | null
           bucket_id?: string | null
           created_at?: string | null
           id?: string
+          is_delete_marker?: boolean
+          is_versioned?: boolean
           last_accessed_at?: string | null
           metadata?: Json | null
           name?: string | null
@@ -3039,12 +3816,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3068,11 +3845,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3093,11 +3870,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3118,11 +3895,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3135,11 +3912,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

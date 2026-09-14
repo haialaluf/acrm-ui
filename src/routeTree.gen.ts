@@ -17,6 +17,7 @@ import { Route as OauthFacebookRouteImport } from './routes/oauth/facebook'
 import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
 import { Route as OauthCallbackRouteImport } from './routes/oauth/callback'
 import { Route as AuthStatsRouteImport } from './routes/_auth/stats'
+import { Route as AuthVisibilityIndexRouteImport } from './routes/_auth/visibility/index'
 import { Route as AuthTemplatesIndexRouteImport } from './routes/_auth/templates/index'
 import { Route as AuthStatsIndexRouteImport } from './routes/_auth/stats/index'
 import { Route as AuthSettingsIndexRouteImport } from './routes/_auth/settings/index'
@@ -126,6 +127,11 @@ const OauthCallbackRoute = OauthCallbackRouteImport.update({
 const AuthStatsRoute = AuthStatsRouteImport.update({
   id: '/stats',
   path: '/stats',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthVisibilityIndexRoute = AuthVisibilityIndexRouteImport.update({
+  id: '/visibility/',
+  path: '/visibility/',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthTemplatesIndexRoute = AuthTemplatesIndexRouteImport.update({
@@ -563,6 +569,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthSettingsIndexRoute
   '/stats/': typeof AuthStatsIndexRoute
   '/templates': typeof AuthTemplatesIndexRoute
+  '/visibility': typeof AuthVisibilityIndexRoute
   '/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
   '/integrations/email/new': typeof AuthIntegrationsEmailNewRoute
   '/integrations/facebook/new': typeof AuthIntegrationsFacebookNewRoute
@@ -642,6 +649,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthSettingsIndexRoute
   '/stats': typeof AuthStatsIndexRoute
   '/templates': typeof AuthTemplatesIndexRoute
+  '/visibility': typeof AuthVisibilityIndexRoute
   '/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
   '/integrations/email/new': typeof AuthIntegrationsEmailNewRoute
   '/integrations/facebook/new': typeof AuthIntegrationsFacebookNewRoute
@@ -724,6 +732,7 @@ export interface FileRoutesById {
   '/_auth/settings/': typeof AuthSettingsIndexRoute
   '/_auth/stats/': typeof AuthStatsIndexRoute
   '/_auth/templates/': typeof AuthTemplatesIndexRoute
+  '/_auth/visibility/': typeof AuthVisibilityIndexRoute
   '/_auth/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
   '/_auth/integrations/email/new': typeof AuthIntegrationsEmailNewRoute
   '/_auth/integrations/facebook/new': typeof AuthIntegrationsFacebookNewRoute
@@ -806,6 +815,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/stats/'
     | '/templates'
+    | '/visibility'
     | '/calendars/edit/$calendarId'
     | '/integrations/email/new'
     | '/integrations/facebook/new'
@@ -885,6 +895,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/stats'
     | '/templates'
+    | '/visibility'
     | '/calendars/edit/$calendarId'
     | '/integrations/email/new'
     | '/integrations/facebook/new'
@@ -966,6 +977,7 @@ export interface FileRouteTypes {
     | '/_auth/settings/'
     | '/_auth/stats/'
     | '/_auth/templates/'
+    | '/_auth/visibility/'
     | '/_auth/calendars/edit/$calendarId'
     | '/_auth/integrations/email/new'
     | '/_auth/integrations/facebook/new'
@@ -1077,6 +1089,13 @@ declare module '@tanstack/react-router' {
       path: '/stats'
       fullPath: '/stats'
       preLoaderRoute: typeof AuthStatsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/visibility/': {
+      id: '/_auth/visibility/'
+      path: '/visibility'
+      fullPath: '/visibility'
+      preLoaderRoute: typeof AuthVisibilityIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/templates/': {
@@ -1624,6 +1643,7 @@ interface AuthRouteChildren {
   AuthIntegrationsIndexRoute: typeof AuthIntegrationsIndexRoute
   AuthSettingsIndexRoute: typeof AuthSettingsIndexRoute
   AuthTemplatesIndexRoute: typeof AuthTemplatesIndexRoute
+  AuthVisibilityIndexRoute: typeof AuthVisibilityIndexRoute
   AuthCalendarsEditCalendarIdRoute: typeof AuthCalendarsEditCalendarIdRoute
   AuthIntegrationsEmailNewRoute: typeof AuthIntegrationsEmailNewRoute
   AuthIntegrationsFacebookNewRoute: typeof AuthIntegrationsFacebookNewRoute
@@ -1690,6 +1710,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthIntegrationsIndexRoute: AuthIntegrationsIndexRoute,
   AuthSettingsIndexRoute: AuthSettingsIndexRoute,
   AuthTemplatesIndexRoute: AuthTemplatesIndexRoute,
+  AuthVisibilityIndexRoute: AuthVisibilityIndexRoute,
   AuthCalendarsEditCalendarIdRoute: AuthCalendarsEditCalendarIdRoute,
   AuthIntegrationsEmailNewRoute: AuthIntegrationsEmailNewRoute,
   AuthIntegrationsFacebookNewRoute: AuthIntegrationsFacebookNewRoute,

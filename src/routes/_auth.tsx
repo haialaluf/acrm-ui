@@ -94,7 +94,13 @@ function AppLayout() {
   const isAutomationEditorRoute = /^\/automations\/[^/]+$/.test(pathname);
   // Both full-width routes get identical layout treatment; kept as one flag so
   // the four places below cannot drift apart.
-  const isFullWidthRoute = isEmailBuilderRoute || isAutomationEditorRoute;
+  // The visibility dashboard is one self-contained page, not a list beside a
+  // detail pane, so it takes the whole canvas rather than the narrow left
+  // column the section routes use.
+  const isVisibilityRoute = pathname.startsWith("/visibility");
+
+  const isFullWidthRoute =
+    isEmailBuilderRoute || isAutomationEditorRoute || isVisibilityRoute;
 
   /**
    * Redirect out of a section this organization cannot use yet.

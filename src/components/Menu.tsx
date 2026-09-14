@@ -17,6 +17,7 @@ import {
   CalendarDays,
   ChevronRight,
   Megaphone,
+  Radar,
   Workflow,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
@@ -91,6 +92,15 @@ export default function Menu() {
             <Megaphone className="w-[24px] h-[24px] stroke-[2]" />
           </LinkButton>
         </HideIfNotPermitted>
+
+        <LinkButton
+          to="/visibility"
+          title={t("AI Visibility")}
+          isActive={pathname.startsWith("/visibility")}
+          className="mt-[10px]"
+        >
+          <Radar className="w-[24px] h-[24px] stroke-[2]" />
+        </LinkButton>
 
         <HideIfNotPermitted surface="/templates">
           <LinkButton

@@ -205,4 +205,25 @@ export const queryKeys = {
     planProducts: (orgId: NullableId) =>
       [orgId, "billing", "plan_products"] as const,
   },
+  visibility: {
+    business: (orgId: NullableId) => [orgId, "visibility_businesses"] as const,
+    runs: (orgId: NullableId, businessId: NullableId) =>
+      [orgId, "visibility_runs", businessId] as const,
+    latestRun: (orgId: NullableId, businessId: NullableId) =>
+      [orgId, "visibility_runs", businessId, "latest"] as const,
+    prompts: (orgId: NullableId, businessId: NullableId) =>
+      [orgId, "visibility_prompts", businessId] as const,
+    probes: (orgId: NullableId, runId: NullableId) =>
+      [orgId, "visibility_probes", runId] as const,
+    findings: (orgId: NullableId, runId: NullableId) =>
+      [orgId, "visibility_findings", runId] as const,
+    recommendations: (orgId: NullableId, runId: NullableId) =>
+      [orgId, "visibility_recommendations", runId] as const,
+    actions: (orgId: NullableId, businessId: NullableId) =>
+      [orgId, "visibility_actions", businessId] as const,
+    competitors: (orgId: NullableId, runId: NullableId) =>
+      [orgId, "visibility_competitor_stats", runId] as const,
+    events: (orgId: NullableId, runId: NullableId) =>
+      [orgId, "visibility_events", runId] as const,
+  },
 };
