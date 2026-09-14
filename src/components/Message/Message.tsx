@@ -43,13 +43,24 @@ const md = new Remarkable({
   breaks: true,
   html: false, // Security: Disabled to prevent XSS from untrusted WhatsApp messages
   linkify: true,
+  linkTarget: "_blank",
   typographer: true,
 });
 
-md.renderer.rules.link_open = function (tokens, idx) {
-  const title = tokens[idx].title ? ` title="${tokens[idx].title}"` : "";
-  return `<a href="${tokens[idx].href}"${title} target="_blank" rel="noopener noreferrer">`;
-};
+// Links open in a new tab, so they need `rel="noopener noreferrer"`; Remarkable
+// emits `target` itself (linkTarget above) but has no option for `rel`. Wrap its
+// own link_open instead of replacing it: the built-in escapes `href` and
+// `title`, and the replacement this used to be did not. A contact could close
+// the `title` attribute from inside an ordinary inbound message and inject
+// event handlers that ran in this origin — `html: false` does not cover
+// attributes the renderer itself builds.
+const renderLinkOpen = md.renderer.rules.link_open;
+
+md.renderer.rules.link_open = (tokens, idx, options, env, instance) =>
+  renderLinkOpen(tokens, idx, options, env, instance).replace(
+    />$/,
+    ' rel="noopener noreferrer">',
+  );
 
 // Convert WhatsApp formatting to standard markdown for Remarkable rendering
 // Mirrors whatsappToMarkdown from acrm-api/_shared/markdown.ts
