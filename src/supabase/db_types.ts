@@ -1277,18 +1277,26 @@ export type Database = {
       }
       dispatch_scheduler_lock: {
         Row: {
-          id: boolean
           locked_until: string
+          organization_id: string
         }
         Insert: {
-          id?: boolean
           locked_until?: string
+          organization_id: string
         }
         Update: {
-          id?: boolean
           locked_until?: string
+          organization_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_scheduler_lock_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_health_snapshots: {
         Row: {
@@ -2170,6 +2178,7 @@ export type Database = {
       claim_dispatch_batch: {
         Args: {
           p_limit?: number
+          p_organization_ids?: string[]
           p_services?: Database["public"]["Enums"]["service"][]
         }
         Returns: {
@@ -2190,6 +2199,10 @@ export type Database = {
           timestamp: string
           updated_at: string
         }[]
+      }
+      claim_dispatch_organizations: {
+        Args: { p_limit?: number; p_ttl_seconds?: number }
+        Returns: string[]
       }
       contact_address_update_rules: {
         Args: {
@@ -2377,7 +2390,10 @@ export type Database = {
         Returns: boolean
       }
       release_automation_lock: { Args: never; Returns: undefined }
-      release_dispatch_lock: { Args: never; Returns: undefined }
+      release_dispatch_locks: {
+        Args: { p_organization_ids: string[] }
+        Returns: undefined
+      }
       resolve_contact_addresses: {
         Args: { p_addresses: Json; p_organization_id: string }
         Returns: Json
@@ -2387,10 +2403,6 @@ export type Database = {
         Returns: number
       }
       try_claim_automation_lock: {
-        Args: { p_ttl_seconds?: number }
-        Returns: boolean
-      }
-      try_claim_dispatch_lock: {
         Args: { p_ttl_seconds?: number }
         Returns: boolean
       }
