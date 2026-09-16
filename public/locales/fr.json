@@ -1167,5 +1167,20 @@
   "For answers where the phrasing matters — disclaimers, anything you don't want reworded.": "Pour les réponses où la formulation compte — mentions légales, tout ce que vous ne voulez pas voir reformulé.",
   "Add question": "Ajouter une question",
   "The agent gives these answers when a client asks one of these questions. It stays silent on questions you don't list here.": "L'agent donne ces réponses quand un client pose l'une de ces questions. Il garde le silence sur les questions que vous ne listez pas ici.",
-  "The agent gives these answers when a client asks one of these questions. Questions you don't list here aren't treated as a no - the agent says it will come back with an answer.": "L'agent donne ces réponses quand un client pose l'une de ces questions. Les questions absentes de cette liste ne sont pas considérées comme un non — l'agent dit qu'il reviendra avec une réponse."
+  "The agent gives these answers when a client asks one of these questions. Questions you don't list here aren't treated as a no - the agent says it will come back with an answer.": "L'agent donne ces réponses quand un client pose l'une de ces questions. Les questions absentes de cette liste ne sont pas considérées comme un non — l'agent dit qu'il reviendra avec une réponse.",
+  "You can keep using the WhatsApp Business app on this number.": "Vous pouvez continuer à utiliser l'application WhatsApp Business sur ce numéro.",
+  "The app must be version 2.24.17 or newer.": "L'application doit être en version 2.24.17 ou plus récente.",
+  "If the number is already connected to another provider, disconnect it first in the app: Settings > Account > Business Platform > Disconnect.": "Si le numéro est déjà connecté à un autre fournisseur, déconnectez-le d'abord dans l'application : Paramètres > Compte > Plateforme professionnelle > Déconnecter.",
+  "Your chats can only be imported in the first 24 hours after connecting.": "Vos conversations ne peuvent être importées que dans les 24 premières heures après la connexion.",
+  "A new number must not be active on any WhatsApp account.": "Un nouveau numéro ne doit être actif sur aucun compte WhatsApp.",
+  "Coming from another provider: ask them to turn off two-step verification on the number.": "Si vous venez d'un autre fournisseur : demandez-lui de désactiver la vérification en deux étapes sur le numéro.",
+  "Ask them to revoke any credit line they shared with your WhatsApp Business account.": "Demandez-lui de révoquer toute ligne de crédit partagée avec votre compte WhatsApp Business.",
+  "Your display name must already be approved, with no pending change request.": "Votre nom d'affichage doit déjà être approuvé, sans demande de modification en attente.",
+  "Your previous chats were not imported.": "Vos conversations précédentes n'ont pas été importées.",
+  "Meta only allows the import in the first 24 hours after connecting. To retry, disconnect this number in the WhatsApp Business app (Settings > Account > Business Platform > Disconnect) and connect it here again.": "Meta n'autorise l'importation que dans les 24 premières heures après la connexion. Pour réessayer, déconnectez ce numéro dans l'application WhatsApp Business (Paramètres > Compte > Plateforme professionnelle > Déconnecter) puis reconnectez-le ici.",
+  "I use the WhatsApp Business app": "J'utilise l'application WhatsApp Business",
+  "I don't use the WhatsApp Business app": "Je n'utilise pas l'application WhatsApp Business",
+  "Pick this even if the number is connected to another provider through the app. You keep using the app, and your chat history is imported.": "Choisissez cette option même si le numéro est connecté à un autre fournisseur via l'application. Vous continuez à utiliser l'application et votre historique de conversations est importé.",
+  "A new number, or a number that runs only on another provider's platform. Moving from another provider keeps your display name, quality rating and approved templates.": "Un nouveau numéro, ou un numéro qui fonctionne uniquement sur la plateforme d'un autre fournisseur. En venant d'un autre fournisseur, vous conservez votre nom d'affichage, votre note de qualité et vos modèles approuvés.",
+  "Do you use the WhatsApp Business app?": "Utilisez-vous l'application WhatsApp Business ?"
 }

@@ -1473,5 +1473,20 @@
   "For answers where the phrasing matters — disclaimers, anything you don't want reworded.": "Para respuestas en las que la redacción importa: avisos legales, cualquier cosa que no quieras que se reformule.",
   "Add question": "Añadir pregunta",
   "The agent gives these answers when a client asks one of these questions. It stays silent on questions you don't list here.": "El agente da estas respuestas cuando un cliente hace una de estas preguntas. Guarda silencio en las preguntas que no incluyas aquí.",
-  "The agent gives these answers when a client asks one of these questions. Questions you don't list here aren't treated as a no - the agent says it will come back with an answer.": "El agente da estas respuestas cuando un cliente hace una de estas preguntas. Las preguntas que no figuran en esta lista no se tratan como un no: el agente dice que volverá con una respuesta."
+  "The agent gives these answers when a client asks one of these questions. Questions you don't list here aren't treated as a no - the agent says it will come back with an answer.": "El agente da estas respuestas cuando un cliente hace una de estas preguntas. Las preguntas que no figuran en esta lista no se tratan como un no: el agente dice que volverá con una respuesta.",
+  "You can keep using the WhatsApp Business app on this number.": "Podés seguir usando la app WhatsApp Business en este número.",
+  "The app must be version 2.24.17 or newer.": "La app debe ser versión 2.24.17 o más nueva.",
+  "If the number is already connected to another provider, disconnect it first in the app: Settings > Account > Business Platform > Disconnect.": "Si el número ya está conectado a otro proveedor, desconectalo primero en la app: Ajustes > Cuenta > Plataforma de negocio > Desconectar.",
+  "Your chats can only be imported in the first 24 hours after connecting.": "Tus chats solo se pueden importar en las primeras 24 horas después de conectar.",
+  "A new number must not be active on any WhatsApp account.": "Un número nuevo no puede estar activo en ninguna cuenta de WhatsApp.",
+  "Coming from another provider: ask them to turn off two-step verification on the number.": "Si venís de otro proveedor: pedile que desactive la verificación en dos pasos del número.",
+  "Ask them to revoke any credit line they shared with your WhatsApp Business account.": "Pedile que revoque cualquier línea de crédito que haya compartido con tu cuenta de WhatsApp Business.",
+  "Your display name must already be approved, with no pending change request.": "Tu nombre visible ya debe estar aprobado, sin solicitudes de cambio pendientes.",
+  "Your previous chats were not imported.": "Tus chats anteriores no se importaron.",
+  "Meta only allows the import in the first 24 hours after connecting. To retry, disconnect this number in the WhatsApp Business app (Settings > Account > Business Platform > Disconnect) and connect it here again.": "Meta solo permite la importación en las primeras 24 horas después de conectar. Para reintentar, desconectá este número en la app WhatsApp Business (Ajustes > Cuenta > Plataforma de negocio > Desconectar) y conectalo de nuevo acá.",
+  "I use the WhatsApp Business app": "Uso la app WhatsApp Business",
+  "I don't use the WhatsApp Business app": "No uso la app WhatsApp Business",
+  "Pick this even if the number is connected to another provider through the app. You keep using the app, and your chat history is imported.": "Elegí esta opción incluso si el número está conectado a otro proveedor a través de la app. Seguís usando la app y se importa tu historial de chats.",
+  "A new number, or a number that runs only on another provider's platform. Moving from another provider keeps your display name, quality rating and approved templates.": "Un número nuevo, o un número que funciona solo en la plataforma de otro proveedor. Al pasar de otro proveedor conservás tu nombre visible, tu calificación de calidad y tus plantillas aprobadas.",
+  "Do you use the WhatsApp Business app?": "¿Usás la app WhatsApp Business?"
 }

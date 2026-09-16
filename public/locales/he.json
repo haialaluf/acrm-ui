@@ -1450,5 +1450,20 @@
   "For answers where the phrasing matters — disclaimers, anything you don't want reworded.": "לתשובות שבהן הניסוח חשוב — הסתייגויות, כל דבר שאתם לא רוצים שינוסח מחדש.",
   "Add question": "הוספת שאלה",
   "The agent gives these answers when a client asks one of these questions. It stays silent on questions you don't list here.": "הסוכן נותן את התשובות האלה כשלקוח שואל אחת מהשאלות האלה. הוא שותק בשאלות שלא הוספתם כאן.",
-  "The agent gives these answers when a client asks one of these questions. Questions you don't list here aren't treated as a no - the agent says it will come back with an answer.": "הסוכן נותן את התשובות האלה כשלקוח שואל אחת מהשאלות האלה. שאלות שלא רשומות כאן אינן נחשבות לתשובה שלילית — הסוכן אומר שהוא יחזור עם תשובה."
+  "The agent gives these answers when a client asks one of these questions. Questions you don't list here aren't treated as a no - the agent says it will come back with an answer.": "הסוכן נותן את התשובות האלה כשלקוח שואל אחת מהשאלות האלה. שאלות שלא רשומות כאן אינן נחשבות לתשובה שלילית — הסוכן אומר שהוא יחזור עם תשובה.",
+  "You can keep using the WhatsApp Business app on this number.": "תוכל להמשיך להשתמש באפליקציית WhatsApp Business במספר הזה.",
+  "The app must be version 2.24.17 or newer.": "גרסת האפליקציה חייבת להיות 2.24.17 או חדשה יותר.",
+  "If the number is already connected to another provider, disconnect it first in the app: Settings > Account > Business Platform > Disconnect.": "אם המספר מחובר כבר לספק אחר, נתק אותו קודם באפליקציה: הגדרות > חשבון > פלטפורמה עסקית > התנתק.",
+  "Your chats can only be imported in the first 24 hours after connecting.": "אפשר לייבא את השיחות שלך רק ב-24 השעות הראשונות לאחר החיבור.",
+  "A new number must not be active on any WhatsApp account.": "מספר חדש לא יכול להיות פעיל באף חשבון WhatsApp.",
+  "Coming from another provider: ask them to turn off two-step verification on the number.": "אם אתה עובר מספק אחר: בקש ממנו לכבות אימות דו-שלבי במספר.",
+  "Ask them to revoke any credit line they shared with your WhatsApp Business account.": "בקש ממנו לבטל כל קו אשראי ששיתף עם חשבון ה-WhatsApp Business שלך.",
+  "Your display name must already be approved, with no pending change request.": "שם התצוגה שלך חייב להיות מאושר, בלי בקשת שינוי ממתינה.",
+  "Your previous chats were not imported.": "השיחות הקודמות שלך לא יובאו.",
+  "Meta only allows the import in the first 24 hours after connecting. To retry, disconnect this number in the WhatsApp Business app (Settings > Account > Business Platform > Disconnect) and connect it here again.": "Meta מאפשרת את הייבוא רק ב-24 השעות הראשונות לאחר החיבור. כדי לנסות שוב, נתק את המספר באפליקציית WhatsApp Business (הגדרות > חשבון > פלטפורמה עסקית > התנתק) וחבר אותו כאן מחדש.",
+  "I use the WhatsApp Business app": "אני משתמש באפליקציית WhatsApp Business",
+  "I don't use the WhatsApp Business app": "אני לא משתמש באפליקציית WhatsApp Business",
+  "Pick this even if the number is connected to another provider through the app. You keep using the app, and your chat history is imported.": "בחר באפשרות הזו גם אם המספר מחובר לספק אחר דרך האפליקציה. תמשיך להשתמש באפליקציה, והיסטוריית השיחות שלך תיובא.",
+  "A new number, or a number that runs only on another provider's platform. Moving from another provider keeps your display name, quality rating and approved templates.": "מספר חדש, או מספר שפועל רק בפלטפורמה של ספק אחר. מעבר מספק אחר שומר על שם התצוגה, דירוג האיכות והתבניות המאושרות שלך.",
+  "Do you use the WhatsApp Business app?": "האם אתה משתמש באפליקציית WhatsApp Business?"
 }

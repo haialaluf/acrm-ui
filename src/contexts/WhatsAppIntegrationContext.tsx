@@ -11,13 +11,20 @@ export type SignupPayload = {
   waba_id?: string;
   business_id?: string;
   flow_type?: "only_waba" | "new_phone_number" | "existing_phone_number";
+  signup_mode?: SignupMode;
   callback_url?: string;
   verify_token?: string;
 };
 
+// `coexistence` only accepts a number live in the WhatsApp Business app;
+// `cloud_api` is the standard flow, and the only one that accepts a new number
+// or one migrating in from another provider's WABA.
+export type SignupMode = "coexistence" | "cloud_api";
+
 export type SignupOptions = {
   callback_url?: string;
   verify_token?: string;
+  signup_mode?: SignupMode;
 };
 
 // Successful flow data
@@ -59,11 +66,30 @@ type EventListenerData =
       data: AbandonedFlowData | ErrorFlowData;
     };
 
+// supabase-js puts only "non-2xx status code" on the Error and keeps the body,
+// which carries Meta's actual reason, in `context`.
+async function readErrorMessage(error: unknown): Promise<string | null> {
+  const context = (error as { context?: Response })?.context;
+
+  if (context && typeof context.json === "function") {
+    try {
+      const body = (await context.json()) as { error?: string } | null;
+
+      if (body?.error) return body.error;
+    } catch {
+      // Not JSON; fall through to the Error's own message.
+    }
+  }
+
+  return (error as Error)?.message || null;
+}
+
 type WhatsAppIntegrationContextType = {
   launchWhatsAppSignup: (
     onSuccess: (phone_number_id: string) => void,
     setLoading: (loading: boolean) => void,
     options?: SignupOptions,
+    onError?: (message: string) => void,
   ) => void;
 };
 
@@ -186,7 +212,14 @@ export function WhatsAppIntegrationProvider({
       onSuccess: (phone_number_id: string) => void,
       setLoading: (loading: boolean) => void,
       options?: SignupOptions,
+      onError?: (message: string) => void,
     ) => {
+      const signup_mode: SignupMode = options?.signup_mode ?? "coexistence";
+
+      // An abandoned flow emits no finish event, so a previous attempt's
+      // session info would otherwise be posted as this attempt's.
+      (window as any).__waSessionInfo = undefined;
+
       // Launch Facebook login
       (window as any).FB.login(
         function (response: any) {
@@ -212,18 +245,19 @@ export function WhatsAppIntegrationProvider({
               waba_id: sessionInfo.waba_id,
               business_id: sessionInfo.business_id,
               flow_type: sessionInfo.flow_type,
+              signup_mode,
               callback_url: options?.callback_url || undefined,
               verify_token: options?.verify_token || undefined,
             };
-
-            console.log("Sending signup payload:", payload); // Remove after testing
 
             signup(payload)
               .then(() => {
                 onSuccess(sessionInfo.phone_number_id || "");
               })
-              .catch((error: Error) => {
+              .catch(async (error: Error) => {
                 console.error("Signup failed:", error);
+                const message = await readErrorMessage(error);
+                if (message) onError?.(message);
               })
               .finally(() => {
                 setLoading(false);
@@ -238,7 +272,10 @@ export function WhatsAppIntegrationProvider({
           override_default_response_type: true,
           extras: {
             setup: {},
-            featureType: "whatsapp_business_app_onboarding", // Coexistence
+            // The standard flow must NOT carry a featureType.
+            ...(signup_mode === "coexistence"
+              ? { featureType: "whatsapp_business_app_onboarding" }
+              : {}),
             sessionInfoVersion: "3", // Required for receiving embedded signup events
           },
         },

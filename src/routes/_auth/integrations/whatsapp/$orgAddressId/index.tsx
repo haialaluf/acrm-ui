@@ -64,6 +64,19 @@ function WhatsAppDetails() {
       <SectionHeader title={extra?.verified_name || t("WhatsApp account")} />
 
       <SectionBody className="pb-[40px]">
+        {extra?.history_sync_failed && (
+          <div className="instructions">
+            <p className="text-destructive font-medium">
+              {t("Your previous chats were not imported.")}
+            </p>
+            <p>
+              {t(
+                "Meta only allows the import in the first 24 hours after connecting. To retry, disconnect this number in the WhatsApp Business app (Settings > Account > Business Platform > Disconnect) and connect it here again.",
+              )}
+            </p>
+          </div>
+        )}
+
         <SectionItem
           title={t("Message templates")}
           aside={

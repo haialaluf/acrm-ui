@@ -86,6 +86,19 @@ export type WhatsAppOrganizationAddressExtra = {
   phone_number?: string;
   verified_name?: string;
   flow_type?: "only_waba" | "new_phone_number" | "existing_phone_number";
+  // Which Embedded Signup variant the client was sent through (see
+  // SignupPayload in whatsapp-management/embedded_signup.ts). Kept alongside
+  // `flow_type` because a failed onboarding is usually a mismatch between what
+  // the client picked and what their number actually is.
+  signup_mode?: "coexistence" | "cloud_api" | null;
+  // The 6-digit PIN we registered the number with, which is also its two-step
+  // verification PIN. Null for coexistence numbers (never registered by us).
+  registration_pin?: string | null;
+  // Coexistence only: set when the 24h contact/message-history import did not
+  // run. The remedy is client-side (disconnect in the app, re-run the link), so
+  // the integration page surfaces this.
+  history_sync_failed?: string | null;
+  history_sync_failed_parts?: string[] | null;
   access_token?: string; // Meta system-user token
   callback_url?: string | null;
   verify_token?: string | null;

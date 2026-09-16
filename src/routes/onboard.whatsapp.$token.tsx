@@ -2,7 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import Button from "@/components/Button";
-import type { SignupPayload } from "@/contexts/WhatsAppIntegrationContext";
+import type {
+  SignupMode,
+  SignupPayload,
+} from "@/contexts/WhatsAppIntegrationContext";
 
 export const Route = createFileRoute("/onboard/whatsapp/$token")({
   component: Onboard,
@@ -20,6 +23,7 @@ function Onboard() {
   const { translate: t } = useTranslation();
   const [state, setState] = useState<TokenValidation>({ status: "loading" });
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<SignupMode>("coexistence");
   // The Facebook SDK loads asynchronously from connect.facebook.net, which is
   // commonly blocked by tracking protection / ad blockers. If it fails to load,
   // show the error up front instead of a button that cannot work.
@@ -71,6 +75,10 @@ function Onboard() {
       return;
     }
 
+    // An abandoned flow emits no finish event, so a previous attempt's session
+    // info would otherwise be posted as this attempt's.
+    (window as any).__waSessionInfo = undefined;
+
     FB.login(
       function (response: any) {
         if (response.authResponse) {
@@ -91,6 +99,7 @@ function Onboard() {
             waba_id: sessionInfo.waba_id,
             business_id: sessionInfo.business_id,
             flow_type: sessionInfo.flow_type,
+            signup_mode: mode,
           };
 
           const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/whatsapp-management/onboard`;
@@ -103,9 +112,17 @@ function Onboard() {
             },
             body: JSON.stringify({ token, ...payload }),
           })
-            .then((res) => {
-              if (!res.ok) throw new Error("Signup failed");
-              return res.json();
+            .then(async (res) => {
+              const body = await res.json().catch(() => null);
+
+              if (!res.ok) {
+                // The function answers with Meta's own reason; showing it is the
+                // difference between a client fixing this themselves and a
+                // support ticket.
+                throw new Error(body?.error || "");
+              }
+
+              return body;
             })
             .then(() => {
               setState({ status: "success" });
@@ -114,9 +131,9 @@ function Onboard() {
               console.error("Onboard signup failed:", error);
               setState({
                 status: "error",
-                message: t(
-                  "Connection error. Try again or contact the provider.",
-                ),
+                message:
+                  error.message ||
+                  t("Connection error. Try again or contact the provider."),
               });
             })
             .finally(() => {
@@ -130,12 +147,15 @@ function Onboard() {
         override_default_response_type: true,
         extras: {
           setup: {},
-          featureType: "whatsapp_business_app_onboarding",
+          // The standard flow must NOT carry a featureType.
+          ...(mode === "coexistence"
+            ? { featureType: "whatsapp_business_app_onboarding" }
+            : {}),
           sessionInfoVersion: "3",
         },
       },
     );
-  }, [token, t]);
+  }, [token, t, mode]);
 
   return (
     <div className="flex flex-col gap-9 justify-center items-center bg-background text-foreground h-dvh w-screen">
@@ -166,6 +186,45 @@ function Onboard() {
               <strong>{state.organization_name}</strong>
             </p>
 
+            <div className="flex flex-col gap-2 text-left text-[14px]">
+              <p className="text-foreground">
+                {t("Do you use the WhatsApp Business app?")}
+              </p>
+              {[
+                {
+                  value: "coexistence" as SignupMode,
+                  label: t("I use the WhatsApp Business app"),
+                  hint: t(
+                    "Pick this even if the number is connected to another provider through the app. You keep using the app, and your chat history is imported.",
+                  ),
+                },
+                {
+                  value: "cloud_api" as SignupMode,
+                  label: t("I don't use the WhatsApp Business app"),
+                  hint: t(
+                    "A new number, or a number that runs only on another provider's platform. Moving from another provider keeps your display name, quality rating and approved templates.",
+                  ),
+                },
+              ].map((option) => (
+                <label
+                  key={option.value}
+                  className="flex gap-2 items-start cursor-pointer"
+                >
+                  <input
+                    type="radio"
+                    name="whatsapp-signup-mode"
+                    className="mt-1"
+                    checked={mode === option.value}
+                    onChange={() => setMode(option.value)}
+                  />
+                  <span className="flex flex-col">
+                    <span className="text-foreground">{option.label}</span>
+                    <span className="text-muted-foreground">{option.hint}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+
             <div className="instructions text-left text-[14px] text-muted-foreground">
               <p>
                 {t(
@@ -175,18 +234,49 @@ function Onboard() {
               <p>
                 <strong>{t("Important requirements")}</strong>
               </p>
-              <ul>
-                <li>
-                  {t(
-                    "If you use the WhatsApp Business app, you can connect your current number and continue using the app.",
-                  )}
-                </li>
-                <li>
-                  {t(
-                    "If you don't use the app, the number to connect must not be active on another WhatsApp account.",
-                  )}
-                </li>
-              </ul>
+              {mode === "coexistence" ? (
+                <ul>
+                  <li>
+                    {t(
+                      "You can keep using the WhatsApp Business app on this number.",
+                    )}
+                  </li>
+                  <li>{t("The app must be version 2.24.17 or newer.")}</li>
+                  <li>
+                    {t(
+                      "If the number is already connected to another provider, disconnect it first in the app: Settings > Account > Business Platform > Disconnect.",
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      "Your chats can only be imported in the first 24 hours after connecting.",
+                    )}
+                  </li>
+                </ul>
+              ) : (
+                <ul>
+                  <li>
+                    {t(
+                      "A new number must not be active on any WhatsApp account.",
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      "Coming from another provider: ask them to turn off two-step verification on the number.",
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      "Ask them to revoke any credit line they shared with your WhatsApp Business account.",
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      "Your display name must already be approved, with no pending change request.",
+                    )}
+                  </li>
+                </ul>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
