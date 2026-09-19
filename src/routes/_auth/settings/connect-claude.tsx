@@ -87,12 +87,79 @@ function ConnectClaude() {
         <div className="flex flex-col gap-[8px]">
           <div className="label">{t("What Claude can do today")}</div>
           <ul className="list-disc pl-[20px] text-[13px] text-muted-foreground flex flex-col gap-[4px]">
-            <li>{t("Search your contacts")}</li>
-            <li>{t("List your connected WhatsApp accounts")}</li>
+            <li>
+              {t(
+                "Read and search your conversations, contacts and appointments, and reply in an open thread",
+              )}
+            </li>
+            <li>
+              {t(
+                "Write and publish WhatsApp and email templates, then send a broadcast to a segment you describe",
+              )}
+            </li>
+            <li>
+              {t(
+                "Set up and review your AI agents and automations, and book into your calendars",
+              )}
+            </li>
+            <li>
+              {t(
+                "Check how your channels are doing — quality rating, messaging limits, sending reputation",
+              )}
+            </li>
+            <li>
+              {t(
+                "Manage your team, organization settings, connected channels, webhooks and API keys",
+              )}
+            </li>
             <li>
               {t(
                 "If you're part of more than one organization, ask which organizations you belong to and switch between them",
               )}
+            </li>
+          </ul>
+        </div>
+
+        <div className="flex flex-col gap-[8px]">
+          <div className="label">{t("Ready-made workflows")}</div>
+          <p className="text-[13px] text-muted-foreground">
+            {t(
+              "These you start by name — type them in Claude Code, or pick them from the + menu in Claude Desktop. Claude won't offer them on its own, so it is worth knowing they are there.",
+            )}
+          </p>
+          <ul className="list-disc pl-[20px] text-[13px] text-muted-foreground flex flex-col gap-[4px]">
+            <li>
+              <code className="font-mono" dir="ltr">
+                setup_agent
+              </code>{" "}
+              —{" "}
+              {t(
+                "configure an AI agent end to end, stopping before it goes live",
+              )}
+            </li>
+            <li>
+              <code className="font-mono" dir="ltr">
+                audit_agent
+              </code>{" "}
+              — {t("review an agent you already have and get concrete fixes")}
+            </li>
+            <li>
+              <code className="font-mono" dir="ltr">
+                diagnose_delivery
+              </code>{" "}
+              — {t("work out why messages aren't going out")}
+            </li>
+            <li>
+              <code className="font-mono" dir="ltr">
+                weekly_summary
+              </code>{" "}
+              — {t("a recap of conversations, channel health and broadcasts")}
+            </li>
+            <li>
+              <code className="font-mono" dir="ltr">
+                draft_broadcast
+              </code>{" "}
+              — {t("scope an audience, count it, and draft the message")}
             </li>
           </ul>
         </div>
