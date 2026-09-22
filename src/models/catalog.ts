@@ -25,9 +25,10 @@ export const MODEL_CATALOG: ModelCatalogEntry[] = [
   { id: "gpt-5.6-luna", label: "GPT-5.6 Luna" },
   { id: "accounts/fireworks/models/gpt-oss-120b", label: "GPT-OSS 120B" },
   {
-    id: "accounts/fireworks/models/deepseek-v4-flash-0731",
-    label: "DeepSeek V4 Flash",
+    id: "accounts/fireworks/models/deepseek-v4p1-flash",
+    label: "DeepSeek V4.1 Flash",
   },
+  { id: "accounts/fireworks/models/glm-5p3-flash", label: "GLM 5.3 Flash" },
   { id: "accounts/fireworks/models/minimax-m3", label: "MiniMax M3" },
   { id: "accounts/fireworks/models/qwen3p7-plus", label: "Qwen3.7 Plus" },
 ];
