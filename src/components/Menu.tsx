@@ -227,7 +227,9 @@ export default function Menu() {
                   />
                 ),
                 onClick: () => {
-                  supabase.auth.signOut();
+                  // The default "global" scope also deletes MCP connector
+                  // (OAuth) sessions, forcing a reconnect in Claude/ChatGPT.
+                  supabase.auth.signOut({ scope: "local" });
                   resetAuthorizedCache();
                 },
               },
