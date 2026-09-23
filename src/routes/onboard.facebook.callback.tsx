@@ -126,7 +126,7 @@ function OnboardFacebookCallback() {
         {(result.status === "choosing" || result.status === "connecting") && (
           <div className="flex flex-col gap-3">
             <p className="text-foreground">
-              {t("Choose the Page whose leads you want to receive")}
+              {t("Choose the Page to connect")}
             </p>
 
             <div className="flex flex-col gap-2">
@@ -159,7 +159,7 @@ function OnboardFacebookCallback() {
             </p>
             <p className="text-muted-foreground text-[14px]">
               {t(
-                "New Instant Form leads will appear in your contacts automatically. Existing leads from the last 90 days are being imported now.",
+                "Messenger conversations and new Lead Ads submissions will now arrive in DelaCRM. Existing leads from the last 90 days are being imported now.",
               )}
             </p>
             <p className="text-muted-foreground text-[14px]">

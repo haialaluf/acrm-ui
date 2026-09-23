@@ -29,7 +29,7 @@ function FacebookIndex() {
 
   return (
     <>
-      <SectionHeader title={t("Facebook Leads")} />
+      <SectionHeader title={t("Facebook Messenger & Leads")} />
 
       <SectionBody className="gap-4">
         <div className="flex flex-col">

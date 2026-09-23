@@ -1465,5 +1465,15 @@
   "I don't use the WhatsApp Business app": "אני לא משתמש באפליקציית WhatsApp Business",
   "Pick this even if the number is connected to another provider through the app. You keep using the app, and your chat history is imported.": "בחר באפשרות הזו גם אם המספר מחובר לספק אחר דרך האפליקציה. תמשיך להשתמש באפליקציה, והיסטוריית השיחות שלך תיובא.",
   "A new number, or a number that runs only on another provider's platform. Moving from another provider keeps your display name, quality rating and approved templates.": "מספר חדש, או מספר שפועל רק בפלטפורמה של ספק אחר. מעבר מספק אחר שומר על שם התצוגה, דירוג האיכות והתבניות המאושרות שלך.",
-  "Do you use the WhatsApp Business app?": "האם אתה משתמש באפליקציית WhatsApp Business?"
+  "Do you use the WhatsApp Business app?": "האם אתה משתמש באפליקציית WhatsApp Business?",
+  "Messaged us on Messenger": "כתב לנו במסנג'ר",
+  "Messenger": "מסנג'ר",
+  "Not enabled — reconnect the Page to turn it on": "לא מופעל — חברו מחדש את העמוד כדי להפעיל",
+  "Messenger conversations and Lead Ads": "שיחות מסנג'ר ומודעות לידים",
+  "Facebook Messenger & Leads": "פייסבוק מסנג'ר ולידים",
+  "Connect a Facebook Page to answer its Messenger conversations in DelaCRM and import its Lead Ads submissions as contacts automatically.": "חברו עמוד פייסבוק כדי לענות לשיחות המסנג'ר שלו ב-DelaCRM ולייבא את הלידים ממודעות הלידים שלו כאנשי קשר באופן אוטומטי.",
+  "Messenger conversations appear in your inbox next to WhatsApp and Instagram, and your AI agent can reply to them.": "שיחות מסנג'ר יופיעו בתיבת הדואר שלכם לצד וואטסאפ ואינסטגרם, וסוכן ה-AI שלכם יוכל לענות להן.",
+  "You need the Messages or Ads task on the Page. Pages without either will not appear in the list.": "נדרשת לכם הרשאת 'הודעות' או 'מודעות' בעמוד. עמודים בלי אף אחת מהן לא יופיעו ברשימה.",
+  "Choose the Page to connect": "בחרו את העמוד לחיבור",
+  "Messenger conversations and new Lead Ads submissions will now arrive in DelaCRM. Existing leads from the last 90 days are being imported now.": "שיחות מסנג'ר ולידים חדשים ממודעות לידים יגיעו מעכשיו ל-DelaCRM. לידים קיימים מ-90 הימים האחרונים מיובאים כעת."
 }

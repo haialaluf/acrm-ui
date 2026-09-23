@@ -1,4 +1,8 @@
-import { InstagramOutlined, WhatsAppOutlined } from "@ant-design/icons";
+import {
+  FacebookFilled,
+  InstagramOutlined,
+  WhatsAppOutlined,
+} from "@ant-design/icons";
 import { Bot, Mail } from "lucide-react";
 
 /**
@@ -7,7 +11,7 @@ import { Bot, Mail } from "lucide-react";
  *
  * Shared by the conversation list and the chat header so the two can never
  * disagree about what a channel looks like — the colours are the platforms'
- * own (#25D366, #E1306C), not theme tokens, and they are the whole point of
+ * own (#25D366, #E1306C, #0866FF), not theme tokens, and they are the whole point of
  * the badge.
  */
 export default function ServiceBadge({
@@ -21,6 +25,8 @@ export default function ServiceBadge({
     <div className="absolute -bottom-[1px] -right-[1px] rounded-full bg-background p-[1px] leading-none">
       {service === "instagram" ? (
         <InstagramOutlined style={{ fontSize: `${size}px`, color: "#E1306C" }} />
+      ) : service === "facebook_messenger" ? (
+        <FacebookFilled style={{ fontSize: `${size}px`, color: "#0866FF" }} />
       ) : service === "email" ? (
         <Mail style={{ height: size, width: size }} className="text-blue-500" />
       ) : service === "local" ? (

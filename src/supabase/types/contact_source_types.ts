@@ -28,11 +28,15 @@ type Service = Database["public"]["Enums"]["service"];
 /**
  * Contacts created by their own inbound message, as `<service>_message`.
  *
- * Only the channels that actually reach linkMissingContacts() — the WhatsApp
- * and Instagram webhooks. Email is send-only here (SES gives us bounces, not
- * inbound mail), so `email_message` would be a value nothing can produce.
+ * Only the channels that actually reach linkMissingContacts() — the WhatsApp,
+ * Instagram and Messenger webhooks. Email is send-only here (SES gives us
+ * bounces, not inbound mail), so `email_message` would be a value nothing can produce.
  */
-export const MESSAGE_SOURCE_SERVICES = ["whatsapp", "instagram"] as const;
+export const MESSAGE_SOURCE_SERVICES = [
+  "whatsapp",
+  "instagram",
+  "facebook_messenger",
+] as const;
 
 /**
  * Contacts created by an address-book sync, stored as the bare service name.
@@ -61,6 +65,7 @@ export const CONTACT_SOURCES = {
   /** Wrote to us first, on that channel. */
   WHATSAPP_MESSAGE: "whatsapp_message",
   INSTAGRAM_MESSAGE: "instagram_message",
+  FACEBOOK_MESSENGER_MESSAGE: "facebook_messenger_message",
 
   /** Arrived through an address-book sync on that channel. */
   WHATSAPP_SYNC: "whatsapp",
@@ -91,6 +96,7 @@ export const CONTACT_SOURCE_LIST: ContactSource[] = [
   CONTACT_SOURCES.MANUAL,
   CONTACT_SOURCES.WHATSAPP_MESSAGE,
   CONTACT_SOURCES.INSTAGRAM_MESSAGE,
+  CONTACT_SOURCES.FACEBOOK_MESSENGER_MESSAGE,
   CONTACT_SOURCES.WHATSAPP_SYNC,
   CONTACT_SOURCES.INSTAGRAM_SYNC,
   CONTACT_SOURCES.FACEBOOK_LEAD,

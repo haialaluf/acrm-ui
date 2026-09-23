@@ -44,6 +44,7 @@ export function channelMessageId(target: MessageRow): string | undefined {
     // Instagram never transforms the id: the mid the send response returned is
     // exactly what the endpoint addresses, and `external_id` keeps it verbatim.
     case "instagram":
+    case "facebook_messenger":
       return target.external_id ?? undefined;
 
     // The internal test service has no channel at all, so nothing ever fills

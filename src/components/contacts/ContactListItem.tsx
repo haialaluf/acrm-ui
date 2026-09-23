@@ -2,7 +2,7 @@ import Avatar, { avatarHue } from "@/components/Avatar";
 import Checkbox from "@/components/Checkbox";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { ContactWithAddressesRow } from "@/supabase/client";
-import { contactInstagramPicture } from "@/utils/ContactAddressUtils";
+import { contactPicture } from "@/utils/ContactAddressUtils";
 
 export default function ContactListItem({
   contact,
@@ -50,7 +50,7 @@ export default function ContactListItem({
         />
       )}
       <Avatar
-        src={contactInstagramPicture(contact)}
+        src={contactPicture(contact)}
         fallback={contact.name?.substring(0, 2).toUpperCase() || "?"}
         size={dense ? 34 : 40}
         // Unnamed contacts keep the flat grey: there is no name to

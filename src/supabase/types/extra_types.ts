@@ -138,6 +138,9 @@ export type FacebookOrganizationAddressExtra = {
   user_token_expires_at?: string; // ISO; ~60 days from issue
   scopes?: string[]; // granted permissions
   leadgen_subscribed_at?: string; // ISO; last successful /subscribed_apps POST
+  // ISO; set when the Page was subscribed to Messenger webhooks, which needs
+  // `pages_messaging`. Absent on Pages connected for leads only.
+  messaging_subscribed_at?: string;
   // ISO; the created_time of the newest lead we have imported for this Page.
   // The reconciliation cron pages forward from here.
   leads_synced_through?: string;
@@ -289,6 +292,15 @@ export type WhatsAppContactAddressExtra = {
   replaced_by_address?: string;
 };
 
+export type FacebookMessengerContactAddressExtra = {
+  name?: string;
+  profile_picture_url?: string;
+  name_fetched_at?: string;
+  name_failed_at?: string;
+  replaces_address?: string;
+  replaced_by_address?: string;
+};
+
 export type InstagramContactAddressExtra = {
   name?: string;
   username?: string;
@@ -333,6 +345,7 @@ export type EmailContactAddressExtra = {
 export type ContactAddressExtra =
   | WhatsAppContactAddressExtra
   | InstagramContactAddressExtra
+  | FacebookMessengerContactAddressExtra
   | EmailContactAddressExtra;
 
 // Function tools have a JSON input (data part).

@@ -86,6 +86,22 @@ function FacebookAddressDetail() {
             />
           </label>
 
+          <label>
+            <div className="label">{t("Messenger")}</div>
+            <input
+              type="text"
+              className="text"
+              value={
+                extra?.messaging_subscribed_at
+                  ? t("Active since") +
+                    " " +
+                    new Date(extra.messaging_subscribed_at).toLocaleString()
+                  : t("Not enabled — reconnect the Page to turn it on")
+              }
+              readOnly
+            />
+          </label>
+
           {extra?.leads_synced_through && (
             <label>
               <div className="label">{t("Leads imported through")}</div>

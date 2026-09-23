@@ -2484,6 +2484,7 @@ export type Database = {
         | "discord"
         | "teams"
         | "api"
+        | "facebook_messenger"
       webhook_operation: "insert" | "update"
       webhook_table:
         | "messages"
@@ -3182,6 +3183,7 @@ export const Constants = {
         "discord",
         "teams",
         "api",
+        "facebook_messenger",
       ],
       webhook_operation: ["insert", "update"],
       webhook_table: [

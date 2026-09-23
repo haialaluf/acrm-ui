@@ -20,6 +20,7 @@ import type {
 import type { Template } from "./whatsapp_template_types";
 import type { EmailSendData } from "./email_template_types";
 import type { InstagramReferral } from "./instagram_webhook_payload_types";
+import type { MessengerReferral } from "./facebook_messenger_types";
 
 //===================================
 // Agent Protocol Types
@@ -182,7 +183,7 @@ type UnsupportedPart = DataPart<
 >;
 
 // Synthetic content for messaging_referral events (no message attached).
-type ReferralPart = DataPart<"referral", InstagramReferral>;
+type ReferralPart = DataPart<"referral", InstagramReferral | MessengerReferral>;
 
 // Shared Instagram post/reel (attachment types ig_post, ig_reel, reel). Unlike
 // real media, the attachment `payload.url` is a public instagram.com permalink
@@ -193,7 +194,7 @@ type ReferralPart = DataPart<"referral", InstagramReferral>;
 export type SharePart = DataPart<
   "share",
   {
-    type: "ig_post" | "ig_reel" | "reel";
+    type: "ig_post" | "ig_reel" | "reel" | "link";
     url: string;
     title?: string;
   }
@@ -219,7 +220,7 @@ export type IncomingMessage = {
     catalog_id: string;
     product_retailer_id: string;
   };
-  referral?: WhatsAppReferral | InstagramReferral;
+  referral?: WhatsAppReferral | InstagramReferral | MessengerReferral;
 } & TaskInfo &
   (
     | TextPart

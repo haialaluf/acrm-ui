@@ -269,8 +269,8 @@ export function useContactByAddress(address: string | null | undefined) {
       await supabase
         .from("contacts_addresses")
         // The contact's OTHER addresses ride along: a WhatsApp thread needs
-        // them to find the Instagram row whose profile picture is the best
-        // avatar this contact has (see `contactInstagramPicture`).
+        // them to find the Instagram or Messenger row whose profile picture is
+        // the best avatar this contact has (see `contactPicture`).
         .select("*, contact:contacts(*, addresses:contacts_addresses(*))")
         .eq("organization_id", orgId!)
         .eq("address", address!)

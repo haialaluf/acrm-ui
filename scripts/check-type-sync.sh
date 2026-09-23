@@ -23,7 +23,7 @@ UI_DIR="src/supabase/types"
 API_DIR="${API_TYPES_DIR:-../acrm-api/supabase/functions/_shared/types}"
 
 # UI files that subset their API counterpart (API-only blocks are expected).
-SUBSET_FILES=" status_types whatsapp_webhook_message_types whatsapp_endpoint_types whatsapp_webhook_payload_types instagram_webhook_payload_types "
+SUBSET_FILES=" status_types whatsapp_webhook_message_types whatsapp_endpoint_types whatsapp_webhook_payload_types instagram_webhook_payload_types facebook_messenger_types "
 # UI files with no API counterpart (skip the diff).
 UI_ONLY_FILES=" ui_types database_types "
 

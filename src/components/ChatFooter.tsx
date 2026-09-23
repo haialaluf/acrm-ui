@@ -17,7 +17,7 @@ import { htmlToMarkdown } from "@/utils/htmlToMarkdown";
 import TemplatePicker from "./TemplatePicker";
 import DisabledSection from "./DisabledSection";
 import { useActiveConversation } from "@/hooks/useThread";
-import { useCSWindow } from "@/hooks/useCSWindow";
+import { useCSWindow, WINDOWED_SERVICES } from "@/hooks/useCSWindow";
 import { useAccess } from "@/hooks/useAccess";
 import QuotedMessage from "./Message/QuotedMessage";
 import { channelMessageId } from "@/utils/messageRefs";
@@ -410,8 +410,7 @@ export default function ChatFooter() {
                         {t("Simulates an incoming message")}
                       </span>
                     </>
-                  ) : conv.service === "whatsapp" ||
-                    conv.service === "instagram" ? (
+                  ) : WINDOWED_SERVICES.includes(conv.service) ? (
                     <>
                       <span className="lg:hidden">{t("Will close in")}</span>
                       <span className="hidden lg:inline">

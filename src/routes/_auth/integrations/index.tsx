@@ -23,6 +23,9 @@ export const Route = createFileRoute("/_auth/integrations/")({
  *  - Lead sources only create contacts. They fill Contacts and can fire an
  *    automation, but there is nothing to send on.
  *
+ * Facebook is both — Messenger plus Lead Ads on one Page connection — and is
+ * listed as a channel.
+ *
  * Same styling as the automation insert menu's group labels.
  */
 function GroupLabel({ children }: { children: React.ReactNode }) {
@@ -78,6 +81,24 @@ function IntegrationsIndex() {
           <SectionItem
             aside={
               <div className="p-[8px]">
+                <FacebookFilled
+                  style={{ fontSize: "24px", color: "#1877F2" }}
+                />
+              </div>
+            }
+            title="Facebook"
+            description={t("Messenger conversations and Lead Ads")}
+            wrapDescription
+            onClick={() =>
+              navigate({
+                to: "/integrations/facebook",
+                hash: (prevHash) => prevHash!,
+              })
+            }
+          />
+          <SectionItem
+            aside={
+              <div className="p-[8px]">
                 <Mail className="w-[24px] h-[24px] text-muted-foreground" />
               </div>
             }
@@ -92,24 +113,6 @@ function IntegrationsIndex() {
             }
           />
           <GroupLabel>{t("Lead sources")}</GroupLabel>
-          <SectionItem
-            aside={
-              <div className="p-[8px]">
-                <FacebookFilled
-                  style={{ fontSize: "24px", color: "#1877F2" }}
-                />
-              </div>
-            }
-            title={t("Facebook Leads")}
-            description={t("Instant Form leads become contacts automatically")}
-            wrapDescription
-            onClick={() =>
-              navigate({
-                to: "/integrations/facebook",
-                hash: (prevHash) => prevHash!,
-              })
-            }
-          />
           <SectionItem
             aside={
               <div className="p-[8px]">

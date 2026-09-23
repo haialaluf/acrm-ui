@@ -1488,5 +1488,15 @@
   "I don't use the WhatsApp Business app": "No uso la app WhatsApp Business",
   "Pick this even if the number is connected to another provider through the app. You keep using the app, and your chat history is imported.": "Elegí esta opción incluso si el número está conectado a otro proveedor a través de la app. Seguís usando la app y se importa tu historial de chats.",
   "A new number, or a number that runs only on another provider's platform. Moving from another provider keeps your display name, quality rating and approved templates.": "Un número nuevo, o un número que funciona solo en la plataforma de otro proveedor. Al pasar de otro proveedor conservás tu nombre visible, tu calificación de calidad y tus plantillas aprobadas.",
-  "Do you use the WhatsApp Business app?": "¿Usás la app WhatsApp Business?"
+  "Do you use the WhatsApp Business app?": "¿Usás la app WhatsApp Business?",
+  "Messaged us on Messenger": "Nos escribió por Messenger",
+  "Messenger": "Messenger",
+  "Not enabled — reconnect the Page to turn it on": "No activado: vuelve a conectar la página para activarlo",
+  "Messenger conversations and Lead Ads": "Conversaciones de Messenger y anuncios de clientes potenciales",
+  "Facebook Messenger & Leads": "Facebook Messenger y clientes potenciales",
+  "Connect a Facebook Page to answer its Messenger conversations in DelaCRM and import its Lead Ads submissions as contacts automatically.": "Conecta una página de Facebook para responder sus conversaciones de Messenger en DelaCRM e importar automáticamente como contactos los envíos de sus anuncios de clientes potenciales.",
+  "Messenger conversations appear in your inbox next to WhatsApp and Instagram, and your AI agent can reply to them.": "Las conversaciones de Messenger aparecen en tu bandeja junto a WhatsApp e Instagram, y tu agente de IA puede responderlas.",
+  "You need the Messages or Ads task on the Page. Pages without either will not appear in the list.": "Necesitas la tarea de Mensajes o de Anuncios en la página. Las páginas sin ninguna de ellas no aparecerán en la lista.",
+  "Choose the Page to connect": "Elige la página que quieres conectar",
+  "Messenger conversations and new Lead Ads submissions will now arrive in DelaCRM. Existing leads from the last 90 days are being imported now.": "Las conversaciones de Messenger y los nuevos envíos de anuncios de clientes potenciales llegarán ahora a DelaCRM. Los clientes potenciales de los últimos 90 días se están importando."
 }

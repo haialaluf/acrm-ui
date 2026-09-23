@@ -16,7 +16,8 @@ import type { InstagramContactAddressExtra } from "@/supabase/client";
 import { useActiveConversation } from "@/hooks/useThread";
 import {
   contactAddressName,
-  contactInstagramPicture,
+  addressPicture,
+  contactPicture,
 } from "@/utils/ContactAddressUtils";
 import ConversationAgentSelect from "./ConversationAgentSelect";
 import ServiceBadge from "./ServiceBadge";
@@ -134,8 +135,7 @@ export default function Header() {
             <div className="relative">
               <Avatar
                 src={
-                  igExtra?.profile_picture_url ??
-                  contactInstagramPicture(contact)
+                  addressPicture(contactAddress) ?? contactPicture(contact)
                 }
                 fallback={convInitials}
                 size={40}
@@ -193,6 +193,7 @@ export default function Header() {
             {service === "instagram" &&
               igExtra?.username &&
               `@${igExtra.username}`}
+            {service === "facebook_messenger" && t("Messenger")}
             {service === "email" && address}
           </div>
         </div>

@@ -36,6 +36,7 @@ const SOURCE_LABELS: Record<ContactSource, string> = {
   manual: "Added manually or imported",
   whatsapp_message: "Messaged us on WhatsApp",
   instagram_message: "Messaged us on Instagram",
+  facebook_messenger_message: "Messaged us on Messenger",
   whatsapp: "Synced from WhatsApp contacts",
   instagram: "Synced from Instagram contacts",
   facebook_lead: "Facebook Lead Ads",

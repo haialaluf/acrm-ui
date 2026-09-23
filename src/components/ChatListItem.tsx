@@ -27,7 +27,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useThreadConversation } from "@/hooks/useThread";
 import {
   contactAddressName,
-  contactInstagramPicture,
+  addressPicture,
+  contactPicture,
 } from "@/utils/ContactAddressUtils";
 import { mediaPreview } from "@/utils/messagePreview";
 
@@ -220,8 +221,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
             <div className="relative">
               <Avatar
                 src={
-                  igExtra?.profile_picture_url ??
-                  contactInstagramPicture(contact)
+                  addressPicture(contactAddress) ?? contactPicture(contact)
                 }
                 fallback={nameInitials(name || "?")}
                 size={49}

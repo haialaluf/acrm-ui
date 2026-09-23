@@ -114,22 +114,31 @@ export function contactEmailStatus(
   return contact.addresses?.find((a) => a.service === "email")?.status;
 }
 
+/** The profile picture Meta returned for this address, if any. */
+export function addressPicture(
+  row: ContactAddressRow | null | undefined,
+): string | undefined {
+  const extra = row?.extra as { profile_picture_url?: string } | null;
+  return extra?.profile_picture_url || undefined;
+}
+
 /**
- * The contact's Instagram profile picture, whichever thread you are looking at.
+ * The contact's profile picture, whichever thread you are looking at.
  *
- * Only the Instagram address row carries a picture — Meta returns it with the
- * profile fetch and the webhook keeps it fresh. Reading it off the CONTACT
- * rather than off the conversation's own address is what lets a WhatsApp
- * thread show the same face as the Instagram one, instead of falling back to
- * initials for someone we plainly have a photo of.
+ * Only Instagram and Messenger address rows carry a picture — Meta returns it
+ * with the profile fetch and the webhook keeps it fresh. Reading it off the
+ * CONTACT rather than off the conversation's own address is what lets a
+ * WhatsApp thread show the same face as the Instagram one, instead of falling
+ * back to initials for someone we plainly have a photo of.
  */
-export function contactInstagramPicture(
+export function contactPicture(
   contact: { addresses?: ContactAddressRow[] | null } | null | undefined,
 ): string | undefined {
-  const extra = contact?.addresses?.find((a) => a.service === "instagram")
-    ?.extra as { profile_picture_url?: string } | null | undefined;
-
-  return extra?.profile_picture_url ?? undefined;
+  for (const row of contact?.addresses ?? []) {
+    const picture = addressPicture(row);
+    if (picture) return picture;
+  }
+  return undefined;
 }
 
 /**

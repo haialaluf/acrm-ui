@@ -53,10 +53,15 @@ function FacebookNew() {
         <div className="instructions">
           <p>
             {t(
-              "Connect a Facebook Page to import its Lead Ads Instant Form submissions as contacts automatically.",
+              "Connect a Facebook Page to answer its Messenger conversations in DelaCRM and import its Lead Ads submissions as contacts automatically.",
             )}
           </p>
           <ul>
+            <li>
+              {t(
+                "Messenger conversations appear in your inbox next to WhatsApp and Instagram, and your AI agent can reply to them.",
+              )}
+            </li>
             <li>
               {t(
                 "Leads from ads shown on Instagram are included — they belong to the same Facebook Page.",
@@ -64,7 +69,7 @@ function FacebookNew() {
             </li>
             <li>
               {t(
-                "You must be able to advertise on the Page. Pages without that permission will not appear in the list.",
+                "You need the Messages or Ads task on the Page. Pages without either will not appear in the list.",
               )}
             </li>
             <li>

@@ -182,7 +182,7 @@ export default function Chat() {
     if (message.direction === "internal" || !conv) return { reactions };
 
     const reactDisabledReason =
-      conv.service !== "whatsapp" && conv.service !== "instagram"
+      !["whatsapp", "instagram", "facebook_messenger"].includes(conv.service)
         ? t("Reactions are not supported on this channel")
         : !inCSWindow
           ? t("Outside the 24-hour window")
