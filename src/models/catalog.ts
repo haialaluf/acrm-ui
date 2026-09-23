@@ -19,7 +19,7 @@ export type ModelCatalogEntry = {
 };
 
 export const MODEL_CATALOG: ModelCatalogEntry[] = [
-  { id: "gemini-3.7-flash", label: "Gemini 3.7 Flash" },
+  { id: "gemini-3.8-flash", label: "Gemini 3.8 Flash" },
   { id: "gemini-3.5-flash-lite", label: "Gemini 3.5 Flash-Lite" },
   { id: "claude-sonnet-5", label: "Claude Sonnet 5" },
   { id: "gpt-5.6-luna", label: "GPT-5.6 Luna" },
@@ -30,7 +30,6 @@ export const MODEL_CATALOG: ModelCatalogEntry[] = [
   },
   { id: "accounts/fireworks/models/glm-5p3-flash", label: "GLM 5.3 Flash" },
   { id: "accounts/fireworks/models/minimax-m3", label: "MiniMax M3" },
-  { id: "accounts/fireworks/models/qwen3p7-plus", label: "Qwen3.7 Plus" },
 ];
 
 export const MODEL_OPTIONS: SelectOption[] = MODEL_CATALOG.map(
