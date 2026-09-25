@@ -40,16 +40,21 @@ export default function ConversationAgentSelect({
   // Re-renders the pause countdown once a minute.
   const [, setTick] = useState(0);
 
-  // Kinds agent-client never lets answer a contact automatically.
   const aiAgents = (agents ?? []).filter(
-    (a) => a.ai && a.kind !== "back_office" && a.kind !== "personal_assistant",
+    (a) => a.ai && a.kind !== "back_office",
   ) as AIAgentRow[];
+
+  // agent-client answers with a personal assistant only when a thread is
+  // pinned to it, never as a fallback.
+  const fallbackAgents = aiAgents.filter(
+    (a) => a.kind !== "personal_assistant",
+  );
 
   const selectable = aiAgents.filter((a) => a.extra?.mode !== "inactive");
 
   const assigned = conversation.extra?.default_agent_id;
   const pinned = selectable.find((a) => a.id === assigned);
-  const orgDefault = organizationDefaultAgent(aiAgents, org?.extra);
+  const orgDefault = organizationDefaultAgent(fallbackAgents, org?.extra);
 
   // The agent answering now, or the one that comes back when the switch is
   // turned on. Resolved before the state because the pause window is its own
@@ -58,7 +63,7 @@ export default function ConversationAgentSelect({
     pinned ??
     selectable.find((a) => a.id === lastPinned) ??
     orgDefault ??
-    selectable[0];
+    selectable.find((a) => a.kind !== "personal_assistant");
 
   const windowMs = pauseWindowMs(shown?.extra);
 
