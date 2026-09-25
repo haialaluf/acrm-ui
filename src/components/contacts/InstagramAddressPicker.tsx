@@ -9,6 +9,7 @@ import type {
   InstagramContactAddressExtra,
 } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
+import { contactFullName } from "@/utils/ContactAddressUtils";
 import { nameInitials } from "@/utils/FormatUtils";
 import { fill } from "@/utils/fill";
 
@@ -73,9 +74,7 @@ export default function InstagramAddressPicker({
     return ((addresses ?? []) as InstagramAddressRow[])
       .map((row) => {
         const extra = (row.extra ?? {}) as InstagramContactAddressExtra;
-        const owner = row.contact
-          ? [row.contact.name, row.contact.surname].filter(Boolean).join(" ")
-          : "";
+        const owner = row.contact ? (contactFullName(row.contact) ?? "") : "";
 
         return {
           row,

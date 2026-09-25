@@ -3,7 +3,11 @@ import type {
   EmailTemplateVariable,
   EmailVariableField,
 } from "@/supabase/client";
-import { contactEmail } from "@/utils/ContactAddressUtils";
+import {
+  contactEmail,
+  contactFirstName,
+  contactFullName,
+} from "@/utils/ContactAddressUtils";
 
 /* Send-time substitution, run here only to preview it.
  *
@@ -31,8 +35,7 @@ export type Resolution = {
 /**
  * What a contact record offers each variable field.
  *
- * `contacts` stores a person as `name` + `surname` with no separate full name,
- * and the phone lives on a related `contacts_addresses` row rather than the
+ * The phone lives on a related `contacts_addresses` row rather than the
  * contact itself — hence the reach into `addresses` for it.
  */
 export function contactValues(
@@ -40,16 +43,14 @@ export function contactValues(
 ): Partial<Record<EmailVariableField, string>> {
   if (!contact) return {};
 
-  const first = contact.name?.trim() || "";
-  const last = contact.surname?.trim() || "";
   const phone = contact.addresses?.find(
     (a) => a.service === "whatsapp",
   )?.address;
 
   return {
-    first_name: first,
-    last_name: last,
-    full_name: [first, last].filter(Boolean).join(" "),
+    first_name: contactFirstName(contact) || "",
+    last_name: contact.surname?.trim() || "",
+    full_name: contactFullName(contact) || "",
     email: contactEmail(contact) || "",
     phone: phone || "",
   };

@@ -11,7 +11,11 @@ import {
   ltrIsolate,
   nameInitials,
 } from "@/utils/FormatUtils";
-import { contactEmail, contactPhone } from "@/utils/ContactAddressUtils";
+import {
+  contactEmail,
+  contactFullName,
+  contactPhone,
+} from "@/utils/ContactAddressUtils";
 import { fill } from "@/utils/fill";
 
 /**
@@ -84,7 +88,7 @@ export default function LinkAddressToContactModal({
       .filter((contact) => contact.id !== currentContact?.id)
       .map((contact) => ({
         contact,
-        name: [contact.name, contact.surname].filter(Boolean).join(" "),
+        name: contactFullName(contact) ?? "",
         phone: contactPhone(contact),
         email: contactEmail(contact),
       }))
@@ -144,10 +148,7 @@ export default function LinkAddressToContactModal({
         {currentContact ? (
           <span>
             {fill(t, "Everything on {name} moves to the contact you pick", {
-              name:
-                [currentContact.name, currentContact.surname]
-                  .filter(Boolean)
-                  .join(" ") || addressLabel,
+              name: contactFullName(currentContact) || addressLabel,
             })}
           </span>
         ) : (

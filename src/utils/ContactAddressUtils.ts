@@ -162,6 +162,40 @@ export function contactAddressName(
     : undefined;
 }
 
+type ContactNames = {
+  name?: string | null;
+  firstname?: string | null;
+  surname?: string | null;
+};
+
+/**
+ * `name` holds the whole display name when typed in the UI ("Dana Cohen") but
+ * only the first name when a lead import split it ("Dana" + surname "Cohen"),
+ * so the surname is appended only when `name` does not already end with it.
+ *
+ * API twin: `contactFullName` in acrm-api/supabase/functions/_shared/contacts.ts.
+ */
+export function contactFullName(contact: ContactNames): string | null {
+  const name = contact.name?.trim() || "";
+  const surname = contact.surname?.trim() || "";
+
+  if (!surname) return name || null;
+  if (` ${name}`.toLowerCase().endsWith(` ${surname}`.toLowerCase())) {
+    return name;
+  }
+
+  return [name, surname].filter(Boolean).join(" ");
+}
+
+/**
+ * Falls back to `name` for contacts created before `firstname` existed.
+ *
+ * API twin: `contactFirstName` in acrm-api/supabase/functions/_shared/contacts.ts.
+ */
+export function contactFirstName(contact: ContactNames): string | null {
+  return contact.firstname?.trim() || contact.name?.trim() || null;
+}
+
 /**
  * The one address to show under a contact's name in a list.
  *
@@ -188,10 +222,7 @@ export function contactDisplayAddress(
   const instagram = contact.addresses?.find((a) => a.service === "instagram");
 
   if (instagram) {
-    const extra = instagram.extra as
-      | { username?: string }
-      | null
-      | undefined;
+    const extra = instagram.extra as { username?: string } | null | undefined;
 
     return extra?.username ? `@${extra.username}` : instagram.address;
   }

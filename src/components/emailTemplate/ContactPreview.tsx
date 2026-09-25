@@ -3,7 +3,7 @@ import { Eye, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
 import type { EmailTemplateVariable } from "@/supabase/client";
-import { contactEmail } from "@/utils/ContactAddressUtils";
+import { contactEmail, contactFullName } from "@/utils/ContactAddressUtils";
 import EmailPreviewFrame, { previewStatsLabel } from "./EmailPreviewFrame";
 
 /**
@@ -55,9 +55,7 @@ export default function ContactPreview({
           <option value="">{t("Nobody — show fallbacks")}</option>
           {contacts?.slice(0, 200).map((c) => (
             <option key={c.id} value={c.id}>
-              {[c.name, c.surname].filter(Boolean).join(" ") ||
-                contactEmail(c) ||
-                t("Unnamed")}
+              {contactFullName(c) || contactEmail(c) || t("Unnamed")}
             </option>
           ))}
         </select>
