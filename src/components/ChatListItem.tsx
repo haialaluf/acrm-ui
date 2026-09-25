@@ -30,7 +30,7 @@ import {
   addressPicture,
   contactPicture,
 } from "@/utils/ContactAddressUtils";
-import { mediaPreview } from "@/utils/messagePreview";
+import { mediaPreview, messagePreviewText } from "@/utils/messagePreview";
 
 function statusIcon(status: OutgoingStatus, t: (text: string) => string) {
   const { icon, color, title } = getStatusPresentation(status);
@@ -220,9 +220,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
           <div className="profile-picture pl-[10px] pr-[15px] flex items-center">
             <div className="relative">
               <Avatar
-                src={
-                  addressPicture(contactAddress) ?? contactPicture(contact)
-                }
+                src={addressPicture(contactAddress) ?? contactPicture(contact)}
                 fallback={nameInitials(name || "?")}
                 size={49}
                 className="bg-accent text-accent-foreground border border-border text-[16px]"
@@ -272,19 +270,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                     </div>
                   )}
                 <div className="truncate text-[14px]">
-                  {preview?.content.type === "text" && preview.content.text}
-                  {/* A data part that was rendered for display (a template, for
-                      one) carries the flattened text the recipient sees — show
-                      that rather than the raw payload. The JSON stays as the
-                      fallback for parts with nothing human-readable. */}
-                  {preview?.content.type === "data" &&
-                    preview.content.kind !== "media_placeholder" &&
-                    (preview.content.text ||
-                      JSON.stringify(preview.content.data))}
-                  {(preview?.content.type === "file" ||
-                    (preview?.content.type === "data" &&
-                      preview.content.kind === "media_placeholder")) &&
-                    mediaPreviewContent}
+                  {preview && messagePreviewText(preview, mediaPreviewContent)}
                 </div>
               </div>
 

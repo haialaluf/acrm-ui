@@ -91,6 +91,19 @@ export type Contact = {
     type: string;
     wa_id?: string;
   }[];
+  emails?: { email: string; type?: string }[];
+  org?: { company?: string; department?: string; title?: string };
+  urls?: { url: string; type?: string }[];
+  addresses?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    country?: string;
+    country_code?: string;
+    type?: string;
+  }[];
+  birthday?: string;
 };
 
 // LOCATION

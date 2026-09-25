@@ -32,6 +32,7 @@ import {
 } from "@/components/templateButtons";
 import TemplateMessage from "./TemplateMessage";
 import BookingLinkPreview from "./BookingLinkPreview";
+import SharedContactCard from "./SharedContactCard";
 import MessageReactions from "./MessageReactions";
 import ReactionPicker from "./ReactionPicker";
 import MessageActions from "./MessageActions";
@@ -683,6 +684,30 @@ function ButtonReplyContent({
   );
 }
 
+function SharedContactsContent({
+  message,
+  header,
+  fixedWidth,
+}: MessageContentProps) {
+  if (message.content.type !== "data" || message.content.kind !== "contacts") {
+    return null;
+  }
+  return (
+    <TextMessage
+      header={header}
+      body=""
+      preview={message.content.data.map((contact, i) => (
+        <SharedContactCard key={i} contact={contact} />
+      ))}
+      type="markdown"
+      direction={message.direction}
+      timestamp={message.timestamp}
+      status={message.direction === "outgoing" ? message.status : undefined}
+      fixedWidth={fixedWidth}
+    />
+  );
+}
+
 function DataTextContent({ message, header, fixedWidth }: MessageContentProps) {
   if (message.content.type !== "data" || !message.content.text) return null;
   return (
@@ -781,6 +806,12 @@ const MESSAGE_STRATEGIES: MessageStrategy[] = [
     matches: (c) => c.type === "data" && c.kind === "button",
     text: true,
     Component: ButtonReplyContent,
+  },
+  {
+    matches: (c) =>
+      c.type === "data" && c.kind === "contacts" && Array.isArray(c.data),
+    text: true,
+    Component: SharedContactsContent,
   },
   {
     matches: (c) => c.type === "data" && c.kind === "media_placeholder",

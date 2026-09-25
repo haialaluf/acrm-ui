@@ -2,6 +2,8 @@ import { type ReactNode } from "react";
 import { type MessageRow } from "@/supabase/client";
 import { getHighestStatus } from "@/utils/MessageStatusUtils";
 import { mediaCategory } from "@/components/Message/media";
+import { sharedContactName } from "@/components/Message/SharedContactCard";
+import { UserRound } from "lucide-react";
 
 /**
  * One message boiled down to a single line — the sidebar's last-message row and
@@ -37,6 +39,29 @@ export function mediaPreview(
       </div>
     );
     mediaPreviewContent = t("Unavailable media");
+    return { mediaIcon, mediaPreviewContent };
+  }
+
+  if (
+    message.content.type === "data" &&
+    message.content.kind === "contacts" &&
+    Array.isArray(message.content.data)
+  ) {
+    const contacts = message.content.data;
+    mediaIcon = (
+      <div>
+        <UserRound className={`${mediaIconClass} h-[16px] w-[16px]`} />
+      </div>
+    );
+    const first = contacts[0] ? sharedContactName(contacts[0]) : "";
+    mediaPreviewContent =
+      contacts.length > 1 ? (
+        <>
+          {first || t("Contacts")} +{contacts.length - 1}
+        </>
+      ) : (
+        first || t("Contact")
+      );
     return { mediaIcon, mediaPreviewContent };
   }
 
@@ -126,7 +151,10 @@ export function messagePreviewText(
     // the flattened text the recipient sees — show that rather than the raw
     // payload. The JSON stays as the fallback for parts with nothing
     // human-readable.
-    if (message.content.kind === "media_placeholder")
+    if (
+      message.content.kind === "media_placeholder" ||
+      message.content.kind === "contacts"
+    )
       return mediaPreviewContent;
 
     return message.content.text || JSON.stringify(message.content.data);
