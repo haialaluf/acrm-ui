@@ -62,8 +62,14 @@ function EmailIndex() {
               description={
                 <>
                   {statusLabels[integration.status] || integration.status}
-                  {(integration.extra as EmailOrganizationAddressExtra | null)
-                    ?.inbound_ready_at && ` · ${t("Receiving")}`}
+                  {(() => {
+                    const extra =
+                      integration.extra as EmailOrganizationAddressExtra | null;
+                    return extra?.inbound_mx_ready_at ||
+                      extra?.inbound_forward_seen_at
+                      ? ` · ${t("Receiving")}`
+                      : "";
+                  })()}
                 </>
               }
               onClick={() =>

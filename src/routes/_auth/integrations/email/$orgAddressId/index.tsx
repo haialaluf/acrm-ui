@@ -34,7 +34,6 @@ const GROUPS: Array<{
   { key: "dkim", purposes: ["dkim"] },
   { key: "mail_from", purposes: ["mail_from_mx", "mail_from_spf"] },
   { key: "dmarc", purposes: ["dmarc"] },
-  { key: "inbound", purposes: ["inbound_mx"] },
 ];
 
 /**
@@ -47,14 +46,15 @@ function withInboundRecord(
   domain: string,
   extra: EmailOrganizationAddressExtra | undefined,
 ): EmailDnsRecord[] {
-  if (!records.length || !extra?.region) return records;
-  if (records.some((record) => record.purpose === "inbound_mx")) return records;
+  const current = records.filter((r) => r.name !== `reply.${domain}`);
+  if (!current.length || !extra?.region) return current;
+  if (current.some((r) => r.purpose === "inbound_mx")) return current;
 
   return [
-    ...records,
+    ...current,
     {
       type: "MX",
-      name: `reply.${domain}`,
+      name: domain,
       value: `inbound-smtp.${extra.region}.amazonaws.com`,
       priority: 10,
       purpose: "inbound_mx",
@@ -128,6 +128,10 @@ function EmailDomainDetail() {
   const extra = integration.extra as EmailOrganizationAddressExtra | undefined;
   const domain = integration.address;
   const records = withInboundRecord(extra?.dns_records ?? [], domain, extra);
+  const inboundRecord = records.find((r) => r.purpose === "inbound_mx");
+  const forwardAddress = extra?.inbound_forward_address;
+  const receiving =
+    !!extra?.inbound_mx_ready_at || !!extra?.inbound_forward_seen_at;
 
   // What our resolver saw for each record on the last check. Without this the
   // page can only ever say "still pending", which reads as the button having
@@ -191,6 +195,54 @@ function EmailDomainDetail() {
       )}`,
     };
   })();
+
+  const renderRecord = (record: EmailDnsRecord) => {
+    const check = checks.get(checkKey(record));
+
+    return (
+      <div
+        key={`${record.type}-${record.name}-${record.value}`}
+        className="border-border flex flex-col gap-[6px] border-t py-[10px] text-[14px]"
+      >
+        <div className="flex items-center justify-between gap-[8px]">
+          <span className="font-medium">
+            {record.type}
+            {record.priority !== undefined && (
+              <span className="text-muted-foreground font-normal">
+                {` (${t("priority")} ${record.priority})`}
+              </span>
+            )}
+          </span>
+          {check && (
+            <span className="whitespace-nowrap">
+              <StatusBadge
+                label={checkLabel[check.state]}
+                tone={CHECK_TONE[check.state]}
+              />
+            </span>
+          )}
+        </div>
+
+        <DnsField label={t("Name")} value={record.name} copyTitle={t("Copy")} />
+        <DnsField
+          label={t("Value")}
+          value={record.value}
+          copyTitle={t("Copy")}
+        />
+
+        {/* What is actually published, so a typo is
+                                fixable without leaving the page. */}
+        {check?.found?.map((value) => (
+          <p
+            key={value}
+            className="text-muted-foreground ps-[52px] font-mono text-[12px] break-all"
+          >
+            {`${t("found")}: ${value}`}
+          </p>
+        ))}
+      </div>
+    );
+  };
 
   const statusLabel =
     {
@@ -264,26 +316,16 @@ function EmailDomainDetail() {
 
           {integration.status === "connected" && (
             <div className="instructions">
-              {extra?.inbound_ready_at ? (
-                <>
-                  <p className="text-success font-medium">
-                    {t(
-                      "Receiving is on: replies to your emails land in the CRM.",
-                    )}
-                  </p>
-                  <p className="text-muted-foreground text-[14px]">
-                    {t(
-                      "To bring new emails in too, forward your mailbox to any address at",
-                    )}{" "}
-                    <span dir="ltr" className="font-mono">
-                      {extra.inbound_domain ?? `reply.${domain}`}
-                    </span>
-                  </p>
-                </>
+              {receiving ? (
+                <p className="text-success font-medium">
+                  {t(
+                    "Receiving is on: replies to your emails land in the CRM.",
+                  )}
+                </p>
               ) : (
                 <p className="text-muted-foreground text-[14px]">
                   {t(
-                    "Replies currently go to your own mailbox. Add the optional receiving record below to have them land in the CRM.",
+                    "Replies currently go only to your own mailbox. Set up receiving below to have them land in the CRM.",
                   )}
                 </p>
               )}
@@ -312,7 +354,6 @@ function EmailDomainDetail() {
                       {group.key === "dkim" && t("DKIM (required)")}
                       {group.key === "mail_from" && t("MAIL FROM (required)")}
                       {group.key === "dmarc" && t("DMARC (recommended)")}
-                      {group.key === "inbound" && t("Receiving (optional)")}
                     </div>
 
                     <p className="text-muted-foreground text-[14px]">
@@ -328,50 +369,7 @@ function EmailDomainDetail() {
                         t(
                           "Tells receivers what to do with messages that fail authentication. If your domain already has a _dmarc record, keep it — do not replace it with this one.",
                         )}
-                      {group.key === "inbound" &&
-                        t(
-                          "Lets replies to your emails land in the CRM as conversations, where your assistant or your team can answer them. It uses a separate subdomain, so your existing mailbox keeps working.",
-                        )}
                     </p>
-
-                    {group.key === "inbound" && (
-                      <ol className="text-muted-foreground text-[14px] list-decimal ps-[20px] flex flex-col gap-[4px]">
-                        <li>
-                          {t(
-                            "At your DNS provider, add a new MX record with the name and value below.",
-                          )}{" "}
-                          {t(
-                            "If the provider adds your domain to the name by itself, enter only",
-                          )}{" "}
-                          <span dir="ltr" className="font-mono">
-                            reply
-                          </span>
-                          .
-                        </li>
-                        <li>
-                          {t(
-                            "Do not change or remove the existing MX records of your domain — they keep delivering your regular mail.",
-                          )}
-                        </li>
-                        <li>
-                          {t(
-                            "Click Check now. Once the record shows Found, every email you send tells recipients to reply to the CRM.",
-                          )}
-                        </li>
-                        <li>
-                          {t(
-                            "Optional: to bring new emails into the CRM too, forward your mailbox to any address at",
-                          )}{" "}
-                          <span dir="ltr" className="font-mono">
-                            {extra?.inbound_domain ?? `reply.${domain}`}
-                          </span>
-                          .{" "}
-                          {t(
-                            "Gmail asks you to confirm forwarding: the confirmation email arrives as a conversation in the CRM.",
-                          )}
-                        </li>
-                      </ol>
-                    )}
 
                     {/* Stacked rather than a table: this page lives in the
                         app's narrow resizable panel, and a DKIM name is ~55
@@ -380,61 +378,100 @@ function EmailDomainDetail() {
                         a horizontal scroll — so each record gets the full width
                         and its status sits on the header line. */}
                     <div className="flex flex-col">
-                      {groupRecords.map((record) => {
-                        const check = checks.get(checkKey(record));
-
-                        return (
-                          <div
-                            key={`${record.type}-${record.name}-${record.value}`}
-                            className="border-border flex flex-col gap-[6px] border-t py-[10px] text-[14px]"
-                          >
-                            <div className="flex items-center justify-between gap-[8px]">
-                              <span className="font-medium">
-                                {record.type}
-                                {record.priority !== undefined && (
-                                  <span className="text-muted-foreground font-normal">
-                                    {` (${t("priority")} ${record.priority})`}
-                                  </span>
-                                )}
-                              </span>
-                              {check && (
-                                <span className="whitespace-nowrap">
-                                  <StatusBadge
-                                    label={checkLabel[check.state]}
-                                    tone={CHECK_TONE[check.state]}
-                                  />
-                                </span>
-                              )}
-                            </div>
-
-                            <DnsField
-                              label={t("Name")}
-                              value={record.name}
-                              copyTitle={t("Copy")}
-                            />
-                            <DnsField
-                              label={t("Value")}
-                              value={record.value}
-                              copyTitle={t("Copy")}
-                            />
-
-                            {/* What is actually published, so a typo is
-                                fixable without leaving the page. */}
-                            {check?.found?.map((value) => (
-                              <p
-                                key={value}
-                                className="text-muted-foreground ps-[52px] font-mono text-[12px] break-all"
-                              >
-                                {`${t("found")}: ${value}`}
-                              </p>
-                            ))}
-                          </div>
-                        );
-                      })}
+                      {groupRecords.map(renderRecord)}
                     </div>
                   </div>
                 );
               })}
+
+              {integration.status === "connected" && (
+                <div className="flex flex-col gap-[8px]">
+                  <div className="label">
+                    {t("Receiving replies (optional)")}
+                  </div>
+                  <p className="text-muted-foreground text-[14px]">
+                    {t(
+                      "Lets replies to your emails land in the CRM as conversations, where your assistant or your team can answer them. Choose the option that fits your domain:",
+                    )}
+                  </p>
+
+                  <div className="font-medium text-[14px] mt-[8px]">
+                    {t("Option 1 — this domain has no mailbox")}
+                  </div>
+                  <p className="text-muted-foreground text-[14px]">
+                    {t(
+                      "Point the domain's mail at the CRM. Replies to your sender address, and any email sent to an address at this domain, open conversations here. Most DNS providers write the domain itself as @ in the name field.",
+                    )}
+                  </p>
+                  {inboundRecord &&
+                    checks.get(checkKey(inboundRecord))?.state ===
+                      "mismatch" && (
+                      <p className="text-warning text-[14px] font-medium">
+                        {t(
+                          "This domain already receives mail elsewhere — use option 2 so that mailbox keeps working.",
+                        )}
+                      </p>
+                    )}
+                  {inboundRecord && (
+                    <div className="flex flex-col">
+                      {renderRecord(inboundRecord)}
+                    </div>
+                  )}
+
+                  <div className="font-medium text-[14px] mt-[8px]">
+                    {t(
+                      "Option 2 — you already have a mailbox (Google, Outlook…)",
+                    )}
+                  </div>
+                  <p className="text-muted-foreground text-[14px]">
+                    {t(
+                      "Keep your mailbox exactly as it is and set it to automatically forward incoming mail to your private CRM address. Replies still reach your inbox, and a copy lands in the CRM.",
+                    )}
+                  </p>
+                  {forwardAddress ? (
+                    <>
+                      <div className="border-border border-t py-[10px] text-[14px] flex flex-col gap-[6px]">
+                        <div className="flex items-center justify-between gap-[8px]">
+                          <span className="font-medium">{t("Forward to")}</span>
+                          <StatusBadge
+                            label={
+                              extra?.inbound_forward_seen_at
+                                ? t("Receiving")
+                                : t("Waiting for the first email")
+                            }
+                            tone={
+                              extra?.inbound_forward_seen_at
+                                ? "success"
+                                : "neutral"
+                            }
+                          />
+                        </div>
+                        <DnsField
+                          label={t("Address")}
+                          value={forwardAddress}
+                          copyTitle={t("Copy")}
+                        />
+                      </div>
+                      <ul className="text-muted-foreground text-[14px] list-disc ps-[20px] flex flex-col gap-[4px]">
+                        <li>
+                          {t(
+                            "Gmail / Google Workspace: Settings → Forwarding and POP/IMAP → Add a forwarding address. Google sends a confirmation code, which shows up here as a new conversation.",
+                          )}
+                        </li>
+                        <li>
+                          {t(
+                            "Outlook / Microsoft 365: Settings → Mail → Forwarding. Your admin may first need to allow forwarding to outside addresses.",
+                          )}
+                        </li>
+                      </ul>
+                    </>
+                  ) : (
+                    <p className="text-muted-foreground text-[14px]">
+                      {t("Click Check now to get your forwarding address.")}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -455,7 +492,7 @@ function EmailDomainDetail() {
           {(integration.status === "pending" ||
             integration.status === "failed" ||
             (integration.status === "connected" &&
-              !extra?.inbound_ready_at)) && (
+              (!receiving || !forwardAddress))) && (
             <Button
               type="button"
               className="primary w-fit"

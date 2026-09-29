@@ -87,7 +87,7 @@ function EmailNew() {
               </li>
               <li>
                 {t(
-                  "Optionally, one more record lets replies to your emails land in the CRM as conversations. Your existing mailbox keeps working.",
+                  "Optionally, replies to your emails can also land in the CRM as conversations, either through one more DNS record or by forwarding your existing mailbox.",
                 )}
               </li>
               <li>

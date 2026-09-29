@@ -209,10 +209,15 @@ export type EmailOrganizationAddressExtra = {
   // domain verifies; must be an address at `domain`.
   default_from_address?: string;
   default_from_name?: string;
-  // `reply.<domain>`; outgoing mail sets Reply-To there only while
-  // `inbound_ready_at` is set, i.e. while its MX points at SES.
-  inbound_domain?: string;
-  inbound_ready_at?: string | null;
+  // Receiving, either way the contact's reply reaches us (no Reply-To is ever
+  // set, so it always goes to the From address first):
+  //  - the domain's own MX points at SES (a domain with no other mailbox):
+  //    `inbound_mx_ready_at` while it does;
+  //  - the domain's existing mailbox auto-forwards to `inbound_forward_address`
+  //    (on FORWARD_DOMAIN): `inbound_forward_seen_at` once mail has arrived.
+  inbound_mx_ready_at?: string | null;
+  inbound_forward_address?: string;
+  inbound_forward_seen_at?: string;
 };
 
 // The public lead-intake connection (service = 'api', address = 'api').
