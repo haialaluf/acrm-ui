@@ -49,28 +49,43 @@ export function useCreateApiKey() {
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
 
   return useMutation({
-    mutationFn: async (data: Omit<ApiKeyInsert, "key" | "organization_id">) => {
+    mutationFn: async (
+      data: Pick<ApiKeyInsert, "name" | "role">,
+    ): Promise<ApiKeyRow> => {
       if (!orgId) throw new Error("No active organization");
 
-      // Simple key generation logic
-      const key = `sk_${crypto.randomUUID().replace(/-/g, "")}`;
+      const { data: created } = await supabase
+        .rpc("create_api_key", {
+          p_organization_id: orgId,
+          p_name: data.name,
+          p_role: data.role ?? "member",
+        })
+        .throwOnError();
+
+      const { id, key } = created as { id: string; key: string };
 
       const { data: apiKey } = await supabase
         .from("api_keys")
-        .insert({ ...data, organization_id: orgId, key })
         .select()
+        .eq("id", id)
         .single()
         .throwOnError();
 
-      return apiKey;
+      // The server keeps only a hash: this is the one moment the plaintext
+      // exists, so the detail page reads it from here and clears it on leave.
+      return { ...apiKey, key };
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys.all(orgId) });
-      queryClient.setQueryData(
-        queryKeys.apiKeys.detail(orgId, data.id),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (old: any) => (old ? { ...old, data } : { data, error: null }),
-      );
+      // Exact: the detail entry below shares this prefix, and a refetch of it
+      // would replace the one-time plaintext with the stored (hash-only) row.
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.apiKeys.all(orgId),
+        exact: true,
+      });
+      queryClient.setQueryData(queryKeys.apiKeys.detail(orgId, data.id), {
+        data,
+        error: null,
+      });
     },
   });
 }

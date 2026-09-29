@@ -46,7 +46,8 @@ export const SKILL_CATALOG: SkillCatalogEntry[] = [
         key: "acrm",
         label: "Calendar connection",
         type: "acrm_api_key",
-        required: true,
+        // Nothing to connect: agent-client presents the org's platform key.
+        required: false,
       },
       {
         key: "calendar_id",

@@ -175,11 +175,7 @@ export function TextMessage({
 
           {/* Header */}
           {header && (
-            <div
-              className="text-[15px] mb-3 font-semibold"
-              dangerouslySetInnerHTML={{ __html: header }}
-              onInput={onInput}
-            />
+            <div className="text-[15px] mb-3 font-semibold">{header}</div>
           )}
 
           {/* Body */}

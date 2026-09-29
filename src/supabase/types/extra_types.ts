@@ -91,17 +91,15 @@ export type WhatsAppOrganizationAddressExtra = {
   // `flow_type` because a failed onboarding is usually a mismatch between what
   // the client picked and what their number actually is.
   signup_mode?: "coexistence" | "cloud_api" | null;
-  // The 6-digit PIN we registered the number with, which is also its two-step
-  // verification PIN. Null for coexistence numbers (never registered by us).
-  registration_pin?: string | null;
+  // @ui-divergence: registration_pin, access_token and verify_token omitted.
+  // They are server-only (organizations_addresses_secrets); admins and owners
+  // read the tokens through useWhatsAppCredentials.
   // Coexistence only: set when the 24h contact/message-history import did not
   // run. The remedy is client-side (disconnect in the app, re-run the link), so
   // the integration page surfaces this.
   history_sync_failed?: string | null;
   history_sync_failed_parts?: string[] | null;
-  access_token?: string; // Meta system-user token
   callback_url?: string | null;
-  verify_token?: string | null;
 };
 
 export type InstagramOrganizationAddressExtra = {
@@ -109,7 +107,7 @@ export type InstagramOrganizationAddressExtra = {
   username?: string;
   name?: string;
   profile_picture_url?: string;
-  access_token?: string; // Per-IG-account OAuth user token (long-lived, 60 days)
+  // @ui-divergence: access_token omitted; it is server-only.
   token_expires_at?: string; // ISO; when the long-lived token expires
   token_refreshed_at?: string; // ISO; last successful refresh (or initial issue)
   scopes?: string[]; // granted permissions
@@ -123,18 +121,8 @@ export type FacebookOrganizationAddressExtra = {
   // deletion callback — which identifies a user, never a Page — has something
   // to match on.
   fb_user_id?: string;
-  // The Page token — named `access_token` to match the WhatsApp/Instagram
-  // shapes. Note that `access_token` is no longer a common member of the
-  // OrganizationAddressExtra union: `EmailOrganizationAddressExtra` has no token
-  // (SES authenticates with account-level AWS credentials), so every read site
-  // must narrow to the service-specific shape first. Used for every lead read.
-  // Derived from a long-lived user token, so it carries no expiry of its own —
-  // but it still dies when the connecting user changes their password or
-  // revokes the app, hence `needs_reauth`.
-  access_token?: string;
-  // Long-lived user token, kept so the Page token can be re-derived without
-  // sending the customer through OAuth again.
-  user_access_token?: string;
+  // @ui-divergence: access_token and user_access_token omitted; they are
+  // server-only.
   user_token_expires_at?: string; // ISO; ~60 days from issue
   scopes?: string[]; // granted permissions
   leadgen_subscribed_at?: string; // ISO; last successful /subscribed_apps POST

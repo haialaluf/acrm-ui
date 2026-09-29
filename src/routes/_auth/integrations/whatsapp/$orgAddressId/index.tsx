@@ -5,6 +5,7 @@ import { useOrganizationAddress } from "@/queries/useOrganizationsAddresses";
 import { useWhatsAppDisconnect } from "@/queries/useWhatsAppSignup";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
+import { useWhatsAppCredentials } from "@/queries/useWhatsAppCredentials";
 import { formatPhoneNumber } from "@/utils/FormatUtils";
 import type { WhatsAppOrganizationAddressExtra } from "@/supabase/client";
 import { useState } from "react";
@@ -26,6 +27,11 @@ function WhatsAppDetails() {
   const disconnect = useWhatsAppDisconnect();
   const { data: agent } = useCurrentAgent();
   const [showInstructions, setShowInstructions] = useState(false);
+  const role = agent?.extra?.role;
+  const { data: credentials } = useWhatsAppCredentials(
+    integration?.address,
+    role === "owner" || role === "admin",
+  );
 
   if (!integration) return;
 
@@ -157,13 +163,13 @@ function WhatsAppDetails() {
             />
           </label>
 
-          {extra?.access_token && (
+          {credentials?.access_token && (
             <label>
               <div className="label">{t("WABA access token")}</div>
               <input
                 type="text"
                 className="text font-mono text-xs"
-                value={extra.access_token}
+                value={credentials.access_token}
                 readOnly
               />
             </label>
@@ -193,7 +199,7 @@ function WhatsAppDetails() {
             <input
               type="text"
               className="text"
-              value={extra?.verify_token || ""}
+              value={credentials?.verify_token || ""}
               placeholder={t("Not overridden")}
               readOnly
             />

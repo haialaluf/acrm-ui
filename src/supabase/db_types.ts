@@ -638,7 +638,9 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          key: string
+          key: string | null
+          key_hash: string | null
+          key_prefix: string | null
           name: string
           organization_id: string
           role: Database["public"]["Enums"]["role"]
@@ -647,7 +649,9 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
-          key: string
+          key?: string | null
+          key_hash?: string | null
+          key_prefix?: string | null
           name: string
           organization_id: string
           role?: Database["public"]["Enums"]["role"]
@@ -656,7 +660,9 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          key?: string
+          key?: string | null
+          key_hash?: string | null
+          key_prefix?: string | null
           name?: string
           organization_id?: string
           role?: Database["public"]["Enums"]["role"]
@@ -1197,10 +1203,10 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "contacts_addresses_contact_id_fkey"
-            columns: ["contact_id"]
+            columns: ["organization_id", "contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
-            referencedColumns: ["id"]
+            referencedColumns: ["organization_id", "id"]
           },
           {
             foreignKeyName: "contacts_addresses_organization_id_fkey"
@@ -1742,6 +1748,32 @@ export type Database = {
           },
         ]
       }
+      organization_secrets: {
+        Row: {
+          acrm_mcp_key: string | null
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          acrm_mcp_key?: string | null
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          acrm_mcp_key?: string | null
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_secrets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           address: string
@@ -1804,6 +1836,35 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations_addresses_secrets: {
+        Row: {
+          address: string
+          organization_id: string
+          secrets: Json
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          organization_id: string
+          secrets?: Json
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          organization_id?: string
+          secrets?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organizations_addresses_secrets_address_fkey"
+            columns: ["organization_id", "address"]
+            isOneToOne: true
+            referencedRelation: "organizations_addresses"
+            referencedColumns: ["organization_id", "address"]
           },
         ]
       }
@@ -2249,6 +2310,14 @@ export type Database = {
           thread_key: string
           unread_count: number
         }[]
+      }
+      create_api_key: {
+        Args: {
+          p_name: string
+          p_organization_id: string
+          p_role?: Database["public"]["Enums"]["role"]
+        }
+        Returns: Json
       }
       email_daily_metrics: {
         Args: { p_days?: number; p_organization_id: string }

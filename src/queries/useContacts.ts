@@ -442,6 +442,10 @@ export function useUpdateContact() {
       }>(queryKeys.contacts.detail(orgId, id));
       const oldAddresses = cached?.data?.addresses ?? [];
       const oldAddressesString = oldAddresses.map((a) => a.address);
+      // A contact opened by URL can belong to another of the user's orgs than
+      // the active one; upsert_contact rejects a contact outside the org it
+      // is given, so write against the contact's own org.
+      const contactOrgId = cached?.data?.organization_id ?? orgId;
 
       // Synthesize the single email field into the same addresses list the
       // phone/instagram useFieldArray rows go through, service-tagged so it
@@ -488,7 +492,7 @@ export function useUpdateContact() {
             supabase
               .from("contacts_addresses")
               .update({ contact_id: null })
-              .eq("organization_id", orgId)
+              .eq("organization_id", contactOrgId)
               .eq("address", address)
               .throwOnError(),
           ),
@@ -506,7 +510,7 @@ export function useUpdateContact() {
         }));
 
       const { data: result, error } = await supabase.rpc("upsert_contact", {
-        p_organization_id: orgId,
+        p_organization_id: contactOrgId,
         p_strategy: strategy,
         p_contact: {
           name: newContact.name ?? null,

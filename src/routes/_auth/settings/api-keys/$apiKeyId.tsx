@@ -5,9 +5,12 @@ import { useApiKey, useDeleteApiKey } from "@/queries/useApiKeys";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useForm } from "react-hook-form";
 import SectionBody from "@/components/SectionBody";
-import type { ApiKeyUpdate } from "@/supabase/client";
-import { useState } from "react";
+import type { ApiKeyRow, ApiKeyUpdate } from "@/supabase/client";
+import { useEffect, useState } from "react";
 import { Copy, Check } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import useBoundStore from "@/stores/useBoundStore";
+import { queryKeys } from "@/queries/queryKeys";
 
 export const Route = createFileRoute("/_auth/settings/api-keys/$apiKeyId")({
   component: ApiKeyDetail,
@@ -21,6 +24,21 @@ function ApiKeyDetail() {
   const { data: currentAgent } = useCurrentAgent();
   const isOwner = currentAgent?.extra?.role === "owner";
   const deleteApiKey = useDeleteApiKey();
+  const queryClient = useQueryClient();
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  // The full key exists only right after creation (see useCreateApiKey);
+  // forget it on leave so it is shown exactly once.
+  useEffect(
+    () => () => {
+      queryClient.setQueryData(
+        queryKeys.apiKeys.detail(orgId, apiKeyId),
+        (old: { data: ApiKeyRow } | undefined) =>
+          old ? { ...old, data: { ...old.data, key: null } } : old,
+      );
+    },
+    [queryClient, orgId, apiKeyId],
+  );
 
   const { register } = useForm<ApiKeyUpdate>({
     values: apiKey,
@@ -92,26 +110,42 @@ function ApiKeyDetail() {
 
             <label>
               <div className="label">{t("Key")}</div>
-              <div className="flex items-center gap-2">
+              {apiKey.key ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      className="text"
+                      readOnly
+                      value={apiKey.key}
+                    />
+                    <button
+                      type="button"
+                      className="p-[8px] hover:bg-muted rounded-full shrink-0"
+                      title={t("Copy key")}
+                      onClick={copyKey}
+                    >
+                      {copied ? (
+                        <Check className="w-[20px] h-[20px] text-primary" />
+                      ) : (
+                        <Copy className="w-[20px] h-[20px] text-muted-foreground" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-muted-foreground text-[13px] mt-1">
+                    {t(
+                      "Copy this key now. For your security it won't be shown again.",
+                    )}
+                  </p>
+                </>
+              ) : (
                 <input
                   type="text"
-                  className="text"
+                  className="text font-mono"
                   readOnly
-                  {...register("key")}
+                  value={`${apiKey.key_prefix ?? "sk_"}…`}
                 />
-                <button
-                  type="button"
-                  className="p-[8px] hover:bg-muted rounded-full shrink-0"
-                  title={t("Copy key")}
-                  onClick={copyKey}
-                >
-                  {copied ? (
-                    <Check className="w-[20px] h-[20px] text-primary" />
-                  ) : (
-                    <Copy className="w-[20px] h-[20px] text-muted-foreground" />
-                  )}
-                </button>
-              </div>
+              )}
             </label>
           </form>
         </SectionBody>

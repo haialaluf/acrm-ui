@@ -30,7 +30,6 @@ import {
   SKILL_CATALOG,
 } from "@/skills/catalog";
 import { openGoogleOAuth } from "@/utils/googleOAuth";
-import { useAcrmMcpKey } from "@/hooks/useAcrmMcpKey";
 
 type SkillsSectionProps<T extends FieldValues> = {
   control: Control<T>;
@@ -219,7 +218,6 @@ function SkillConfigFieldInput<T extends FieldValues>({
   disabled?: boolean;
 }) {
   const { translate: t } = useTranslation();
-  const acrm = useAcrmMcpKey();
   // Options the static catalog cannot enumerate — the org's own calendars.
   const calendars = useCalendars().data ?? [];
 
@@ -397,23 +395,10 @@ function SkillConfigFieldInput<T extends FieldValues>({
       return (
         <div>
           <div className="label mb-[8px]">{t(field.label)}</div>
-          <button
-            type="button"
-            className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-full font-medium transition-colors w-fit text-[14px] flex items-center gap-2 disabled:opacity-40"
-            disabled={disabled || !acrm.isOwner || !acrm.isReady}
-            onClick={async () => {
-              const token = await acrm.provision();
-              if (token) authorize(token);
-            }}
-          >
-            {authorized && <Check className="w-4 h-4" />}
-            {authorized ? t("Connected") : t("Connect")}
-          </button>
-          {!acrm.isOwner && (
-            <p className="text-muted-foreground text-[14px] mt-[8px]">
-              {t("Requires owner permissions to connect.")}
-            </p>
-          )}
+          <div className="bg-secondary text-secondary-foreground px-4 py-2 rounded-full font-medium w-fit text-[14px] flex items-center gap-2">
+            <Check className="w-4 h-4" />
+            {t("Connected")}
+          </div>
         </div>
       );
 
