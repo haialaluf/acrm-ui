@@ -4,6 +4,9 @@ import useBoundStore from "@/stores/useBoundStore";
 import { STATIC_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 
+/** A key row; `key` holds the plaintext only in the cache right after creation. */
+export type ApiKeyWithPlaintext = ApiKeyRow & { key?: string | null };
+
 export function useApiKeys() {
   const userId = useBoundStore((state) => state.ui.user?.id);
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
@@ -38,7 +41,7 @@ export function useApiKey(id: string) {
         .single()
         .throwOnError(),
     enabled: !!userId && !!orgId,
-    select: (data) => data.data as ApiKeyRow,
+    select: (data) => data.data as ApiKeyWithPlaintext,
     experimental_prefetchInRender: true,
     staleTime: STATIC_STALE_TIME,
   });
@@ -51,7 +54,7 @@ export function useCreateApiKey() {
   return useMutation({
     mutationFn: async (
       data: Pick<ApiKeyInsert, "name" | "role">,
-    ): Promise<ApiKeyRow> => {
+    ): Promise<ApiKeyWithPlaintext> => {
       if (!orgId) throw new Error("No active organization");
 
       const { data: created } = await supabase

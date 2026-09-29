@@ -638,8 +638,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          key: string | null
-          key_hash: string | null
+          key_hash: string
           key_prefix: string | null
           name: string
           organization_id: string
@@ -649,8 +648,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
-          key?: string | null
-          key_hash?: string | null
+          key_hash: string
           key_prefix?: string | null
           name: string
           organization_id: string
@@ -660,8 +658,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          key?: string | null
-          key_hash?: string | null
+          key_hash?: string
           key_prefix?: string | null
           name?: string
           organization_id?: string

@@ -1,11 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useApiKey, useDeleteApiKey } from "@/queries/useApiKeys";
+import {
+  type ApiKeyWithPlaintext,
+  useApiKey,
+  useDeleteApiKey,
+} from "@/queries/useApiKeys";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useForm } from "react-hook-form";
 import SectionBody from "@/components/SectionBody";
-import type { ApiKeyRow, ApiKeyUpdate } from "@/supabase/client";
+import type { ApiKeyUpdate } from "@/supabase/client";
 import { useEffect, useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -33,7 +37,7 @@ function ApiKeyDetail() {
     () => () => {
       queryClient.setQueryData(
         queryKeys.apiKeys.detail(orgId, apiKeyId),
-        (old: { data: ApiKeyRow } | undefined) =>
+        (old: { data: ApiKeyWithPlaintext } | undefined) =>
           old ? { ...old, data: { ...old.data, key: null } } : old,
       );
     },
