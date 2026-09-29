@@ -87,6 +87,11 @@ function EmailNew() {
               </li>
               <li>
                 {t(
+                  "Optionally, one more record lets replies to your emails land in the CRM as conversations. Your existing mailbox keeps working.",
+                )}
+              </li>
+              <li>
+                {t(
                   "Enter the domain only, without www or an email address — for example acme.com.",
                 )}
               </li>

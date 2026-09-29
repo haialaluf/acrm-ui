@@ -158,6 +158,7 @@ export const SURFACES = {
   "source.instagram_message": ["instagram"],
   /** Messenger runs on the connected Facebook Page. */
   "source.facebook_messenger_message": ["facebook"],
+  "source.email_message": ["email"],
   /** The address-book sync sources, stored as the bare service name. */
   "source.whatsapp": ["whatsapp"],
   "source.instagram": ["instagram"],

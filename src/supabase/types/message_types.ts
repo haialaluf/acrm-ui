@@ -212,6 +212,18 @@ export type Parts = {
   artifacts?: Part[];
 };
 
+/**
+ * Email envelope of a message on an email conversation. `html_uri` points at
+ * the original HTML body in storage, for "view original".
+ */
+export type EmailEnvelope = {
+  subject?: string;
+  message_id?: string;
+  from?: string;
+  cc?: string[];
+  html_uri?: string;
+};
+
 export type IncomingMessage = {
   version: "1";
   re_message_id?: string; // replied, reacted or forwarded message id
@@ -221,6 +233,7 @@ export type IncomingMessage = {
     product_retailer_id: string;
   };
   referral?: WhatsAppReferral | InstagramReferral | MessengerReferral;
+  email?: EmailEnvelope;
 } & TaskInfo &
   (
     | TextPart
@@ -249,5 +262,6 @@ export type OutgoingMessage = {
   version: "1";
   re_message_id?: string; // replied, reacted or forwarded message id
   forwarded?: boolean;
+  email?: EmailEnvelope;
 } & TaskInfo &
   (TextPart | FilePart | ContactsPart | LocationPart | TemplatePart);

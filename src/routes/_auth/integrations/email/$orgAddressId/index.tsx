@@ -34,7 +34,34 @@ const GROUPS: Array<{
   { key: "dkim", purposes: ["dkim"] },
   { key: "mail_from", purposes: ["mail_from_mx", "mail_from_spf"] },
   { key: "dmarc", purposes: ["dmarc"] },
+  { key: "inbound", purposes: ["inbound_mx"] },
 ];
+
+/**
+ * The stored records plus the receiving MX when they predate it. The API
+ * writes it on the domain's next check; this only keeps a domain connected
+ * before receiving existed from showing no instructions until then.
+ */
+function withInboundRecord(
+  records: EmailDnsRecord[],
+  domain: string,
+  extra: EmailOrganizationAddressExtra | undefined,
+): EmailDnsRecord[] {
+  if (!records.length || !extra?.region) return records;
+  if (records.some((record) => record.purpose === "inbound_mx")) return records;
+
+  return [
+    ...records,
+    {
+      type: "MX",
+      name: `reply.${domain}`,
+      value: `inbound-smtp.${extra.region}.amazonaws.com`,
+      priority: 10,
+      purpose: "inbound_mx",
+      required: false,
+    },
+  ];
+}
 
 /** A record and its check share a name+type; that pair is the join key. */
 function checkKey(record: { type: string; name: string }): string {
@@ -99,8 +126,8 @@ function EmailDomainDetail() {
 
   const isOwner = agent?.extra?.role === "owner";
   const extra = integration.extra as EmailOrganizationAddressExtra | undefined;
-  const records = extra?.dns_records ?? [];
   const domain = integration.address;
+  const records = withInboundRecord(extra?.dns_records ?? [], domain, extra);
 
   // What our resolver saw for each record on the last check. Without this the
   // page can only ever say "still pending", which reads as the button having
@@ -235,6 +262,41 @@ function EmailDomainDetail() {
               </div>
             )}
 
+          {integration.status === "connected" && (
+            <div className="instructions">
+              {extra?.inbound_ready_at ? (
+                <>
+                  <p className="text-success font-medium">
+                    {t(
+                      "Receiving is on: replies to your emails land in the CRM.",
+                    )}
+                  </p>
+                  <p className="text-muted-foreground text-[14px]">
+                    {t(
+                      "To bring new emails in too, forward your mailbox to any address at",
+                    )}{" "}
+                    <span dir="ltr" className="font-mono">
+                      {extra.inbound_domain ?? `reply.${domain}`}
+                    </span>
+                  </p>
+                </>
+              ) : (
+                <p className="text-muted-foreground text-[14px]">
+                  {t(
+                    "Replies currently go to your own mailbox. Add the optional receiving record below to have them land in the CRM.",
+                  )}
+                </p>
+              )}
+              {!extra?.default_from_address && (
+                <p className="text-warning text-[14px] font-medium">
+                  {t(
+                    "Set a default sender below — replies from the CRM are sent from it.",
+                  )}
+                </p>
+              )}
+            </div>
+          )}
+
           {records.length > 0 && integration.status !== "disconnected" && (
             <div className="flex flex-col gap-[24px]">
               {GROUPS.map((group) => {
@@ -250,6 +312,7 @@ function EmailDomainDetail() {
                       {group.key === "dkim" && t("DKIM (required)")}
                       {group.key === "mail_from" && t("MAIL FROM (required)")}
                       {group.key === "dmarc" && t("DMARC (recommended)")}
+                      {group.key === "inbound" && t("Receiving (optional)")}
                     </div>
 
                     <p className="text-muted-foreground text-[14px]">
@@ -265,7 +328,50 @@ function EmailDomainDetail() {
                         t(
                           "Tells receivers what to do with messages that fail authentication. If your domain already has a _dmarc record, keep it — do not replace it with this one.",
                         )}
+                      {group.key === "inbound" &&
+                        t(
+                          "Lets replies to your emails land in the CRM as conversations, where your assistant or your team can answer them. It uses a separate subdomain, so your existing mailbox keeps working.",
+                        )}
                     </p>
+
+                    {group.key === "inbound" && (
+                      <ol className="text-muted-foreground text-[14px] list-decimal ps-[20px] flex flex-col gap-[4px]">
+                        <li>
+                          {t(
+                            "At your DNS provider, add a new MX record with the name and value below.",
+                          )}{" "}
+                          {t(
+                            "If the provider adds your domain to the name by itself, enter only",
+                          )}{" "}
+                          <span dir="ltr" className="font-mono">
+                            reply
+                          </span>
+                          .
+                        </li>
+                        <li>
+                          {t(
+                            "Do not change or remove the existing MX records of your domain — they keep delivering your regular mail.",
+                          )}
+                        </li>
+                        <li>
+                          {t(
+                            "Click Check now. Once the record shows Found, every email you send tells recipients to reply to the CRM.",
+                          )}
+                        </li>
+                        <li>
+                          {t(
+                            "Optional: to bring new emails into the CRM too, forward your mailbox to any address at",
+                          )}{" "}
+                          <span dir="ltr" className="font-mono">
+                            {extra?.inbound_domain ?? `reply.${domain}`}
+                          </span>
+                          .{" "}
+                          {t(
+                            "Gmail asks you to confirm forwarding: the confirmation email arrives as a conversation in the CRM.",
+                          )}
+                        </li>
+                      </ol>
+                    )}
 
                     {/* Stacked rather than a table: this page lives in the
                         app's narrow resizable panel, and a DKIM name is ~55
@@ -347,7 +453,9 @@ function EmailDomainDetail() {
           )}
 
           {(integration.status === "pending" ||
-            integration.status === "failed") && (
+            integration.status === "failed" ||
+            (integration.status === "connected" &&
+              !extra?.inbound_ready_at)) && (
             <Button
               type="button"
               className="primary w-fit"

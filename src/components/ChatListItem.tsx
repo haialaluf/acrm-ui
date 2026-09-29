@@ -147,6 +147,11 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
 
   const isPinned = conversation?.extra?.pinned;
 
+  // Several email threads with one contact share a name; the subject is what
+  // tells them apart.
+  const emailSubject =
+    conversation?.service === "email" ? conversation.extra?.subject : undefined;
+
   // Set when the agent handed this conversation off to a person and cleared
   // the moment one of them actually replies here — so its presence means
   // still waiting.
@@ -269,7 +274,10 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
                       {t("Template:")}
                     </div>
                   )}
-                <div className="truncate text-[14px]">
+                <div dir="auto" className="truncate text-[14px]">
+                  {emailSubject && (
+                    <span className="text-foreground">{emailSubject} · </span>
+                  )}
                   {preview && messagePreviewText(preview, mediaPreviewContent)}
                 </div>
               </div>

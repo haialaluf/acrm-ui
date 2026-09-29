@@ -276,6 +276,10 @@ function ContactDetail() {
     submit(data, "skip");
   }
 
+  const emailConversations = (conversations.data ?? []).filter(
+    (conversation) => conversation.service === "email",
+  );
+
   function openConversation() {
     const conversation = conversations.data?.[0];
     if (!conversation) return;
@@ -383,6 +387,32 @@ function ContactDetail() {
             onSubmit={handleSubmit(onValidSubmit)}
           >
             <div className={tab === "details" ? "contents" : "hidden"}>
+              {emailConversations.length > 0 && (
+                <div className="flex flex-col gap-[6px]">
+                  <div className="label">{t("Email conversations")}</div>
+                  {emailConversations.slice(0, 10).map((conversation) => (
+                    <button
+                      key={conversation.id}
+                      type="button"
+                      className="flex items-center gap-[8px] rounded-lg px-[10px] py-[6px] text-start text-[14px] hover:bg-accent"
+                      onClick={() =>
+                        void navigate({
+                          to: "/conversations",
+                          hash: threadKey(conversation),
+                        })
+                      }
+                    >
+                      <Mail className="w-[14px] h-[14px] shrink-0 text-muted-foreground" />
+                      <span dir="auto" className="truncate grow">
+                        {conversation.extra?.subject || t("(no subject)")}
+                      </span>
+                      <span className="text-[12px] text-muted-foreground shrink-0">
+                        {new Date(conversation.created_at).toLocaleDateString()}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
               <label>
                 <div className="label">{t("Name")}</div>
                 <input

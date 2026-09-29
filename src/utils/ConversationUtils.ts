@@ -26,11 +26,16 @@ const THREAD_SEPARATOR = "~";
  *
  * Conversations with neither a contact nor a group address (the `local`
  * agent-chat ones) fall back to their row id so they never merge with each
- * other. Kept in sync with `public.conversations_page`, which builds the same
- * key server-side.
+ * other. Email always uses the row id: every email is its own conversation
+ * (one subject, one header chain), so two emails with the same contact are
+ * two threads. Kept in sync with `public.conversations_page`, which builds the
+ * same key server-side.
  */
 export function threadKey(conv: ConversationRow | ConversationInsert): string {
-  const counterpart = conv.contact_address ?? conv.group_address ?? conv.id;
+  const counterpart =
+    conv.service === "email"
+      ? conv.id
+      : (conv.contact_address ?? conv.group_address ?? conv.id);
 
   return `${conv.organization_address}${THREAD_SEPARATOR}${counterpart}`;
 }

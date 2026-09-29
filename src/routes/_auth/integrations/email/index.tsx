@@ -6,6 +6,7 @@ import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Mail, Plus } from "lucide-react";
 import type { JSX } from "react";
+import type { EmailOrganizationAddressExtra } from "@/supabase/client";
 
 export const Route = createFileRoute("/_auth/integrations/email/")({
   component: EmailIndex,
@@ -59,7 +60,11 @@ function EmailIndex() {
               }
               title={integration.address}
               description={
-                statusLabels[integration.status] || integration.status
+                <>
+                  {statusLabels[integration.status] || integration.status}
+                  {(integration.extra as EmailOrganizationAddressExtra | null)
+                    ?.inbound_ready_at && ` · ${t("Receiving")}`}
+                </>
               }
               onClick={() =>
                 navigate({

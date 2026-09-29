@@ -45,6 +45,10 @@ import SendingStep from "@/components/bulkSend/SendingStep";
 import DoneStep from "@/components/bulkSend/DoneStep";
 import { buildMessageRecord } from "@/components/bulkSend/buildMessageRecord";
 import { buildEmailMessageRecord } from "@/components/bulkSend/buildEmailMessageRecord";
+import {
+  contactValues,
+  renderText,
+} from "@/components/emailTemplate/renderTemplate";
 import { bookingButtonIndex } from "@/components/templateButtons";
 import { useCalendars } from "@/queries/useCalendars";
 import {
@@ -457,13 +461,16 @@ function BulkSendWizard() {
       // first and send them the same message twice.
       const { contact, address } = recipient;
 
-      let conv: ConversationRow | undefined = Array.from(
-        storeConvs.values(),
-      ).find(
-        (c) =>
-          c.organization_address === orgAddress &&
-          c.contact_address === address,
-      );
+      // Every email is its own conversation (and its own thread in the
+      // contact's inbox), so an email send never reuses an existing one.
+      let conv: ConversationRow | undefined =
+        channel === "email"
+          ? undefined
+          : Array.from(storeConvs.values()).find(
+              (c) =>
+                c.organization_address === orgAddress &&
+                c.contact_address === address,
+            );
 
       if (!conv) {
         const record = startConversation({
@@ -474,6 +481,15 @@ function BulkSendWizard() {
           name:
             contact.name ||
             (channel === "email" ? address : formatPhoneNumber(address)),
+          ...(channel === "email" && {
+            extra: {
+              subject: renderText(
+                emailTemplate!.subject,
+                applyEmailOverrides(emailTemplate!.variables, emailVars),
+                contactValues(contact),
+              ),
+            },
+          }),
         });
         conv = useBoundStore.getState().chat.conversations.get(record.id!);
         if (!conv) {

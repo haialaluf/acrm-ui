@@ -146,7 +146,7 @@ export type EmailDnsRecord = {
   name: string; // e.g. "abc123._domainkey.acme.com"
   value: string; // e.g. "abc123.dkim.amazonses.com"
   priority?: number; // MX only
-  purpose: "dkim" | "mail_from_mx" | "mail_from_spf" | "dmarc";
+  purpose: "dkim" | "mail_from_mx" | "mail_from_spf" | "dmarc" | "inbound_mx";
   // DKIM and MAIL FROM records are required to verify and send. The DMARC record
   // is a suggestion — the UI renders it separately, because replacing a domain's
   // existing _dmarc record with our permissive default would weaken it.
@@ -171,8 +171,8 @@ export type EmailDnsCheck = {
   found?: string[];
 };
 
-// A sending domain connected to our SES account. Outbound only — SES is not
-// configured for email receiving, so no inbound path reads this.
+// A domain connected to our SES account, for sending and (once its
+// `reply.<domain>` MX is published) receiving.
 export type EmailOrganizationAddressExtra = {
   domain?: string; // mirrors `address`; present so the union stays self-describing
   region?: string; // SES region the identity/tenant live in
@@ -209,6 +209,10 @@ export type EmailOrganizationAddressExtra = {
   // domain verifies; must be an address at `domain`.
   default_from_address?: string;
   default_from_name?: string;
+  // `reply.<domain>`; outgoing mail sets Reply-To there only while
+  // `inbound_ready_at` is set, i.e. while its MX points at SES.
+  inbound_domain?: string;
+  inbound_ready_at?: string | null;
 };
 
 // The public lead-intake connection (service = 'api', address = 'api').
@@ -239,6 +243,8 @@ export type OrganizationAddressExtra =
   | ApiOrganizationAddressExtra;
 
 export type ConversationExtra = {
+  // Email only: the thread's subject, which every reply reuses as `Re: …`.
+  subject?: string;
   memory?: Memory;
   paused?: string | null;
   archived?: string | null;
@@ -317,6 +323,7 @@ export type InstagramContactAddressExtra = {
  * being able to see afterwards.
  */
 export type EmailContactAddressExtra = {
+  name?: string; // display name from the From header of their mail
   opt_out?: {
     source?: "unsubscribe_link" | "ses_feedback";
     reason?: string;

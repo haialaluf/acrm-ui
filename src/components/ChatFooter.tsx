@@ -418,6 +418,10 @@ export default function ChatFooter() {
                       </span>
                       <span> {remaining}</span>
                     </>
+                  ) : conv.service === "email" ? (
+                    <span dir="auto" className="truncate">
+                      {t("Email reply to")} {conv.contact_address}
+                    </span>
                   ) : (
                     <span>{t("Write a message")}</span>
                   )}

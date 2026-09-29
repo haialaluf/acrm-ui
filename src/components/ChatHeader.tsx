@@ -134,9 +134,7 @@ export default function Header() {
           <div className="profile-picture pr-[15px]">
             <div className="relative">
               <Avatar
-                src={
-                  addressPicture(contactAddress) ?? contactPicture(contact)
-                }
+                src={addressPicture(contactAddress) ?? contactPicture(contact)}
                 fallback={convInitials}
                 size={40}
                 className="bg-accent text-accent-foreground border border-border text-[16px]"
@@ -194,7 +192,13 @@ export default function Header() {
               igExtra?.username &&
               `@${igExtra.username}`}
             {service === "facebook_messenger" && t("Messenger")}
-            {service === "email" && address}
+            {service === "email" && (
+              <span dir="auto">
+                {conversation?.extra?.subject
+                  ? `${conversation.extra.subject} · ${address}`
+                  : address}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -236,12 +240,12 @@ export default function Header() {
           username={igExtra?.username}
           currentContact={
             contact
-            ? {
-                id: contact.id,
-                name: contact.name,
-                surname: contact.surname,
-              }
-            : undefined
+              ? {
+                  id: contact.id,
+                  name: contact.name,
+                  surname: contact.surname,
+                }
+              : undefined
           }
           onClose={() => setLinking(false)}
         />

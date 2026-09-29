@@ -1,8 +1,10 @@
 import {
+  type EmailEnvelope,
   type MessageRow,
   type OutgoingStatus,
   type ToolInfo,
 } from "@/supabase/client";
+import EmailOriginal from "./EmailOriginal";
 import AudioMessage from "./AudioMessage";
 import DocumentMessage from "./DocumentMessage";
 import ImageMessage from "./ImageMessage";
@@ -98,11 +100,15 @@ export function Markdown({
   direction,
   onInput,
   withoutEndingSpace,
+  plain,
 }: {
   content: string;
   direction: MessageRow["direction"];
   onInput?: FormEventHandler<HTMLDivElement>;
   withoutEndingSpace?: boolean;
+  /** Email text: `*`, `_` and `~` are ordinary characters there, not
+   *  WhatsApp formatting. */
+  plain?: boolean;
 }) {
   // Hack to induce some space to not to overwrite the timestamp.
   if (!withoutEndingSpace) {
@@ -113,7 +119,7 @@ export function Markdown({
     }
   }
 
-  const renderedHTML = md.render(whatsappToMarkdown(content));
+  const renderedHTML = md.render(plain ? content : whatsappToMarkdown(content));
 
   return (
     <div
@@ -136,6 +142,7 @@ export function TextMessage({
   direction,
   type,
   fixedWidth,
+  plain,
 }: {
   header?: string;
   body: string | Json;
@@ -149,6 +156,7 @@ export function TextMessage({
   direction: MessageRow["direction"];
   type?: "markdown" | "json";
   fixedWidth?: boolean;
+  plain?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const { translate: t } = useTranslation();
@@ -222,6 +230,7 @@ export function TextMessage({
                 direction={direction}
                 onInput={onInput}
                 withoutEndingSpace={!!footer}
+                plain={plain}
               />
             </div>
           ) : (
@@ -642,19 +651,26 @@ function TextContent({ message, header, fixedWidth }: MessageContentProps) {
   const text = message.content.text;
   const bookingLink = bookingLinkIn(text);
   const body = text.trim() === bookingLink ? "" : text;
+  const email = (message.content as { email?: EmailEnvelope }).email;
   return (
-    <TextMessage
-      header={header}
-      body={body}
-      preview={
-        bookingLink ? <BookingLinkPreview url={bookingLink} /> : undefined
-      }
-      type="markdown"
-      direction={message.direction}
-      timestamp={message.timestamp}
-      status={message.direction === "outgoing" ? message.status : undefined}
-      fixedWidth={fixedWidth}
-    />
+    <>
+      <TextMessage
+        header={header}
+        body={body}
+        preview={
+          bookingLink ? <BookingLinkPreview url={bookingLink} /> : undefined
+        }
+        type="markdown"
+        direction={message.direction}
+        timestamp={message.timestamp}
+        status={message.direction === "outgoing" ? message.status : undefined}
+        fixedWidth={fixedWidth}
+        plain={message.service === "email"}
+      />
+      {email?.html_uri && (
+        <EmailOriginal uri={email.html_uri} subject={email.subject} />
+      )}
+    </>
   );
 }
 
