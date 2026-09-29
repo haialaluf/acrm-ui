@@ -87,11 +87,7 @@ export function useDeleteContactNote(contactId: string) {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await supabase
-        .from("contact_notes")
-        .delete()
-        .eq("id", id)
-        .throwOnError();
+      await supabase.from("contact_notes").delete().eq("id", id).throwOnError();
     },
     onSuccess: invalidate,
   });

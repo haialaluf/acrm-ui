@@ -120,9 +120,7 @@ export default function ContactNotesTab({
       </div>
 
       {notes && visible.length === 0 && (
-        <p className="text-muted-foreground text-[14px]">
-          {t("No notes yet")}
-        </p>
+        <p className="text-muted-foreground text-[14px]">{t("No notes yet")}</p>
       )}
 
       <div className="flex flex-col">

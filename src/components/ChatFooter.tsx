@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Lock, Mail, Plus } from "lucide-react";
-import Avatar from "./Avatar";
+import { Lock, Plus } from "lucide-react";
+import EmailComposer from "./EmailComposer";
 import {
   newMessage,
   pushMessageToStore,
@@ -82,6 +82,7 @@ export default function ChatFooter() {
 
   const isEmail = conv?.service === "email";
 
+  const [draftSaved, setDraftSaved] = useState(false);
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout>>();
 
   const editableDiv = useRef<HTMLDivElement>(null);
@@ -260,39 +261,6 @@ export default function ChatFooter() {
             </span>
           </div>
         )}
-        {isEmail && inCSWindow && (
-          <div className="mb-[6px] flex items-center gap-[10px] rounded-[12px] px-[12px] py-[6px] text-[13px] bg-incoming-chat-bubble shadow-[0_0_4px_0px_rgba(0,0,0,0.1)]">
-            <span className="shrink-0 text-muted-foreground">{t("To")}</span>
-            <span className="inline-flex min-w-0 items-center gap-[6px] rounded-full bg-muted py-[3px] ps-[3px] pe-[10px] whitespace-nowrap">
-              <Avatar
-                fallback={(contact?.name || conv.contact_address || "").slice(
-                  0,
-                  2,
-                )}
-                size={20}
-                className="shrink-0 bg-secondary text-secondary-foreground text-[9px]"
-              />
-              {contact?.name && <span>{contact.name}</span>}
-              <span className="truncate text-muted-foreground">
-                {conv.contact_address}
-              </span>
-            </span>
-            {conv.extra?.subject && (
-              <span
-                dir="auto"
-                className="hidden min-w-0 items-center gap-[5px] truncate text-muted-foreground md:inline-flex"
-              >
-                <Mail className="h-[13px] w-[13px] shrink-0" />
-                <span className="truncate">Re: {conv.extra.subject}</span>
-              </span>
-            )}
-            <div className="grow" />
-            <kbd className="hidden shrink-0 font-[inherit] text-[11px] text-muted-foreground md:inline">
-              {/Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘↵" : "Ctrl+↵"}{" "}
-              {t("to send")}
-            </kbd>
-          </div>
-        )}
         <DisabledSection
           disabled={isRemoved || isInactive || sendingBlocked}
           description={
@@ -303,205 +271,227 @@ export default function ChatFooter() {
                 : t("Sending is paused until your plan resets or you upgrade")
           }
         >
-          <div
-            className={
-              "flex items-end text-foreground p-[5px] rounded-[24px] shadow-[0_0_4px_0px_rgba(0,0,0,0.1)]" +
-              (!inCSWindow ? " bg-background" : " bg-incoming-chat-bubble")
-            }
-          >
-            <div className="shrink-0">
-              <button
-                disabled={!inCSWindow}
-                className={
-                  "p-[8px] rounded-full" +
-                  (!inCSWindow ? "" : " cursor-pointer hover:bg-accent")
+          <input
+            disabled={!inCSWindow}
+            ref={fileInput}
+            type="file"
+            multiple={true}
+            className="hidden"
+            accept="*/*"
+            onChange={(event) => {
+              if (!event.target.files?.length) {
+                return;
+              }
+
+              const drafts = Array.from(event.target.files).map<FileDraft>(
+                (file) => ({
+                  file,
+                }),
+              );
+
+              drafts[0].caption = message;
+
+              setFileDrafts(drafts);
+            }}
+          />
+
+          {isEmail ? (
+            <EmailComposer
+              key={activeThreadKey}
+              value={message || ""}
+              onChange={(markdown) => {
+                setMessage(markdown);
+                setDraftSaved(false);
+                if (conv.created_at !== conv.updated_at) {
+                  debounce(
+                    () =>
+                      void saveDraft(conv, markdown, sendAsContact).then(() =>
+                        setDraftSaved(true),
+                      ),
+                    3000,
+                  );
                 }
-                onClick={() => fileInput.current?.click()}
-                title={t("Attach")}
-              >
-                <Plus className="w-[24px] h-[24px]" />
-              </button>
-            </div>
-
-            <input
-              disabled={!inCSWindow}
-              ref={fileInput}
-              type="file"
-              multiple={true}
-              className="hidden"
-              accept="*/*"
-              onChange={(event) => {
-                if (!event.target.files?.length) {
-                  return;
-                }
-
-                const drafts = Array.from(event.target.files).map<FileDraft>(
-                  (file) => ({
-                    file,
-                  }),
-                );
-
-                drafts[0].caption = message;
-
-                setFileDrafts(drafts);
               }}
+              onSend={() => void sendTextMessage()}
+              onDiscard={() => {
+                clearTimeout(timer);
+                setMessage("");
+                if (draft) void saveDraft(conv, "", sendAsContact);
+              }}
+              onAttach={() => fileInput.current?.click()}
+              focusKey={replyTargetId}
+              toName={contact?.name}
+              toAddress={conv.contact_address || ""}
+              subject={conv.extra?.subject}
+              draftSaved={draftSaved}
             />
+          ) : (
+            <div
+              className={
+                "flex items-end text-foreground p-[5px] rounded-[24px] shadow-[0_0_4px_0px_rgba(0,0,0,0.1)]" +
+                (!inCSWindow ? " bg-background" : " bg-incoming-chat-bubble")
+              }
+            >
+              <div className="shrink-0">
+                <button
+                  disabled={!inCSWindow}
+                  className={
+                    "p-[8px] rounded-full" +
+                    (!inCSWindow ? "" : " cursor-pointer hover:bg-accent")
+                  }
+                  onClick={() => fileInput.current?.click()}
+                  title={t("Attach")}
+                >
+                  <Plus className="w-[24px] h-[24px]" />
+                </button>
+              </div>
 
-            {/* Text input. Sending a template now goes through the bulk-send
+              {/* Text input. Sending a template now goes through the bulk-send
               wizard (opened via the template picker), so there is no inline
               template-editing mode here anymore. */}
-            <div className="relative grow">
-              <div
-                ref={editableDiv}
-                contentEditable={inCSWindow}
-                className={`${!inCSWindow ? "cursor-pointer" : ""} outline-none mx-[5px] py-[10px] min-h-[40px] ${isEmail ? "max-h-[48vh]" : "max-h-40"} overflow-y-auto text-[15px] leading-[20px] break-words`}
-                onInput={(event) => {
-                  if (!(event.target instanceof Element)) {
-                    return;
-                  }
+              <div className="relative grow">
+                <div
+                  ref={editableDiv}
+                  contentEditable={inCSWindow}
+                  className={`${!inCSWindow ? "cursor-pointer" : ""} outline-none mx-[5px] py-[10px] min-h-[40px] max-h-40 overflow-y-auto text-[15px] leading-[20px] break-words`}
+                  onInput={(event) => {
+                    if (!(event.target instanceof Element)) {
+                      return;
+                    }
 
-                  // Use secure utility to sanitize and convert HTML to Markdown
-                  const message = htmlToMarkdown(event.currentTarget.innerHTML);
+                    // Use secure utility to sanitize and convert HTML to Markdown
+                    const message = htmlToMarkdown(
+                      event.currentTarget.innerHTML,
+                    );
 
-                  setMessage(message);
+                    setMessage(message);
 
-                  if (conv.created_at !== conv.updated_at) {
-                    // no drafts for new convs, sorry!
-                    debounce(
-                      () => saveDraft(conv, message, sendAsContact),
-                      3000,
-                    ); // milliseconds
-                  }
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape" && replyTargetId) {
-                    event.preventDefault();
-                    clearReplyDraft();
-                  } else if (isEmail) {
-                    // An email runs to paragraphs: Enter breaks a line, as in
-                    // a mail client, and the modifier sends.
-                    if (
+                    if (conv.created_at !== conv.updated_at) {
+                      // no drafts for new convs, sorry!
+                      debounce(
+                        () => saveDraft(conv, message, sendAsContact),
+                        3000,
+                      ); // milliseconds
+                    }
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape" && replyTargetId) {
+                      event.preventDefault();
+                      clearReplyDraft();
+                    } else if (event.key === "Enter" && event.ctrlKey) {
+                      // toggle("sendAsContact") is handled at window level, nonetheless this
+                      // no-op block prevents from sending the message when pressing ctrl+enter
+                    } else if (
                       event.key === "Enter" &&
-                      (event.metaKey || event.ctrlKey)
+                      !event.shiftKey &&
+                      window.matchMedia("(min-width: 768px)").matches
                     ) {
                       event.preventDefault();
                       sendTextMessage();
                     }
-                  } else if (event.key === "Enter" && event.ctrlKey) {
-                    // toggle("sendAsContact") is handled at window level, nonetheless this
-                    // no-op block prevents from sending the message when pressing ctrl+enter
-                  } else if (
-                    event.key === "Enter" &&
-                    !event.shiftKey &&
-                    window.matchMedia("(min-width: 768px)").matches
-                  ) {
-                    event.preventDefault();
-                    sendTextMessage();
-                  }
-                }}
-                onClick={() =>
-                  !inCSWindow &&
-                  canReopenWithTemplate &&
-                  toggle("templatePicker")
-                }
-                title={
-                  inCSWindow
-                    ? undefined
-                    : canReopenWithTemplate
-                      ? t(
-                          "WhatsApp closes the conversation 24 hours after the last received message. To reopen the conversation you must use a template.",
-                        )
-                      : t(
-                          "The conversation closed 24 hours after the contact's last message. Wait for them to message you again to reply.",
-                        )
-                }
-              />
-              {!message && (
-                <div
-                  className={
-                    "absolute bottom-[1px] py-[10px] mx-[5px] max-h-[40px] text-[15px] text-muted-foreground" +
-                    // Only a pointer when clicking actually opens the template
-                    // picker — closed with no way to reopen, it does nothing.
-                    (!inCSWindow && canReopenWithTemplate
-                      ? " cursor-pointer"
-                      : "")
-                  }
+                  }}
                   onClick={() =>
-                    inCSWindow
-                      ? editableDiv.current?.focus()
-                      : canReopenWithTemplate
-                        ? toggle("templatePicker")
-                        : undefined
+                    !inCSWindow &&
+                    canReopenWithTemplate &&
+                    toggle("templatePicker")
                   }
-                >
-                  {!inCSWindow ? (
-                    canReopenWithTemplate ? (
+                  title={
+                    inCSWindow
+                      ? undefined
+                      : canReopenWithTemplate
+                        ? t(
+                            "WhatsApp closes the conversation 24 hours after the last received message. To reopen the conversation you must use a template.",
+                          )
+                        : t(
+                            "The conversation closed 24 hours after the contact's last message. Wait for them to message you again to reply.",
+                          )
+                  }
+                />
+                {!message && (
+                  <div
+                    className={
+                      "absolute bottom-[1px] py-[10px] mx-[5px] max-h-[40px] text-[15px] text-muted-foreground" +
+                      // Only a pointer when clicking actually opens the template
+                      // picker — closed with no way to reopen, it does nothing.
+                      (!inCSWindow && canReopenWithTemplate
+                        ? " cursor-pointer"
+                        : "")
+                    }
+                    onClick={() =>
+                      inCSWindow
+                        ? editableDiv.current?.focus()
+                        : canReopenWithTemplate
+                          ? toggle("templatePicker")
+                          : undefined
+                    }
+                  >
+                    {!inCSWindow ? (
+                      canReopenWithTemplate ? (
+                        <>
+                          <span className="lg:hidden">
+                            {t("Conversation closed")}
+                          </span>
+                          <span className="hidden lg:inline">
+                            {t(
+                              "Conversation closed, open the conversation with a template",
+                            )}
+                          </span>
+                        </>
+                      ) : (
+                        <span>{t("Conversation closed")}</span>
+                      )
+                    ) : sendAsContact ? (
                       <>
                         <span className="lg:hidden">
-                          {t("Conversation closed")}
+                          {t("Incoming message")}
                         </span>
                         <span className="hidden lg:inline">
-                          {t(
-                            "Conversation closed, open the conversation with a template",
-                          )}
+                          {t("Simulates an incoming message")}
                         </span>
                       </>
+                    ) : WINDOWED_SERVICES.includes(conv.service) ? (
+                      <>
+                        <span className="lg:hidden">{t("Will close in")}</span>
+                        <span className="hidden lg:inline">
+                          {t("The conversation will close in")}
+                        </span>
+                        <span> {remaining}</span>
+                      </>
                     ) : (
-                      <span>{t("Conversation closed")}</span>
-                    )
-                  ) : sendAsContact ? (
-                    <>
-                      <span className="lg:hidden">{t("Incoming message")}</span>
-                      <span className="hidden lg:inline">
-                        {t("Simulates an incoming message")}
-                      </span>
-                    </>
-                  ) : WINDOWED_SERVICES.includes(conv.service) ? (
-                    <>
-                      <span className="lg:hidden">{t("Will close in")}</span>
-                      <span className="hidden lg:inline">
-                        {t("The conversation will close in")}
-                      </span>
-                      <span> {remaining}</span>
-                    </>
-                  ) : isEmail ? (
-                    <span dir="auto" className="truncate">
-                      {t("Reply to")} {contact?.name || conv.contact_address}…
-                    </span>
-                  ) : (
-                    <span>{t("Write a message")}</span>
-                  )}
-                </div>
-              )}
-            </div>
+                      <span>{t("Write a message")}</span>
+                    )}
+                  </div>
+                )}
+              </div>
 
-            {/* Send button */}
-            <button
-              disabled={!inCSWindow}
-              className={
-                "p-[8px] rounded-full bg-primary disabled:opacity-50" +
-                (!inCSWindow ? "" : " cursor-pointer")
-              }
-              onClick={() => {
-                if (message) {
-                  sendTextMessage();
-                } else if (conv.service === "local") {
-                  // Only the internal service can simulate incoming messages
-                  toggle("sendAsContact");
-                }
-              }}
-              title={sendAsContact ? t("Receive message") : t("Send message")}
-            >
-              <svg
+              {/* Send button */}
+              <button
+                disabled={!inCSWindow}
                 className={
-                  "send-icon w-[24px] h-[24px] transition" +
-                  " text-primary-foreground"
+                  "p-[8px] rounded-full bg-primary disabled:opacity-50" +
+                  (!inCSWindow ? "" : " cursor-pointer")
                 }
+                onClick={() => {
+                  if (message) {
+                    sendTextMessage();
+                  } else if (conv.service === "local") {
+                    // Only the internal service can simulate incoming messages
+                    toggle("sendAsContact");
+                  }
+                }}
+                title={sendAsContact ? t("Receive message") : t("Send message")}
               >
-                <use href="/icons.svg#send" />
-              </svg>
-            </button>
-          </div>
+                <svg
+                  className={
+                    "send-icon w-[24px] h-[24px] transition" +
+                    " text-primary-foreground"
+                  }
+                >
+                  <use href="/icons.svg#send" />
+                </svg>
+              </button>
+            </div>
+          )}
         </DisabledSection>
       </div>
     )

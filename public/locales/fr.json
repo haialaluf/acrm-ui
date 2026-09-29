@@ -1232,6 +1232,11 @@
   "Details": "Détails",
   "Shown as received": "Tel que reçu",
   "Shown exactly as received. Links and scripts are disabled.": "Affiché exactement tel que reçu. Les liens et les scripts sont désactivés.",
-  "to send": "pour envoyer",
-  "Reply to": "Répondre à"
+  "Reply to": "Répondre à",
+  "Draft saved": "Brouillon enregistré",
+  "Discard draft": "Supprimer le brouillon",
+  "Expand": "Agrandir",
+  "Shrink": "Réduire",
+  "Minimize": "Réduire",
+  "List": "Liste"
 }

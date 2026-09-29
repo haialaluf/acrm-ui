@@ -1265,6 +1265,11 @@
   "Details": "Detalhes",
   "Shown as received": "Como foi recebido",
   "Shown exactly as received. Links and scripts are disabled.": "Exibido exatamente como foi recebido. Links e scripts estão desativados.",
-  "to send": "para enviar",
-  "Reply to": "Responder a"
+  "Reply to": "Responder a",
+  "Draft saved": "Rascunho salvo",
+  "Discard draft": "Descartar rascunho",
+  "Expand": "Expandir",
+  "Shrink": "Reduzir",
+  "Minimize": "Minimizar",
+  "List": "Lista"
 }

@@ -1515,6 +1515,11 @@
   "Details": "פרטים",
   "Shown as received": "כפי שהתקבל",
   "Shown exactly as received. Links and scripts are disabled.": "מוצג בדיוק כפי שהתקבל. קישורים וסקריפטים מושבתים.",
-  "to send": "לשליחה",
-  "Reply to": "תשובה אל"
+  "Reply to": "תשובה אל",
+  "Draft saved": "הטיוטה נשמרה",
+  "Discard draft": "מחיקת הטיוטה",
+  "Expand": "הרחבה",
+  "Shrink": "הקטנה",
+  "Minimize": "מזעור",
+  "List": "רשימה"
 }
