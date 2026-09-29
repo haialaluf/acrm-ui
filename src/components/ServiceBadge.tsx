@@ -24,7 +24,9 @@ export default function ServiceBadge({
   return (
     <div className="absolute -bottom-[1px] -right-[1px] rounded-full bg-background p-[1px] leading-none">
       {service === "instagram" ? (
-        <InstagramOutlined style={{ fontSize: `${size}px`, color: "#E1306C" }} />
+        <InstagramOutlined
+          style={{ fontSize: `${size}px`, color: "#E1306C" }}
+        />
       ) : service === "facebook_messenger" ? (
         <FacebookFilled style={{ fontSize: `${size}px`, color: "#0866FF" }} />
       ) : service === "email" ? (

@@ -117,9 +117,7 @@ function FacebookOAuthCallback() {
           </>
         ) : pages ? (
           <div className="flex flex-col gap-3 w-full">
-            <p className="text-foreground">
-              {t("Choose the Page to connect")}
-            </p>
+            <p className="text-foreground">{t("Choose the Page to connect")}</p>
 
             <div className="flex flex-col gap-2">
               {pages.pages.map((page) => (

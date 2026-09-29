@@ -125,9 +125,7 @@ function OnboardFacebookCallback() {
 
         {(result.status === "choosing" || result.status === "connecting") && (
           <div className="flex flex-col gap-3">
-            <p className="text-foreground">
-              {t("Choose the Page to connect")}
-            </p>
+            <p className="text-foreground">{t("Choose the Page to connect")}</p>
 
             <div className="flex flex-col gap-2">
               {result.result.pages.map((page) => (

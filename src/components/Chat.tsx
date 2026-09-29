@@ -181,20 +181,23 @@ export default function Chat() {
     // Tool traces and agent notes never reach a channel — no affordance at all.
     if (message.direction === "internal" || !conv) return { reactions };
 
-    const reactDisabledReason =
-      !["whatsapp", "instagram", "facebook_messenger"].includes(conv.service)
-        ? t("Reactions are not supported on this channel")
-        : !inCSWindow
-          ? t("Outside the 24-hour window")
-          : !message.external_id
-            ? // No channel id yet: the send is still in flight.
-              t("Still sending")
-            : !channelMessageId(message)
-              ? // Delivered, but the id the endpoint needs was never kept —
-                // messages sent before the API started storing the raw WAMID.
-                // Unbackfillable, so this is final.
-                t("Reactions aren't available on this message")
-              : undefined;
+    const reactDisabledReason = ![
+      "whatsapp",
+      "instagram",
+      "facebook_messenger",
+    ].includes(conv.service)
+      ? t("Reactions are not supported on this channel")
+      : !inCSWindow
+        ? t("Outside the 24-hour window")
+        : !message.external_id
+          ? // No channel id yet: the send is still in flight.
+            t("Still sending")
+          : !channelMessageId(message)
+            ? // Delivered, but the id the endpoint needs was never kept —
+              // messages sent before the API started storing the raw WAMID.
+              // Unbackfillable, so this is final.
+              t("Reactions aren't available on this message")
+            : undefined;
 
     if (reactDisabledReason) return { reactions, reactDisabledReason };
 
@@ -596,8 +599,8 @@ export default function Chat() {
    * re-entries from re-POSTing; the RPC is idempotent regardless, and picks the
    * row to stamp itself. */
   const { mutate: markThreadRead } = useMarkThreadRead();
-  const convIds = useBoundStore((store) =>
-    store.chat.threads.get(store.ui.activeThreadKey || "")?.convIds,
+  const convIds = useBoundStore(
+    (store) => store.chat.threads.get(store.ui.activeThreadKey || "")?.convIds,
   );
   const lastMarked = useRef<string | undefined>(undefined);
 

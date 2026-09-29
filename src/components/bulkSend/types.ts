@@ -326,12 +326,7 @@ export function immediateCount<T>(
    broadcast's own vocabulary: a fixed contact-field enum, resolved against a
    contact row this wizard already holds. */
 
-export type ContactField =
-  | "name"
-  | "firstname"
-  | "surname"
-  | "email"
-  | "phone";
+export type ContactField = "name" | "firstname" | "surname" | "email" | "phone";
 
 /** One template variable's substitution rule, over the contact fields a
  *  broadcast can resolve. */

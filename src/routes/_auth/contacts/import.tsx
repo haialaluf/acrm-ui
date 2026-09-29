@@ -64,7 +64,8 @@ type ResolvedRow = {
 };
 
 const NAME_RE = /^(full[ _]?name|name|nombre|first ?name|nombres?|שם)/i;
-const FIRSTNAME_RE = /^(first[ _]?name|given[ _]?name|forename|nombre de pila|שם פרטי)/i;
+const FIRSTNAME_RE =
+  /^(first[ _]?name|given[ _]?name|forename|nombre de pila|שם פרטי)/i;
 const SURNAME_RE = /surname|apellidos?|last ?name|family ?name|משפחה/i;
 const PHONE_RE = /phone|mobile|tel|tel[eé]fono|טלפון|נייד/i;
 const EMAIL_RE = /mail|correo|email|אימייל|דואר אלקטרוני/i;
