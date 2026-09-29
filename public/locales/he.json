@@ -1482,7 +1482,6 @@
   "Emailed us": "שלח/ה לנו מייל",
   "Receiving is on: replies to your emails land in the CRM.": "קבלת מיילים פעילה: תשובות למיילים שלכם מגיעות ל-CRM.",
   "Receiving": "מקבל מיילים",
-  "Email reply to": "תשובה במייל אל",
   "Email conversations": "שיחות מייל",
   "(no subject)": "(ללא נושא)",
   "Set a default sender below — replies from the CRM are sent from it.": "הגדירו שולח ברירת מחדל למטה — תשובות מה-CRM נשלחות ממנו.",
@@ -1510,5 +1509,12 @@
   "Delete note?": "למחוק את ההערה?",
   "AI agent": "סוכן AI",
   "Team member": "חבר צוות",
-  "Edit": "עריכה"
+  "Edit": "עריכה",
+  "Original": "מקורי",
+  "Plain text": "טקסט פשוט",
+  "Details": "פרטים",
+  "Shown as received": "כפי שהתקבל",
+  "Shown exactly as received. Links and scripts are disabled.": "מוצג בדיוק כפי שהתקבל. קישורים וסקריפטים מושבתים.",
+  "to send": "לשליחה",
+  "Reply to": "תשובה אל"
 }

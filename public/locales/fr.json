@@ -1199,7 +1199,6 @@
   "Emailed us": "Nous a écrit par e-mail",
   "Receiving is on: replies to your emails land in the CRM.": "La réception est active : les réponses à vos e-mails arrivent dans le CRM.",
   "Receiving": "Réception",
-  "Email reply to": "Réponse par e-mail à",
   "Email conversations": "Conversations par e-mail",
   "(no subject)": "(sans objet)",
   "Set a default sender below — replies from the CRM are sent from it.": "Définissez un expéditeur par défaut ci-dessous : les réponses depuis le CRM sont envoyées depuis celui-ci.",
@@ -1227,5 +1226,12 @@
   "Delete note?": "Supprimer la note ?",
   "AI agent": "Agent IA",
   "Team member": "Membre de l'équipe",
-  "Edit": "Modifier"
+  "Edit": "Modifier",
+  "Original": "Original",
+  "Plain text": "Texte brut",
+  "Details": "Détails",
+  "Shown as received": "Tel que reçu",
+  "Shown exactly as received. Links and scripts are disabled.": "Affiché exactement tel que reçu. Les liens et les scripts sont désactivés.",
+  "to send": "pour envoyer",
+  "Reply to": "Répondre à"
 }

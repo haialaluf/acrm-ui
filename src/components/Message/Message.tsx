@@ -4,7 +4,7 @@ import {
   type OutgoingStatus,
   type ToolInfo,
 } from "@/supabase/client";
-import EmailOriginal from "./EmailOriginal";
+import { EmailBubbleFooter } from "./EmailOriginal";
 import AudioMessage from "./AudioMessage";
 import DocumentMessage from "./DocumentMessage";
 import ImageMessage from "./ImageMessage";
@@ -40,6 +40,8 @@ import ReactionPicker from "./ReactionPicker";
 import MessageActions from "./MessageActions";
 import QuotedMessage from "./QuotedMessage";
 import { useLongPress } from "@/hooks/useLongPress";
+import { useActiveConversation } from "@/hooks/useThread";
+import { Mail } from "lucide-react";
 import type { Reaction } from "@/utils/reactions";
 
 const md = new Remarkable({
@@ -658,7 +660,11 @@ function TextContent({ message, header, fixedWidth }: MessageContentProps) {
         header={header}
         body={body}
         preview={
-          bookingLink ? <BookingLinkPreview url={bookingLink} /> : undefined
+          bookingLink ? (
+            <BookingLinkPreview url={bookingLink} />
+          ) : email?.subject ? (
+            <EmailSubject subject={email.subject} />
+          ) : undefined
         }
         type="markdown"
         direction={message.direction}
@@ -667,10 +673,27 @@ function TextContent({ message, header, fixedWidth }: MessageContentProps) {
         fixedWidth={fixedWidth}
         plain={message.service === "email"}
       />
-      {email?.html_uri && (
-        <EmailOriginal uri={email.html_uri} subject={email.subject} />
+      {email && message.direction === "incoming" && (
+        <EmailBubbleFooter message={message} envelope={email} />
       )}
     </>
+  );
+}
+
+/** Shown only when a message strays from the thread's subject, which the
+ *  header already carries. */
+function EmailSubject({ subject }: { subject: string }) {
+  const threadSubject = useActiveConversation()?.extra?.subject;
+  const strip = (s: string) => s.replace(/^((re|fwd?):\s*)+/i, "").trim();
+  if (threadSubject && strip(threadSubject) === strip(subject)) return null;
+  return (
+    <div
+      dir="auto"
+      className="flex items-center gap-[5px] mb-[3px] text-[12px] text-muted-foreground"
+    >
+      <Mail size={12} className="shrink-0" />
+      {subject}
+    </div>
   );
 }
 

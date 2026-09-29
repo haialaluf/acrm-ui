@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Lock, Plus } from "lucide-react";
+import { Lock, Mail, Plus } from "lucide-react";
+import Avatar from "./Avatar";
 import {
   newMessage,
   pushMessageToStore,
@@ -78,6 +79,8 @@ export default function ChatFooter() {
   // nothing about the contact's other channels.
   const isRemoved = contact?.status === "removed";
   const isInactive = contactAddress?.status === "inactive";
+
+  const isEmail = conv?.service === "email";
 
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout>>();
 
@@ -257,6 +260,39 @@ export default function ChatFooter() {
             </span>
           </div>
         )}
+        {isEmail && inCSWindow && (
+          <div className="mb-[6px] flex items-center gap-[10px] rounded-[12px] px-[12px] py-[6px] text-[13px] bg-incoming-chat-bubble shadow-[0_0_4px_0px_rgba(0,0,0,0.1)]">
+            <span className="shrink-0 text-muted-foreground">{t("To")}</span>
+            <span className="inline-flex min-w-0 items-center gap-[6px] rounded-full bg-muted py-[3px] ps-[3px] pe-[10px] whitespace-nowrap">
+              <Avatar
+                fallback={(contact?.name || conv.contact_address || "").slice(
+                  0,
+                  2,
+                )}
+                size={20}
+                className="shrink-0 bg-secondary text-secondary-foreground text-[9px]"
+              />
+              {contact?.name && <span>{contact.name}</span>}
+              <span className="truncate text-muted-foreground">
+                {conv.contact_address}
+              </span>
+            </span>
+            {conv.extra?.subject && (
+              <span
+                dir="auto"
+                className="hidden min-w-0 items-center gap-[5px] truncate text-muted-foreground md:inline-flex"
+              >
+                <Mail className="h-[13px] w-[13px] shrink-0" />
+                <span className="truncate">Re: {conv.extra.subject}</span>
+              </span>
+            )}
+            <div className="grow" />
+            <kbd className="hidden shrink-0 font-[inherit] text-[11px] text-muted-foreground md:inline">
+              {/Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘↵" : "Ctrl+↵"}{" "}
+              {t("to send")}
+            </kbd>
+          </div>
+        )}
         <DisabledSection
           disabled={isRemoved || isInactive || sendingBlocked}
           description={
@@ -318,7 +354,7 @@ export default function ChatFooter() {
               <div
                 ref={editableDiv}
                 contentEditable={inCSWindow}
-                className={`${!inCSWindow ? "cursor-pointer" : ""} outline-none mx-[5px] py-[10px] min-h-[40px] max-h-40 overflow-y-auto text-[15px] leading-[20px] break-words`}
+                className={`${!inCSWindow ? "cursor-pointer" : ""} outline-none mx-[5px] py-[10px] min-h-[40px] ${isEmail ? "max-h-[48vh]" : "max-h-40"} overflow-y-auto text-[15px] leading-[20px] break-words`}
                 onInput={(event) => {
                   if (!(event.target instanceof Element)) {
                     return;
@@ -341,6 +377,16 @@ export default function ChatFooter() {
                   if (event.key === "Escape" && replyTargetId) {
                     event.preventDefault();
                     clearReplyDraft();
+                  } else if (isEmail) {
+                    // An email runs to paragraphs: Enter breaks a line, as in
+                    // a mail client, and the modifier sends.
+                    if (
+                      event.key === "Enter" &&
+                      (event.metaKey || event.ctrlKey)
+                    ) {
+                      event.preventDefault();
+                      sendTextMessage();
+                    }
                   } else if (event.key === "Enter" && event.ctrlKey) {
                     // toggle("sendAsContact") is handled at window level, nonetheless this
                     // no-op block prevents from sending the message when pressing ctrl+enter
@@ -418,9 +464,9 @@ export default function ChatFooter() {
                       </span>
                       <span> {remaining}</span>
                     </>
-                  ) : conv.service === "email" ? (
+                  ) : isEmail ? (
                     <span dir="auto" className="truncate">
-                      {t("Email reply to")} {conv.contact_address}
+                      {t("Reply to")} {contact?.name || conv.contact_address}…
                     </span>
                   ) : (
                     <span>{t("Write a message")}</span>
