@@ -224,6 +224,9 @@ export type ContactAddressInsert =
 export type ContactAddressUpdate =
   Database["public"]["Tables"]["contacts_addresses"]["Update"];
 
+export type ContactNoteRow =
+  Database["public"]["Tables"]["contact_notes"]["Row"];
+
 export type ContactWithAddressesRow = ContactRow & {
   addresses: ContactAddressRow[];
 };

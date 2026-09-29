@@ -31,6 +31,7 @@ import { fill } from "@/utils/fill";
 type ContactFormValues = ContactWithAddressesInsert & {
   tags?: string[];
   email?: string | null;
+  notes?: string | null;
 };
 
 /**
@@ -233,8 +234,7 @@ function ContactNew() {
               )}
           </label>
 
-          {/* Reaches the AI agent's prompt on every message, and the agent
-              appends its own dated lines here — see $contactId.tsx. */}
+          {/* Saved as the contact's first note, which the AI agents read. */}
           <label>
             <div className="label">{t("Notes")}</div>
             <textarea

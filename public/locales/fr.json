@@ -1216,5 +1216,16 @@
   "Gmail / Google Workspace: Settings → Forwarding and POP/IMAP → Add a forwarding address. Google sends a confirmation code, which shows up here as a new conversation.": "Gmail / Google Workspace : Paramètres → Transfert et POP/IMAP → Ajouter une adresse de transfert. Google envoie un code de confirmation, qui apparaît ici comme une nouvelle conversation.",
   "Outlook / Microsoft 365: Settings → Mail → Forwarding. Your admin may first need to allow forwarding to outside addresses.": "Outlook / Microsoft 365 : Paramètres → Courrier → Transfert. Votre administrateur devra peut-être d'abord autoriser le transfert vers des adresses externes.",
   "Click Check now to get your forwarding address.": "Cliquez sur Vérifier maintenant pour obtenir votre adresse de transfert.",
-  "Optionally, replies to your emails can also land in the CRM as conversations, either through one more DNS record or by forwarding your existing mailbox.": "En option, les réponses à vos e-mails peuvent aussi arriver dans le CRM sous forme de conversations, avec un enregistrement DNS de plus ou en transférant votre boîte mail actuelle."
+  "Optionally, replies to your emails can also land in the CRM as conversations, either through one more DNS record or by forwarding your existing mailbox.": "En option, les réponses à vos e-mails peuvent aussi arriver dans le CRM sous forme de conversations, avec un enregistrement DNS de plus ou en transférant votre boîte mail actuelle.",
+  "Your AI agents read everything here": "Vos agents IA lisent tout ce qui se trouve ici",
+  "Add a note about this contact": "Ajoutez une note sur ce contact",
+  "Could not save the note. Please try again.": "Impossible d'enregistrer la note. Veuillez réessayer.",
+  "Add note": "Ajouter une note",
+  "Team": "Équipe",
+  "No notes yet": "Aucune note pour l'instant",
+  "Show more": "Afficher plus",
+  "Delete note?": "Supprimer la note ?",
+  "AI agent": "Agent IA",
+  "Team member": "Membre de l'équipe",
+  "Edit": "Modifier"
 }

@@ -1499,5 +1499,16 @@
   "Gmail / Google Workspace: Settings → Forwarding and POP/IMAP → Add a forwarding address. Google sends a confirmation code, which shows up here as a new conversation.": "Gmail / Google Workspace: הגדרות ← העברה ו-POP/IMAP ← הוספת כתובת להעברה. Google שולחת קוד אישור, שיופיע כאן כשיחה חדשה.",
   "Outlook / Microsoft 365: Settings → Mail → Forwarding. Your admin may first need to allow forwarding to outside addresses.": "Outlook / Microsoft 365: הגדרות ← דואר ← העברה. ייתכן שמנהל המערכת יצטרך קודם לאפשר העברה לכתובות חיצוניות.",
   "Click Check now to get your forwarding address.": "לחצו על \"בדיקה עכשיו\" כדי לקבל את כתובת ההעברה שלכם.",
-  "Optionally, replies to your emails can also land in the CRM as conversations, either through one more DNS record or by forwarding your existing mailbox.": "אופציונלי: תשובות למיילים שלכם יכולות להגיע גם ל-CRM כשיחות, באמצעות רשומת DNS נוספת או בהעברה מתיבת הדואר הקיימת שלכם."
+  "Optionally, replies to your emails can also land in the CRM as conversations, either through one more DNS record or by forwarding your existing mailbox.": "אופציונלי: תשובות למיילים שלכם יכולות להגיע גם ל-CRM כשיחות, באמצעות רשומת DNS נוספת או בהעברה מתיבת הדואר הקיימת שלכם.",
+  "Your AI agents read everything here": "סוכני ה-AI שלכם קוראים את כל מה שכתוב כאן",
+  "Add a note about this contact": "הוסיפו הערה על איש הקשר",
+  "Could not save the note. Please try again.": "לא ניתן היה לשמור את ההערה. נסו שוב.",
+  "Add note": "הוספת הערה",
+  "Team": "צוות",
+  "No notes yet": "אין עדיין הערות",
+  "Show more": "הצגת עוד",
+  "Delete note?": "למחוק את ההערה?",
+  "AI agent": "סוכן AI",
+  "Team member": "חבר צוות",
+  "Edit": "עריכה"
 }

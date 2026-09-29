@@ -1522,5 +1522,16 @@
   "Gmail / Google Workspace: Settings → Forwarding and POP/IMAP → Add a forwarding address. Google sends a confirmation code, which shows up here as a new conversation.": "Gmail / Google Workspace: Configuración → Reenvío y correo POP/IMAP → Añadir una dirección de reenvío. Google envía un código de confirmación, que aparece aquí como una conversación nueva.",
   "Outlook / Microsoft 365: Settings → Mail → Forwarding. Your admin may first need to allow forwarding to outside addresses.": "Outlook / Microsoft 365: Configuración → Correo → Reenvío. Puede que tu administrador tenga que permitir antes el reenvío a direcciones externas.",
   "Click Check now to get your forwarding address.": "Pulsa Comprobar ahora para obtener tu dirección de reenvío.",
-  "Optionally, replies to your emails can also land in the CRM as conversations, either through one more DNS record or by forwarding your existing mailbox.": "Opcionalmente, las respuestas a tus correos también pueden llegar al CRM como conversaciones, con un registro DNS más o reenviando tu buzón actual."
+  "Optionally, replies to your emails can also land in the CRM as conversations, either through one more DNS record or by forwarding your existing mailbox.": "Opcionalmente, las respuestas a tus correos también pueden llegar al CRM como conversaciones, con un registro DNS más o reenviando tu buzón actual.",
+  "Your AI agents read everything here": "Tus agentes de IA leen todo lo que hay aquí",
+  "Add a note about this contact": "Añade una nota sobre este contacto",
+  "Could not save the note. Please try again.": "No se pudo guardar la nota. Inténtalo de nuevo.",
+  "Add note": "Añadir nota",
+  "Team": "Equipo",
+  "No notes yet": "Aún no hay notas",
+  "Show more": "Mostrar más",
+  "Delete note?": "¿Eliminar la nota?",
+  "AI agent": "Agente de IA",
+  "Team member": "Miembro del equipo",
+  "Edit": "Editar"
 }

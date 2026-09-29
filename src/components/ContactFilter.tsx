@@ -81,7 +81,7 @@ export function applyContactFilter<T extends ContactWithAddressesRow>(
   const sourceSet = new Set(f.sources);
   return contacts.filter((c) => {
     if (q) {
-      const hay = `${c.name ?? ""} ${contactEmail(c) ?? ""} ${c.notes ?? ""} ${(
+      const hay = `${c.name ?? ""} ${contactEmail(c) ?? ""} ${(
         c.addresses ?? []
       )
         .map((a) => a.address)

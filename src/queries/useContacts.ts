@@ -358,6 +358,8 @@ export function useCreateContact() {
       data: ContactWithAddressesInsert & {
         tags?: string[] | null;
         email?: string | null;
+        /** Stored as the contact's first note. */
+        notes?: string | null;
         // No default, mirroring upsert_contact's own rule: every caller
         // names the strategy explicitly.
         strategy: "skip" | "merge";
@@ -516,7 +518,6 @@ export function useUpdateContact() {
           name: newContact.name ?? null,
           firstname: newContact.firstname ?? null,
           surname: newContact.surname ?? null,
-          notes: newContact.notes ?? null,
           ...(newContact.tags !== undefined ? { tags: newContact.tags } : {}),
         },
         p_addresses,

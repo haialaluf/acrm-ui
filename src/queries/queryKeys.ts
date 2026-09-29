@@ -48,6 +48,8 @@ export const queryKeys = {
         sentSince,
         notSentSince,
       ] as const,
+    notes: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "contacts", contactId, "notes"] as const,
     /** The `leads` row a contact came from, when a form produced it. */
     lead: (orgId: NullableId, contactId: NullableId) =>
       [orgId, "contacts", contactId, "lead"] as const,

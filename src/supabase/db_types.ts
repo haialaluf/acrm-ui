@@ -1113,6 +1113,61 @@ export type Database = {
           },
         ]
       }
+      contact_notes: {
+        Row: {
+          agent_id: string | null
+          author_type: string
+          body: string
+          contact_id: string
+          created_at: string
+          id: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          author_type: string
+          body: string
+          contact_id: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          author_type?: string
+          body?: string
+          contact_id?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_notes_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_notes_contact_id_fkey"
+            columns: ["organization_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "contact_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           created_at: string
@@ -1120,7 +1175,6 @@ export type Database = {
           firstname: string | null
           id: string
           name: string | null
-          notes: string | null
           organization_id: string
           source: string
           status: string
@@ -1134,7 +1188,6 @@ export type Database = {
           firstname?: string | null
           id?: string
           name?: string | null
-          notes?: string | null
           organization_id: string
           source?: string
           status?: string
@@ -1148,7 +1201,6 @@ export type Database = {
           firstname?: string | null
           id?: string
           name?: string | null
-          notes?: string | null
           organization_id?: string
           source?: string
           status?: string
@@ -2357,7 +2409,6 @@ export type Database = {
           p_extra: Json
           p_firstname: string
           p_name: string
-          p_notes: string
           p_surname: string
           p_tags: string[]
           p_target_id: string

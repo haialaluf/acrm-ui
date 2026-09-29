@@ -24,7 +24,6 @@ import Button from "@/components/Button";
 import ContactTagSelect from "@/components/ContactTagSelect";
 import ConfirmModal from "@/components/ConfirmModal";
 import {
-  Bot,
   Instagram,
   Mail,
   MessageCircle,
@@ -57,13 +56,11 @@ import InstagramAddressPicker, {
 } from "@/components/contacts/InstagramAddressPicker";
 import ContactActivityTab from "@/components/contacts/ContactActivityTab";
 import ContactLeadTab from "@/components/contacts/ContactLeadTab";
+import ContactNotesTab from "@/components/contacts/ContactNotesTab";
 import { useIntegrations } from "@/hooks/useIntegrations";
-import { joinNotes, splitNotes } from "@/utils/contactNotes";
 import { useContactConversations } from "@/queries/useContactConversations";
 import { threadKey } from "@/utils/ConversationUtils";
 
-/** The form binds `notes` to the human half of the field only — the agents'
- *  dated lines are read-only above it and are re-joined on submit. */
 type ContactFormValues = ContactWithAddressesUpdate;
 
 type Tab = "details" | "notes" | "activity" | "lead";
@@ -143,18 +140,10 @@ function ContactDetail() {
   const igExtra = contact?.addresses.find((a) => a.service === "instagram")
     ?.extra as InstagramContactAddressExtra | null | undefined;
 
-  // The agents' dated lines, shown above the box rather than inside it — see
-  // utils/contactNotes.ts for the convention that separates them.
-  const agentNotes = useMemo(
-    () => splitNotes(contact?.notes).agent,
-    [contact?.notes],
-  );
-
   const formValues = useMemo(
     () =>
       contact && {
         ...contact,
-        notes: splitNotes(contact.notes).human,
         addresses: [...contact.addresses].sort(
           (a, b) =>
             (CHANNEL_ORDER[a.service ?? "whatsapp"] ?? 0) -
@@ -235,8 +224,6 @@ function ContactDetail() {
     updateContact.mutate(
       {
         ...data,
-        // Put the human block back among the agents' lines before storing.
-        notes: joinNotes(contact?.notes, data.notes ?? ""),
         addresses: (data.addresses ?? [])
           .filter((a) => a.address?.trim())
           .map((a) => ({
@@ -375,15 +362,13 @@ function ContactDetail() {
         </div>
 
         <SectionBody>
-          {/* One form across the tabs: switching tabs must not drop what was
-              typed on another, so both editable tabs stay mounted and the
-              inactive one is hidden rather than unmounted. */}
-          {/* `form` is `flex-grow` in the base layer, so an empty one would
-              still claim the panel and push a read-only tab's content below
-              the fold — it is hidden outright rather than emptied. */}
+          {/* Kept mounted so switching tabs does not drop what was typed.
+              `form` is `flex-grow` in the base layer, so an empty one would
+              still claim the panel and push another tab's content below the
+              fold — it is hidden outright rather than emptied. */}
           <form
             id="contact-form"
-            className={tab === "details" || tab === "notes" ? "" : "hidden"}
+            className={tab === "details" ? "" : "hidden"}
             onSubmit={handleSubmit(onValidSubmit)}
           >
             <div className={tab === "details" ? "contents" : "hidden"}>
@@ -557,57 +542,6 @@ function ContactDetail() {
               </div>
             </div>
 
-            {/* Shared with the AI agents, in both directions: what is typed
-                here reaches their prompt on every message, and they append
-                their own dated lines through `update_contact`. Those lines are
-                listed above the box rather than mixed into it, so an edit here
-                cannot quietly delete what an agent learned. */}
-            <div className={tab === "notes" ? "contents" : "hidden"}>
-              <div className="flex flex-col gap-[10px]">
-                <div className="flex items-center gap-[7px] w-fit bg-accent text-accent-foreground rounded-full ps-[10px] pe-[12px] py-[6px] text-[12px]">
-                  <Bot className="w-[14px] h-[14px]" />
-                  {t("Your AI agents read everything here")}
-                </div>
-              </div>
-
-              {agentNotes.length > 0 && (
-                <div className="flex flex-col gap-[16px]">
-                  <div className="label mb-0">
-                    {t("Written by your agents")}
-                  </div>
-                  {agentNotes.map((note, idx) => (
-                    <div key={`${note.date}-${idx}`}>
-                      {idx > 0 && <div className="h-px bg-border mb-[16px]" />}
-                      <div className="flex gap-[10px]">
-                        <Bot className="w-[16px] h-[16px] mt-[3px] shrink-0 text-muted-foreground" />
-                        <div className="grow min-w-0">
-                          <div className="text-[11.5px] text-muted-foreground">
-                            {note.date}
-                          </div>
-                          <div className="text-[15px] leading-relaxed mt-[3px]">
-                            {note.text}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <label>
-                <div className="label">{t("Your notes")}</div>
-                <textarea
-                  className="text border border-input rounded-[12px] px-[14px] py-[12px] min-h-[92px]"
-                  rows={3}
-                  placeholder={t("Anything worth knowing about this contact")}
-                  {...register("notes")}
-                />
-                <div className="text-muted-foreground text-[11.5px] mt-[6px]">
-                  {t("Free text — your agents never edit this part")}
-                </div>
-              </label>
-            </div>
-
             {updateContact.error && (
               <p className="text-destructive text-[13px]">
                 {t("Could not save the contact. Please try again.")}
@@ -622,12 +556,13 @@ function ContactDetail() {
             )}
           </form>
 
+          {tab === "notes" && <ContactNotesTab contact={contact} />}
           {tab === "activity" && <ContactActivityTab contact={contact} />}
           {tab === "lead" && <ContactLeadTab contact={contact} />}
         </SectionBody>
 
         <SectionFooter>
-          {tab === "details" || tab === "notes" ? (
+          {tab === "details" ? (
             <Button
               form="contact-form"
               type="submit"
