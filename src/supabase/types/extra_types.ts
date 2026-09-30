@@ -441,6 +441,30 @@ export type FaqEntry = {
   verbatim?: boolean;
 };
 
+/**
+ * Reference material the business gave the agent — a price list, a menu, a
+ * brochure, a web page, a screenshot. Every kind is turned into `text` once,
+ * when it is added (see the `agent-resources` function), and that text is what
+ * the agent reads; `source` only records where it came from.
+ */
+export type AgentResource = {
+  id: string;
+  kind: "text" | "file" | "image" | "url";
+  title: string;
+  text: string;
+  source?: {
+    uri?: string;
+    name?: string;
+    mime_type?: string;
+    size?: number;
+    url?: string;
+  };
+  extracted_at?: string;
+};
+
+export const MAX_RESOURCE_CHARS = 20_000;
+export const MAX_RESOURCES_TOTAL_CHARS = 60_000;
+
 export type AIAgentExtra = {
   mode?: "active" | "draft" | "inactive";
   description?: string;
@@ -458,6 +482,7 @@ export type AIAgentExtra = {
   // its own prompt section rather than folded into `instructions` — see
   // `FaqEntry`.
   faq?: FaqEntry[];
+  resources?: AgentResource[];
   // Reply only when the message is business this agent can handle — see the
   // API's `renderReplyScope`. Undefined ⇒ on: the guard is the default posture.
   on_topic_only?: boolean;

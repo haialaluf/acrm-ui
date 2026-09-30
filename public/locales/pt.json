@@ -1271,5 +1271,15 @@
   "Expand": "Expandir",
   "Shrink": "Reduzir",
   "Minimize": "Minimizar",
-  "List": "Lista"
+  "List": "Lista",
+  "Resources": "Recursos",
+  "resources": "recursos",
+  "Reading…": "Lendo…",
+  "Add text": "Adicionar texto",
+  "Add link": "Adicionar link",
+  "Upload files or screenshots": "Enviar arquivos ou capturas de tela",
+  "Prices, opening hours, policies…": "Preços, horários, políticas…",
+  "Shortened to fit the resource size limit.": "Encurtado para caber no limite de tamanho do recurso.",
+  "Resources are over the size limit. The agent only reads the first": "Os recursos passam do limite de tamanho. O agente só lê os primeiros",
+  "Documents, pages and notes the agent answers from. Files, screenshots and links are read once when you add them; you can correct the text afterwards.": "Documentos, páginas e notas que o agente usa para responder. Arquivos, capturas e links são lidos uma vez ao adicioná-los; depois você pode corrigir o texto."
 }

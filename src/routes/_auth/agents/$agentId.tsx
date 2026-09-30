@@ -23,6 +23,7 @@ import SectionField from "@/components/SectionField";
 import PersonaSection from "@/components/PersonaSection";
 import SkillsSection from "@/components/SkillsSection";
 import FaqSection from "@/components/FaqSection";
+import ResourcesSection from "@/components/ResourcesSection";
 import SwitchField from "@/components/SwitchField";
 import { MODEL_OPTIONS } from "@/models/catalog";
 
@@ -58,6 +59,7 @@ function AgentDetail() {
         ...agent.extra,
         skills: agent.extra?.skills ?? [],
         faq: agent.extra?.faq ?? [],
+        resources: agent.extra?.resources ?? [],
         on_topic_only: agent.extra?.on_topic_only ?? true,
       },
     };
@@ -211,6 +213,14 @@ function AgentDetail() {
                       : t("You are a helpful assistant...")
                   }
                 />
+                {!isBackOffice && (
+                  <ResourcesSection
+                    control={control}
+                    register={register}
+                    setValue={setValue}
+                    disabled={!isAdmin}
+                  />
+                )}
                 <SelectField
                   name="extra.model"
                   control={control}

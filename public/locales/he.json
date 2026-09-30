@@ -1521,5 +1521,15 @@
   "Expand": "הרחבה",
   "Shrink": "הקטנה",
   "Minimize": "מזעור",
-  "List": "רשימה"
+  "List": "רשימה",
+  "Resources": "משאבים",
+  "resources": "משאבים",
+  "Reading…": "קורא…",
+  "Add text": "הוספת טקסט",
+  "Add link": "הוספת קישור",
+  "Upload files or screenshots": "העלאת קבצים או צילומי מסך",
+  "Prices, opening hours, policies…": "מחירים, שעות פתיחה, מדיניות…",
+  "Shortened to fit the resource size limit.": "קוצר כדי לעמוד במגבלת הגודל של משאב.",
+  "Resources are over the size limit. The agent only reads the first": "המשאבים חורגים ממגבלת הגודל. הסוכן קורא רק את",
+  "Documents, pages and notes the agent answers from. Files, screenshots and links are read once when you add them; you can correct the text afterwards.": "מסמכים, דפים והערות שהסוכן עונה על פיהם. קבצים, צילומי מסך וקישורים נקראים פעם אחת כשמוסיפים אותם, ואפשר לתקן את הטקסט אחר כך."
 }
