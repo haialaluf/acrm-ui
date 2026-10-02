@@ -172,7 +172,10 @@ export function TextMessage({
 
   return (
     <>
-      <div className="relative">
+      {/* `dir="auto"` takes the direction from the message's first strong
+          character, so a Hebrew message lays out RTL (punctuation at its end,
+          timestamp at its logical end) even in an LTR interface. */}
+      <div dir="auto" className="relative">
         {/* Content */}
         <div
           className={

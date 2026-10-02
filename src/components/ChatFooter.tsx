@@ -353,7 +353,8 @@ export default function ChatFooter() {
                 <div
                   ref={editableDiv}
                   contentEditable={inCSWindow}
-                  className={`${!inCSWindow ? "cursor-pointer" : ""} outline-none mx-[5px] py-[10px] min-h-[40px] max-h-40 overflow-y-auto text-[15px] leading-[20px] break-words`}
+                  dir="auto"
+                  className={`${!inCSWindow ? "cursor-pointer" : ""} outline-none mx-[5px] py-[10px] min-h-[40px] max-h-40 overflow-y-auto text-[15px] leading-[20px] break-words text-left`}
                   onInput={(event) => {
                     if (!(event.target instanceof Element)) {
                       return;
