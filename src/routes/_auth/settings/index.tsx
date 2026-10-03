@@ -89,6 +89,20 @@ function SettingsIndex() {
               })
             }
           />
+          <SectionItem
+            title={t("Connect ChatGPT")}
+            aside={
+              <div className="p-[8px]">
+                <Bot className="w-[24px] h-[24px] text-muted-foreground" />
+              </div>
+            }
+            onClick={() =>
+              navigate({
+                to: "/settings/connect-chatgpt",
+                hash: (prevHash) => prevHash!,
+              })
+            }
+          />
         </div>
       </SectionBody>
     </>
