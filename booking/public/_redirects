@@ -1,4 +1,7 @@
 # SPA fallback. Every booking URL is /<token>, which is not a real file, so
 # Cloudflare Pages must serve index.html for it and let the app read the token
 # off location.pathname.
+# WhatsApp links (/w/<token>) get the copy with no preview image. Target /w/,
+# not /w/index.html: Pages 308s that, and the rewrite silently does nothing.
+/w/*  /w/  200
 /*  /index.html  200

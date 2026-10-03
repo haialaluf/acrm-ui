@@ -20,6 +20,12 @@ export default defineConfig({
   build: {
     outDir: "../dist-booking",
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "booking/index.html"),
+        whatsapp: path.resolve(__dirname, "booking/w/index.html"),
+      },
+    },
   },
   plugins: [
     react({

@@ -47,8 +47,11 @@ export default function App({ initialLang }: { initialLang: Language }) {
   const [cancelling, setCancelling] = useState(false);
 
   // The token IS the route: no router, just the path segments. `/sync/<token>`
-  // is the one prefixed route — a calendar-sync link rather than a booking one.
-  const segments = window.location.pathname.split("/").filter(Boolean);
+  // is a calendar-sync link; `/w/<token>` is a booking link sent on WhatsApp.
+  const segments = window.location.pathname
+    .split("/")
+    .filter(Boolean)
+    .filter((segment, i) => !(i === 0 && segment === "w"));
   const isSync = segments[0] === "sync";
   const token = (isSync ? segments[1] : segments[0]) ?? "";
 
