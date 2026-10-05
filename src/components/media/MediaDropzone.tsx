@@ -11,6 +11,11 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useSignedMediaUrl } from "@/hooks/useSignedMediaUrl";
 import { uploadMediaToBucket } from "@/utils/uploadMediaToBucket";
 import VideoThumb from "./VideoThumb";
+import {
+  HEADER_MEDIA_MAX_MB,
+  headerMediaTooLarge,
+  toMB,
+} from "./headerMediaLimits";
 
 type MediaType = "IMAGE" | "VIDEO" | "DOCUMENT";
 
@@ -119,6 +124,14 @@ export default function MediaDropzone({
         beforeUpload={(file) => {
           if (!orgId) return false;
           setError(null);
+          if (headerMediaTooLarge(type, file.size)) {
+            setError(
+              t("The file is {{1}} MB. The limit is {{2}} MB.")
+                .replace("{{1}}", toMB(file.size))
+                .replace("{{2}}", String(HEADER_MEDIA_MAX_MB[type])),
+            );
+            return false;
+          }
           setUploading(true);
           uploadMediaToBucket(file, orgId, file.name)
             .then((uri) => onFile(uri, file.name, file.size))

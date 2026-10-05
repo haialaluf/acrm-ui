@@ -6,6 +6,10 @@ import { useTranslation } from "@/hooks/useTranslation";
 import useBoundStore from "@/stores/useBoundStore";
 import { type HeaderMediaFormat } from "./types";
 import { rehostTemplateExample } from "./rehostMedia";
+import {
+  HeaderMediaTooLargeError,
+  toMB,
+} from "@/components/media/headerMediaLimits";
 
 /** `note` spells out that media, unlike every other field in this step, cannot
  *  vary per recipient — the neighbouring `VarCard`s all offer a per-recipient
@@ -68,7 +72,7 @@ export default function HeaderMediaCard({
   const meta = FORMAT_META[format];
   const Icon = meta.icon;
   const [rehosting, setRehosting] = useState(false);
-  const [rehostError, setRehostError] = useState<string | null>(null);
+  const [rehostError, setRehostError] = useState<unknown>(null);
 
   const activeOrgId = useBoundStore((s) => s.ui.activeOrgId);
 
@@ -83,9 +87,7 @@ export default function HeaderMediaCard({
       const url = await rehostTemplateExample(example, activeOrgId, format);
       onChange(url, basenameOf(example));
     } catch (err) {
-      setRehostError(
-        err instanceof Error ? err.message : "Failed to use example media",
-      );
+      setRehostError(err ?? new Error("Failed to use example media"));
     } finally {
       setRehosting(false);
     }
@@ -141,12 +143,18 @@ export default function HeaderMediaCard({
         </button>
       )}
 
-      {rehostError && (
+      {rehostError != null && (
         <div
           className="text-[11px] mt-[6px]"
           style={{ color: "var(--destructive)" }}
         >
-          {t("Couldn't prepare the example file. Please try again.")}
+          {rehostError instanceof HeaderMediaTooLargeError
+            ? t(
+                "The template's sample file is {{1}} MB, over WhatsApp's {{2}} MB limit. Upload a smaller file.",
+              )
+                .replace("{{1}}", toMB(rehostError.bytes))
+                .replace("{{2}}", String(rehostError.maxMB))
+            : t("Couldn't prepare the example file. Please try again.")}
         </div>
       )}
     </div>

@@ -2,6 +2,11 @@ import { uploadMediaToBucket } from "@/utils/uploadMediaToBucket";
 import { supabase } from "@/supabase/client";
 import { throwFunctionError } from "@/queries/throwFunctionError";
 import { type HeaderMediaFormat } from "./types";
+import {
+  HEADER_MEDIA_MAX_MB,
+  HeaderMediaTooLargeError,
+  headerMediaTooLarge,
+} from "@/components/media/headerMediaLimits";
 
 /** Re-host a template's example header media (a Meta `header_handle` URL on
  *  `scontent.whatsapp.net`) into our own storage and return an internal
@@ -45,5 +50,8 @@ export async function rehostTemplateExample(
     throw new Error(`Failed to download example media (HTTP ${res.status})`);
   }
   const blob = await res.blob();
+  if (headerMediaTooLarge(format, blob.size)) {
+    throw new HeaderMediaTooLargeError(blob.size, HEADER_MEDIA_MAX_MB[format]);
+  }
   return uploadMediaToBucket(blob, orgId, new URL(exampleUrl).pathname);
 }
