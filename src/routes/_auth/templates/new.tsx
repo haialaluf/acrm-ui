@@ -1,10 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { LoaderCircle } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
 import IntegrationGate from "@/components/IntegrationGate";
 import TemplateEditor from "@/components/TemplateEditor";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useIntegrations } from "@/hooks/useIntegrations";
+import { clearFormDraft } from "@/hooks/useFormDraft";
+import { newTemplateDraftKey } from "@/components/templateEditorTypes";
 
 export const Route = createFileRoute("/_auth/templates/new")({
   component: () => (
@@ -19,12 +21,18 @@ export const Route = createFileRoute("/_auth/templates/new")({
 // that is about to be redirected.
 function NewTemplateBody() {
   const { translate: t } = useTranslation();
+  const navigate = useNavigate();
   const { rows, isLoading } = useIntegrations();
   const address = rows.whatsapp?.address;
 
+  const discardAndGoBack = () => {
+    if (address) clearFormDraft(newTemplateDraftKey(address));
+    void navigate({ to: "..", hash: (prevHash) => prevHash! });
+  };
+
   return (
     <>
-      <SectionHeader title={t("Create template")} />
+      <SectionHeader title={t("Create template")} onBack={discardAndGoBack} />
       {/* Inside the gate a connected number is guaranteed, so the only state
           left to wait on is the query that resolves which one. */}
       {isLoading || !address ? (
@@ -32,7 +40,7 @@ function NewTemplateBody() {
           <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <TemplateEditor organizationAddress={address} />
+        <TemplateEditor organizationAddress={address} persistDraft />
       )}
     </>
   );

@@ -23,3 +23,6 @@ export interface TemplateFormData {
   footer: string;
   buttons: FormTemplateButton[];
 }
+
+export const newTemplateDraftKey = (organizationAddress: string) =>
+  `newTemplate:${organizationAddress}`;

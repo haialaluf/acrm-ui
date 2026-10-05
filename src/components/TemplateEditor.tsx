@@ -25,9 +25,14 @@ import {
   type PreviewButton,
 } from "./templateButtons";
 import { getVarNumbers, renumberVars } from "./templateVars";
-import type { HeaderType, TemplateFormData } from "./templateEditorTypes";
+import {
+  newTemplateDraftKey,
+  type HeaderType,
+  type TemplateFormData,
+} from "./templateEditorTypes";
 import { useCreateTemplate, useUpdateTemplate } from "@/queries/useTemplates";
 import { useSetMessagePreview } from "@/hooks/useMessagePreview";
+import { useFormDraft } from "@/hooks/useFormDraft";
 import { useSignedMediaUrl } from "@/hooks/useSignedMediaUrl";
 import { isRtl, type Language } from "@/stores/uiSlice";
 import useBoundStore from "@/stores/useBoundStore";
@@ -36,6 +41,7 @@ export default function TemplateEditor({
   existingTemplate,
   organizationAddress,
   onSaved,
+  persistDraft,
 }: {
   existingTemplate?: TemplateData;
   organizationAddress: string;
@@ -43,6 +49,9 @@ export default function TemplateEditor({
    *  templates list (route behaviour). Supplied when the editor is embedded
    *  in an overlay (e.g. the bulk-send wizard) that must not change routes. */
   onSaved?: () => void;
+  /** Keep the unsaved create form in localStorage across refreshes. The owner
+   *  must `clearFormDraft(newTemplateDraftKey(...))` on back/cancel. */
+  persistDraft?: boolean;
 }) {
   "use no memo";
   const { translate: t, currentLanguage } = useTranslation();
@@ -71,7 +80,7 @@ export default function TemplateEditor({
     ? (existingHeader.format ?? "TEXT")
     : "NONE";
 
-  const { register, handleSubmit, control, watch, setValue, formState } =
+  const { register, handleSubmit, control, watch, setValue, reset, formState } =
     useForm<TemplateFormData>({
       mode: "onTouched",
       defaultValues: {
@@ -107,6 +116,12 @@ export default function TemplateEditor({
       },
     });
   const { isDirty, isValid, errors } = formState;
+  const clearDraft = useFormDraft(
+    persistDraft && !existingTemplate
+      ? newTemplateDraftKey(organizationAddress)
+      : undefined,
+    { watch, reset },
+  );
 
   const headerType = watch("headerType");
   const headerText = watch("header");
@@ -271,10 +286,11 @@ export default function TemplateEditor({
     mutation.mutate(
       { template, organizationAddress },
       {
-        onSuccess: () =>
-          onSaved
-            ? onSaved()
-            : navigate({ to: "..", hash: (prevHash) => prevHash! }),
+        onSuccess: () => {
+          clearDraft();
+          if (onSaved) onSaved();
+          else void navigate({ to: "..", hash: (prevHash) => prevHash! });
+        },
         onError: (error) =>
           setSubmitError(
             error instanceof Error
