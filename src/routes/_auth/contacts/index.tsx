@@ -14,8 +14,11 @@ import ContactFilter, {
   emptyContactFilter,
   type ContactFilterValue,
 } from "@/components/ContactFilter";
+import dayjs from "dayjs";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { useContacts, useDeleteContacts } from "@/queries/useContacts";
+import { useNextAppointmentByContact } from "@/queries/useAppointments";
 import { useContactActivityMatch } from "@/queries/useContactActivity";
 import { contactDisplayAddress } from "@/utils/ContactAddressUtils";
 
@@ -36,9 +39,11 @@ export const Route = createFileRoute("/_auth/contacts/")({
 });
 
 function ListContacts() {
-  const { translate: t } = useTranslation();
+  const { translate: t, currentLanguage } = useTranslation();
+  const { isTherapy, terms } = useWorkspace();
   const navigate = useNavigate();
   const { data: contacts } = useContacts();
+  const { data: nextSessions } = useNextAppointmentByContact(isTherapy);
   const deleteContacts = useDeleteContacts();
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
   const { match: activityMatch } = useContactActivityMatch(filter);
@@ -79,11 +84,24 @@ function ListContacts() {
         kind: "contact",
         key: contact.id,
         contact,
-        subtitle: contactDisplayAddress(contact) ?? t("No address"),
+        subtitle: isTherapy
+          ? nextSessionLabel(nextSessions?.get(contact.id))
+          : (contactDisplayAddress(contact) ?? t("No address")),
       });
     }
     return out;
-  }, [filtered, t]);
+
+    function nextSessionLabel(startsAt: string | undefined) {
+      if (!startsAt) return t("No upcoming session");
+      const start = dayjs(startsAt).locale(currentLanguage);
+      const day = start.isSame(dayjs(), "day")
+        ? t("today")
+        : start.isSame(dayjs().add(1, "day"), "day")
+          ? t("tomorrow")
+          : start.format("ddd D MMM");
+      return `${t("Next:")} ${day} ${start.format("HH:mm")}`;
+    }
+  }, [filtered, t, isTherapy, nextSessions, currentLanguage]);
 
   const hasAnyFilter =
     filter.search.length > 0 || activeFilterCount(filter) > 0;
@@ -108,7 +126,7 @@ function ListContacts() {
   return (
     <>
       <SectionHeader
-        title={t("Contacts")}
+        title={terms.people}
         action={
           !selectionMode ? (
             <div className="flex items-center gap-[8px]">
@@ -135,7 +153,7 @@ function ListContacts() {
               </button>
               <button
                 className="btn-gradient h-[36px] ps-[12px] pe-[15px] rounded-full flex items-center gap-[7px] text-[14px] font-semibold"
-                title={t("Add contact")}
+                title={terms.newPerson}
                 onClick={() =>
                   navigate({
                     to: "/contacts/new",
@@ -159,7 +177,7 @@ function ListContacts() {
 
       <ContactListToolbar
         count={filtered.length}
-        label={t("contacts")}
+        label={terms.people.toLocaleLowerCase()}
         selectedCount={selectionMode ? selected.size : undefined}
         onSelectAll={
           selectionMode && !allSelected

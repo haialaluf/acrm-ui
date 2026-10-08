@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Megaphone,
   Workflow,
+  Sparkles,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { LinkButton } from "./LinkButton";
@@ -26,6 +27,7 @@ import { useCurrentAgent } from "@/queries/useAgents";
 import { Dropdown } from "antd";
 import { useOrganizations } from "@/queries/useOrganizations";
 import HideIfNotPermitted from "@/components/HideIfNotPermitted";
+import { useWorkspace } from "@/hooks/useWorkspace";
 
 export default function Menu() {
   const user = useBoundStore((state) => state.ui.user);
@@ -42,6 +44,7 @@ export default function Menu() {
     currentLanguage,
     setCurrentLanguage,
   } = useTranslation();
+  const { terms, isTherapy } = useWorkspace();
 
   // Simpler approach - call useLocation without select first
   const location = useLocation();
@@ -73,13 +76,24 @@ export default function Menu() {
         <HideIfNotPermitted surface="/contacts">
           <LinkButton
             to="/contacts"
-            title={t("Contacts")}
+            title={terms.people}
             isActive={pathname.startsWith("/contacts")}
             className="mt-[10px]"
           >
             <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
           </LinkButton>
         </HideIfNotPermitted>
+
+        {isTherapy && (
+          <LinkButton
+            to="/ask"
+            title={t("Ask AI")}
+            isActive={pathname.startsWith("/ask")}
+            className="mt-[10px]"
+          >
+            <Sparkles className="w-[24px] h-[24px] stroke-[2]" />
+          </LinkButton>
+        )}
 
         <HideIfNotPermitted surface="/broadcasts">
           <LinkButton

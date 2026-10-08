@@ -26,6 +26,7 @@ import {
   resolveTimezone,
 } from "@/utils/calendar";
 import { NO_DEFAULT_AGENT, type OrganizationUpdate } from "@/supabase/client";
+import { CURRENCIES, CURRENCY_SYMBOLS } from "@/hooks/useWorkspace";
 
 export const Route = createFileRoute("/_auth/settings/organization/")({
   beforeLoad: () => {
@@ -73,6 +74,9 @@ function EditOrganization() {
         ...org.extra,
         error_messages_direction:
           org.extra?.error_messages_direction || "internal",
+        workspace_type: org.extra?.workspace_type || "company",
+        people_term: org.extra?.people_term || "patients",
+        currency: org.extra?.currency || "ILS",
         transcription: {
           mode: "inactive" as const,
           ...org.extra?.transcription,
@@ -96,6 +100,7 @@ function EditOrganization() {
   } = useForm<OrganizationUpdate>({ values: normalizedOrg });
 
   const defaultAgentId = useWatch({ control, name: "extra.default_agent_id" });
+  const workspaceType = useWatch({ control, name: "extra.workspace_type" });
 
   const transcriptionMode = useWatch({
     control,
@@ -184,6 +189,50 @@ function EditOrganization() {
               })}
             />
           </label>
+
+          <div className="flex flex-col gap-[8px]">
+            <SelectField
+              control={control}
+              name="extra.workspace_type"
+              label={t("Workspace type")}
+              options={[
+                { value: "company", label: t("Company") },
+                { value: "therapy", label: t("Therapy practice") },
+              ]}
+              disabled={!isOwner}
+            />
+            <p className="text-[12px] text-muted-foreground">
+              {workspaceType === "therapy"
+                ? t(
+                    "Contacts become patients, with sessions, payments and files on each one.",
+                  )
+                : t("Contacts, leads and conversations for any business.")}
+            </p>
+          </div>
+
+          {workspaceType === "therapy" && (
+            <SelectField
+              control={control}
+              name="extra.people_term"
+              label={t("Call the people you work with")}
+              options={[
+                { value: "patients", label: t("Patients") },
+                { value: "clients", label: t("Clients") },
+              ]}
+              disabled={!isOwner}
+            />
+          )}
+
+          <SelectField
+            control={control}
+            name="extra.currency"
+            label={t("Currency")}
+            options={CURRENCIES.map((code) => ({
+              value: code,
+              label: `${CURRENCY_SYMBOLS[code]} ${code}`,
+            }))}
+            disabled={!isOwner}
+          />
 
           <label>
             <div className="label">{t("Response delay (seconds)")}</div>

@@ -3,7 +3,8 @@ import SectionHeader from "@/components/SectionHeader";
 import SectionItem from "@/components/SectionItem";
 import { useTranslation } from "@/hooks/useTranslation";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Building2, Users, Webhook, Key, Bot } from "lucide-react";
+import { Building2, Users, Webhook, Key, Bot, FileText } from "lucide-react";
+import { useWorkspace } from "@/hooks/useWorkspace";
 
 export const Route = createFileRoute("/_auth/settings/")({
   component: SettingsIndex,
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/_auth/settings/")({
 
 function SettingsIndex() {
   const { translate: t } = useTranslation();
+  const { isTherapy } = useWorkspace();
   const navigate = useNavigate();
 
   return (
@@ -33,6 +35,22 @@ function SettingsIndex() {
               })
             }
           />
+          {isTherapy && (
+            <SectionItem
+              title={t("Report templates")}
+              aside={
+                <div className="p-[8px]">
+                  <FileText className="w-[24px] h-[24px] text-muted-foreground" />
+                </div>
+              }
+              onClick={() =>
+                navigate({
+                  to: "/settings/report-templates",
+                  hash: (prevHash) => prevHash!,
+                })
+              }
+            />
+          )}
           <SectionItem
             title={t("Members")}
             aside={

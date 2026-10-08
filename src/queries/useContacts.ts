@@ -519,6 +519,7 @@ export function useUpdateContact() {
           firstname: newContact.firstname ?? null,
           surname: newContact.surname ?? null,
           ...(newContact.tags !== undefined ? { tags: newContact.tags } : {}),
+          ...(newContact.extra ? { extra: newContact.extra } : {}),
         },
         p_addresses,
         p_contact_id: id,

@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { type Database, supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 import { queryKeys } from "./queryKeys";
@@ -9,6 +14,51 @@ export type AppointmentInsert =
   Database["public"]["Tables"]["appointments"]["Insert"];
 export type AppointmentUpdate =
   Database["public"]["Tables"]["appointments"]["Update"];
+
+function invalidateAppointments(
+  queryClient: QueryClient,
+  orgId: string | null,
+  appointment: { contact_id?: string | null },
+) {
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.appointments.org(orgId),
+  });
+  if (appointment.contact_id) {
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.contacts.appointments(orgId, appointment.contact_id),
+    });
+  }
+}
+
+/** The next scheduled session per contact, for the patients list. */
+export function useNextAppointmentByContact(enabled: boolean) {
+  const userId = useBoundStore((state) => state.ui.user?.id);
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  return useQuery({
+    queryKey: queryKeys.appointments.upcoming(orgId),
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("appointments")
+        .select("contact_id, starts_at")
+        .eq("organization_id", orgId!)
+        .not("contact_id", "is", null)
+        .neq("status", "cancelled")
+        .gte("starts_at", new Date().toISOString())
+        .order("starts_at", { ascending: true })
+        .throwOnError();
+
+      const next = new Map<string, string>();
+      for (const row of data ?? []) {
+        if (row.contact_id && !next.has(row.contact_id)) {
+          next.set(row.contact_id, row.starts_at);
+        }
+      }
+      return next;
+    },
+    enabled: enabled && !!userId && !!orgId,
+  });
+}
 
 // All appointments for a calendar, ordered chronologically. The board fetches
 // the whole calendar and filters by the visible range client-side — appointment
@@ -49,11 +99,7 @@ export function useCreateAppointment() {
 
       return appointment;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.appointments.all(orgId, data.calendar_id),
-      });
-    },
+    onSuccess: (data) => invalidateAppointments(queryClient, orgId, data),
   });
 }
 
@@ -76,11 +122,7 @@ export function useUpdateAppointment() {
 
       return appointment;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.appointments.all(orgId, data.calendar_id),
-      });
-    },
+    onSuccess: (data) => invalidateAppointments(queryClient, orgId, data),
   });
 }
 
@@ -93,8 +135,8 @@ export function useDeleteAppointment() {
       id,
     }: {
       id: string;
-      // calendar_id is unused server-side but lets onSuccess target the cache.
       calendar_id: string;
+      contact_id?: string | null;
     }) => {
       if (!orgId) throw new Error("No active organization");
 
@@ -105,10 +147,7 @@ export function useDeleteAppointment() {
         .eq("organization_id", orgId)
         .throwOnError();
     },
-    onSuccess: (_data, { calendar_id }) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.appointments.all(orgId, calendar_id),
-      });
-    },
+    onSuccess: (_data, { contact_id }) =>
+      invalidateAppointments(queryClient, orgId, { contact_id }),
   });
 }

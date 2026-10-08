@@ -50,6 +50,13 @@ export const queryKeys = {
       ] as const,
     notes: (orgId: NullableId, contactId: NullableId) =>
       [orgId, "contacts", contactId, "notes"] as const,
+    files: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "contacts", contactId, "files"] as const,
+    chatFiles: (
+      orgId: NullableId,
+      contactId: NullableId,
+      conversationIds: string[],
+    ) => [orgId, "contacts", contactId, "chat-files", conversationIds] as const,
     /** The `leads` row a contact came from, when a form produced it. */
     lead: (orgId: NullableId, contactId: NullableId) =>
       [orgId, "contacts", contactId, "lead"] as const,
@@ -138,8 +145,11 @@ export const queryKeys = {
       ] as const,
   },
   appointments: {
+    org: (orgId: NullableId) => [orgId, "appointments"] as const,
     all: (orgId: NullableId, calendarId: NullableId) =>
       [orgId, "appointments", calendarId] as const,
+    upcoming: (orgId: NullableId) =>
+      [orgId, "appointments", "upcoming"] as const,
   },
   messageTemplates: {
     /** Every approved WhatsApp template in the org, from the local mirror —

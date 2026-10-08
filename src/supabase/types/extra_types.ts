@@ -78,7 +78,14 @@ export type OrganizationExtra = {
   transcription?: TranscriptionConfig;
   error_messages_direction?: "internal" | "outgoing";
   business_profile?: BusinessProfile;
+  workspace_type?: WorkspaceType;
+  people_term?: PeopleTerm;
+  currency?: Currency;
 };
+
+export type WorkspaceType = "company" | "therapy";
+export type PeopleTerm = "patients" | "clients";
+export type Currency = "ILS" | "SEK" | "EUR" | "USD";
 
 export type WhatsAppOrganizationAddressExtra = {
   waba_id?: string;
@@ -274,6 +281,9 @@ export type ContactExtra = {
   // column to live in, so it is flattened here as question -> answer. The
   // complete, unflattened submission is always on the `leads` row.
   lead_fields?: Record<string, string>;
+  date_of_birth?: string;
+  emergency_contact?: string;
+  session_price?: number | null;
 };
 
 export type WhatsAppContactAddressExtra = {

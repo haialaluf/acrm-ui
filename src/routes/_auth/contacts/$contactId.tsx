@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   createFileRoute,
+  useLocation,
   useNavigate,
   useRouter,
 } from "@tanstack/react-router";
@@ -24,6 +25,7 @@ import Button from "@/components/Button";
 import ContactTagSelect from "@/components/ContactTagSelect";
 import ConfirmModal from "@/components/ConfirmModal";
 import {
+  Sparkles,
   Instagram,
   Mail,
   MessageCircle,
@@ -58,13 +60,28 @@ import ContactActivityTab from "@/components/contacts/ContactActivityTab";
 import ContactLeadTab from "@/components/contacts/ContactLeadTab";
 import ContactNotesTab from "@/components/contacts/ContactNotesTab";
 import RemovedBadge from "@/components/contacts/RemovedBadge";
+import ContactSessionsTab from "@/components/contacts/ContactSessionsTab";
+import ContactFilesTab from "@/components/contacts/ContactFilesTab";
+import { CURRENCY_SYMBOLS, useWorkspace } from "@/hooks/useWorkspace";
 import { useIntegrations } from "@/hooks/useIntegrations";
 import { useContactConversations } from "@/queries/useContactConversations";
 import { threadKey } from "@/utils/ConversationUtils";
 
 type ContactFormValues = ContactWithAddressesUpdate;
 
-type Tab = "details" | "notes" | "activity" | "lead";
+type Tab = "details" | "sessions" | "notes" | "files" | "activity" | "lead";
+
+const COMPANY_TABS: Tab[] = ["details", "notes", "activity", "lead"];
+const THERAPY_TABS: Tab[] = ["details", "sessions", "notes", "files"];
+
+const TAB_LABELS: Record<Tab, string> = {
+  details: "Details",
+  sessions: "Sessions",
+  notes: "Notes",
+  files: "Files",
+  activity: "Activity",
+  lead: "Lead",
+};
 type Channel = "whatsapp" | "instagram" | "email";
 
 const CHANNELS: Channel[] = ["whatsapp", "instagram", "email"];
@@ -86,6 +103,14 @@ function storedAddress(service: string | null | undefined, address: string) {
 }
 
 export const Route = createFileRoute("/_auth/contacts/$contactId")({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { tab?: Tab; ai?: boolean } => ({
+    ...(typeof search.tab === "string" && search.tab in TAB_LABELS
+      ? { tab: search.tab as Tab }
+      : {}),
+    ...(search.ai === true || search.ai === "true" ? { ai: true } : {}),
+  }),
   component: ContactDetail,
 });
 
@@ -106,6 +131,7 @@ function buildNewAddresses(
 
 function ContactDetail() {
   const { translate: t } = useTranslation();
+  const { isTherapy, terms, currency } = useWorkspace();
   const navigate = useNavigate();
   const router = useRouter();
   const { contactId } = Route.useParams();
@@ -119,7 +145,12 @@ function ContactDetail() {
     conflict: AddressConflict;
   } | null>(null);
   const [pickingInstagram, setPickingInstagram] = useState(false);
-  const [tab, setTab] = useState<Tab>("details");
+  const search = Route.useSearch();
+  const location = useLocation();
+  const [tab, setTab] = useState<Tab>(search.tab ?? "details");
+  useEffect(() => {
+    if (search.tab) setTab(search.tab);
+  }, [search.tab]);
   const [channel, setChannel] = useState<Channel>("whatsapp");
   const { connected } = useIntegrations();
 
@@ -225,6 +256,7 @@ function ContactDetail() {
     updateContact.mutate(
       {
         ...data,
+        extra: isTherapy ? data.extra : undefined,
         addresses: (data.addresses ?? [])
           .filter((a) => a.address?.trim())
           .map((a) => ({
@@ -271,7 +303,25 @@ function ContactDetail() {
   function openConversation() {
     const conversation = conversations.data?.[0];
     if (!conversation) return;
+    if (isTherapy) {
+      void navigate({
+        to: "/contacts/$contactId",
+        params: { contactId },
+        search: (prev) => ({ ...prev, ai: undefined }),
+        hash: threadKey(conversation),
+      });
+      return;
+    }
     void navigate({ to: "/conversations", hash: threadKey(conversation) });
+  }
+
+  function openAskAi() {
+    void navigate({
+      to: "/contacts/$contactId",
+      params: { contactId },
+      search: (prev) => ({ ...prev, ai: true }),
+      hash: "",
+    });
   }
 
   const channelRows = fields
@@ -282,7 +332,7 @@ function ContactDetail() {
     contact && (
       <>
         <SectionHeader
-          title={t("Contact")}
+          title={terms.person}
           // The contact page is opened both from the contacts list and from a
           // chat's header, so the depth-based `to=".."` back link is wrong half
           // the time — it always lands on /contacts. Step back through history
@@ -326,10 +376,31 @@ function ContactDetail() {
                 </div>
               )}
             </div>
+            {isTherapy && (
+              <button
+                type="button"
+                className={
+                  "h-[40px] px-[14px] rounded-full flex items-center gap-[6px] shrink-0 text-[14px] font-medium " +
+                  (search.ai
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-accent text-accent-foreground")
+                }
+                title={t("Ask AI about this patient")}
+                onClick={openAskAi}
+              >
+                <Sparkles className="w-[17px] h-[17px]" />
+                {t("Ask AI")}
+              </button>
+            )}
             {conversations.data?.length ? (
               <button
                 type="button"
-                className="w-[40px] h-[40px] rounded-full bg-accent text-accent-foreground flex items-center justify-center shrink-0"
+                className={
+                  "w-[40px] h-[40px] rounded-full flex items-center justify-center shrink-0 " +
+                  (isTherapy && location.hash && !search.ai
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-accent text-accent-foreground")
+                }
                 title={t("Open conversation")}
                 onClick={openConversation}
               >
@@ -338,232 +409,282 @@ function ContactDetail() {
             ) : null}
           </div>
 
-          <div className="flex gap-[22px]">
-            {(["details", "notes", "activity", "lead"] as Tab[]).map((key) => (
+          <div
+            className={
+              "flex overflow-x-auto " +
+              (isTherapy ? "gap-[16px]" : "gap-[22px]")
+            }
+          >
+            {(isTherapy ? THERAPY_TABS : COMPANY_TABS).map((key) => (
               <button
                 key={key}
                 type="button"
                 className={
-                  "text-[14px] py-[12px] px-[4px] border-b-2 " +
+                  "text-[14px] py-[12px] px-[4px] border-b-2 whitespace-nowrap flex items-center gap-[5px] " +
                   (tab === key
                     ? "text-primary border-primary"
                     : "text-muted-foreground border-transparent")
                 }
                 onClick={() => setTab(key)}
               >
-                {t(
-                  key === "details"
-                    ? "Details"
-                    : key === "notes"
-                      ? "Notes"
-                      : key === "activity"
-                        ? "Activity"
-                        : "Lead",
-                )}
+                {t(TAB_LABELS[key])}
               </button>
             ))}
           </div>
         </div>
 
-        <SectionBody>
-          {/* Kept mounted so switching tabs does not drop what was typed.
+        <div className="contents">
+          <SectionBody>
+            {/* Kept mounted so switching tabs does not drop what was typed.
               `form` is `flex-grow` in the base layer, so an empty one would
               still claim the panel and push another tab's content below the
               fold — it is hidden outright rather than emptied. */}
-          <form
-            id="contact-form"
-            className={tab === "details" ? "" : "hidden"}
-            onSubmit={handleSubmit(onValidSubmit)}
-          >
-            <div className={tab === "details" ? "contents" : "hidden"}>
-              {emailConversations.length > 0 && (
-                <div className="flex flex-col gap-[6px]">
-                  <div className="label">{t("Email conversations")}</div>
-                  {emailConversations.slice(0, 10).map((conversation) => (
-                    <button
-                      key={conversation.id}
-                      type="button"
-                      className="flex items-center gap-[8px] rounded-lg px-[10px] py-[6px] text-start text-[14px] hover:bg-accent"
-                      onClick={() =>
-                        void navigate({
-                          to: "/conversations",
-                          hash: threadKey(conversation),
-                        })
-                      }
-                    >
-                      <Mail className="w-[14px] h-[14px] shrink-0 text-muted-foreground" />
-                      <span dir="auto" className="truncate grow">
-                        {conversation.extra?.subject || t("(no subject)")}
-                      </span>
-                      <span className="text-[12px] text-muted-foreground shrink-0">
-                        {new Date(conversation.created_at).toLocaleDateString()}
-                      </span>
-                    </button>
-                  ))}
+            <form
+              id="contact-form"
+              className={tab === "details" ? "" : "hidden"}
+              onSubmit={handleSubmit(onValidSubmit)}
+            >
+              <div className={tab === "details" ? "contents" : "hidden"}>
+                {emailConversations.length > 0 && (
+                  <div className="flex flex-col gap-[6px]">
+                    <div className="label">{t("Email conversations")}</div>
+                    {emailConversations.slice(0, 10).map((conversation) => (
+                      <button
+                        key={conversation.id}
+                        type="button"
+                        className="flex items-center gap-[8px] rounded-lg px-[10px] py-[6px] text-start text-[14px] hover:bg-accent"
+                        onClick={() =>
+                          void navigate({
+                            to: "/conversations",
+                            hash: threadKey(conversation),
+                          })
+                        }
+                      >
+                        <Mail className="w-[14px] h-[14px] shrink-0 text-muted-foreground" />
+                        <span dir="auto" className="truncate grow">
+                          {conversation.extra?.subject || t("(no subject)")}
+                        </span>
+                        <span className="text-[12px] text-muted-foreground shrink-0">
+                          {new Date(
+                            conversation.created_at,
+                          ).toLocaleDateString()}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <label>
+                  <div className="label">{t("Name")}</div>
+                  <input
+                    type="text"
+                    className="text"
+                    placeholder={t("Contact name")}
+                    {...register("name")}
+                  />
+                </label>
+
+                <label>
+                  <div className="label">{t("First name")}</div>
+                  <input
+                    type="text"
+                    className="text"
+                    placeholder={t("Contact first name")}
+                    {...register("firstname")}
+                  />
+                </label>
+
+                <label>
+                  <div className="label">{t("Last name")}</div>
+                  <input
+                    type="text"
+                    className="text"
+                    placeholder={t("Contact last name")}
+                    {...register("surname")}
+                  />
+                </label>
+
+                {isTherapy && (
+                  <>
+                    <div className="grid grid-cols-2 gap-[18px]">
+                      <label>
+                        <div className="label">{t("Date of birth")}</div>
+                        <input
+                          type="date"
+                          className="text"
+                          {...register("extra.date_of_birth")}
+                        />
+                      </label>
+                      <label>
+                        <div className="label">
+                          {t("Price per session")} ({CURRENCY_SYMBOLS[currency]}
+                          )
+                        </div>
+                        <input
+                          type="number"
+                          min={0}
+                          step="any"
+                          className="text"
+                          placeholder="0"
+                          {...register("extra.session_price", {
+                            setValueAs: (value) =>
+                              value === "" || value === null
+                                ? null
+                                : Number(value),
+                          })}
+                        />
+                      </label>
+                    </div>
+                    <label>
+                      <div className="label">{t("Emergency contact")}</div>
+                      <input
+                        type="text"
+                        className="text"
+                        placeholder={t("Name, relation and phone")}
+                        {...register("extra.emergency_contact")}
+                      />
+                    </label>
+                  </>
+                )}
+
+                <div>
+                  <div className="label">{t("Tags")}</div>
+                  <Controller
+                    control={control}
+                    name="tags"
+                    render={({ field }) => (
+                      <ContactTagSelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                    )}
+                  />
                 </div>
-              )}
-              <label>
-                <div className="label">{t("Name")}</div>
-                <input
-                  type="text"
-                  className="text"
-                  placeholder={t("Contact name")}
-                  {...register("name")}
-                />
-              </label>
 
-              <label>
-                <div className="label">{t("First name")}</div>
-                <input
-                  type="text"
-                  className="text"
-                  placeholder={t("Contact first name")}
-                  {...register("firstname")}
-                />
-              </label>
+                <div>
+                  <div className="label">{t("Channels")}</div>
 
-              <label>
-                <div className="label">{t("Last name")}</div>
-                <input
-                  type="text"
-                  className="text"
-                  placeholder={t("Contact last name")}
-                  {...register("surname")}
-                />
-              </label>
-
-              <div>
-                <div className="label">{t("Tags")}</div>
-                <Controller
-                  control={control}
-                  name="tags"
-                  render={({ field }) => (
-                    <ContactTagSelect
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <div className="label">{t("Channels")}</div>
-
-                {/* One channel at a time. The count on each chip is what keeps
+                  {/* One channel at a time. The count on each chip is what keeps
                     an empty channel visible without opening it. Below md the
                     three named chips overflow the panel, so only the open one
                     keeps its name there — the icon and the count carry the
                     other two, and the row still fits without scrolling. */}
-                <div className="flex gap-[8px] mb-[18px]">
-                  {CHANNELS.map((key) => {
-                    const label =
-                      key === "whatsapp"
-                        ? "WhatsApp"
-                        : key === "instagram"
-                          ? "Instagram"
-                          : t("Email");
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        title={label}
-                        aria-label={label}
-                        aria-pressed={channel === key}
-                        className={
-                          "text-[14px] text-nowrap px-[12px] py-[6px] rounded-full flex items-center gap-[6px] " +
-                          (channel === key
-                            ? "text-foreground bg-primary/10 border border-primary"
-                            : "text-foreground bg-background hover:bg-accent border border-border")
-                        }
-                        onClick={() => setChannel(key)}
-                      >
-                        {key === "whatsapp" ? (
-                          <MessageCircle className="w-[15px] h-[15px] text-[#25D366]" />
-                        ) : key === "instagram" ? (
-                          <Instagram className="w-[15px] h-[15px] text-[#E1306C]" />
-                        ) : (
-                          <Mail className="w-[15px] h-[15px] text-blue-500" />
-                        )}
-                        <span
-                          className={channel === key ? "" : "hidden md:inline"}
+                  <div className="flex gap-[8px] mb-[18px]">
+                    {CHANNELS.map((key) => {
+                      const label =
+                        key === "whatsapp"
+                          ? "WhatsApp"
+                          : key === "instagram"
+                            ? "Instagram"
+                            : t("Email");
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          title={label}
+                          aria-label={label}
+                          aria-pressed={channel === key}
+                          className={
+                            "text-[14px] text-nowrap px-[12px] py-[6px] rounded-full flex items-center gap-[6px] " +
+                            (channel === key
+                              ? "text-foreground bg-primary/10 border border-primary"
+                              : "text-foreground bg-background hover:bg-accent border border-border")
+                          }
+                          onClick={() => setChannel(key)}
                         >
-                          {label}
-                        </span>
-                        <span className="text-[12px] text-muted-foreground">
-                          {counts[key]}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                          {key === "whatsapp" ? (
+                            <MessageCircle className="w-[15px] h-[15px] text-[#25D366]" />
+                          ) : key === "instagram" ? (
+                            <Instagram className="w-[15px] h-[15px] text-[#E1306C]" />
+                          ) : (
+                            <Mail className="w-[15px] h-[15px] text-blue-500" />
+                          )}
+                          <span
+                            className={
+                              channel === key ? "" : "hidden md:inline"
+                            }
+                          >
+                            {label}
+                          </span>
+                          <span className="text-[12px] text-muted-foreground">
+                            {counts[key]}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
 
-                <div className="flex flex-col gap-[12px]">
-                  {channelRows.map(({ field, idx }, position) => (
-                    <div key={field.id}>
-                      {position > 0 && (
-                        <div className="h-px bg-border mb-[12px]" />
-                      )}
-                      <AddressRow
-                        channel={channel}
-                        number={numbering.get(field.id) ?? 1}
-                        field={field}
-                        idx={idx}
-                        isExisting={originalAddresses.has(field.address ?? "")}
-                        register={register}
-                        watch={watch}
-                        errors={errors}
-                        conflictsByAddress={conflictsByAddress}
-                        checkOnBlur={checkOnBlur}
-                        onRemove={() => remove(idx)}
-                        t={t}
-                      />
-                    </div>
-                  ))}
+                  <div className="flex flex-col gap-[12px]">
+                    {channelRows.map(({ field, idx }, position) => (
+                      <div key={field.id}>
+                        {position > 0 && (
+                          <div className="h-px bg-border mb-[12px]" />
+                        )}
+                        <AddressRow
+                          channel={channel}
+                          number={numbering.get(field.id) ?? 1}
+                          field={field}
+                          idx={idx}
+                          isExisting={originalAddresses.has(
+                            field.address ?? "",
+                          )}
+                          register={register}
+                          watch={watch}
+                          errors={errors}
+                          conflictsByAddress={conflictsByAddress}
+                          checkOnBlur={checkOnBlur}
+                          onRemove={() => remove(idx)}
+                          t={t}
+                        />
+                      </div>
+                    ))}
 
-                  {/* Instagram is a picker rather than a text field: its
+                    {/* Instagram is a picker rather than a text field: its
                       addresses are igsids we can only learn from an inbound
                       message (see InstagramAddressPicker), so there is nothing
                       meaningful to type. */}
-                  {channel === "instagram" ? (
-                    connected.instagram && (
+                    {channel === "instagram" ? (
+                      connected.instagram && (
+                        <AddButton
+                          icon={<Instagram className="w-4 h-4" />}
+                          label={t("Add Instagram")}
+                          onClick={() => setPickingInstagram(true)}
+                        />
+                      )
+                    ) : (
                       <AddButton
-                        icon={<Instagram className="w-4 h-4" />}
-                        label={t("Add Instagram")}
-                        onClick={() => setPickingInstagram(true)}
+                        icon={<Plus className="w-4 h-4" />}
+                        label={
+                          channel === "email" ? t("Add email") : t("Add phone")
+                        }
+                        onClick={() => addRow(channel)}
                       />
-                    )
-                  ) : (
-                    <AddButton
-                      icon={<Plus className="w-4 h-4" />}
-                      label={
-                        channel === "email" ? t("Add email") : t("Add phone")
-                      }
-                      onClick={() => addRow(channel)}
-                    />
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {updateContact.error && (
-              <p className="text-destructive text-[13px]">
-                {t("Could not save the contact. Please try again.")}
-              </p>
-            )}
-            {updateContact.data?.action === "skipped" && (
-              <p className="text-destructive text-[13px]">
-                {t(
-                  "This address now belongs to another contact. Refresh and try again.",
-                )}
-              </p>
-            )}
-          </form>
+              {updateContact.error && (
+                <p className="text-destructive text-[13px]">
+                  {t("Could not save the contact. Please try again.")}
+                </p>
+              )}
+              {updateContact.data?.action === "skipped" && (
+                <p className="text-destructive text-[13px]">
+                  {t(
+                    "This address now belongs to another contact. Refresh and try again.",
+                  )}
+                </p>
+              )}
+            </form>
 
-          {tab === "notes" && <ContactNotesTab contact={contact} />}
-          {tab === "activity" && <ContactActivityTab contact={contact} />}
-          {tab === "lead" && <ContactLeadTab contact={contact} />}
-        </SectionBody>
+            {tab === "sessions" && <ContactSessionsTab contact={contact} />}
+            {tab === "notes" && <ContactNotesTab contact={contact} />}
+            {tab === "files" && <ContactFilesTab contact={contact} />}
+            {tab === "activity" && <ContactActivityTab contact={contact} />}
+            {tab === "lead" && <ContactLeadTab contact={contact} />}
+          </SectionBody>
+        </div>
 
         <SectionFooter>
           {tab === "details" ? (

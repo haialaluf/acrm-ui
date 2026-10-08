@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { useCreateContact } from "@/queries/useContacts";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import SectionBody from "@/components/SectionBody";
@@ -81,6 +82,7 @@ function buildAddresses(data: ContactFormValues) {
 
 function ContactNew() {
   const { translate: t } = useTranslation();
+  const { terms } = useWorkspace();
   const navigate = useNavigate();
   const createContact = useCreateContact();
   const { conflictsByAddress, checkOnBlur, findConflictBeforeSubmit } =
@@ -172,7 +174,7 @@ function ContactNew() {
 
   return (
     <>
-      <SectionHeader title={t("New contact")} />
+      <SectionHeader title={terms.newPerson} />
 
       <SectionBody>
         <form id="contact-form" onSubmit={handleSubmit(onValidSubmit)}>
