@@ -3,7 +3,7 @@ import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContact } from "@/queries/useContacts";
 import SessionReportView from "@/components/therapy/SessionReportView";
-import { useTherapyStore } from "@/components/therapy/therapyStore";
+import { useSessionReport } from "@/queries/useSessionReports";
 
 export const Route = createFileRoute(
   "/_auth/contacts/$contactId_/reports/$reportId",
@@ -18,8 +18,7 @@ function SessionReportPage() {
   const navigate = useNavigate();
   const { contactId, reportId } = Route.useParams();
   const { data: contact } = useContact(contactId);
-  const { reports } = useTherapyStore();
-  const report = reports.find((r) => r.id === reportId);
+  const { data: report, isLoading, isError } = useSessionReport(reportId);
 
   const back = () =>
     void navigate({
@@ -34,6 +33,7 @@ function SessionReportPage() {
       <SectionHeader title={t("Session report")} onBack={back} />
       {contact && report ? (
         <SessionReportView
+          key={report.id}
           report={report}
           contact={contact}
           onApproved={back}
@@ -41,7 +41,11 @@ function SessionReportPage() {
         />
       ) : (
         <div className="p-[24px] text-[14px] text-muted-foreground">
-          {t("This report is no longer available.")}
+          {isLoading
+            ? t("Opening the report…")
+            : isError
+              ? t("Could not open the report. Please try again.")
+              : t("This report is no longer available.")}
         </div>
       )}
     </>

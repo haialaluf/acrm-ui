@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowDown,
@@ -11,7 +11,12 @@ import {
 import SectionHeader from "@/components/SectionHeader";
 import SectionBody from "@/components/SectionBody";
 import { useTranslation } from "@/hooks/useTranslation";
-import { newId, useTherapyStore } from "@/components/therapy/therapyStore";
+import { newId } from "@/components/therapy/therapyStore";
+import {
+  useDeleteReportTemplate,
+  useReportTemplates,
+  useSaveReportTemplate,
+} from "@/queries/useSessionReports";
 import type {
   ReportTemplate,
   SectionType,
@@ -184,15 +189,45 @@ function SectionEditor({
 }
 
 function TemplateEditor({
-  template,
+  template: initial,
   onBack,
 }: {
   template: ReportTemplate;
   onBack: () => void;
 }) {
   const { translate: t } = useTranslation();
-  const store = useTherapyStore();
-  const save = (next: ReportTemplate) => store.saveTemplate(next);
+  const saveTemplate = useSaveReportTemplate();
+  const deleteTemplate = useDeleteReportTemplate();
+  const [template, setTemplate] = useState(initial);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const timer = window.setTimeout(() => {
+      setDirty(false);
+      saveTemplate.mutate(template);
+    }, 800);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mutation identity changes every render
+  }, [template, dirty]);
+
+  const pending = useRef<{ value: typeof template; dirty: boolean }>({
+    value: template,
+    dirty,
+  });
+  pending.current = { value: template, dirty };
+  useEffect(
+    () => () => {
+      if (pending.current.dirty) saveTemplate.mutate(pending.current.value);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- flush once, on leaving
+    [],
+  );
+
+  const save = (next: ReportTemplate) => {
+    setTemplate(next);
+    setDirty(true);
+  };
 
   function updateSection(index: number, section: TemplateSection) {
     save({
@@ -215,7 +250,7 @@ function TemplateEditor({
         title={template.name || t("New template")}
         onBack={onBack}
         onDelete={() => {
-          store.deleteTemplate(template.id);
+          deleteTemplate.mutate(template.id);
           onBack();
         }}
       />
@@ -276,9 +311,10 @@ function TemplateEditor({
 
 function ReportTemplates() {
   const { translate: t } = useTranslation();
-  const store = useTherapyStore();
+  const { data: templates = [] } = useReportTemplates();
+  const saveTemplate = useSaveReportTemplate();
   const [editing, setEditing] = useState<string | null>(null);
-  const template = store.templates.find((tpl) => tpl.id === editing);
+  const template = templates.find((tpl) => tpl.id === editing);
 
   if (template) {
     return (
@@ -295,7 +331,7 @@ function ReportTemplates() {
             "When you record a session, the AI fills in one of these templates from the conversation.",
           )}
         </p>
-        {store.templates.map((tpl) => (
+        {templates.map((tpl) => (
           <button
             key={tpl.id}
             type="button"
@@ -319,16 +355,17 @@ function ReportTemplates() {
         <button
           type="button"
           className="flex items-center justify-center gap-[8px] h-[42px] rounded-[12px] border border-dashed border-primary text-primary text-[14px]"
-          onClick={() => {
-            const id = newId();
-            store.saveTemplate({
-              id,
-              name: t("New template"),
-              description: t("Custom"),
-              sections: [{ id: newId(), title: t("Summary"), type: "text" }],
-            });
-            setEditing(id);
-          }}
+          disabled={saveTemplate.isPending}
+          onClick={() =>
+            saveTemplate.mutate(
+              {
+                name: t("New template"),
+                description: t("Custom"),
+                sections: [{ id: newId(), title: t("Summary"), type: "text" }],
+              },
+              { onSuccess: (created) => setEditing(created.id) },
+            )
+          }
         >
           <Plus className="w-[16px] h-[16px]" />
           {t("New template")}

@@ -15,6 +15,7 @@ import { useContactConversations } from "@/queries/useContactConversations";
 import {
   type ContactFileRow,
   openStoredFile,
+  type StoredFile,
   useContactChatFiles,
   useContactFiles,
   useDeleteContactFile,
@@ -32,7 +33,7 @@ type Item = {
   size: number | null;
   date: string;
   source: "uploaded" | "chat";
-  location: string;
+  location: StoredFile;
   row?: ContactFileRow;
 };
 
@@ -81,7 +82,7 @@ export default function ContactFilesTab({
 
   const { data: uploaded } = useContactFiles(contact.id);
   const { data: fromChat } = useContactChatFiles(contact.id, conversationIds);
-  const upload = useUploadContactFile(contact.id, contact.organization_id);
+  const upload = useUploadContactFile(contact.id);
   const remove = useDeleteContactFile(contact.id);
 
   const items = useMemo<Item[]>(() => {
@@ -93,7 +94,10 @@ export default function ContactFilesTab({
         size: row.size_bytes,
         date: row.created_at,
         source: "uploaded" as const,
-        location: row.storage_path,
+        location:
+          row.storage === "s3"
+            ? { storage: "s3" as const, fileId: row.id }
+            : { storage: "media" as const, path: row.storage_path },
         row,
       })),
       ...(fromChat ?? []).map((file) => ({
@@ -103,7 +107,7 @@ export default function ContactFilesTab({
         size: file.file.size,
         date: file.timestamp,
         source: "chat" as const,
-        location: file.file.uri,
+        location: { storage: "media" as const, path: file.file.uri },
       })),
     ];
     return all
@@ -168,7 +172,11 @@ export default function ContactFilesTab({
 
       {upload.isError && (
         <p className="text-destructive text-[13px]">
-          {t("Could not upload the file. Please try again.")}
+          {upload.error.message.startsWith("Choose where")
+            ? t(
+                "Choose where this practice's patient data is stored (Settings → Organization) first.",
+              )
+            : t("Could not upload the file. Please try again.")}
         </p>
       )}
       {openError && (

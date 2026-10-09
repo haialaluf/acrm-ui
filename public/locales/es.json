@@ -1606,5 +1606,15 @@
   "Sent in chat": "Enviado en el chat",
   "Only your team can see these files.": "Solo tu equipo puede ver estos archivos.",
   "Delete file?": "¿Eliminar archivo?",
-  "Attachment": "Adjunto"
+  "Attachment": "Adjunto",
+  "Where patient data is stored": "Dónde se guardan los datos de pacientes",
+  "Choose a country": "Elige un país",
+  "Israel (Tel Aviv)": "Israel (Tel Aviv)",
+  "Sweden (Stockholm)": "Suecia (Estocolmo)",
+  "Patient files and session reports are kept encrypted in this country. Changing it later only affects new files.": "Los archivos de pacientes y los informes de sesión se guardan cifrados en este país. Cambiarlo después solo afecta a archivos nuevos.",
+  "Choose where this practice's patient data is stored (Settings → Organization) first.": "Primero elige dónde se guardan los datos de pacientes de la consulta (Ajustes → Organización).",
+  "Could not save the report. Please try again.": "No se pudo guardar el informe. Inténtalo de nuevo.",
+  "Opening the report…": "Abriendo el informe…",
+  "Could not open the report. Please try again.": "No se pudo abrir el informe. Inténtalo de nuevo.",
+  "Not saved": "No guardado"
 }

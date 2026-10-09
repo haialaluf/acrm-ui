@@ -1,9 +1,8 @@
 import { useSyncExternalStore } from "react";
 import useBoundStore from "@/stores/useBoundStore";
-import { DEFAULT_TEMPLATES, type ReportTemplate } from "./templates";
 
-// MVP preview: reports, templates and AI chats live in this browser only, per
-// organization, until the recording and AI back end exist.
+// Ask AI chats still live in this browser only, per organization. Session
+// reports and templates are in the database / patient-data S3 bucket.
 
 export type ReportSection = {
   title: string;
@@ -56,12 +55,10 @@ export type ChatThread = {
 };
 
 type State = {
-  templates: ReportTemplate[];
-  reports: SessionReport[];
   chats: ChatThread[];
 };
 
-const EMPTY: State = { templates: DEFAULT_TEMPLATES, reports: [], chats: [] };
+const EMPTY: State = { chats: [] };
 const listeners = new Set<() => void>();
 const cache = new Map<string, State>();
 
@@ -75,7 +72,10 @@ function read(orgId: string): State {
   let state = EMPTY;
   try {
     const raw = localStorage.getItem(storageKey(orgId));
-    if (raw) state = { ...EMPTY, ...(JSON.parse(raw) as Partial<State>) };
+    if (raw) {
+      const saved = JSON.parse(raw) as Partial<State>;
+      state = { chats: saved.chats ?? [] };
+    }
   } catch {
     state = EMPTY;
   }
@@ -109,28 +109,6 @@ export function useTherapyStore() {
 
   return {
     ...state,
-    saveReport: (report: SessionReport) =>
-      write(orgId, (s) => ({
-        ...s,
-        reports: [report, ...s.reports.filter((r) => r.id !== report.id)],
-      })),
-    deleteReport: (id: string) =>
-      write(orgId, (s) => ({
-        ...s,
-        reports: s.reports.filter((r) => r.id !== id),
-      })),
-    saveTemplate: (template: ReportTemplate) =>
-      write(orgId, (s) => ({
-        ...s,
-        templates: s.templates.some((t) => t.id === template.id)
-          ? s.templates.map((t) => (t.id === template.id ? template : t))
-          : [...s.templates, template],
-      })),
-    deleteTemplate: (id: string) =>
-      write(orgId, (s) => ({
-        ...s,
-        templates: s.templates.filter((t) => t.id !== id),
-      })),
     saveChat: (chat: ChatThread) =>
       write(orgId, (s) => ({
         ...s,

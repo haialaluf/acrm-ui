@@ -10,10 +10,15 @@ import {
 } from "@/queries/useAppointments";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import { sessionStats } from "@/utils/sessions";
-import {
-  type SessionReport,
-  useTherapyStore,
-} from "@/components/therapy/therapyStore";
+import { useSessionReportRows } from "@/queries/useSessionReports";
+
+type ReportLabel = {
+  id: string;
+  appointmentId: string | null;
+  templateName: string;
+  status: string;
+  createdAt: string;
+};
 
 export default function ContactSessionsTab({
   contact,
@@ -33,16 +38,21 @@ export default function ContactSessionsTab({
     .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
   const past = all.filter((a) => dayjs(a.starts_at).isBefore(now));
   const stats = sessionStats(all, contact.extra?.session_price);
-  const reports = useTherapyStore().reports.filter(
-    (r) => r.contactId === contact.id,
-  );
+  const { data: reportRows } = useSessionReportRows(contact.id);
+  const reports: ReportLabel[] = (reportRows ?? []).map((r) => ({
+    id: r.id,
+    appointmentId: r.appointment_id,
+    templateName: r.template_name,
+    status: r.status,
+    createdAt: r.created_at,
+  }));
   const unlinked = reports
     .filter(
       (r) => !r.appointmentId || !all.some((a) => a.id === r.appointmentId),
     )
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
-  function openReport(report: SessionReport) {
+  function openReport(report: ReportLabel) {
     void navigate({
       to: "/contacts/$contactId/reports/$reportId",
       params: { contactId: contact.id, reportId: report.id },
@@ -50,7 +60,7 @@ export default function ContactSessionsTab({
     });
   }
 
-  function reportLink(report: SessionReport) {
+  function reportLink(report: ReportLabel) {
     return (
       <button
         key={report.id}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import {
   ArrowUp,
@@ -13,7 +13,13 @@ import {
 import { useTranslation } from "@/hooks/useTranslation";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import { SUGGESTED_DIAGNOSIS } from "./templates";
-import { type SessionReport, useTherapyStore } from "./therapyStore";
+import type { SessionReport } from "./therapyStore";
+import {
+  useDeleteSessionReport,
+  useSaveSessionReport,
+} from "@/queries/useSessionReports";
+
+const AUTOSAVE_DELAY_MS = 1000;
 
 type AiTurn = {
   question: string;
@@ -237,7 +243,7 @@ function ReportAi({
 }
 
 export default function SessionReportView({
-  report,
+  report: saved,
   contact,
   onApproved,
   onDeleted,
@@ -248,16 +254,49 @@ export default function SessionReportView({
   onDeleted: () => void;
 }) {
   const { translate: t } = useTranslation();
-  const store = useTherapyStore();
+  const save = useSaveSessionReport();
+  const remove = useDeleteSessionReport();
+  const [report, setReport] = useState(saved);
+  const [dirty, setDirty] = useState(false);
   const [view, setView] = useState<"report" | "transcript">("report");
   const [asking, setAsking] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Each pause in typing writes one new version of the document to S3,
+  // rather than one per keystroke.
+  useEffect(() => {
+    if (!dirty) return;
+    const timer = window.setTimeout(() => {
+      setDirty(false);
+      save.mutate(report);
+    }, AUTOSAVE_DELAY_MS);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- save identity changes every render
+  }, [report, dirty]);
+
+  const pending = useRef<{ value: typeof report; dirty: boolean }>({
+    value: report,
+    dirty,
+  });
+  pending.current = { value: report, dirty };
+  useEffect(
+    () => () => {
+      if (pending.current.dirty) save.mutate(pending.current.value);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- flush once, on leaving
+    [],
+  );
+
+  function edit(next: SessionReport) {
+    setReport(next);
+    setDirty(true);
+  }
 
   function update(
     index: number,
     patch: Partial<SessionReport["sections"][number]>,
   ) {
-    store.saveReport({
+    edit({
       ...report,
       sections: report.sections.map((s, i) =>
         i === index ? { ...s, ...patch } : s,
@@ -417,10 +456,8 @@ export default function SessionReportView({
           type="button"
           title={t("Delete")}
           className="w-[38px] h-[38px] rounded-full border border-border flex items-center justify-center text-muted-foreground"
-          onClick={() => {
-            store.deleteReport(report.id);
-            onDeleted();
-          }}
+          disabled={remove.isPending}
+          onClick={() => remove.mutate(report.id, { onSuccess: onDeleted })}
         >
           <Trash2 className="w-[16px] h-[16px]" />
         </button>
@@ -440,14 +477,26 @@ export default function SessionReportView({
           )}
           {t("Copy")}
         </button>
+        <span className="text-[12px] text-muted-foreground">
+          {save.isError
+            ? t("Not saved")
+            : dirty || save.isPending
+              ? t("Saving…")
+              : t("Saved")}
+        </span>
         <button
           type="button"
           className="ms-auto h-[38px] px-[20px] rounded-full bg-primary text-primary-foreground text-[14px] font-medium disabled:opacity-50"
           title={flagged ? t("Check the flagged sections first") : undefined}
-          disabled={!!flagged && report.status !== "approved"}
+          disabled={
+            (!!flagged && report.status !== "approved") || save.isPending
+          }
           onClick={() => {
-            store.saveReport({ ...report, status: "approved" });
-            onApproved();
+            setDirty(false);
+            save.mutate(
+              { ...report, status: "approved" },
+              { onSuccess: onApproved },
+            );
           }}
         >
           {report.status === "approved"
@@ -464,7 +513,7 @@ export default function SessionReportView({
           contact={contact}
           onClose={() => setAsking(false)}
           onAddDiagnosis={() =>
-            store.saveReport({
+            edit({
               ...report,
               sections: report.sections.map((s) =>
                 s.title === "Diagnoses"

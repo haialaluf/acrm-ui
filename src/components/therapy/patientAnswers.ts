@@ -8,14 +8,11 @@ import {
   useContactChatFiles,
   useContactFiles,
 } from "@/queries/useContactFiles";
+import { useContactReportContents } from "@/queries/useSessionReports";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import { sessionStats } from "@/utils/sessions";
 import type { Answer } from "./AiChat";
-import {
-  type Citation,
-  type SessionReport,
-  useTherapyStore,
-} from "./therapyStore";
+import { type Citation, type SessionReport } from "./therapyStore";
 
 const has = (q: string, ...words: string[]) => words.some((w) => q.includes(w));
 
@@ -48,7 +45,7 @@ export function usePatientAnswers(contact: ContactWithAddressesRow) {
       [conversations.data],
     ),
   );
-  const { reports } = useTherapyStore();
+  const { data: reports = [] } = useContactReportContents(contact.id);
 
   const name = firstName(contact);
   const myReports = reports

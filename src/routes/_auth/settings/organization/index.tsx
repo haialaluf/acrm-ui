@@ -25,7 +25,13 @@ import {
   hasWorkingHoursIssues,
   resolveTimezone,
 } from "@/utils/calendar";
-import { NO_DEFAULT_AGENT, type OrganizationUpdate } from "@/supabase/client";
+import {
+  NO_DEFAULT_AGENT,
+  type OrganizationUpdate,
+  supabase,
+} from "@/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { STATIC_STALE_TIME } from "@/queries/cacheConfig";
 import { CURRENCIES, CURRENCY_SYMBOLS } from "@/hooks/useWorkspace";
 
 export const Route = createFileRoute("/_auth/settings/organization/")({
@@ -77,6 +83,7 @@ function EditOrganization() {
         workspace_type: org.extra?.workspace_type || "company",
         people_term: org.extra?.people_term || "patients",
         currency: org.extra?.currency || "ILS",
+        data_region: org.extra?.data_region,
         transcription: {
           mode: "inactive" as const,
           ...org.extra?.transcription,
@@ -101,6 +108,18 @@ function EditOrganization() {
 
   const defaultAgentId = useWatch({ control, name: "extra.default_agent_id" });
   const workspaceType = useWatch({ control, name: "extra.workspace_type" });
+  const { data: readyRegions } = useQuery({
+    queryKey: ["patient-data-regions"],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke<{
+        regions: string[];
+      }>("patient-data/regions", { method: "GET" });
+      if (error) throw error;
+      return data!.regions;
+    },
+    enabled: workspaceType === "therapy",
+    staleTime: STATIC_STALE_TIME,
+  });
 
   const transcriptionMode = useWatch({
     control,
@@ -221,6 +240,31 @@ function EditOrganization() {
               ]}
               disabled={!isOwner}
             />
+          )}
+
+          {workspaceType === "therapy" && (
+            <div className="flex flex-col gap-[8px]">
+              <SelectField
+                control={control}
+                name="extra.data_region"
+                label={t("Where patient data is stored")}
+                placeholder={t("Choose a country")}
+                options={[
+                  { value: "il", label: t("Israel (Tel Aviv)") },
+                  { value: "se", label: t("Sweden (Stockholm)") },
+                ].filter(
+                  (option) =>
+                    readyRegions?.includes(option.value) ||
+                    option.value === org?.extra?.data_region,
+                )}
+                disabled={!isOwner}
+              />
+              <p className="text-[12px] text-muted-foreground">
+                {t(
+                  "Patient files and session reports are kept encrypted in this country. Changing it later only affects new files.",
+                )}
+              </p>
+            </div>
           )}
 
           <SelectField

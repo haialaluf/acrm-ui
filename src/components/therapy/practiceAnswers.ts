@@ -7,7 +7,8 @@ import { useContacts } from "@/queries/useContacts";
 import { queryKeys } from "@/queries/queryKeys";
 import type { AppointmentRow } from "@/queries/useAppointments";
 import type { Answer } from "./AiChat";
-import { type ChatMessage, useTherapyStore } from "./therapyStore";
+import type { ChatMessage } from "./therapyStore";
+import { useSessionReportRows } from "@/queries/useSessionReports";
 
 const has = (q: string, ...words: string[]) => words.some((w) => q.includes(w));
 
@@ -32,7 +33,15 @@ export function usePracticeAnswers() {
   const { money } = useWorkspace();
   const { data: contacts } = useContacts();
   const { data: appointments } = useOrgAppointments();
-  const { reports } = useTherapyStore();
+  const { data: reportRows } = useSessionReportRows();
+  const reports = (reportRows ?? []).map((r) => ({
+    id: r.id,
+    contactId: r.contact_id,
+    appointmentId: r.appointment_id,
+    templateName: r.template_name,
+    status: r.status,
+    createdAt: r.created_at,
+  }));
 
   const people = new Map((contacts ?? []).map((c) => [c.id, c]));
   const nameOf = (id: string | null) =>

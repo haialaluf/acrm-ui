@@ -4,6 +4,7 @@ import useBoundStore from "@/stores/useBoundStore";
 import type { FilePart } from "@/supabase/types/message_types";
 import { mediaBucketPath } from "@/hooks/useSignedMediaUrl";
 import { queryKeys } from "./queryKeys";
+import { throwFunctionError } from "./throwFunctionError";
 
 export type ContactFileRow =
   Database["public"]["Tables"]["contact_files"]["Row"];
@@ -77,37 +78,44 @@ export function useContactChatFiles(
   });
 }
 
-export function useUploadContactFile(
-  contactId: string,
-  organizationId: string,
-) {
+/** Patient files go to the practice's S3 bucket for its data region: the
+ *  patient-data function hands out a one-minute upload link, the browser PUTs
+ *  the file straight to S3, then the function records it. */
+export function useUploadContactFile(contactId: string) {
   const queryClient = useQueryClient();
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
 
   return useMutation({
     mutationFn: async (file: File) => {
-      const id = crypto.randomUUID();
-      const path = `organizations/${organizationId}/contact-files/${contactId}/${id}`;
+      const link = await supabase.functions.invoke<{
+        fileId: string;
+        uploadUrl: string;
+      }>("patient-data/files/upload-link", {
+        method: "POST",
+        body: { contactId },
+      });
+      if (link.error) await throwFunctionError(link.error);
 
-      const { error } = await supabase.storage
-        .from("media")
-        .upload(path, file, {
-          contentType: file.type || undefined,
-        });
-      if (error) throw error;
+      const put = await fetch(link.data!.uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: file.type ? { "Content-Type": file.type } : undefined,
+      });
+      if (!put.ok) throw new Error(`Upload failed (${put.status})`);
 
-      await supabase
-        .from("contact_files")
-        .insert({
-          id,
-          organization_id: organizationId,
-          contact_id: contactId,
-          name: file.name || id,
-          mime_type: file.type || null,
-          size_bytes: file.size,
-          storage_path: path,
-        })
-        .throwOnError();
+      const done = await supabase.functions.invoke(
+        "patient-data/files/complete",
+        {
+          method: "POST",
+          body: {
+            fileId: link.data!.fileId,
+            contactId,
+            name: file.name,
+            mimeType: file.type || null,
+          },
+        },
+      );
+      if (done.error) await throwFunctionError(done.error);
     },
     onSuccess: () =>
       queryClient.invalidateQueries({
@@ -122,6 +130,14 @@ export function useDeleteContactFile(contactId: string) {
 
   return useMutation({
     mutationFn: async (file: ContactFileRow) => {
+      if (file.storage === "s3") {
+        const { error } = await supabase.functions.invoke(
+          `patient-data/files/${file.id}`,
+          { method: "DELETE" },
+        );
+        if (error) await throwFunctionError(error);
+        return;
+      }
       await supabase
         .from("contact_files")
         .delete()
@@ -136,17 +152,36 @@ export function useDeleteContactFile(contactId: string) {
   });
 }
 
-/** The tab is opened before signing because a `window.open` after an await
- *  is no longer tied to the click, and popup blockers drop it. */
-export async function openStoredFile(pathOrUri: string) {
-  const tab = window.open("", "_blank");
-  const path = mediaBucketPath(pathOrUri) ?? pathOrUri;
+async function signedUrl(location: StoredFile): Promise<string> {
+  if (location.storage === "s3") {
+    const { data, error } = await supabase.functions.invoke<{ url: string }>(
+      `patient-data/files/${location.fileId}/download-link`,
+      { method: "POST" },
+    );
+    if (error) await throwFunctionError(error);
+    return data!.url;
+  }
+  const path = mediaBucketPath(location.path) ?? location.path;
   const { data, error } = await supabase.storage
     .from("media")
     .createSignedUrl(path, DOWNLOAD_URL_TTL_SECONDS);
-  if (error || !data?.signedUrl) {
+  if (error || !data?.signedUrl) throw error ?? new Error("No signed URL");
+  return data.signedUrl;
+}
+
+export type StoredFile =
+  | { storage: "s3"; fileId: string }
+  | { storage: "media"; path: string };
+
+/** The tab is opened before signing because a `window.open` after an await
+ *  is no longer tied to the click, and popup blockers drop it. */
+export async function openStoredFile(location: StoredFile) {
+  const tab = window.open("", "_blank");
+  try {
+    const url = await signedUrl(location);
+    if (tab) tab.location.href = url;
+  } catch (err) {
     tab?.close();
-    throw error ?? new Error("No signed URL");
+    throw err;
   }
-  if (tab) tab.location.href = data.signedUrl;
 }

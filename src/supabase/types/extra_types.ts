@@ -81,8 +81,10 @@ export type OrganizationExtra = {
   workspace_type?: WorkspaceType;
   people_term?: PeopleTerm;
   currency?: Currency;
+  data_region?: DataRegion;
 };
 
+export type DataRegion = "il" | "se";
 export type WorkspaceType = "company" | "therapy";
 export type PeopleTerm = "patients" | "clients";
 export type Currency = "ILS" | "SEK" | "EUR" | "USD";

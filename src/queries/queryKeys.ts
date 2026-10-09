@@ -144,6 +144,18 @@ export const queryKeys = {
         "messages",
       ] as const,
   },
+  sessionReports: {
+    org: (orgId: NullableId) => [orgId, "session-reports"] as const,
+    contact: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "session-reports", "contact", contactId] as const,
+    contents: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "session-reports", "contents", contactId] as const,
+    detail: (orgId: NullableId, reportId: NullableId) =>
+      [orgId, "session-reports", "detail", reportId] as const,
+  },
+  reportTemplates: {
+    all: (orgId: NullableId) => [orgId, "report-templates"] as const,
+  },
   appointments: {
     org: (orgId: NullableId) => [orgId, "appointments"] as const,
     all: (orgId: NullableId, calendarId: NullableId) =>

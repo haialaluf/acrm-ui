@@ -19,7 +19,10 @@ import { useContactAppointments } from "@/queries/useContactAppointments";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import { nameInitials } from "@/utils/FormatUtils";
 import { demoTranscript, fillReport } from "./templates";
-import { newId, type SessionReport, useTherapyStore } from "./therapyStore";
+import {
+  useReportTemplates,
+  useSaveSessionReport,
+} from "@/queries/useSessionReports";
 
 type Step = "setup" | "recording" | "writing";
 
@@ -93,10 +96,12 @@ export default function RecordSession({
 }) {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const store = useTherapyStore();
+  const { data: templates = [] } = useReportTemplates();
+  const saveReport = useSaveSessionReport();
   const { data: appointments } = useContactAppointments(contact.id);
   const [step, setStep] = useState<Step>("setup");
-  const [templateId, setTemplateId] = useState(store.templates[0]?.id ?? "");
+  const [chosenTemplateId, setTemplateId] = useState("");
+  const templateId = chosenTemplateId || templates[0]?.id || "";
   const [language, setLanguage] = useState("auto");
   const [consent, setConsent] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -104,7 +109,7 @@ export default function RecordSession({
   const [marks, setMarks] = useState(0);
   const startedAt = useRef<string>("");
 
-  const template = store.templates.find((tpl) => tpl.id === templateId);
+  const template = templates.find((tpl) => tpl.id === templateId);
   const { levels, live } = useMicLevels(step === "recording" && !paused);
 
   useEffect(() => {
@@ -131,22 +136,22 @@ export default function RecordSession({
       .filter(({ gap }) => gap < 12 * 60)
       .sort((x, y) => x.gap - y.gap)[0]?.a;
 
-    const report: SessionReport = {
-      id: newId(),
-      contactId: contact.id,
-      appointmentId: linked?.id ?? null,
-      templateId: template.id,
-      templateName: template.name,
-      createdAt: startedAt.current,
-      durationSeconds: Math.max(seconds, 1),
-      status: "draft",
-      sections: fillReport(template, first),
-      transcript: demoTranscript(first),
-    };
-    window.setTimeout(() => {
-      store.saveReport(report);
-      onDone(report.id);
-    }, 2600);
+    saveReport.mutate(
+      {
+        contactId: contact.id,
+        appointmentId: linked?.id ?? null,
+        templateId: template.id,
+        templateName: template.name,
+        durationSeconds: Math.max(seconds, 1),
+        status: "draft",
+        sections: fillReport(template, first),
+        transcript: demoTranscript(first),
+      },
+      {
+        onSuccess: (saved) => onDone(saved.id),
+        onError: () => setStep("recording"),
+      },
+    );
   }
 
   const time = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
@@ -286,6 +291,15 @@ export default function RecordSession({
             </span>
           </div>
         </div>
+        {saveReport.isError && (
+          <p className="text-destructive text-[13px] text-center">
+            {saveReport.error.message.startsWith("Choose where")
+              ? t(
+                  "Choose where this practice's patient data is stored (Settings → Organization) first.",
+                )
+              : t("Could not save the report. Please try again.")}
+          </p>
+        )}
         <div className="flex items-center gap-[6px] text-[12px] text-muted-foreground">
           <Lock className="w-[13px] h-[13px]" />
           {t("Audio is deleted once the report is approved")}
@@ -324,7 +338,7 @@ export default function RecordSession({
         </button>
       </div>
       <div className="flex flex-col gap-[8px]">
-        {store.templates.map((tpl) => (
+        {templates.map((tpl) => (
           <button
             key={tpl.id}
             type="button"

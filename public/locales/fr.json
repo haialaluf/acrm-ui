@@ -1300,5 +1300,16 @@
   "Sent in chat": "Envoyé dans le chat",
   "Only your team can see these files.": "Seule votre équipe peut voir ces fichiers.",
   "Delete file?": "Supprimer le fichier ?",
-  "Attachment": "Pièce jointe"
+  "Attachment": "Pièce jointe",
+  "Where patient data is stored": "Où sont stockées les données des patients",
+  "Choose a country": "Choisissez un pays",
+  "Israel (Tel Aviv)": "Israël (Tel Aviv)",
+  "Sweden (Stockholm)": "Suède (Stockholm)",
+  "Patient files and session reports are kept encrypted in this country. Changing it later only affects new files.": "Les fichiers des patients et les comptes rendus de séance sont chiffrés et stockés dans ce pays. Le changer plus tard n'affecte que les nouveaux fichiers.",
+  "Choose where this practice's patient data is stored (Settings → Organization) first.": "Choisissez d'abord où stocker les données des patients du cabinet (Paramètres → Organisation).",
+  "Could not save the report. Please try again.": "Impossible d'enregistrer le compte rendu. Réessayez.",
+  "Opening the report…": "Ouverture du compte rendu…",
+  "Could not open the report. Please try again.": "Impossible d'ouvrir le compte rendu. Réessayez.",
+  "Saved": "Enregistré",
+  "Not saved": "Non enregistré"
 }

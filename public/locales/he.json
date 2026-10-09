@@ -1602,5 +1602,15 @@
   "Sent in chat": "נשלח בצ׳אט",
   "Only your team can see these files.": "רק הצוות שלכם יכול לראות את הקבצים האלה.",
   "Delete file?": "למחוק את הקובץ?",
-  "Attachment": "קובץ מצורף"
+  "Attachment": "קובץ מצורף",
+  "Where patient data is stored": "היכן נשמר המידע על המטופלים",
+  "Choose a country": "בחרו מדינה",
+  "Israel (Tel Aviv)": "ישראל (תל אביב)",
+  "Sweden (Stockholm)": "שוודיה (שטוקהולם)",
+  "Patient files and session reports are kept encrypted in this country. Changing it later only affects new files.": "קבצי מטופלים וסיכומי פגישות נשמרים מוצפנים במדינה זו. שינוי מאוחר יותר ישפיע רק על קבצים חדשים.",
+  "Choose where this practice's patient data is stored (Settings → Organization) first.": "קודם בחרו היכן יישמר המידע על המטופלים של הקליניקה (הגדרות ← ארגון).",
+  "Could not save the report. Please try again.": "לא ניתן היה לשמור את הסיכום. נסו שוב.",
+  "Opening the report…": "פותח את הסיכום…",
+  "Could not open the report. Please try again.": "לא ניתן היה לפתוח את הסיכום. נסו שוב.",
+  "Not saved": "לא נשמר"
 }
