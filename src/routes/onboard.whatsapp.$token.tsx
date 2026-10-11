@@ -2,10 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import Button from "@/components/Button";
-import type {
-  SignupMode,
-  SignupPayload,
-} from "@/contexts/WhatsAppIntegrationContext";
+import type { SignupMode } from "@/contexts/WhatsAppIntegrationContext";
+import {
+  resetWaSessionInfo,
+  waitForWaSessionInfo,
+} from "@/utils/whatsappSessionInfo";
 
 export const Route = createFileRoute("/onboard/whatsapp/$token")({
   component: Onboard,
@@ -75,9 +76,7 @@ function Onboard() {
       return;
     }
 
-    // An abandoned flow emits no finish event, so a previous attempt's session
-    // info would otherwise be posted as this attempt's.
-    (window as any).__waSessionInfo = undefined;
+    resetWaSessionInfo();
 
     FB.login(
       function (response: any) {
@@ -90,28 +89,25 @@ function Onboard() {
 
           setLoading(true);
 
-          const sessionInfo = (window as any).__waSessionInfo || {};
-
-          const payload: SignupPayload = {
-            code,
-            application_id: import.meta.env.VITE_META_APP_ID,
-            phone_number_id: sessionInfo.phone_number_id,
-            waba_id: sessionInfo.waba_id,
-            business_id: sessionInfo.business_id,
-            flow_type: sessionInfo.flow_type,
-            signup_mode: mode,
-          };
-
           const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/whatsapp-management/onboard`;
 
-          fetch(url, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ token, ...payload }),
-          })
+          waitForWaSessionInfo()
+            .then((sessionInfo) =>
+              fetch(url, {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  token,
+                  code,
+                  application_id: import.meta.env.VITE_META_APP_ID,
+                  ...sessionInfo,
+                  signup_mode: mode,
+                }),
+              }),
+            )
             .then(async (res) => {
               const body = await res.json().catch(() => null);
 

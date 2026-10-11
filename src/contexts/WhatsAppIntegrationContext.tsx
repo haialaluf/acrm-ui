@@ -1,5 +1,10 @@
 import { createContext, type ReactNode, useCallback, useEffect } from "react";
 import { useWhatsAppSignup } from "@/queries/useWhatsAppSignup";
+import {
+  resetWaSessionInfo,
+  setWaSessionInfo,
+  waitForWaSessionInfo,
+} from "@/utils/whatsappSessionInfo";
 
 const FB_API_VERSION = "v24.0";
 
@@ -168,13 +173,12 @@ export function WhatsAppIntegrationProvider({
         return;
       }
 
-      // No type assertion needed - TypeScript knows data.data is SuccessfulFlowData
-      (window as any).__waSessionInfo = {
+      setWaSessionInfo({
         phone_number_id: data.data.phone_number_id,
         waba_id: data.data.waba_id,
         business_id: data.data.business_id,
-        flow_type: flow_type,
-      };
+        flow_type,
+      });
     };
 
     window.addEventListener("message", sessionInfoListener);
@@ -216,11 +220,8 @@ export function WhatsAppIntegrationProvider({
     ) => {
       const signup_mode: SignupMode = options?.signup_mode ?? "coexistence";
 
-      // An abandoned flow emits no finish event, so a previous attempt's
-      // session info would otherwise be posted as this attempt's.
-      (window as any).__waSessionInfo = undefined;
+      resetWaSessionInfo();
 
-      // Launch Facebook login
       (window as any).FB.login(
         function (response: any) {
           if (response.authResponse) {
@@ -234,25 +235,19 @@ export function WhatsAppIntegrationProvider({
 
             setLoading(true);
 
-            // Retrieve session info captured from message events
-            const sessionInfo = (window as any).__waSessionInfo || {};
-
-            // Construct payload according to SignupPayload type
-            const payload: SignupPayload = {
-              code,
-              application_id: import.meta.env.VITE_META_APP_ID,
-              phone_number_id: sessionInfo.phone_number_id,
-              waba_id: sessionInfo.waba_id,
-              business_id: sessionInfo.business_id,
-              flow_type: sessionInfo.flow_type,
-              signup_mode,
-              callback_url: options?.callback_url || undefined,
-              verify_token: options?.verify_token || undefined,
-            };
-
-            signup(payload)
-              .then(() => {
-                onSuccess(sessionInfo.phone_number_id || "");
+            waitForWaSessionInfo()
+              .then((sessionInfo) =>
+                signup({
+                  code,
+                  application_id: import.meta.env.VITE_META_APP_ID,
+                  ...sessionInfo,
+                  signup_mode,
+                  callback_url: options?.callback_url || undefined,
+                  verify_token: options?.verify_token || undefined,
+                }),
+              )
+              .then((address: { address?: string } | null) => {
+                onSuccess(address?.address || "");
               })
               .catch(async (error: Error) => {
                 console.error("Signup failed:", error);
