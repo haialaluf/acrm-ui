@@ -704,6 +704,8 @@
   "This action cannot be undone.": "Esta acción no se puede deshacer.",
   "This authorization link is invalid or expired — start the connection again from your AI client.": "Este enlace de autorización no es válido o expiró — inicia la conexión nuevamente desde tu cliente de IA.",
   "This contact asked to be removed": "Este contacto solicitó ser eliminado",
+  "Removed": "Eliminado",
+  "{n} of them asked to be removed and will stay removed": "{n} de ellos pidieron ser eliminados y seguirán eliminados",
   "This link is invalid or has expired.": "Este enlace es inválido o ha expirado.",
   "This link is no longer valid": "Este enlace ya no es válido",
   "This template has no variables — you can continue": "Esta plantilla no tiene variables — puedes continuar",

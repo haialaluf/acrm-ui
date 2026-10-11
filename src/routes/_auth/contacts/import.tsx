@@ -30,6 +30,7 @@ import { isValidPhoneNumber, normalizePhoneNumber } from "@/utils/FormatUtils";
 import { checkEmail } from "@/utils/emailValidation";
 import { fill } from "@/utils/fill";
 import Radio from "@/components/bulkSend/Radio";
+import RemovedBadge from "@/components/contacts/RemovedBadge";
 
 export const Route = createFileRoute("/_auth/contacts/import")({
   component: ImportContacts,
@@ -60,7 +61,14 @@ type ResolvedRow = {
   /** Per-contact tags parsed from the mapped column (merged with global tags). */
   tags: string[];
   /** Existing contact this row duplicates, when status === "dup". */
-  existing?: { id: string; name: string | null; tags: string[] };
+  existing?: ExistingContact;
+};
+
+type ExistingContact = {
+  id: string;
+  name: string | null;
+  tags: string[];
+  removed: boolean;
 };
 
 const NAME_RE = /^(full[ _]?name|name|nombre|first ?name|nombres?|שם)/i;
@@ -121,10 +129,7 @@ function ImportContacts() {
 
   // Existing phone numbers (stored normalized in the DB) → contact, for dup checks.
   const existingByPhone = useMemo(() => {
-    const map = new Map<
-      string,
-      { id: string; name: string | null; tags: string[] }
-    >();
+    const map = new Map<string, ExistingContact>();
     for (const contact of contacts ?? []) {
       const tagList = (contact as { tags?: string[] | null }).tags ?? [];
       for (const addr of contact.addresses ?? []) {
@@ -133,6 +138,7 @@ function ImportContacts() {
             id: contact.id,
             name: contact.name,
             tags: tagList,
+            removed: contact.status === "removed",
           });
       }
     }
@@ -227,16 +233,18 @@ function ImportContacts() {
     let ok = 0,
       err = 0,
       dup = 0,
+      removed = 0,
       emailDropped = 0;
     for (const r of rows) {
       if (r.status === "ok") ok++;
       else if (r.status === "err") err++;
       else dup++;
+      if (r.existing?.removed) removed++;
       // Counted across every status, including rows that will not be imported:
       // it describes the file, not the outcome.
       if (r.emailDropped) emailDropped++;
     }
-    return { ok, err, dup, emailDropped, total: rows.length };
+    return { ok, err, dup, removed, emailDropped, total: rows.length };
   }, [rows]);
 
   const importableCount =
@@ -437,9 +445,15 @@ function ImportContacts() {
                             {status === "dup" && (
                               <span
                                 className="row-tag dup"
-                                title={fill(t, "Duplicate of {name}", {
-                                  name: existing?.name || t("existing contact"),
-                                })}
+                                title={
+                                  fill(t, "Duplicate of {name}", {
+                                    name:
+                                      existing?.name || t("existing contact"),
+                                  }) +
+                                  (existing?.removed
+                                    ? ` · ${t("This contact asked to be removed")}`
+                                    : "")
+                                }
                               >
                                 ⎘
                               </span>
@@ -918,7 +932,13 @@ function ValidationBanner({
   importable,
   t,
 }: {
-  counts: { ok: number; err: number; dup: number; total: number };
+  counts: {
+    ok: number;
+    err: number;
+    dup: number;
+    removed: number;
+    total: number;
+  };
   strategy: "skip" | "merge";
   importable: number;
   t: (s: string) => string;
@@ -972,6 +992,15 @@ function ValidationBanner({
               : fill(t, "{n} duplicate phone numbers (will be merged)", {
                   n: counts.dup,
                 })}
+          </span>
+        )}
+        {counts.removed > 0 && (
+          <span className="flex items-center gap-[6px] flex-wrap">
+            ·{" "}
+            {fill(t, "{n} of them asked to be removed and will stay removed", {
+              n: counts.removed,
+            })}
+            <RemovedBadge />
           </span>
         )}
         <span>

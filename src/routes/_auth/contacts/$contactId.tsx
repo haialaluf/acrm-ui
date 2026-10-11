@@ -57,6 +57,7 @@ import InstagramAddressPicker, {
 import ContactActivityTab from "@/components/contacts/ContactActivityTab";
 import ContactLeadTab from "@/components/contacts/ContactLeadTab";
 import ContactNotesTab from "@/components/contacts/ContactNotesTab";
+import RemovedBadge from "@/components/contacts/RemovedBadge";
 import { useIntegrations } from "@/hooks/useIntegrations";
 import { useContactConversations } from "@/queries/useContactConversations";
 import { threadKey } from "@/utils/ConversationUtils";
@@ -313,8 +314,11 @@ function ContactDetail() {
               className="bg-accent text-accent-foreground border border-border text-[18px] shrink-0"
             />
             <div className="flex flex-col gap-[4px] grow min-w-0">
-              <div className="text-[18px] font-semibold text-card-foreground truncate">
-                {contact.name || t("No name")}
+              <div className="flex items-center gap-[8px] min-w-0">
+                <div className="text-[18px] font-semibold text-card-foreground truncate">
+                  {contact.name || t("No name")}
+                </div>
+                {contact.status === "removed" && <RemovedBadge size="md" />}
               </div>
               {igExtra?.username && (
                 <div className="text-[13px] text-muted-foreground truncate">

@@ -657,6 +657,8 @@
   "The whole message history will be permanently deleted for everyone in the organization.": "כל היסטוריית ההודעות תימחק לצמיתות עבור כל הארגון.",
   "This action cannot be undone.": "לא ניתן לבטל פעולה זו.",
   "This contact asked to be removed": "איש קשר זה ביקש להסיר אותו",
+  "Removed": "הוסר",
+  "{n} of them asked to be removed and will stay removed": "{n} מהם ביקשו להסיר את עצמם ויישארו מוסרים",
   "This link is invalid or has expired.": "הקישור אינו תקין או שפג תוקפו.",
   "This link is no longer valid": "הקישור הזה כבר לא בתוקף",
   "This template has no variables — you can continue": "לתבנית זו אין משתנים — ניתן להמשיך",

@@ -21,6 +21,7 @@ import {
 } from "@/utils/ContactAddressUtils";
 import ConversationAgentSelect from "./ConversationAgentSelect";
 import ServiceBadge from "./ServiceBadge";
+import RemovedBadge from "./contacts/RemovedBadge";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -148,18 +149,22 @@ export default function Header() {
         </button>
 
         <div className="info flex flex-col justify-center mr-[12px] min-w-0">
-          <button
-            type="button"
-            className={
-              "text-[16px] text-foreground truncate text-start " +
-              (contact?.id ? "cursor-pointer" : "cursor-default")
-            }
-            title={contact?.id ? t("Contact details") : undefined}
-            disabled={!contact?.id}
-            onClick={openContactDetails}
-          >
-            {displayName}
-          </button>
+          <div className="flex items-center gap-[8px] min-w-0">
+            <button
+              type="button"
+              className={
+                "text-[16px] text-foreground truncate text-start " +
+                (contact?.id ? "cursor-pointer" : "cursor-default")
+              }
+              title={contact?.id ? t("Contact details") : undefined}
+              disabled={!contact?.id}
+              onClick={openContactDetails}
+            >
+              {displayName}
+            </button>
+            {(contact?.status === "removed" ||
+              contactAddress?.status === "removed") && <RemovedBadge />}
+          </div>
 
           {/* On a phone the action takes this line. It is the one place in the
               header that costs no width — and on exactly the threads that need

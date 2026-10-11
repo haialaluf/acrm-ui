@@ -3,6 +3,7 @@ import Checkbox from "@/components/Checkbox";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import { contactPicture } from "@/utils/ContactAddressUtils";
+import RemovedBadge from "./RemovedBadge";
 
 export default function ContactListItem({
   contact,
@@ -59,10 +60,13 @@ export default function ContactListItem({
         className="bg-muted text-muted-foreground"
       />
       <div className="flex flex-col justify-center grow min-w-0">
-        <div
-          className={`truncate text-foreground ${dense ? "text-[14px]" : "text-[16px]"}`}
-        >
-          {contact.name || t("No name")}
+        <div className="flex items-center gap-[8px] min-w-0">
+          <div
+            className={`truncate text-foreground ${dense ? "text-[14px]" : "text-[16px]"}`}
+          >
+            {contact.name || t("No name")}
+          </div>
+          {contact.status === "removed" && <RemovedBadge />}
         </div>
         <div
           className={`mt-[2px] truncate text-muted-foreground ${dense ? "text-[12px]" : "text-[14px]"}`}

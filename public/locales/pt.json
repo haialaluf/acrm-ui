@@ -669,6 +669,8 @@
   "This action cannot be undone.": "Esta ação não pode ser desfeita.",
   "This authorization link is invalid or expired — start the connection again from your AI client.": "Este link de autorização é inválido ou expirou — inicie a conexão novamente a partir do seu cliente de IA.",
   "This contact asked to be removed": "Este contato solicitou ser removido",
+  "Removed": "Removido",
+  "{n} of them asked to be removed and will stay removed": "{n} deles pediram para ser removidos e continuarão removidos",
   "This link is invalid or has expired.": "Este link é inválido ou expirou.",
   "This template has no variables — you can continue": "Este modelo não tem variáveis — você pode continuar",
   "This template requires a file in the header — it is mandatory to send it.": "Este modelo requer um arquivo no cabeçalho — é obrigatório para enviá-lo.",

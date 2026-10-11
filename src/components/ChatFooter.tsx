@@ -76,8 +76,10 @@ export default function ChatFooter() {
   // 'removed' is contacts.status, the single "remove me" flag regardless of
   // which channel the request came in on. 'inactive' is this address row's
   // own status — this exact number/mailbox is undeliverable, which says
-  // nothing about the contact's other channels.
-  const isRemoved = contact?.status === "removed";
+  // nothing about the contact's other channels. An address with no contact
+  // carries 'removed' itself (opt_out_follows_address).
+  const isRemoved =
+    contact?.status === "removed" || contactAddress?.status === "removed";
   const isInactive = contactAddress?.status === "inactive";
 
   const isEmail = conv?.service === "email";
