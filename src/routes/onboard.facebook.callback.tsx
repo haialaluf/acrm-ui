@@ -173,7 +173,7 @@ function OnboardFacebookCallback() {
             </p>
             {result.message && (
               <p className="text-muted-foreground text-[14px]">
-                {result.message}
+                {t(result.message)}
               </p>
             )}
           </div>

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 import { queryKeys } from "./queryKeys";
+import { throwFunctionError } from "./throwFunctionError";
 
 const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
@@ -72,7 +73,7 @@ export function useFacebookPages() {
         },
       );
 
-      if (error) throw error;
+      if (error) await throwFunctionError(error);
 
       return data as FacebookPagesResult;
     },
@@ -103,7 +104,7 @@ export function useFacebookSignup() {
         },
       );
 
-      if (error) throw error;
+      if (error) await throwFunctionError(error);
 
       return data;
     },
