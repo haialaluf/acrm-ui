@@ -1022,6 +1022,7 @@ export type Database = {
         Row: {
           calendar_id: string
           created_at: string
+          feed_token: string
           id: string
           label: string | null
           last_used_at: string | null
@@ -1034,6 +1035,7 @@ export type Database = {
         Insert: {
           calendar_id: string
           created_at?: string
+          feed_token?: string
           id?: string
           label?: string | null
           last_used_at?: string | null
@@ -1046,6 +1048,7 @@ export type Database = {
         Update: {
           calendar_id?: string
           created_at?: string
+          feed_token?: string
           id?: string
           label?: string | null
           last_used_at?: string | null

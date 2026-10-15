@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { Button, ConfigProvider, Modal } from "antd";
 import QRCode from "react-qr-code";
-import { Check, Copy, ExternalLink, Smartphone } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  Copy,
+  ExternalLink,
+  Smartphone,
+} from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
   useCalendarDevices,
@@ -9,6 +15,7 @@ import {
   useRevokeCalendarDevice,
 } from "@/queries/useCalendarDevices";
 import { BOOKING_ORIGIN } from "@/components/templateButtons";
+import { googleCalendarSubscribeUrl } from "@/booking/api";
 import { modalTokens } from "@/components/antdTokens";
 import ConfirmModal from "@/components/ConfirmModal";
 import Spinner from "@/components/Spinner";
@@ -22,7 +29,8 @@ const theme = {
 };
 
 /**
- * "Sync with iPhone": shows a QR code that connects a phone to this calendar.
+ * "Sync": a QR code that connects a phone to this calendar, plus a read-only
+ * feed for Google Calendar.
  *
  * The QR points at the public /sync/<token> page rather than straight at the
  * configuration profile, so the person scanning sees which calendar they are
@@ -44,16 +52,24 @@ export default function SyncToPhoneModal({
   const revoke = useRevokeCalendarDevice();
 
   const [copied, setCopied] = useState(false);
+  const [feedCopied, setFeedCopied] = useState(false);
   const [confirmingReset, setConfirmingReset] = useState(false);
 
   // The newest live device is the one this modal represents. Older ones stay in
   // the table (other phones already connected) but the QR shows only one link.
   const device = devices?.[0] ?? null;
   const url = device ? `${BOOKING_ORIGIN}/sync/${device.token}` : null;
+  // Same host the server hands out (CALDAV_BASE_URL): the app's own build has
+  // no VITE_BOOKING_API_URL, and the proxy also answers plain http, which is
+  // what Google fetches a webcal:// subscription over.
+  const feedUrl = device?.feed_token
+    ? `${BOOKING_ORIGIN}/caldav/feed/${device.feed_token}/calendar.ics`
+    : null;
 
   useEffect(() => {
     if (!open) return;
     setCopied(false);
+    setFeedCopied(false);
     setConfirmingReset(false);
     create.reset();
     revoke.reset();
@@ -66,6 +82,13 @@ export default function SyncToPhoneModal({
     void navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function copyFeed() {
+    if (!feedUrl) return;
+    void navigator.clipboard.writeText(feedUrl);
+    setFeedCopied(true);
+    setTimeout(() => setFeedCopied(false), 2000);
   }
 
   /** Revoke every live link, then mint a fresh one. */
@@ -84,7 +107,7 @@ export default function SyncToPhoneModal({
       <Modal
         open={open}
         onCancel={onClose}
-        title={t("Sync with iPhone")}
+        title={t("Sync with iPhone or Google Calendar")}
         width={400}
         destroyOnHidden
         footer={
@@ -186,12 +209,50 @@ export default function SyncToPhoneModal({
             >
               {copied ? t("Copied") : t("Copy link")}
             </Button>
+
+            {feedUrl && (
+              <div className="flex w-full flex-col gap-[10px] border-t border-border pt-[16px]">
+                <span className="text-[13px] font-semibold">
+                  {t("Google Calendar")}
+                </span>
+                <p className="text-[13px] text-muted-foreground">
+                  {t(
+                    "View only. Appointments appear in Google Calendar and update every few hours.",
+                  )}
+                </p>
+                <Button
+                  block
+                  href={googleCalendarSubscribeUrl(feedUrl)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  icon={<CalendarDays className="w-[15px] h-[15px]" />}
+                >
+                  <span className="text-foreground">
+                    {t("Add to Google Calendar")}
+                  </span>
+                </Button>
+                <Button
+                  type="text"
+                  block
+                  onClick={copyFeed}
+                  icon={
+                    feedCopied ? (
+                      <Check className="w-[15px] h-[15px]" />
+                    ) : (
+                      <Copy className="w-[15px] h-[15px]" />
+                    )
+                  }
+                >
+                  {feedCopied ? t("Copied") : t("Copy calendar address (iCal)")}
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col gap-[18px] py-2">
             <p className="text-[13px] text-muted-foreground">
               {t(
-                "Create a link to add this calendar to your iPhone, iPad or Mac. Appointments you add on your phone appear here, and the other way round.",
+                "Create a link to add this calendar to your iPhone, iPad or Mac, or to view it in Google Calendar. Appointments you add on your phone appear here, and the other way round.",
               )}
             </p>
             {create.isError && (
@@ -207,7 +268,7 @@ export default function SyncToPhoneModal({
         open={confirmingReset}
         title={t("Reset sync link?")}
         body={t(
-          "Every device already using this link will stop syncing and has to scan the new code.",
+          "Every device and Google Calendar already using this link will stop syncing and has to be connected again.",
         )}
         confirmLabel={t("Reset link")}
         loading={busy}

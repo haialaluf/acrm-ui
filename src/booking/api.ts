@@ -18,6 +18,13 @@ const API_BASE = `${FUNCTIONS_BASE}/booking`;
 /** The `caldav` function, which serves the /sync/<token> page's context. */
 const CALDAV_BASE = `${FUNCTIONS_BASE}/caldav`;
 
+/** Opens Google Calendar's "Add calendar" dialog prefilled. `cid` must be a
+ *  webcal:// address: given https:// Google silently opens no dialog. */
+export function googleCalendarSubscribeUrl(feedUrl: string): string {
+  const webcal = feedUrl.replace(/^https?:\/\//, "webcal://");
+  return `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcal)}`;
+}
+
 /** What the visitor may know about their own appointment. Nothing else on the
  *  calendar is ever exposed — not titles, not who booked, not busy times. */
 export type BookingAppointment = {
@@ -107,6 +114,8 @@ export type SyncContext = {
   server_url: string;
   username: string;
   password: string;
+  /** Read-only iCalendar feed, for Google Calendar's "From URL". */
+  feed_url?: string;
 };
 
 /**
