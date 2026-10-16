@@ -1,5 +1,10 @@
 import { useState } from "react";
 import { pushMessageToDb } from "@/utils/MessageUtils";
+import {
+  downloadMessageMedia,
+  uploadPatientMessageMedia,
+} from "@/utils/messageMedia";
+import { useCurrentOrganization } from "@/queries/useOrganizations";
 import useBoundStore from "@/stores/useBoundStore";
 import {
   type MessageInsert,
@@ -19,7 +24,7 @@ export function useMedia(message: MessageRow) {
   }
 
   const content = message.content;
-  const mediaId = content.file.uri.replace("internal://media/", ""); // Extract path from URI
+  const mediaId = content.file.uri.replace("internal://media/", "");
 
   if (!mediaId) {
     throw new Error(`Message with id ${message.id} has no valid media URI.`);
@@ -34,6 +39,39 @@ export function useMedia(message: MessageRow) {
   };
   const setLoad = useBoundStore((store) => store.chat.setMediaLoad);
   const [cancel, setCancel] = useState(false);
+  const { data: org } = useCurrentOrganization();
+  const isTherapy = org?.extra?.workspace_type === "therapy";
+
+  const uploadPatientData = async (blob: Blob) => {
+    let uri: string;
+    try {
+      uri = await uploadPatientMessageMedia(
+        message.id,
+        message.conversation_id,
+        blob,
+      );
+    } catch (error) {
+      if (!cancel) {
+        setLoad(message.id, {
+          ...load,
+          status: "error",
+          error: (error as Error).message,
+        });
+      }
+      return;
+    }
+
+    if (cancel) {
+      setCancel(false);
+      return;
+    }
+
+    setLoad(message.id, { ...load, status: "done" });
+    await pushMessageToDb({
+      ...message,
+      content: { ...content, file: { ...content.file, uri } },
+    } as MessageInsert);
+  };
 
   const uploadTask = async () => {
     if (
@@ -46,6 +84,11 @@ export function useMedia(message: MessageRow) {
     }
 
     setLoad(message.id, { ...load, status: "loading", error: undefined });
+
+    if (isTherapy) {
+      await uploadPatientData(load.blob);
+      return;
+    }
 
     const { error } = await supabase.storage
       .from("media")
@@ -78,21 +121,26 @@ export function useMedia(message: MessageRow) {
 
     setLoad(message.id, { ...load, status: "loading", error: undefined });
 
-    const { data, error } = await supabase.storage
-      .from("media")
-      .download(mediaId);
+    let blob: Blob;
+    try {
+      blob = await downloadMessageMedia(message.id, content.file.uri);
+    } catch (error) {
+      if (!cancel) {
+        setLoad(message.id, {
+          ...load,
+          status: "error",
+          error: (error as Error).message,
+        });
+      }
+      return;
+    }
 
     if (cancel) {
       setCancel(false);
       return;
     }
 
-    if (error) {
-      setLoad(message.id, { ...load, status: "error", error: error.message });
-      return;
-    }
-
-    setLoad(message.id, { ...load, status: "done", blob: data });
+    setLoad(message.id, { ...load, status: "done", blob });
   };
 
   const startLoad = () => {

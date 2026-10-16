@@ -4,14 +4,14 @@ import { ConfigProvider, Modal, Segmented } from "antd";
 import { ChevronDown, Download, Mail, Paperclip, Reply, X } from "lucide-react";
 import dayjs from "dayjs";
 import {
-  supabase,
   type EmailEnvelope,
   type FilePart,
   type MessageRow,
 } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 import { useTranslation } from "@/hooks/useTranslation";
-import { mediaBucketPath, useSignedMediaUrl } from "@/hooks/useSignedMediaUrl";
+import { useSignedMediaUrl } from "@/hooks/useSignedMediaUrl";
+import { downloadMessageMedia } from "@/utils/messageMedia";
 import { modalTokens } from "@/components/antdTokens";
 import Avatar from "@/components/Avatar";
 import { fileSize, iconName } from "./media";
@@ -41,7 +41,11 @@ function useEmailAttachments(message: MessageRow) {
   if (!base || !thread) return [];
   return [...thread.values()]
     .filter((row) => row.external_id?.startsWith(`${base}#`))
-    .flatMap((row) => (row.content.type === "file" ? [row.content.file] : []));
+    .flatMap((row) =>
+      row.content.type === "file"
+        ? [{ messageId: row.id, file: row.content.file }]
+        : [],
+    );
 }
 
 function parseFrom(from: string) {
@@ -107,7 +111,7 @@ function EmailOriginalModal({
 }: {
   message: MessageRow;
   envelope: EmailEnvelope;
-  attachments: FilePart["file"][];
+  attachments: EmailAttachment[];
   onClose: () => void;
 }) {
   const { translate: t } = useTranslation();
@@ -120,19 +124,12 @@ function EmailOriginalModal({
   );
   const activeThreadKey = useBoundStore((store) => store.ui.activeThreadKey);
 
-  const htmlPath = envelope.html_uri
-    ? mediaBucketPath(envelope.html_uri)
-    : null;
+  const htmlUri = envelope.html_uri;
   const { data: html, isError } = useQuery({
-    queryKey: ["email-original", htmlPath],
-    queryFn: async () => {
-      const { data, error } = await supabase.storage
-        .from("media")
-        .download(htmlPath!);
-      if (error) throw error;
-      return await data.text();
-    },
-    enabled: !!htmlPath,
+    queryKey: ["email-original", message.id, htmlUri],
+    queryFn: async () =>
+      await (await downloadMessageMedia(message.id, htmlUri!)).text(),
+    enabled: !!htmlUri,
     staleTime: Infinity,
   });
 
@@ -257,8 +254,11 @@ function EmailOriginalModal({
 
               {!!attachments.length && (
                 <div className="flex flex-wrap gap-[8px]">
-                  {attachments.map((file) => (
-                    <Attachment key={file.uri} file={file} />
+                  {attachments.map((attachment) => (
+                    <Attachment
+                      key={attachment.file.uri}
+                      attachment={attachment}
+                    />
                   ))}
                 </div>
               )}
@@ -312,15 +312,28 @@ function EmailOriginalModal({
   );
 }
 
-function Attachment({ file }: { file: FilePart["file"] }) {
-  const url = useSignedMediaUrl(file.uri);
+type EmailAttachment = { messageId: string; file: FilePart["file"] };
+
+function Attachment({ attachment }: { attachment: EmailAttachment }) {
+  const { messageId, file } = attachment;
+  const isPatientData = file.uri.startsWith("patient://");
+  const signedUrl = useSignedMediaUrl(isPatientData ? undefined : file.uri);
+
+  const openPatientFile = async () => {
+    const blob = await downloadMessageMedia(messageId, file.uri);
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank", "noreferrer");
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  };
+
   return (
     <a
-      href={url}
+      href={isPatientData ? undefined : signedUrl}
+      onClick={isPatientData ? openPatientFile : undefined}
       target="_blank"
       rel="noreferrer"
       download={file.name}
-      className="inline-flex items-center gap-[10px] py-[7px] ps-[7px] pe-[12px] rounded-[10px] border border-border text-[13px] text-foreground no-underline hover:bg-muted"
+      className="cursor-pointer inline-flex items-center gap-[10px] py-[7px] ps-[7px] pe-[12px] rounded-[10px] border border-border text-[13px] text-foreground no-underline hover:bg-muted"
     >
       <img src={iconName(file.name)} width={22} height={26} />
       <span className="flex flex-col leading-[1.25]">
