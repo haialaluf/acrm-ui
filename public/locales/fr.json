@@ -1305,7 +1305,7 @@
   "Choose a country": "Choisissez un pays",
   "Israel (Tel Aviv)": "Israël (Tel Aviv)",
   "Sweden (Stockholm)": "Suède (Stockholm)",
-  "Patient files and session reports are kept encrypted in this country. Changing it later only affects new files.": "Les fichiers des patients et les comptes rendus de séance sont chiffrés et stockés dans ce pays. Le changer plus tard n'affecte que les nouveaux fichiers.",
+  "Patient files, notes, session reports and chat files are kept encrypted in this country.": "Les fichiers des patients, les notes, les comptes rendus de séance et les fichiers de discussion sont conservés chiffrés dans ce pays.",
   "Choose where this clinic's patient data is stored (Settings → Organization) first.": "Choisissez d'abord où stocker les données des patients du cabinet (Paramètres → Organisation).",
   "Could not save the report. Please try again.": "Impossible d'enregistrer le compte rendu. Réessayez.",
   "Opening the report…": "Ouverture du compte rendu…",
@@ -1325,5 +1325,7 @@
   "Add a note about this patient": "Ajouter une note sur ce patient",
   "Add a note about this client": "Ajouter une note sur ce client",
   "Download all data": "Télécharger toutes les données",
-  "Could not download the data. Please try again.": "Impossible de télécharger les données. Réessayez."
+  "Could not download the data. Please try again.": "Impossible de télécharger les données. Réessayez.",
+  "This clinic holds patient records, so it can't be changed back to a company workspace.": "Ce cabinet contient des dossiers de patients et ne peut donc pas redevenir un espace entreprise.",
+  "Patient records are already stored in this country. To move them to another country, contact support.": "Les dossiers des patients sont déjà stockés dans ce pays. Pour les transférer dans un autre pays, contactez le support."
 }

@@ -121,6 +121,23 @@ function EditOrganization() {
     staleTime: STATIC_STALE_TIME,
   });
 
+  const savedTherapy = org?.extra?.workspace_type === "therapy";
+  const { data: holdsPatientData } = useQuery({
+    queryKey: ["organization-holds-patient-data", org?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc(
+        "organization_holds_patient_data",
+        { org_id: org!.id },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!org?.id && savedTherapy,
+  });
+  // Both the type and the country are fixed once records exist: switching
+  // either would leave them where the new setting no longer looks.
+  const recordsLocked = savedTherapy && !!holdsPatientData;
+
   const transcriptionMode = useWatch({
     control,
     name: "extra.transcription.mode",
@@ -158,32 +175,49 @@ function EditOrganization() {
           onSubmit={handleSubmit((data) => {
             const profile = data.extra?.business_profile;
             const hours = profile?.working_hours;
-            updateOrg.mutate({
-              ...data,
-              address: data.address?.trim(),
-              ...((hours || profile?.region) && {
-                extra: {
-                  ...data.extra,
-                  business_profile: {
-                    ...profile,
-                    // A day switched off leaves the object entirely, and
-                    // `organizations.extra` is deep-merged by the
-                    // `merge_update` trigger — which never removes a key.
-                    // Without this, closing a day would save nothing and the
-                    // agent would keep quoting the old hours.
-                    // `expandClosedDays` sends `[]` instead.
-                    ...(hours && { working_hours: expandClosedDays(hours) }),
-                    // The picker stores a country; everything downstream reads
-                    // an IANA id. Derived here rather than kept in the form so
-                    // the two can never drift out of step, exactly as
-                    // CalendarForm derives `calendars.timezone`.
-                    ...(profile?.region && {
-                      timezone: resolveTimezone(profile.region, detected),
-                    }),
+            // A workspace that just became a clinic, or just picked its
+            // country, moves any notes still in the database to its bucket.
+            const moveNotes =
+              data.extra?.workspace_type === "therapy" &&
+              !!data.extra?.data_region;
+            updateOrg.mutate(
+              {
+                ...data,
+                address: data.address?.trim(),
+                ...((hours || profile?.region) && {
+                  extra: {
+                    ...data.extra,
+                    business_profile: {
+                      ...profile,
+                      // A day switched off leaves the object entirely, and
+                      // `organizations.extra` is deep-merged by the
+                      // `merge_update` trigger — which never removes a key.
+                      // Without this, closing a day would save nothing and the
+                      // agent would keep quoting the old hours.
+                      // `expandClosedDays` sends `[]` instead.
+                      ...(hours && { working_hours: expandClosedDays(hours) }),
+                      // The picker stores a country; everything downstream reads
+                      // an IANA id. Derived here rather than kept in the form so
+                      // the two can never drift out of step, exactly as
+                      // CalendarForm derives `calendars.timezone`.
+                      ...(profile?.region && {
+                        timezone: resolveTimezone(profile.region, detected),
+                      }),
+                    },
                   },
+                }),
+              },
+              {
+                onSuccess: () => {
+                  if (moveNotes && org) {
+                    void supabase.functions.invoke(
+                      "patient-data/notes/move-to-storage",
+                      { method: "POST", body: { organizationId: org.id } },
+                    );
+                  }
                 },
-              }),
-            });
+              },
+            );
           })}
         >
           <label>
@@ -218,14 +252,18 @@ function EditOrganization() {
                 { value: "company", label: t("Company") },
                 { value: "therapy", label: t("Therapy clinic") },
               ]}
-              disabled={!isOwner}
+              disabled={!isOwner || recordsLocked}
             />
             <p className="text-[12px] text-muted-foreground">
-              {workspaceType === "therapy"
+              {recordsLocked
                 ? t(
-                    "Contacts become patients, with sessions, payments and files on each one.",
+                    "This clinic holds patient records, so it can't be changed back to a company workspace.",
                   )
-                : t("Contacts, leads and conversations for any business.")}
+                : workspaceType === "therapy"
+                  ? t(
+                      "Contacts become patients, with sessions, payments and files on each one.",
+                    )
+                  : t("Contacts, leads and conversations for any business.")}
             </p>
           </div>
 
@@ -257,12 +295,16 @@ function EditOrganization() {
                     readyRegions?.includes(option.value) ||
                     option.value === org?.extra?.data_region,
                 )}
-                disabled={!isOwner}
+                disabled={!isOwner || recordsLocked}
               />
               <p className="text-[12px] text-muted-foreground">
-                {t(
-                  "Patient files and session reports are kept encrypted in this country. Changing it later only affects new files.",
-                )}
+                {recordsLocked
+                  ? t(
+                      "Patient records are already stored in this country. To move them to another country, contact support.",
+                    )
+                  : t(
+                      "Patient files, notes, session reports and chat files are kept encrypted in this country.",
+                    )}
               </p>
             </div>
           )}

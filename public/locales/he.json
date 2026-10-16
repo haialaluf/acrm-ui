@@ -1607,7 +1607,7 @@
   "Choose a country": "בחרו מדינה",
   "Israel (Tel Aviv)": "ישראל (תל אביב)",
   "Sweden (Stockholm)": "שוודיה (שטוקהולם)",
-  "Patient files and session reports are kept encrypted in this country. Changing it later only affects new files.": "קבצי מטופלים וסיכומי פגישות נשמרים מוצפנים במדינה זו. שינוי מאוחר יותר ישפיע רק על קבצים חדשים.",
+  "Patient files, notes, session reports and chat files are kept encrypted in this country.": "קבצי מטופלים, הערות, סיכומי פגישות וקבצים מהצ'אט נשמרים מוצפנים במדינה זו.",
   "Choose where this clinic's patient data is stored (Settings → Organization) first.": "קודם בחרו היכן יישמר המידע על המטופלים של הקליניקה (הגדרות ← ארגון).",
   "Could not save the report. Please try again.": "לא ניתן היה לשמור את הסיכום. נסו שוב.",
   "Opening the report…": "פותח את הסיכום…",
@@ -1626,5 +1626,7 @@
   "Add a note about this patient": "הוספת הערה על המטופל",
   "Add a note about this client": "הוספת הערה על הלקוח",
   "Download all data": "הורדת כל המידע",
-  "Could not download the data. Please try again.": "לא ניתן היה להוריד את המידע. נסו שוב."
+  "Could not download the data. Please try again.": "לא ניתן היה להוריד את המידע. נסו שוב.",
+  "This clinic holds patient records, so it can't be changed back to a company workspace.": "בקליניקה הזו יש רשומות מטופלים, ולכן אי אפשר להחזיר אותה לסביבת עבודה של חברה.",
+  "Patient records are already stored in this country. To move them to another country, contact support.": "רשומות המטופלים כבר שמורות במדינה זו. להעברתן למדינה אחרת, פנו לתמיכה."
 }

@@ -2720,6 +2720,10 @@ export type Database = {
         }[]
       }
       normalize_email: { Args: { p_email: string }; Returns: string }
+      organization_holds_patient_data: {
+        Args: { org_id: string }
+        Returns: boolean
+      }
       org_update_by_admin_rules: {
         Args: { p_id: string; p_name: string }
         Returns: boolean
