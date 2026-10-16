@@ -1,14 +1,48 @@
 import { useState } from "react";
-import { Archive, ArchiveRestore, Trash2 } from "lucide-react";
+import { Archive, ArchiveRestore, Download, Trash2 } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
 import Spinner from "@/components/Spinner";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
+import { downloadPatientExport } from "@/utils/patientExport";
 import {
   useArchiveContacts,
   usePermanentlyDeleteContact,
   useRestoreContact,
 } from "@/queries/useContacts";
+
+export function ExportPatientButton({ contactId }: { contactId: string }) {
+  const { translate: t } = useTranslation();
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  return (
+    <button
+      className="p-[8px] rounded-full hover:bg-muted"
+      title={
+        failed
+          ? t("Could not download the data. Please try again.")
+          : t("Download all data")
+      }
+      disabled={busy}
+      onClick={() => {
+        setBusy(true);
+        setFailed(false);
+        downloadPatientExport(contactId)
+          .catch(() => setFailed(true))
+          .finally(() => setBusy(false));
+      }}
+    >
+      {busy ? (
+        <Spinner size={24} />
+      ) : (
+        <Download
+          className={`w-[24px] h-[24px]${failed ? " text-destructive" : ""}`}
+        />
+      )}
+    </button>
+  );
+}
 
 export function ArchivePatientButton({ contactId }: { contactId: string }) {
   const { translate: t } = useTranslation();
@@ -16,7 +50,7 @@ export function ArchivePatientButton({ contactId }: { contactId: string }) {
 
   return (
     <button
-      className="p-[8px] rounded-full hover:bg-muted ms-auto"
+      className="p-[8px] rounded-full hover:bg-muted"
       title={t("Archive")}
       disabled={archive.isPending}
       onClick={() => archive.mutate([contactId])}

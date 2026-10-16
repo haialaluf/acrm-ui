@@ -27,6 +27,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import {
   ArchivedPatientBanner,
   ArchivePatientButton,
+  ExportPatientButton,
 } from "@/components/contacts/PatientArchive";
 import {
   Sparkles,
@@ -360,8 +361,13 @@ function ContactDetail() {
           }
           deleteLoading={deleteContact.isPending}
           action={
-            isTherapy && !contact.archived_at ? (
-              <ArchivePatientButton contactId={contactId} />
+            isTherapy ? (
+              <div className="flex items-center gap-[4px]">
+                <ExportPatientButton contactId={contactId} />
+                {!contact.archived_at && (
+                  <ArchivePatientButton contactId={contactId} />
+                )}
+              </div>
             ) : undefined
           }
         />

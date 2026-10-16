@@ -1624,5 +1624,7 @@
   "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "הרשומה, ההערות, הקבצים, דוחות הטיפול, התורים והשיחות יימחקו, כולל הקבצים באחסון. לא ניתן לבטל פעולה זו.",
   "Private to your clinic. Not shared with any AI.": "פרטי לקליניקה שלך. לא משותף עם אף AI.",
   "Add a note about this patient": "הוספת הערה על המטופל",
-  "Add a note about this client": "הוספת הערה על הלקוח"
+  "Add a note about this client": "הוספת הערה על הלקוח",
+  "Download all data": "הורדת כל המידע",
+  "Could not download the data. Please try again.": "לא ניתן היה להוריד את המידע. נסו שוב."
 }

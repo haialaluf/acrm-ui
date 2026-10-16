@@ -1323,5 +1323,7 @@
   "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "la fiche, les notes, les fichiers, les comptes rendus de séance, les rendez-vous et les conversations sont effacés, y compris les fichiers stockés. Action irréversible.",
   "Private to your clinic. Not shared with any AI.": "Privé à votre cabinet. Jamais partagé avec une IA.",
   "Add a note about this patient": "Ajouter une note sur ce patient",
-  "Add a note about this client": "Ajouter une note sur ce client"
+  "Add a note about this client": "Ajouter une note sur ce client",
+  "Download all data": "Télécharger toutes les données",
+  "Could not download the data. Please try again.": "Impossible de télécharger les données. Réessayez."
 }
