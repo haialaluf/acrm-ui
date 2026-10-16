@@ -473,60 +473,70 @@ function EditOrganization() {
             description={t("Reads voice messages, images and documents")}
             disabled={!isOwner}
           >
-            <Controller
-              control={control}
-              name="extra.transcription.mode"
-              render={({ field }) => (
-                <label className="flex items-center gap-[12px] cursor-pointer justify-between">
-                  <div className="flex flex-col gap-[2px]">
-                    <div className="text-foreground">{t("Status")}</div>
-                    <div className="text-muted-foreground text-[14px]">
-                      {t(
-                        "Voice messages are transcribed, and images and documents described, before the agent replies.",
-                      )}
-                    </div>
-                  </div>
-                  <Switch
-                    checked={field.value === "active"}
-                    onCheckedChange={(checked) =>
-                      field.onChange(checked ? "active" : "inactive")
-                    }
-                    disabled={!isOwner}
-                    className="mt-[4px]"
-                  />
-                </label>
-              )}
-            />
-
-            {/* Only offered while transcription is on — the hint is dead
-                config otherwise, and a set-but-inert field reads as a bug. */}
-            {transcriptionMode === "active" && (
-              <div className="flex flex-col gap-[8px]">
-                <SelectField
+            {workspaceType === "therapy" ? (
+              <p className="text-muted-foreground text-[14px]">
+                {t(
+                  "Not available in a therapy clinic: patients' files and voice messages are never sent to an AI.",
+                )}
+              </p>
+            ) : (
+              <>
+                <Controller
                   control={control}
-                  name="extra.transcription.language"
-                  label={t("Primary language")}
-                  placeholder={t("Detect automatically")}
-                  options={[
-                    // An explicit way back to auto-detect. Empty string rather
-                    // than a sentinel: the API treats any falsy `language` as
-                    // "no hint", and `organizations.extra` is deep-merged by
-                    // the `merge_update` trigger, so clearing the field has to
-                    // write something rather than drop the key.
-                    { value: "", label: t("Detect automatically") },
-                    ...SUPPORTED_LANGUAGES.map((lang) => ({
-                      value: lang,
-                      label: LANGUAGE_LABELS[lang],
-                    })),
-                  ]}
-                  disabled={!isOwner}
-                />
-                <p className="text-[12px] text-muted-foreground">
-                  {t(
-                    "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.",
+                  name="extra.transcription.mode"
+                  render={({ field }) => (
+                    <label className="flex items-center gap-[12px] cursor-pointer justify-between">
+                      <div className="flex flex-col gap-[2px]">
+                        <div className="text-foreground">{t("Status")}</div>
+                        <div className="text-muted-foreground text-[14px]">
+                          {t(
+                            "Voice messages are transcribed, and images and documents described, before the agent replies.",
+                          )}
+                        </div>
+                      </div>
+                      <Switch
+                        checked={field.value === "active"}
+                        onCheckedChange={(checked) =>
+                          field.onChange(checked ? "active" : "inactive")
+                        }
+                        disabled={!isOwner}
+                        className="mt-[4px]"
+                      />
+                    </label>
                   )}
-                </p>
-              </div>
+                />
+
+                {/* Only offered while transcription is on — the hint is dead
+                config otherwise, and a set-but-inert field reads as a bug. */}
+                {transcriptionMode === "active" && (
+                  <div className="flex flex-col gap-[8px]">
+                    <SelectField
+                      control={control}
+                      name="extra.transcription.language"
+                      label={t("Primary language")}
+                      placeholder={t("Detect automatically")}
+                      options={[
+                        // An explicit way back to auto-detect. Empty string rather
+                        // than a sentinel: the API treats any falsy `language` as
+                        // "no hint", and `organizations.extra` is deep-merged by
+                        // the `merge_update` trigger, so clearing the field has to
+                        // write something rather than drop the key.
+                        { value: "", label: t("Detect automatically") },
+                        ...SUPPORTED_LANGUAGES.map((lang) => ({
+                          value: lang,
+                          label: LANGUAGE_LABELS[lang],
+                        })),
+                      ]}
+                      disabled={!isOwner}
+                    />
+                    <p className="text-[12px] text-muted-foreground">
+                      {t(
+                        "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.",
+                      )}
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </SectionField>
         </form>

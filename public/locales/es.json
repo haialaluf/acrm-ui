@@ -1632,5 +1632,6 @@
   "Download all data": "Descargar todos los datos",
   "Could not download the data. Please try again.": "No se pudieron descargar los datos. Inténtalo de nuevo.",
   "This clinic holds patient records, so it can't be changed back to a company workspace.": "Esta clínica guarda historiales de pacientes, por lo que no puede volver a ser un espacio de empresa.",
-  "Patient records are already stored in this country. To move them to another country, contact support.": "Los historiales de pacientes ya están guardados en este país. Para trasladarlos a otro país, contacta con soporte."
+  "Patient records are already stored in this country. To move them to another country, contact support.": "Los historiales de pacientes ya están guardados en este país. Para trasladarlos a otro país, contacta con soporte.",
+  "Not available in a therapy clinic: patients' files and voice messages are never sent to an AI.": "No disponible en una clínica terapéutica: los archivos y mensajes de voz de los pacientes nunca se envían a una IA."
 }

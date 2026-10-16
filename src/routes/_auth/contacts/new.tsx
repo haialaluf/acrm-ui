@@ -82,7 +82,7 @@ function buildAddresses(data: ContactFormValues) {
 
 function ContactNew() {
   const { translate: t } = useTranslation();
-  const { terms } = useWorkspace();
+  const { isTherapy, terms } = useWorkspace();
   const navigate = useNavigate();
   const createContact = useCreateContact();
   const { conflictsByAddress, checkOnBlur, findConflictBeforeSubmit } =
@@ -242,7 +242,11 @@ function ContactNew() {
             <textarea
               className="text"
               rows={3}
-              placeholder={t("Anything worth knowing about this contact")}
+              placeholder={
+                isTherapy
+                  ? terms.addNote
+                  : t("Anything worth knowing about this contact")
+              }
               {...register("notes")}
             />
           </label>
