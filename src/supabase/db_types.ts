@@ -1234,6 +1234,7 @@ export type Database = {
       }
       contacts: {
         Row: {
+          archived_at: string | null
           created_at: string
           extra: Json | null
           firstname: string | null
@@ -1247,6 +1248,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archived_at?: string | null
           created_at?: string
           extra?: Json | null
           firstname?: string | null
@@ -1260,6 +1262,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archived_at?: string | null
           created_at?: string
           extra?: Json | null
           firstname?: string | null

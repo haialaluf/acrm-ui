@@ -25,6 +25,10 @@ import Button from "@/components/Button";
 import ContactTagSelect from "@/components/ContactTagSelect";
 import ConfirmModal from "@/components/ConfirmModal";
 import {
+  ArchivedPatientBanner,
+  ArchivePatientButton,
+} from "@/components/contacts/PatientArchive";
+import {
   Sparkles,
   Instagram,
   Mail,
@@ -344,14 +348,33 @@ function ContactDetail() {
               void navigate({ to: "..", hash: (prevHash) => prevHash! });
             }
           }}
-          onDelete={() => {
-            deleteContact.mutate(contactId, {
-              onSuccess: () =>
-                navigate({ to: "..", hash: (prevHash) => prevHash! }),
-            });
-          }}
+          onDelete={
+            isTherapy
+              ? undefined
+              : () => {
+                  deleteContact.mutate(contactId, {
+                    onSuccess: () =>
+                      navigate({ to: "..", hash: (prevHash) => prevHash! }),
+                  });
+                }
+          }
           deleteLoading={deleteContact.isPending}
+          action={
+            isTherapy && !contact.archived_at ? (
+              <ArchivePatientButton contactId={contactId} />
+            ) : undefined
+          }
         />
+
+        {isTherapy && contact.archived_at && (
+          <ArchivedPatientBanner
+            contactId={contactId}
+            name={contact.name || terms.person}
+            onDeleted={() =>
+              navigate({ to: "..", hash: (prevHash) => prevHash! })
+            }
+          />
+        )}
 
         {/* Identity + tabs. Sticky above the panel's scroll so the name and the
             tab you are on stay visible however long the tab's content runs. */}

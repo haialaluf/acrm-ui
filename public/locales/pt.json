@@ -1344,5 +1344,14 @@
   "Opening the report…": "Abrindo o relatório…",
   "Could not open the report. Please try again.": "Não foi possível abrir o relatório. Tente novamente.",
   "Saved": "Salvo",
-  "Not saved": "Não salvo"
+  "Not saved": "Não salvo",
+  "Archive": "Arquivar",
+  "Archived": "Arquivados",
+  "Restore": "Restaurar",
+  "Delete permanently": "Excluir permanentemente",
+  "Delete permanently?": "Excluir permanentemente?",
+  "Archive the selected?": "Arquivar os selecionados?",
+  "Their records are kept and can be restored.": "Os registros são mantidos e podem ser restaurados.",
+  "Archived. The records are kept and hidden from lists.": "Arquivado. Os registros são mantidos e ocultados das listas.",
+  "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "a ficha, as notas, os arquivos, os relatórios de sessão, as consultas e as conversas são apagados, incluindo os arquivos armazenados. Não é possível desfazer."
 }

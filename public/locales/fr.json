@@ -1311,5 +1311,14 @@
   "Opening the report…": "Ouverture du compte rendu…",
   "Could not open the report. Please try again.": "Impossible d'ouvrir le compte rendu. Réessayez.",
   "Saved": "Enregistré",
-  "Not saved": "Non enregistré"
+  "Not saved": "Non enregistré",
+  "Archive": "Archiver",
+  "Archived": "Archivés",
+  "Restore": "Restaurer",
+  "Delete permanently": "Supprimer définitivement",
+  "Delete permanently?": "Supprimer définitivement ?",
+  "Archive the selected?": "Archiver la sélection ?",
+  "Their records are kept and can be restored.": "Leurs dossiers sont conservés et peuvent être restaurés.",
+  "Archived. The records are kept and hidden from lists.": "Archivé. Les dossiers sont conservés et masqués des listes.",
+  "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "la fiche, les notes, les fichiers, les comptes rendus de séance, les rendez-vous et les conversations sont effacés, y compris les fichiers stockés. Action irréversible."
 }

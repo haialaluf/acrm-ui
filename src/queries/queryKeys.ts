@@ -15,6 +15,8 @@ export const queryKeys = {
   },
   contacts: {
     all: (orgId: NullableId) => [orgId, "contacts"] as const,
+    archived: (orgId: NullableId) =>
+      [orgId, "contacts", "archived-list"] as const,
     detail: (orgId: NullableId, id: NullableId) =>
       [orgId, "contacts", id] as const,
     byAddress: (orgId: NullableId, address: NullableId) =>

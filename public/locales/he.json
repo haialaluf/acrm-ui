@@ -1612,5 +1612,14 @@
   "Could not save the report. Please try again.": "לא ניתן היה לשמור את הסיכום. נסו שוב.",
   "Opening the report…": "פותח את הסיכום…",
   "Could not open the report. Please try again.": "לא ניתן היה לפתוח את הסיכום. נסו שוב.",
-  "Not saved": "לא נשמר"
+  "Not saved": "לא נשמר",
+  "Archive": "העברה לארכיון",
+  "Archived": "בארכיון",
+  "Restore": "שחזור",
+  "Delete permanently": "מחיקה לצמיתות",
+  "Delete permanently?": "למחוק לצמיתות?",
+  "Archive the selected?": "להעביר את הנבחרים לארכיון?",
+  "Their records are kept and can be restored.": "הרשומות נשמרות וניתן לשחזר אותן.",
+  "Archived. The records are kept and hidden from lists.": "בארכיון. הרשומות נשמרות ומוסתרות מהרשימות.",
+  "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "הרשומה, ההערות, הקבצים, דוחות הטיפול, התורים והשיחות יימחקו, כולל הקבצים באחסון. לא ניתן לבטל פעולה זו."
 }

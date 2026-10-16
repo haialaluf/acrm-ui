@@ -16,6 +16,7 @@ import { normalizePhoneNumber } from "@/utils/FormatUtils";
 import type { AddressConflict } from "@/hooks/useAddressConflicts";
 import { CONTACT_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
+import { throwFunctionError } from "./throwFunctionError";
 
 const CONTACT_WITH_ADDRESSES = "*, addresses:contacts_addresses(*)";
 
@@ -300,6 +301,7 @@ export function useContacts() {
           .from("contacts")
           .select("*, addresses:contacts_addresses(*)")
           .eq("organization_id", orgId!)
+          .is("archived_at", null)
           .order("name", { ascending: true })
           .order("created_at", {
             referencedTable: "addresses",
@@ -661,6 +663,91 @@ export function useDeleteContacts() {
     },
     onSuccess: (_data, ids) => {
       dropContactsFromCaches(queryClient, orgId, ids);
+    },
+  });
+}
+
+export function useArchivedContacts(enabled: boolean) {
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  return useQuery({
+    queryKey: queryKeys.contacts.archived(orgId),
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("contacts")
+        .select("*, addresses:contacts_addresses(*)")
+        .eq("organization_id", orgId!)
+        .not("archived_at", "is", null)
+        .order("name", { ascending: true })
+        .throwOnError();
+      return data as ContactWithAddressesRow[];
+    },
+    enabled: enabled && !!orgId,
+  });
+}
+
+async function invokePatientAction(path: string, method: "POST" | "DELETE") {
+  const result = await supabase.functions.invoke(
+    `patient-data/patients/${path}`,
+    { method },
+  );
+  if (result.error) await throwFunctionError(result.error);
+}
+
+/** A therapy practice's patients are archived rather than deleted, so their
+ *  clinical records are kept; patient-data writes it to the audit log. */
+export function useArchiveContacts() {
+  const queryClient = useQueryClient();
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      for (const id of ids) await invokePatientAction(`${id}/archive`, "POST");
+    },
+    onSuccess: (_data, ids) => {
+      const gone = new Set(ids);
+      queryClient.setQueryData<{ data: ContactWithAddressesRow[] }>(
+        queryKeys.contacts.all(orgId),
+        (list) => list && { data: list.data.filter((c) => !gone.has(c.id)) },
+      );
+      for (const id of ids) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.contacts.detail(orgId, id),
+          exact: true,
+        });
+      }
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.contacts.archived(orgId),
+      });
+    },
+  });
+}
+
+export function useRestoreContact() {
+  const queryClient = useQueryClient();
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  return useMutation({
+    mutationFn: (id: string) => invokePatientAction(`${id}/restore`, "POST"),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.contacts.all(orgId),
+      }),
+  });
+}
+
+/** Erases the patient everywhere, S3 included. Owner or admin only. */
+export function usePermanentlyDeleteContact() {
+  const queryClient = useQueryClient();
+  const orgId = useBoundStore((state) => state.ui.activeOrgId);
+
+  return useMutation({
+    mutationFn: (id: string) => invokePatientAction(id, "DELETE"),
+    onSuccess: (_data, id) => {
+      dropContactsFromCaches(queryClient, orgId, [id]);
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.contacts.archived(orgId),
+      });
     },
   });
 }
