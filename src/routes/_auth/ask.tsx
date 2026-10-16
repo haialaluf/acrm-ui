@@ -82,7 +82,7 @@ function PracticeAsk() {
           {t("Ask AI")}
         </div>
         <span className="text-[12px] px-[9px] py-[2px] rounded-full bg-muted text-muted-foreground">
-          {t("Your whole practice")}
+          {t("Your whole clinic")}
         </span>
       </div>
       {isTherapy ? (
@@ -90,7 +90,7 @@ function PracticeAsk() {
           scope="practice"
           layout="split"
           contextLabel={t("All patients")}
-          emptyTitle={t("Ask about your practice…")}
+          emptyTitle={t("Ask about your clinic…")}
           suggestions={[
             t("Who hasn't paid this month?"),
             t("Who do I see today?"),
@@ -121,7 +121,7 @@ function PracticeAsk() {
         />
       ) : (
         <div className="p-[24px] text-[14px] text-muted-foreground">
-          {t("Ask AI is part of the Therapy practice workspace.")}
+          {t("Ask AI is part of the Therapy clinic workspace.")}
         </div>
       )}
     </div>

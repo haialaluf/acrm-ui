@@ -1561,7 +1561,7 @@
   "Documents, pages and notes the agent answers from. Files, screenshots and links are read once when you add them; you can correct the text afterwards.": "Documentos, páginas y notas con los que responde el agente. Los archivos, capturas y enlaces se leen una vez al añadirlos; después puedes corregir el texto.",
   "Workspace type": "Tipo de espacio de trabajo",
   "Company": "Empresa",
-  "Therapy practice": "Consulta terapéutica",
+  "Therapy clinic": "Clínica terapéutica",
   "Contacts become patients, with sessions, payments and files on each one.": "Los contactos pasan a ser pacientes, con sesiones, pagos y archivos en cada uno.",
   "Contacts, leads and conversations for any business.": "Contactos, leads y conversaciones para cualquier negocio.",
   "Call the people you work with": "Cómo llamar a las personas con las que trabajas",
@@ -1612,7 +1612,7 @@
   "Israel (Tel Aviv)": "Israel (Tel Aviv)",
   "Sweden (Stockholm)": "Suecia (Estocolmo)",
   "Patient files and session reports are kept encrypted in this country. Changing it later only affects new files.": "Los archivos de pacientes y los informes de sesión se guardan cifrados en este país. Cambiarlo después solo afecta a archivos nuevos.",
-  "Choose where this practice's patient data is stored (Settings → Organization) first.": "Primero elige dónde se guardan los datos de pacientes de la consulta (Ajustes → Organización).",
+  "Choose where this clinic's patient data is stored (Settings → Organization) first.": "Primero elige dónde se guardan los datos de pacientes de la clínica (Ajustes → Organización).",
   "Could not save the report. Please try again.": "No se pudo guardar el informe. Inténtalo de nuevo.",
   "Opening the report…": "Abriendo el informe…",
   "Could not open the report. Please try again.": "No se pudo abrir el informe. Inténtalo de nuevo.",
@@ -1625,5 +1625,8 @@
   "Archive the selected?": "¿Archivar los seleccionados?",
   "Their records are kept and can be restored.": "Sus registros se conservan y se pueden restaurar.",
   "Archived. The records are kept and hidden from lists.": "Archivado. Los registros se conservan y no aparecen en las listas.",
-  "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "se borran la ficha, las notas, los archivos, los informes de sesión, las citas y las conversaciones, incluidos los archivos almacenados. No se puede deshacer."
+  "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "se borran la ficha, las notas, los archivos, los informes de sesión, las citas y las conversaciones, incluidos los archivos almacenados. No se puede deshacer.",
+  "Private to your clinic. Not shared with any AI.": "Privado para tu clínica. No se comparte con ninguna IA.",
+  "Add a note about this patient": "Añade una nota sobre este paciente",
+  "Add a note about this client": "Añade una nota sobre este cliente"
 }

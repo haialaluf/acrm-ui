@@ -17,6 +17,8 @@ import type { AddressConflict } from "@/hooks/useAddressConflicts";
 import { CONTACT_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 import { throwFunctionError } from "./throwFunctionError";
+import { useCurrentOrganization } from "./useOrganizations";
+import { addTherapyNote } from "./useContactNotes";
 
 const CONTACT_WITH_ADDRESSES = "*, addresses:contacts_addresses(*)";
 
@@ -354,6 +356,8 @@ export function useContact(id: string) {
 export function useCreateContact() {
   const queryClient = useQueryClient();
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
+  const { data: org } = useCurrentOrganization();
+  const isTherapy = org?.extra?.workspace_type === "therapy";
 
   return useMutation({
     mutationFn: async (
@@ -404,14 +408,18 @@ export function useCreateContact() {
           name: contactData.name ?? null,
           firstname: contactData.firstname ?? null,
           surname: contactData.surname ?? null,
-          notes: contactData.notes ?? null,
+          notes: isTherapy ? null : (contactData.notes ?? null),
           tags: tags ?? [],
         },
         p_addresses,
       });
 
       if (error) throw error;
-      return result as unknown as UpsertContactResult;
+      const written = result as unknown as UpsertContactResult;
+      if (isTherapy && written.contact_id && contactData.notes?.trim()) {
+        await addTherapyNote(written.contact_id, contactData.notes);
+      }
+      return written;
     },
     onSuccess: (result) => {
       if (orgId) void putWrittenContactInCaches(queryClient, orgId, result);

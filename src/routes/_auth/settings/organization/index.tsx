@@ -216,7 +216,7 @@ function EditOrganization() {
               label={t("Workspace type")}
               options={[
                 { value: "company", label: t("Company") },
-                { value: "therapy", label: t("Therapy practice") },
+                { value: "therapy", label: t("Therapy clinic") },
               ]}
               disabled={!isOwner}
             />

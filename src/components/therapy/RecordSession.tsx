@@ -295,7 +295,7 @@ export default function RecordSession({
           <p className="text-destructive text-[13px] text-center">
             {saveReport.error.message.startsWith("Choose where")
               ? t(
-                  "Choose where this practice's patient data is stored (Settings → Organization) first.",
+                  "Choose where this clinic's patient data is stored (Settings → Organization) first.",
                 )
               : t("Could not save the report. Please try again.")}
           </p>

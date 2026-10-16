@@ -1255,7 +1255,7 @@
   "Documents, pages and notes the agent answers from. Files, screenshots and links are read once when you add them; you can correct the text afterwards.": "Documents, pages et notes à partir desquels l'agent répond. Les fichiers, captures et liens sont lus une fois à l'ajout ; vous pouvez corriger le texte ensuite.",
   "Workspace type": "Type d'espace de travail",
   "Company": "Entreprise",
-  "Therapy practice": "Cabinet de thérapie",
+  "Therapy clinic": "Cabinet de thérapie",
   "Contacts become patients, with sessions, payments and files on each one.": "Les contacts deviennent des patients, avec séances, paiements et fichiers pour chacun.",
   "Contacts, leads and conversations for any business.": "Contacts, prospects et conversations pour toute entreprise.",
   "Call the people you work with": "Comment appeler les personnes avec qui vous travaillez",
@@ -1306,7 +1306,7 @@
   "Israel (Tel Aviv)": "Israël (Tel Aviv)",
   "Sweden (Stockholm)": "Suède (Stockholm)",
   "Patient files and session reports are kept encrypted in this country. Changing it later only affects new files.": "Les fichiers des patients et les comptes rendus de séance sont chiffrés et stockés dans ce pays. Le changer plus tard n'affecte que les nouveaux fichiers.",
-  "Choose where this practice's patient data is stored (Settings → Organization) first.": "Choisissez d'abord où stocker les données des patients du cabinet (Paramètres → Organisation).",
+  "Choose where this clinic's patient data is stored (Settings → Organization) first.": "Choisissez d'abord où stocker les données des patients du cabinet (Paramètres → Organisation).",
   "Could not save the report. Please try again.": "Impossible d'enregistrer le compte rendu. Réessayez.",
   "Opening the report…": "Ouverture du compte rendu…",
   "Could not open the report. Please try again.": "Impossible d'ouvrir le compte rendu. Réessayez.",
@@ -1320,5 +1320,8 @@
   "Archive the selected?": "Archiver la sélection ?",
   "Their records are kept and can be restored.": "Leurs dossiers sont conservés et peuvent être restaurés.",
   "Archived. The records are kept and hidden from lists.": "Archivé. Les dossiers sont conservés et masqués des listes.",
-  "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "la fiche, les notes, les fichiers, les comptes rendus de séance, les rendez-vous et les conversations sont effacés, y compris les fichiers stockés. Action irréversible."
+  "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "la fiche, les notes, les fichiers, les comptes rendus de séance, les rendez-vous et les conversations sont effacés, y compris les fichiers stockés. Action irréversible.",
+  "Private to your clinic. Not shared with any AI.": "Privé à votre cabinet. Jamais partagé avec une IA.",
+  "Add a note about this patient": "Ajouter une note sur ce patient",
+  "Add a note about this client": "Ajouter une note sur ce client"
 }

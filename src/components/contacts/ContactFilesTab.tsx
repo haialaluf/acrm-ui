@@ -174,7 +174,7 @@ export default function ContactFilesTab({
         <p className="text-destructive text-[13px]">
           {upload.error.message.startsWith("Choose where")
             ? t(
-                "Choose where this practice's patient data is stored (Settings → Organization) first.",
+                "Choose where this clinic's patient data is stored (Settings → Organization) first.",
               )
             : t("Could not upload the file. Please try again.")}
         </p>

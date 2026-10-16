@@ -1181,31 +1181,37 @@ export type Database = {
         Row: {
           agent_id: string | null
           author_type: string
-          body: string
+          body: string | null
           contact_id: string
           created_at: string
+          data_region: string | null
           id: string
           organization_id: string
+          storage_key: string | null
           updated_at: string
         }
         Insert: {
           agent_id?: string | null
           author_type: string
-          body: string
+          body?: string | null
           contact_id: string
           created_at?: string
+          data_region?: string | null
           id?: string
           organization_id: string
+          storage_key?: string | null
           updated_at?: string
         }
         Update: {
           agent_id?: string | null
           author_type?: string
-          body?: string
+          body?: string | null
           contact_id?: string
           created_at?: string
+          data_region?: string | null
           id?: string
           organization_id?: string
+          storage_key?: string | null
           updated_at?: string
         }
         Relationships: [

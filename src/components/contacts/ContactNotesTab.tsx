@@ -1,7 +1,8 @@
 import { useState } from "react";
 import dayjs from "dayjs";
-import { Bot, Pencil, Trash2, User } from "lucide-react";
+import { Bot, Lock, Pencil, Trash2, User } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { useCurrentAgent } from "@/queries/useAgents";
 import {
   type ContactNote,
@@ -30,6 +31,7 @@ export default function ContactNotesTab({
   contact: ContactWithAddressesRow;
 }) {
   const { translate: t } = useTranslation();
+  const { isTherapy, terms } = useWorkspace();
   const { data: notes } = useContactNotes(contact.id);
   const { data: me } = useCurrentAgent();
   const addNote = useAddContactNote(contact.id);
@@ -66,15 +68,24 @@ export default function ContactNotesTab({
   return (
     <div className="flex flex-col gap-[20px] px-[20px] pt-[20px] pb-[20px]">
       <div className="flex items-center gap-[7px] w-fit bg-accent text-accent-foreground rounded-full ps-[10px] pe-[12px] py-[6px] text-[12px]">
-        <Bot className="w-[14px] h-[14px]" />
-        {t("Your AI agents read everything here")}
+        {isTherapy ? (
+          <>
+            <Lock className="w-[14px] h-[14px]" />
+            {t("Private to your clinic. Not shared with any AI.")}
+          </>
+        ) : (
+          <>
+            <Bot className="w-[14px] h-[14px]" />
+            {t("Your AI agents read everything here")}
+          </>
+        )}
       </div>
 
       <div className="flex flex-col gap-[10px]">
         <textarea
           className="text border border-input rounded-[12px] px-[14px] py-[12px] min-h-[92px]"
           rows={3}
-          placeholder={t("Add a note about this contact")}
+          placeholder={terms.addNote}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
         />
@@ -98,26 +109,28 @@ export default function ContactNotesTab({
         </div>
       </div>
 
-      <div className="flex gap-[8px]">
-        {(["all", "agent", "user"] as Filter[]).map((key) => (
-          <button
-            key={key}
-            type="button"
-            className={
-              "rounded-full px-[12px] py-[5px] text-[13px] border " +
-              (filter === key
-                ? "bg-accent text-accent-foreground border-transparent"
-                : "text-muted-foreground border-border")
-            }
-            onClick={() => {
-              setFilter(key);
-              setShown(PAGE);
-            }}
-          >
-            {t(key === "all" ? "All" : key === "agent" ? "Agents" : "Team")}
-          </button>
-        ))}
-      </div>
+      {!isTherapy && (
+        <div className="flex gap-[8px]">
+          {(["all", "agent", "user"] as Filter[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              className={
+                "rounded-full px-[12px] py-[5px] text-[13px] border " +
+                (filter === key
+                  ? "bg-accent text-accent-foreground border-transparent"
+                  : "text-muted-foreground border-border")
+              }
+              onClick={() => {
+                setFilter(key);
+                setShown(PAGE);
+              }}
+            >
+              {t(key === "all" ? "All" : key === "agent" ? "Agents" : "Team")}
+            </button>
+          ))}
+        </div>
+      )}
 
       {notes && visible.length === 0 && (
         <p className="text-muted-foreground text-[14px]">{t("No notes yet")}</p>

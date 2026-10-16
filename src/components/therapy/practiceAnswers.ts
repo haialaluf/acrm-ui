@@ -209,7 +209,7 @@ export function usePracticeAnswers() {
 
     return {
       basis,
-      text: "I can answer questions about your whole practice. For example: who hasn't paid, who you see today, who hasn't booked in a while, this month's income, or which reports still need approval. For one patient, use the Ask AI tab on their page.",
+      text: "I can answer questions about your whole clinic. For example: who hasn't paid, who you see today, who hasn't booked in a while, this month's income, or which reports still need approval. For one patient, use the Ask AI tab on their page.",
     };
   }
 

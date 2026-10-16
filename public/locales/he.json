@@ -1560,7 +1560,7 @@
   "No form behind this lead": "אין טופס מאחורי הליד הזה",
   "Workspace type": "סוג סביבת עבודה",
   "Company": "חברה",
-  "Therapy practice": "קליניקה טיפולית",
+  "Therapy clinic": "קליניקה טיפולית",
   "Contacts become patients, with sessions, payments and files on each one.": "אנשי הקשר הופכים למטופלים, עם פגישות, תשלומים וקבצים לכל אחד.",
   "Contacts, leads and conversations for any business.": "אנשי קשר, לידים ושיחות לכל עסק.",
   "Call the people you work with": "איך לקרוא לאנשים שאתם עובדים איתם",
@@ -1608,7 +1608,7 @@
   "Israel (Tel Aviv)": "ישראל (תל אביב)",
   "Sweden (Stockholm)": "שוודיה (שטוקהולם)",
   "Patient files and session reports are kept encrypted in this country. Changing it later only affects new files.": "קבצי מטופלים וסיכומי פגישות נשמרים מוצפנים במדינה זו. שינוי מאוחר יותר ישפיע רק על קבצים חדשים.",
-  "Choose where this practice's patient data is stored (Settings → Organization) first.": "קודם בחרו היכן יישמר המידע על המטופלים של הקליניקה (הגדרות ← ארגון).",
+  "Choose where this clinic's patient data is stored (Settings → Organization) first.": "קודם בחרו היכן יישמר המידע על המטופלים של הקליניקה (הגדרות ← ארגון).",
   "Could not save the report. Please try again.": "לא ניתן היה לשמור את הסיכום. נסו שוב.",
   "Opening the report…": "פותח את הסיכום…",
   "Could not open the report. Please try again.": "לא ניתן היה לפתוח את הסיכום. נסו שוב.",
@@ -1621,5 +1621,8 @@
   "Archive the selected?": "להעביר את הנבחרים לארכיון?",
   "Their records are kept and can be restored.": "הרשומות נשמרות וניתן לשחזר אותן.",
   "Archived. The records are kept and hidden from lists.": "בארכיון. הרשומות נשמרות ומוסתרות מהרשימות.",
-  "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "הרשומה, ההערות, הקבצים, דוחות הטיפול, התורים והשיחות יימחקו, כולל הקבצים באחסון. לא ניתן לבטל פעולה זו."
+  "the record, notes, files, session reports, appointments and conversations are erased, including files in storage. This cannot be undone.": "הרשומה, ההערות, הקבצים, דוחות הטיפול, התורים והשיחות יימחקו, כולל הקבצים באחסון. לא ניתן לבטל פעולה זו.",
+  "Private to your clinic. Not shared with any AI.": "פרטי לקליניקה שלך. לא משותף עם אף AI.",
+  "Add a note about this patient": "הוספת הערה על המטופל",
+  "Add a note about this client": "הוספת הערה על הלקוח"
 }

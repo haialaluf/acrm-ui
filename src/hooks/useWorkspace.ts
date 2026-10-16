@@ -31,6 +31,7 @@ export function useWorkspace() {
         people: t("Contacts"),
         person: t("Contact"),
         newPerson: t("New contact"),
+        addNote: t("Add a note about this contact"),
         searchPeople: t("Search for a contact"),
       }
     : clients
@@ -38,12 +39,14 @@ export function useWorkspace() {
           people: t("Clients"),
           person: t("Client"),
           newPerson: t("New client"),
+          addNote: t("Add a note about this client"),
           searchPeople: t("Search clients"),
         }
       : {
           people: t("Patients"),
           person: t("Patient"),
           newPerson: t("New patient"),
+          addNote: t("Add a note about this patient"),
           searchPeople: t("Search patients"),
         };
 
