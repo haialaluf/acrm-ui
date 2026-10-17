@@ -7,8 +7,12 @@ import { useCurrentOrganization } from "@/queries/useOrganizations";
 import AiChat from "@/components/therapy/AiChat";
 import { usePracticeAnswers } from "@/components/therapy/practiceAnswers";
 import {
+  AskAiSpeedToggle,
+  type AskAiSpeed,
+  ClinicAiLocationChip,
   ClinicAiPrivacyButton,
   ClinicAiPrivacySummary,
+  useAskAiInSweden,
 } from "@/components/therapy/ClinicAiPrivacy";
 
 export const Route = createFileRoute("/_auth/ask")({
@@ -69,6 +73,8 @@ function PracticeAsk() {
   const navigate = useNavigate();
   const { isTherapy } = useWorkspace();
   const { data: org } = useCurrentOrganization();
+  const inSweden = useAskAiInSweden();
+  const [speed, setSpeed] = useState<AskAiSpeed>("thorough");
   const { answer, draftReminders } = usePracticeAnswers();
 
   const openPatient = (contactId: string, reportId?: string) =>
@@ -107,7 +113,17 @@ function PracticeAsk() {
             t("Income this month"),
             t("Which reports still need my approval?"),
           ]}
-          answer={(_question, _attachments, thread) => answer(thread)}
+          answer={(_question, _attachments, thread) =>
+            answer(thread, inSweden ? "thorough" : speed)
+          }
+          composerExtra={
+            <>
+              <ClinicAiLocationChip />
+              {!inSweden && (
+                <AskAiSpeedToggle value={speed} onChange={setSpeed} />
+              )}
+            </>
+          }
           onAction={draftReminders}
           onCitation={(citation) =>
             citation.contactId &&

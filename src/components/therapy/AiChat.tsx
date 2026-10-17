@@ -36,6 +36,7 @@ type Props = {
   suggestions: string[];
   recordFiles?: string[];
   canAttach?: boolean;
+  composerExtra?: ReactNode;
   layout: "stacked" | "split";
   answer: (
     question: string,
@@ -276,6 +277,7 @@ export default function AiChat({
   suggestions,
   recordFiles = [],
   canAttach = true,
+  composerExtra,
   layout,
   answer,
   onCitation,
@@ -493,6 +495,7 @@ export default function AiChat({
             <UserRound className="w-[12px] h-[12px]" />
             {contextLabel}
           </span>
+          {composerExtra}
           <button
             type="button"
             title={t("Send")}

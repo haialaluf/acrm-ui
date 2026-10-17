@@ -84,6 +84,7 @@ function EditOrganization() {
         people_term: org.extra?.people_term || "patients",
         currency: org.extra?.currency || "ILS",
         data_region: org.extra?.data_region,
+        ask_ai_location: org.extra?.ask_ai_location || "eu",
         transcription: {
           mode: "inactive" as const,
           ...org.extra?.transcription,
@@ -108,6 +109,7 @@ function EditOrganization() {
 
   const defaultAgentId = useWatch({ control, name: "extra.default_agent_id" });
   const workspaceType = useWatch({ control, name: "extra.workspace_type" });
+  const askAiLocation = useWatch({ control, name: "extra.ask_ai_location" });
   const { data: readyRegions } = useQuery({
     queryKey: ["patient-data-regions"],
     queryFn: async () => {
@@ -304,6 +306,30 @@ function EditOrganization() {
                     )
                   : t(
                       "Patient files, notes, session reports and chat files are kept encrypted in this country.",
+                    )}
+              </p>
+            </div>
+          )}
+
+          {workspaceType === "therapy" && (
+            <div className="flex flex-col gap-[8px]">
+              <SelectField
+                control={control}
+                name="extra.ask_ai_location"
+                label={t("Where Ask AI works out answers")}
+                options={[
+                  { value: "eu", label: t("Anywhere in the EU") },
+                  { value: "stockholm", label: t("Sweden only (Stockholm)") },
+                ]}
+                disabled={!isOwner}
+              />
+              <p className="text-[12px] text-muted-foreground">
+                {askAiLocation === "stockholm"
+                  ? t(
+                      "Answers are worked out only in Stockholm, with a smaller model. Nothing leaves Sweden.",
+                    )
+                  : t(
+                      "Answers may be worked out on Amazon's servers in any EU country, with more capable models. Nothing leaves the EU.",
                     )}
               </p>
             </div>

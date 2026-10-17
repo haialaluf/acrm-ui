@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, ShieldCheck, X } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Check, Lock, ShieldCheck, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { supabase } from "@/supabase/client";
-import { CONFIG_STALE_TIME } from "@/queries/cacheConfig";
+import { useCurrentOrganization } from "@/queries/useOrganizations";
 
 // Must match what the practice-ask function reads (practice-ask/clinic.ts).
 const SEES = [
@@ -20,25 +18,34 @@ const NEVER_SEES = [
   "Phone numbers, emails and other personal details",
 ];
 
-/** Set by the server's model choice. Until it answers, say "the EU", which
- *  holds for every model. */
-function useProcessedInStockholm() {
-  const { data } = useQuery({
-    queryKey: ["practice-ask", "where"],
-    queryFn: async () => {
-      const { data } = await supabase.functions.invoke<{
-        processedIn: "stockholm" | "eu";
-      }>("practice-ask/where", { method: "GET" });
-      return data;
-    },
-    staleTime: CONFIG_STALE_TIME,
-  });
-  return data?.processedIn === "stockholm";
+export type AskAiSpeed = "fast" | "thorough";
+
+/** The owner's choice in Settings → Organization; practice-ask reads the same. */
+export function useAskAiInSweden() {
+  const { data: org } = useCurrentOrganization();
+  return org?.extra?.ask_ai_location === "stockholm";
 }
+
+function usePopover() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+  return { open, toggle: () => setOpen((o) => !o), ref };
+}
+
+const PANEL =
+  "absolute w-[340px] max-w-[calc(100vw-32px)] bg-popover rounded-[16px] shadow-[0_12px_32px_rgba(0,0,0,.16)] p-[16px] z-20";
 
 export function ClinicAiPrivacyNote() {
   const { translate: t } = useTranslation();
-  const inStockholm = useProcessedInStockholm();
+  const inSweden = useAskAiInSweden();
   return (
     <div className="flex flex-col gap-[12px] text-start text-[13px] leading-[1.5]">
       <div className="flex items-center gap-[8px] font-semibold text-card-foreground">
@@ -65,13 +72,18 @@ export function ClinicAiPrivacyNote() {
         ))}
       </ul>
       <p className="text-[12px] text-muted-foreground">
-        {inStockholm
+        {inSweden
           ? t(
               "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in Stockholm, Sweden; nothing leaves Sweden and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
             )
           : t(
               "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in the EU; nothing leaves the EU and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
             )}
+      </p>
+      <p className="text-[12px] text-muted-foreground">
+        {t(
+          "The clinic owner chooses Sweden or the EU in Settings → Organization.",
+        )}
       </p>
     </div>
   );
@@ -96,18 +108,7 @@ export function ClinicAiPrivacySummary() {
 
 export function ClinicAiPrivacyButton() {
   const { translate: t } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, [open]);
-
+  const { open, toggle, ref } = usePopover();
   return (
     <div ref={ref} className="relative ms-auto">
       <button
@@ -116,16 +117,87 @@ export function ClinicAiPrivacyButton() {
           "h-[32px] px-[12px] rounded-full border border-border text-[13px] flex items-center gap-[6px] text-card-foreground " +
           (open ? "bg-accent" : "hover:bg-accent")
         }
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
       >
         <ShieldCheck className="w-[15px] h-[15px] text-primary" />
         {t("What it can see")}
       </button>
       {open && (
-        <div className="absolute top-[calc(100%+6px)] end-0 w-[340px] max-w-[calc(100vw-32px)] bg-popover rounded-[16px] shadow-[0_12px_32px_rgba(0,0,0,.16)] p-[16px] z-20">
+        <div className={`${PANEL} top-[calc(100%+6px)] end-0`}>
           <ClinicAiPrivacyNote />
         </div>
       )}
+    </div>
+  );
+}
+
+/** Shown in the composer, so everyone sees where their question goes. */
+export function ClinicAiLocationChip() {
+  const { translate: t } = useTranslation();
+  const inSweden = useAskAiInSweden();
+  const { open, toggle, ref } = usePopover();
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        title={t("What it can see")}
+        className={
+          "inline-flex items-center gap-[5px] h-[24px] px-[9px] rounded-full text-[12px] text-accent-foreground " +
+          (open ? "bg-accent" : "bg-muted hover:bg-accent")
+        }
+        onClick={toggle}
+      >
+        <Lock className="w-[11px] h-[11px]" />
+        {inSweden ? t("Sweden") : t("EU")}
+      </button>
+      {open && (
+        <div className={`${PANEL} bottom-[calc(100%+8px)] start-0`}>
+          <ClinicAiPrivacyNote />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Only offered within the EU: both models stay there. */
+export function AskAiSpeedToggle({
+  value,
+  onChange,
+}: {
+  value: AskAiSpeed;
+  onChange: (speed: AskAiSpeed) => void;
+}) {
+  const { translate: t } = useTranslation();
+  const options: { value: AskAiSpeed; label: string; hint: string }[] = [
+    {
+      value: "fast",
+      label: t("Fast"),
+      hint: t("Quicker answers for simple questions"),
+    },
+    {
+      value: "thorough",
+      label: t("Thorough"),
+      hint: t("More careful with dates and harder questions"),
+    },
+  ];
+  return (
+    <div className="inline-flex h-[24px] rounded-full bg-muted p-[2px] text-[12px]">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          title={option.hint}
+          className={
+            "px-[9px] rounded-full " +
+            (value === option.value
+              ? "bg-background text-card-foreground shadow-[0_1px_2px_rgba(0,0,0,.08)]"
+              : "text-muted-foreground hover:text-card-foreground")
+          }
+          onClick={() => onChange(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { throwFunctionError } from "@/queries/throwFunctionError";
 import type { AppointmentRow } from "@/queries/useAppointments";
 import type { Answer } from "./AiChat";
 import type { ChatMessage, ChatThread } from "./therapyStore";
+import type { AskAiSpeed } from "./ClinicAiPrivacy";
 
 function useOrgAppointments() {
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
@@ -49,12 +50,16 @@ export function usePracticeAnswers() {
   const { data: contacts } = useContacts();
   const { data: appointments } = useOrgAppointments();
 
-  async function answer(thread: ChatThread): Promise<Answer> {
+  async function answer(
+    thread: ChatThread,
+    speed: AskAiSpeed,
+  ): Promise<Answer> {
     const { data, error } = await supabase.functions.invoke<Answer>(
       "practice-ask",
       {
         body: {
           organization_id: orgId,
+          speed,
           messages: thread.messages
             .filter((m) => !m.failed)
             .map((m) => ({
