@@ -159,7 +159,21 @@ export function ClinicAiLocationChip() {
   );
 }
 
-/** Only offered within the EU: both models stay there. */
+/** Sweden only has one model that never leaves Stockholm. */
+export function AskAiSwedenModel() {
+  const { translate: t } = useTranslation();
+  return (
+    <span
+      title={t("The only Claude model that runs in Stockholm itself")}
+      className="inline-flex items-center h-[24px] px-[9px] rounded-full bg-muted text-[12px] text-muted-foreground"
+    >
+      Haiku 4.5
+    </span>
+  );
+}
+
+/** Model names match practice-ask's defaults (reply.ts, modelFor). Only
+ *  offered within the EU: both models stay there. */
 export function AskAiSpeedToggle({
   value,
   onChange,
@@ -171,12 +185,12 @@ export function AskAiSpeedToggle({
   const options: { value: AskAiSpeed; label: string; hint: string }[] = [
     {
       value: "fast",
-      label: t("Fast"),
-      hint: t("Quicker answers for simple questions"),
+      label: "Haiku 5.5",
+      hint: t("Fastest, for simple questions"),
     },
     {
       value: "thorough",
-      label: t("Thorough"),
+      label: "Sonnet 5.5",
       hint: t("More careful with dates and harder questions"),
     },
   ];

@@ -318,8 +318,14 @@ function EditOrganization() {
                 name="extra.ask_ai_location"
                 label={t("Where Ask AI works out answers")}
                 options={[
-                  { value: "eu", label: t("Anywhere in the EU") },
-                  { value: "stockholm", label: t("Sweden only (Stockholm)") },
+                  {
+                    value: "eu",
+                    label: t("Anywhere in the EU (Haiku 5.5 or Sonnet 5.5)"),
+                  },
+                  {
+                    value: "stockholm",
+                    label: t("Sweden only, Stockholm (Haiku 4.5)"),
+                  },
                 ]}
                 disabled={!isOwner}
               />

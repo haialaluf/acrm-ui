@@ -8,6 +8,7 @@ import AiChat from "@/components/therapy/AiChat";
 import { usePracticeAnswers } from "@/components/therapy/practiceAnswers";
 import {
   AskAiSpeedToggle,
+  AskAiSwedenModel,
   type AskAiSpeed,
   ClinicAiLocationChip,
   ClinicAiPrivacyButton,
@@ -119,7 +120,9 @@ function PracticeAsk() {
           composerExtra={
             <>
               <ClinicAiLocationChip />
-              {!inSweden && (
+              {inSweden ? (
+                <AskAiSwedenModel />
+              ) : (
                 <AskAiSpeedToggle value={speed} onChange={setSpeed} />
               )}
             </>
