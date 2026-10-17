@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ShieldCheck, X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "@/hooks/useTranslation";
+import { supabase } from "@/supabase/client";
+import { CONFIG_STALE_TIME } from "@/queries/cacheConfig";
 
 // Must match what the practice-ask function reads (practice-ask/clinic.ts).
 const SEES = [
@@ -17,8 +20,25 @@ const NEVER_SEES = [
   "Phone numbers, emails and other personal details",
 ];
 
+/** Set by the server's model choice. Until it answers, say "the EU", which
+ *  holds for every model. */
+function useProcessedInStockholm() {
+  const { data } = useQuery({
+    queryKey: ["practice-ask", "where"],
+    queryFn: async () => {
+      const { data } = await supabase.functions.invoke<{
+        processedIn: "stockholm" | "eu";
+      }>("practice-ask/where", { method: "GET" });
+      return data;
+    },
+    staleTime: CONFIG_STALE_TIME,
+  });
+  return data?.processedIn === "stockholm";
+}
+
 export function ClinicAiPrivacyNote() {
   const { translate: t } = useTranslation();
+  const inStockholm = useProcessedInStockholm();
   return (
     <div className="flex flex-col gap-[12px] text-start text-[13px] leading-[1.5]">
       <div className="flex items-center gap-[8px] font-semibold text-card-foreground">
@@ -45,9 +65,13 @@ export function ClinicAiPrivacyNote() {
         ))}
       </ul>
       <p className="text-[12px] text-muted-foreground">
-        {t(
-          "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in the EU; nothing leaves the EU and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
-        )}
+        {inStockholm
+          ? t(
+              "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in Stockholm, Sweden; nothing leaves Sweden and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
+            )
+          : t(
+              "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in the EU; nothing leaves the EU and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
+            )}
       </p>
     </div>
   );
