@@ -46,7 +46,7 @@ export function ClinicAiPrivacyNote() {
       </ul>
       <p className="text-[12px] text-muted-foreground">
         {t(
-          "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude in a private environment in the EU (Stockholm); nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
+          "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in the EU; nothing leaves the EU and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
         )}
       </p>
     </div>
