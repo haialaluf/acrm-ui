@@ -42,6 +42,7 @@ export type ChatMessage = {
   action?: "draft_reminders";
   basis?: string;
   attachments?: string[];
+  failed?: boolean;
   createdAt: string;
 };
 

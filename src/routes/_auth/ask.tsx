@@ -3,8 +3,13 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Check, Copy, MessageCircle } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useWorkspace } from "@/hooks/useWorkspace";
+import { useCurrentOrganization } from "@/queries/useOrganizations";
 import AiChat from "@/components/therapy/AiChat";
 import { usePracticeAnswers } from "@/components/therapy/practiceAnswers";
+import {
+  ClinicAiPrivacyButton,
+  ClinicAiPrivacySummary,
+} from "@/components/therapy/ClinicAiPrivacy";
 
 export const Route = createFileRoute("/_auth/ask")({
   component: PracticeAsk,
@@ -63,6 +68,7 @@ function PracticeAsk() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { isTherapy } = useWorkspace();
+  const { data: org } = useCurrentOrganization();
   const { answer, draftReminders } = usePracticeAnswers();
 
   const openPatient = (contactId: string, reportId?: string) =>
@@ -84,12 +90,15 @@ function PracticeAsk() {
         <span className="text-[12px] px-[9px] py-[2px] rounded-full bg-muted text-muted-foreground">
           {t("Your whole clinic")}
         </span>
+        {isTherapy && <ClinicAiPrivacyButton />}
       </div>
       {isTherapy ? (
         <AiChat
           scope="practice"
           layout="split"
           contextLabel={t("All patients")}
+          canAttach={false}
+          emptyNote={<ClinicAiPrivacySummary />}
           emptyTitle={t("Ask about your clinic…")}
           suggestions={[
             t("Who hasn't paid this month?"),
@@ -98,7 +107,7 @@ function PracticeAsk() {
             t("Income this month"),
             t("Which reports still need my approval?"),
           ]}
-          answer={(question) => answer(question)}
+          answer={(_question, _attachments, thread) => answer(thread)}
           onAction={draftReminders}
           onCitation={(citation) =>
             citation.contactId &&
@@ -120,9 +129,11 @@ function PracticeAsk() {
           }
         />
       ) : (
-        <div className="p-[24px] text-[14px] text-muted-foreground">
-          {t("Ask AI is part of the Therapy clinic workspace.")}
-        </div>
+        org && (
+          <div className="p-[24px] text-[14px] text-muted-foreground">
+            {t("Ask AI is part of the Therapy clinic workspace.")}
+          </div>
+        )
       )}
     </div>
   );

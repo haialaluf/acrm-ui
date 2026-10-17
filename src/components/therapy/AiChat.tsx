@@ -32,10 +32,16 @@ type Props = {
   scope: string;
   contextLabel: string;
   emptyTitle: string;
+  emptyNote?: ReactNode;
   suggestions: string[];
   recordFiles?: string[];
+  canAttach?: boolean;
   layout: "stacked" | "split";
-  answer: (question: string, attachments: string[]) => Answer;
+  answer: (
+    question: string,
+    attachments: string[],
+    thread: ChatThread,
+  ) => Promise<Answer>;
   onCitation?: (citation: Citation) => void;
   onAction?: (message: ChatMessage) => Answer | null;
   renderExtra?: (message: ChatMessage) => ReactNode;
@@ -266,8 +272,10 @@ export default function AiChat({
   scope,
   contextLabel,
   emptyTitle,
+  emptyNote,
   suggestions,
   recordFiles = [],
+  canAttach = true,
   layout,
   answer,
   onCitation,
@@ -327,7 +335,7 @@ export default function AiChat({
     setDraft("");
   }
 
-  function send(text: string) {
+  async function send(text: string) {
     const question = text.trim();
     if (!question || thinking) return;
     const now = new Date().toISOString();
@@ -361,26 +369,28 @@ export default function AiChat({
     setPending([]);
     setThinking(true);
 
-    setTimeout(
-      () => {
-        const reply = answer(question, attachments);
-        store.saveChat({
-          ...withQuestion,
-          updatedAt: new Date().toISOString(),
-          messages: [
-            ...withQuestion.messages,
-            {
-              ...reply,
-              id: newId(),
-              role: "assistant",
-              createdAt: new Date().toISOString(),
-            },
-          ],
-        });
-        setThinking(false);
-      },
-      900 + Math.random() * 700,
-    );
+    const reply: Answer = await answer(
+      question,
+      attachments,
+      withQuestion,
+    ).catch((err: unknown) => ({
+      text: `${t("Couldn't get an answer.")} ${err instanceof Error ? err.message : ""}`.trim(),
+      failed: true,
+    }));
+    store.saveChat({
+      ...withQuestion,
+      updatedAt: new Date().toISOString(),
+      messages: [
+        ...withQuestion.messages,
+        {
+          ...reply,
+          id: newId(),
+          role: "assistant",
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    });
+    setThinking(false);
   }
 
   const composer = (
@@ -461,22 +471,24 @@ export default function AiChat({
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
-              send(draft);
+              void send(draft);
             }
           }}
         />
         <div className="flex items-center gap-[6px]">
-          <button
-            type="button"
-            title={t("Attach")}
-            className={
-              "w-[32px] h-[32px] rounded-full flex items-center justify-center " +
-              (menuOpen ? "bg-accent" : "hover:bg-accent")
-            }
-            onClick={() => setMenuOpen((o) => !o)}
-          >
-            <Plus className="w-[18px] h-[18px]" />
-          </button>
+          {canAttach && (
+            <button
+              type="button"
+              title={t("Attach")}
+              className={
+                "w-[32px] h-[32px] rounded-full flex items-center justify-center " +
+                (menuOpen ? "bg-accent" : "hover:bg-accent")
+              }
+              onClick={() => setMenuOpen((o) => !o)}
+            >
+              <Plus className="w-[18px] h-[18px]" />
+            </button>
+          )}
           <span className="inline-flex items-center gap-[5px] h-[24px] px-[9px] rounded-full bg-muted text-accent-foreground text-[12px]">
             <UserRound className="w-[12px] h-[12px]" />
             {contextLabel}
@@ -486,7 +498,7 @@ export default function AiChat({
             title={t("Send")}
             disabled={!draft.trim() || thinking}
             className="ms-auto w-[34px] h-[34px] rounded-full flex items-center justify-center bg-primary text-primary-foreground disabled:bg-muted disabled:text-muted-foreground"
-            onClick={() => send(draft)}
+            onClick={() => void send(draft)}
           >
             <ArrowUp className="w-[17px] h-[17px]" />
           </button>
@@ -532,13 +544,18 @@ export default function AiChat({
                     key={s}
                     type="button"
                     className="flex items-center gap-[10px] px-[12px] py-[10px] border border-border rounded-[12px] bg-popover text-[13px] text-start text-card-foreground hover:bg-accent"
-                    onClick={() => send(s)}
+                    onClick={() => void send(s)}
                   >
                     <Sparkles className="w-[15px] h-[15px] text-primary shrink-0" />
                     {s}
                   </button>
                 ))}
               </div>
+              {emptyNote && (
+                <div className="w-full max-w-[360px] rounded-[12px] bg-accent/60 px-[12px] py-[10px] mt-[4px]">
+                  {emptyNote}
+                </div>
+              )}
             </div>
           )}
           {active?.messages.map((message) =>
@@ -630,7 +647,7 @@ export default function AiChat({
                 className="flex items-center gap-[10px] px-[12px] py-[10px] border border-border rounded-[12px] bg-popover text-[13px] text-start text-card-foreground hover:bg-accent"
                 onClick={() => {
                   startNew();
-                  setTimeout(() => send(s), 0);
+                  setTimeout(() => void send(s), 0);
                 }}
               >
                 <Sparkles className="w-[15px] h-[15px] text-primary shrink-0" />

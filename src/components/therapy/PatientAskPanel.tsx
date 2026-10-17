@@ -65,7 +65,14 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
           t("Draft a letter to the referring doctor"),
         ]}
         recordFiles={recordFiles}
-        answer={answer}
+        answer={(question, attachments) =>
+          new Promise((resolve) =>
+            setTimeout(
+              () => resolve(answer(question, attachments)),
+              900 + Math.random() * 700,
+            ),
+          )
+        }
         onCitation={(citation) => {
           if (citation.kind === "report" && citation.reportId) {
             void navigate({
