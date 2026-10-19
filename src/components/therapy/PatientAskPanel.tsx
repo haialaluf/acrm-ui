@@ -15,6 +15,7 @@ import {
   useAskAiInSweden,
 } from "./ClinicAiPrivacy";
 import { usePatientAnswers } from "./patientAnswers";
+import { patientChatScope } from "./therapyStore";
 
 function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
   const { translate: t } = useTranslation();
@@ -64,7 +65,7 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
       </div>
       <AiChat
         key={contact.id}
-        scope={`contact:${contact.id}`}
+        scope={patientChatScope(contact.id)}
         layout="split"
         contextLabel={`${name}'s record`}
         emptyTitle={`${t("Ask anything about")} ${name}…`}

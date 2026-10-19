@@ -19,6 +19,7 @@ import { queryKeys } from "./queryKeys";
 import { throwFunctionError } from "./throwFunctionError";
 import { useCurrentOrganization } from "./useOrganizations";
 import { addTherapyNote } from "./useContactNotes";
+import { forgetPatientChats } from "@/components/therapy/therapyStore";
 
 const CONTACT_WITH_ADDRESSES = "*, addresses:contacts_addresses(*)";
 
@@ -713,6 +714,7 @@ export function useArchiveContacts() {
       for (const id of ids) await invokePatientAction(`${id}/archive`, "POST");
     },
     onSuccess: (_data, ids) => {
+      if (orgId) forgetPatientChats(orgId, ids);
       const gone = new Set(ids);
       queryClient.setQueryData<{ data: ContactWithAddressesRow[] }>(
         queryKeys.contacts.all(orgId),
@@ -752,6 +754,7 @@ export function usePermanentlyDeleteContact() {
   return useMutation({
     mutationFn: (id: string) => invokePatientAction(id, "DELETE"),
     onSuccess: (_data, id) => {
+      if (orgId) forgetPatientChats(orgId, [id]);
       dropContactsFromCaches(queryClient, orgId, [id]);
       void queryClient.invalidateQueries({
         queryKey: queryKeys.contacts.archived(orgId),

@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Route } from "@/routes/__root";
 import { useQueryClient } from "@tanstack/react-query";
+import { forgetAllChats } from "@/components/therapy/therapyStore";
 
 /**
  * Hook to manage authentication state
@@ -44,8 +45,8 @@ export function useAuth() {
         !user &&
         !window.location.pathname.startsWith("/login")
       ) {
-        // Clear all queries and org state
         queryClient.clear();
+        forgetAllChats();
         setActiveOrg(null);
 
         navigate({

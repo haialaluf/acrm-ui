@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from "react";
 import useBoundStore from "@/stores/useBoundStore";
 
-// Ask AI chats still live in this browser only, per organization. Session
-// reports and templates are in the database / patient-data S3 bucket.
+// Ask AI chats still live in this browser only, per organization, so they are
+// wiped on sign-out and when a patient is archived or erased: answers quote
+// clinical records and must not outlive the session on a shared computer.
 
 export type ReportSection = {
   title: string;
@@ -63,8 +64,10 @@ const EMPTY: State = { chats: [] };
 const listeners = new Set<() => void>();
 const cache = new Map<string, State>();
 
+const STORAGE_PREFIX = "therapy-preview:";
+
 function storageKey(orgId: string) {
-  return `therapy-preview:${orgId}`;
+  return `${STORAGE_PREFIX}${orgId}`;
 }
 
 function read(orgId: string): State {
@@ -98,6 +101,30 @@ function write(orgId: string, update: (state: State) => State) {
 function subscribe(listener: () => void) {
   listeners.add(listener);
   return () => listeners.delete(listener);
+}
+
+export function patientChatScope(contactId: string) {
+  return `contact:${contactId}`;
+}
+
+export function forgetAllChats() {
+  cache.clear();
+  try {
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith(STORAGE_PREFIX))
+      .forEach((key) => localStorage.removeItem(key));
+  } catch {
+    // Blocked storage holds nothing to wipe.
+  }
+  listeners.forEach((listener) => listener());
+}
+
+export function forgetPatientChats(orgId: string, contactIds: string[]) {
+  const scopes = new Set(contactIds.map(patientChatScope));
+  write(orgId, (s) => ({
+    ...s,
+    chats: s.chats.filter((c) => !scopes.has(c.scope)),
+  }));
 }
 
 export function newId() {
