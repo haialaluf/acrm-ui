@@ -182,16 +182,24 @@ export function AskAiSpeedToggle({
   onChange: (speed: AskAiSpeed) => void;
 }) {
   const { translate: t } = useTranslation();
-  const options: { value: AskAiSpeed; label: string; hint: string }[] = [
+  const options: {
+    value: AskAiSpeed;
+    label: string;
+    hint: string;
+    available: boolean;
+  }[] = [
     {
       value: "fast",
       label: "Haiku 5.5",
       hint: t("Fastest, for simple questions"),
+      available: true,
     },
     {
+      // Held back until clinics pay for their own Ask AI usage.
       value: "thorough",
       label: "Sonnet 5.5",
-      hint: t("More careful with dates and harder questions"),
+      hint: t("Not available yet"),
+      available: false,
     },
   ];
   return (
@@ -201,11 +209,14 @@ export function AskAiSpeedToggle({
           key={option.value}
           type="button"
           title={option.hint}
+          disabled={!option.available}
           className={
             "px-[9px] rounded-full " +
             (value === option.value
               ? "bg-background text-card-foreground shadow-[0_1px_2px_rgba(0,0,0,.08)]"
-              : "text-muted-foreground hover:text-card-foreground")
+              : option.available
+                ? "text-muted-foreground hover:text-card-foreground"
+                : "text-muted-foreground/50 cursor-not-allowed")
           }
           onClick={() => onChange(option.value)}
         >

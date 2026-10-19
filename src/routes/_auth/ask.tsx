@@ -75,7 +75,7 @@ function PracticeAsk() {
   const { isTherapy } = useWorkspace();
   const { data: org } = useCurrentOrganization();
   const inSweden = useAskAiInSweden();
-  const [speed, setSpeed] = useState<AskAiSpeed>("thorough");
+  const [speed, setSpeed] = useState<AskAiSpeed>("fast");
   const { answer, draftReminders } = usePracticeAnswers();
 
   const openPatient = (contactId: string, reportId?: string) =>
@@ -114,9 +114,7 @@ function PracticeAsk() {
             t("Income this month"),
             t("Which reports still need my approval?"),
           ]}
-          answer={(_question, _attachments, thread) =>
-            answer(thread, inSweden ? "thorough" : speed)
-          }
+          answer={(_question, _attachments, thread) => answer(thread, speed)}
           composerExtra={
             <>
               <ClinicAiLocationChip />
