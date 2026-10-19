@@ -19,6 +19,17 @@ function Row({ label, value }: { label: string; value: string }) {
 
 const Rule = () => <div className="h-px bg-border" />;
 
+function AnswerRow({ question, answer }: { question: string; answer: string }) {
+  return (
+    <div className="flex flex-col gap-[4px] py-[9px]">
+      <div className="text-[13px] text-muted-foreground break-words">
+        {question.replaceAll("_", " ")}
+      </div>
+      <div className="text-[15px] break-words">{answer}</div>
+    </div>
+  );
+}
+
 /**
  * Where a lead came from, and what they answered.
  *
@@ -36,8 +47,6 @@ export default function ContactLeadTab({
   const { translate: t } = useTranslation();
   const { data: lead } = useContactLead(contact.id);
 
-  // The flattened question -> answer map the import writes onto the contact.
-  // The verbatim submission is `lead.field_data`; this is the readable view.
   const answers = useMemo(
     () =>
       Object.entries((contact.extra as ContactExtra | null)?.lead_fields ?? {}),
@@ -89,7 +98,7 @@ export default function ContactLeadTab({
           {answers.map(([question, answer], idx) => (
             <div key={question}>
               {idx > 0 && <Rule />}
-              <Row label={question} value={answer} />
+              <AnswerRow question={question} answer={answer} />
             </div>
           ))}
         </div>
