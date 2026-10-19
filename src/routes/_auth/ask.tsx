@@ -117,7 +117,7 @@ function PracticeAsk() {
           answer={(_question, _attachments, thread) => answer(thread, speed)}
           composerExtra={
             <>
-              <ClinicAiLocationChip />
+              <ClinicAiLocationChip scope="clinic" />
               {inSweden ? (
                 <AskAiSwedenModel />
               ) : (

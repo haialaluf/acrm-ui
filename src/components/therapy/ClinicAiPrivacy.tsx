@@ -3,20 +3,36 @@ import { Check, Lock, ShieldCheck, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentOrganization } from "@/queries/useOrganizations";
 
-// Must match what the practice-ask function reads (practice-ask/clinic.ts).
-const SEES = [
+// Must match what the practice-ask function reads (practice-ask/clinic.ts
+// and practice-ask/patient.ts).
+const CLINIC_SEES = [
   "Names and session prices",
   "Session dates and times, and whether each was paid",
   "Which session reports exist (template and date) and whether each is approved",
 ];
 
-const NEVER_SEES = [
+const CLINIC_NEVER_SEES = [
   "Notes",
   "What is written in session reports",
   "Files and documents",
   "Messages with patients",
   "Phone numbers, emails and other personal details",
 ];
+
+const PATIENT_SEES = [
+  "This patient's name, date of birth, sessions and payments",
+  "Their notes and session reports",
+  "The names of their files",
+  "Their recent messages with the clinic",
+];
+
+const PATIENT_NEVER_SEES = [
+  "Other patients",
+  "What is inside their files",
+  "Phone numbers, emails and the emergency contact",
+];
+
+export type AskAiScope = "clinic" | "patient";
 
 export type AskAiSpeed = "fast" | "thorough";
 
@@ -43,9 +59,12 @@ function usePopover() {
 const PANEL =
   "absolute w-[340px] max-w-[calc(100vw-32px)] bg-popover rounded-[16px] shadow-[0_12px_32px_rgba(0,0,0,.16)] p-[16px] z-20";
 
-export function ClinicAiPrivacyNote() {
+export function ClinicAiPrivacyNote({ scope }: { scope: AskAiScope }) {
   const { translate: t } = useTranslation();
   const inSweden = useAskAiInSweden();
+  const sees = scope === "patient" ? PATIENT_SEES : CLINIC_SEES;
+  const neverSees =
+    scope === "patient" ? PATIENT_NEVER_SEES : CLINIC_NEVER_SEES;
   return (
     <div className="flex flex-col gap-[12px] text-start text-[13px] leading-[1.5]">
       <div className="flex items-center gap-[8px] font-semibold text-card-foreground">
@@ -53,7 +72,7 @@ export function ClinicAiPrivacyNote() {
         {t("What Ask AI can see here")}
       </div>
       <ul className="flex flex-col gap-[4px]">
-        {SEES.map((item) => (
+        {sees.map((item) => (
           <li key={item} className="flex gap-[8px] text-card-foreground">
             <Check className="w-[14px] h-[14px] mt-[3px] text-primary shrink-0" />
             {t(item)}
@@ -64,7 +83,7 @@ export function ClinicAiPrivacyNote() {
         {t("It never sees")}
       </div>
       <ul className="flex flex-col gap-[4px]">
-        {NEVER_SEES.map((item) => (
+        {neverSees.map((item) => (
           <li key={item} className="flex gap-[8px] text-muted-foreground">
             <X className="w-[14px] h-[14px] mt-[3px] shrink-0" />
             {t(item)}
@@ -72,13 +91,21 @@ export function ClinicAiPrivacyNote() {
         ))}
       </ul>
       <p className="text-[12px] text-muted-foreground">
-        {inSweden
-          ? t(
-              "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in Stockholm, Sweden; nothing leaves Sweden and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
-            )
-          : t(
-              "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in the EU; nothing leaves the EU and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
-            )}
+        {scope === "patient"
+          ? inSweden
+            ? t(
+                "Only members of your clinic can ask. Answers are worked out by Claude on Amazon's servers in Stockholm, Sweden; nothing leaves Sweden and nothing is used to train AI. Each question is recorded in this patient's access log.",
+              )
+            : t(
+                "Only members of your clinic can ask. Answers are worked out by Claude on Amazon's servers in the EU; nothing leaves the EU and nothing is used to train AI. Each question is recorded in this patient's access log.",
+              )
+          : inSweden
+            ? t(
+                "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in Stockholm, Sweden; nothing leaves Sweden and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
+              )
+            : t(
+                "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in the EU; nothing leaves the EU and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
+              )}
       </p>
       <p className="text-[12px] text-muted-foreground">
         {t(
@@ -124,7 +151,7 @@ export function ClinicAiPrivacyButton() {
       </button>
       {open && (
         <div className={`${PANEL} top-[calc(100%+6px)] end-0`}>
-          <ClinicAiPrivacyNote />
+          <ClinicAiPrivacyNote scope="clinic" />
         </div>
       )}
     </div>
@@ -132,7 +159,7 @@ export function ClinicAiPrivacyButton() {
 }
 
 /** Shown in the composer, so everyone sees where their question goes. */
-export function ClinicAiLocationChip() {
+export function ClinicAiLocationChip({ scope }: { scope: AskAiScope }) {
   const { translate: t } = useTranslation();
   const inSweden = useAskAiInSweden();
   const { open, toggle, ref } = usePopover();
@@ -152,7 +179,7 @@ export function ClinicAiLocationChip() {
       </button>
       {open && (
         <div className={`${PANEL} bottom-[calc(100%+8px)] start-0`}>
-          <ClinicAiPrivacyNote />
+          <ClinicAiPrivacyNote scope={scope} />
         </div>
       )}
     </div>

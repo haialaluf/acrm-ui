@@ -29,7 +29,7 @@ function useOrgAppointments() {
 }
 
 /** What the model sees of an earlier answer when the therapist follows up. */
-function asText(message: ChatMessage) {
+export function asText(message: ChatMessage) {
   return [
     message.text,
     ...(message.bullets ?? []).map((b) => `- ${b.text}`),

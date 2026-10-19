@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Sparkles, X } from "lucide-react";
 import Avatar from "@/components/Avatar";
@@ -6,12 +7,21 @@ import { useContact } from "@/queries/useContacts";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import { nameInitials } from "@/utils/FormatUtils";
 import AiChat from "./AiChat";
+import {
+  AskAiSpeedToggle,
+  AskAiSwedenModel,
+  type AskAiSpeed,
+  ClinicAiLocationChip,
+  useAskAiInSweden,
+} from "./ClinicAiPrivacy";
 import { usePatientAnswers } from "./patientAnswers";
 
 function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const { answer, recordFiles, name } = usePatientAnswers(contact);
+  const { answer, name } = usePatientAnswers(contact);
+  const inSweden = useAskAiInSweden();
+  const [speed, setSpeed] = useState<AskAiSpeed>("fast");
 
   const openTab = (tab: "sessions" | "notes" | "files") =>
     void navigate({
@@ -64,14 +74,17 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
           t("What homework did we agree on?"),
           t("Draft a letter to the referring doctor"),
         ]}
-        recordFiles={recordFiles}
-        answer={(question, attachments) =>
-          new Promise((resolve) =>
-            setTimeout(
-              () => resolve(answer(question, attachments)),
-              900 + Math.random() * 700,
-            ),
-          )
+        canAttach={false}
+        answer={(_question, _attachments, thread) => answer(thread, speed)}
+        composerExtra={
+          <>
+            <ClinicAiLocationChip scope="patient" />
+            {inSweden ? (
+              <AskAiSwedenModel />
+            ) : (
+              <AskAiSpeedToggle value={speed} onChange={setSpeed} />
+            )}
+          </>
         }
         onCitation={(citation) => {
           if (citation.kind === "report" && citation.reportId) {
