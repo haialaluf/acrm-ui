@@ -1565,5 +1565,10 @@
   "Every device and Google Calendar already using this link will stop syncing and has to be connected again.": "כל מכשיר ו-Google Calendar שכבר משתמשים בקישור הזה יפסיקו להסתנכרן ויצטרכו להתחבר מחדש.",
   "The Facebook Page could not be connected.": "לא הצלחנו לחבר את עמוד הפייסבוק.",
   "Facebook did not return any Page for this account. Make sure you are logged in to Facebook with an account that manages the Page, then connect again, choose 'Edit settings' and select the Page.": "פייסבוק לא החזירה אף עמוד עבור החשבון הזה. ודאו שאתם מחוברים לפייסבוק עם חשבון שמנהל את העמוד, ואז התחברו שוב, בחרו \"עריכת ההגדרות\" וסמנו את העמוד.",
-  "No eligible Facebook Pages found. You need the 'Ads' or 'Messages' task on the Page — ask a Page admin to grant it, then try again.": "לא נמצאו עמודי פייסבוק מתאימים. נדרשת הרשאת 'מודעות' או 'הודעות' בעמוד — בקשו ממנהל העמוד להעניק אותה ונסו שוב."
+  "No eligible Facebook Pages found. You need the 'Ads' or 'Messages' task on the Page — ask a Page admin to grant it, then try again.": "לא נמצאו עמודי פייסבוק מתאימים. נדרשת הרשאת 'מודעות' או 'הודעות' בעמוד — בקשו ממנהל העמוד להעניק אותה ונסו שוב.",
+  "Delete organization": "מחיקת ארגון",
+  "Permanently deletes all of this organization's data and disconnects its channels. This cannot be undone.": "מחיקה לצמיתות של כל נתוני הארגון וניתוק הערוצים שלו. לא ניתן לבטל פעולה זו.",
+  "Delete this organization": "מחיקת הארגון",
+  "All contacts, conversations, messages, templates, agents and files will be deleted. Connected WhatsApp numbers, Instagram and Facebook accounts and email domains will be disconnected.": "כל אנשי הקשר, השיחות, ההודעות, התבניות, הסוכנים והקבצים יימחקו. מספרי WhatsApp, חשבונות Instagram ו-Facebook ודומיינים של אימייל המחוברים לארגון ינותקו.",
+  "To confirm, type the organization name:": "לאישור, יש להקליד את שם הארגון:"
 }

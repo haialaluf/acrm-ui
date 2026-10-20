@@ -33,6 +33,7 @@ export default function ConfirmModal({
   confirmLabel,
   danger = true,
   loading = false,
+  confirmDisabled = false,
   onConfirm,
   onCancel,
 }: {
@@ -42,6 +43,7 @@ export default function ConfirmModal({
   confirmLabel: string;
   danger?: boolean;
   loading?: boolean;
+  confirmDisabled?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -123,6 +125,7 @@ export default function ConfirmModal({
         <Button
           type="button"
           loading={loading}
+          invalid={confirmDisabled}
           onClick={onConfirm}
           className={(danger ? "destructive" : "primary") + " px-[20px]"}
         >

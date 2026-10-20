@@ -19,6 +19,7 @@ import Switch from "@/components/Switch";
 import TextAreaField from "@/components/TextAreaField";
 import SectionField from "@/components/SectionField";
 import WorkingHoursField from "@/components/WorkingHoursField";
+import DeleteOrganization from "@/components/DeleteOrganization";
 import CountryField, { useDetectedRegion } from "@/components/CountryField";
 import {
   expandClosedDays,
@@ -113,20 +114,7 @@ function EditOrganization() {
 
   return (
     <>
-      <SectionHeader
-        title={t("Edit organization")}
-        onDelete={() =>
-          deleteOrg.mutate(undefined, {
-            onSuccess: () => {
-              setActiveOrg(null);
-              navigate({ to: "/conversations" });
-            },
-          })
-        }
-        deleteDisabled={!isOwner}
-        deleteDisabledReason={t("Requires owner permissions")}
-        deleteLoading={deleteOrg.isPending}
-      />
+      <SectionHeader title={t("Edit organization")} />
 
       <SectionBody>
         <form
@@ -395,6 +383,24 @@ function EditOrganization() {
             )}
           </SectionField>
         </form>
+
+        <div className="border-t border-border" />
+
+        <DeleteOrganization
+          name={org?.name ?? ""}
+          disabled={!isOwner || !org}
+          loading={deleteOrg.isPending}
+          error={deleteOrg.error}
+          onReset={deleteOrg.reset}
+          onDelete={() =>
+            deleteOrg.mutate(undefined, {
+              onSuccess: () => {
+                setActiveOrg(null);
+                navigate({ to: "/conversations" });
+              },
+            })
+          }
+        />
       </SectionBody>
 
       <SectionFooter>
