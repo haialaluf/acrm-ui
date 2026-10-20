@@ -20,7 +20,7 @@ import { Bell } from "lucide-react";
 import Button from "@/components/Button";
 import SelectField from "@/components/SelectField";
 import { queryKeys } from "@/queries/queryKeys";
-import { isOwnerRole } from "@/utils/roles";
+import { isGhost, isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/members/$memberId")({
   component: EditMember,
@@ -147,6 +147,9 @@ function EditMember() {
               { value: "member", label: t("Member") },
               { value: "admin", label: t("Administrator") },
               { value: "owner", label: t("Owner") },
+              ...(isGhost(agent.extra?.role)
+                ? [{ value: "super_admin", label: t("Super admin") }]
+                : []),
             ]}
             disabled={!isOwner}
             required
