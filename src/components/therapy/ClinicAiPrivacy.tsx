@@ -23,11 +23,11 @@ const PATIENT_SEES = [
   "This patient's details, including phone, email and emergency contact",
   "Their sessions and payments",
   "Their notes and session reports",
-  "The names of their files",
-  "Their recent messages with the clinic",
+  "Their files, including what is written inside them",
+  "Their messages with the clinic",
 ];
 
-const PATIENT_NEVER_SEES = ["Other patients", "What is inside their files"];
+const PATIENT_NEVER_SEES = ["Other patients"];
 
 export type AskAiScope = "clinic" | "patient";
 
