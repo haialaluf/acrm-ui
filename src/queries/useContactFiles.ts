@@ -143,7 +143,9 @@ export function useDeleteContactFile(contactId: string) {
         .delete()
         .eq("id", file.id)
         .throwOnError();
-      await supabase.storage.from("media").remove([file.storage_path]);
+      await supabase.storage
+        .from("media")
+        .remove([file.storage_path, `${file.storage_path}_text`]);
     },
     onSuccess: () =>
       queryClient.invalidateQueries({
