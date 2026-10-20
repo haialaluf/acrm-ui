@@ -33,7 +33,7 @@ const isScheduled = (category: string) =>
 /**
  * What Meta has told us about this number, newest first.
  *
- * Only real `logs` rows — this is a record of events that happened, not a
+ * Only real `logs` rows - this is a record of events that happened, not a
  * re-derivation of the charts above.
  */
 export default function EventsTimeline({ events }: { events: LogRow[] }) {

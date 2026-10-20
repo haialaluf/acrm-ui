@@ -22,7 +22,7 @@ import {
 /**
  * The public booking page: calendar.delacrm.com/<token>.
  *
- * The token in the path is the whole credential and the whole route — there is
+ * The token in the path is the whole credential and the whole route - there is
  * no router, no session and no account behind this page. Everything it can
  * show comes from `GET /booking/:token`: the company, the calendar, and the
  * contact's own appointment if they already have one.
@@ -85,7 +85,7 @@ export default function App({ initialLang }: { initialLang: Language }) {
         setAppointment(link.appointment);
       })
       .catch(() => {
-        // A transport failure is not an invalid link — saying so would send
+        // A transport failure is not an invalid link - saying so would send
         // someone with a perfectly good link away for good.
         if (!cancelled) setState({ kind: "error" });
       });

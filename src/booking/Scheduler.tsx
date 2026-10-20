@@ -28,7 +28,7 @@ import TimeSlots from "./TimeSlots";
  * right.
  *
  * Availability is never computed here. The page asks the edge function for the
- * free starts of the visible month and shows exactly those — the server is the
+ * free starts of the visible month and shows exactly those - the server is the
  * only thing that knows the working hours, the notice window, the horizon and
  * what is already booked, and it re-checks all of it when the appointment is
  * actually created.
@@ -120,7 +120,7 @@ export default function Scheduler({
   return (
     <>
       {/* The extra top padding on a phone is for the language switch, which
-          floats over this corner once the card goes full-bleed — so it is only
+          floats over this corner once the card goes full-bleed - so it is only
           warranted when that switch is actually on screen. */}
       <aside
         className={`flex flex-col border-b border-border px-[30px] pt-[30px] pb-[28px] md:border-b-0 md:border-e md:border-border md:pt-[30px] ${

@@ -5,7 +5,7 @@ export type BatchStatus =
   | "failed"
   | "cancelled";
 
-/** Derives a single display status from a list_broadcast_batches row — there
+/** Derives a single display status from a list_broadcast_batches row - there
  *  is no stored status column (see that RPC's comment), so this mirrors the
  *  same precedence the earlier design-mockup version used. Still-pending
  *  takes priority (the batch isn't resolved yet); once resolved, an
@@ -36,7 +36,7 @@ export function batchStatus(row: {
  * instant the user picked, so a batch set for 18:00 today reads "Scheduled"
  * until 18:00 instead of claiming to be "Sending" from midnight.
  *
- * Without it (rows that predate the column) fall back to the day — but
+ * Without it (rows that predate the column) fall back to the day - but
  * compared in the viewer's own timezone: the previous `toISOString()` version
  * measured a UTC day against a local one and flipped a day early or late
  * around midnight.

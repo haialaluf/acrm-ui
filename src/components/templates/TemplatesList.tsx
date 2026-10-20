@@ -16,7 +16,7 @@ import { statusDot } from "@/components/emailTemplate/status";
 import type { OutboundChannel } from "@/hooks/useAccess";
 
 /** Which kind of template the list is showing. Templates are per-channel all
- *  the way down — different stores, different editors — so this is a switch
+ *  the way down - different stores, different editors - so this is a switch
  *  between two lists, not a filter over one.
  *
  *  An alias rather than its own union: it is the same set as what an
@@ -88,7 +88,7 @@ export function ChannelToggle({
   /** Which halves to offer. Callers pass the organization's connected outbound
    *  channels (`useOutboundChannels`), so a WhatsApp-only organization is never
    *  shown an Email half it cannot send from. A single entry renders as one
-   *  inert pill, which is deliberate — it labels what the list below holds. */
+   *  inert pill, which is deliberate - it labels what the list below holds. */
   channels: TemplateChannel[];
 }) {
   const { translate: t } = useTranslation();
@@ -130,7 +130,7 @@ export function ChannelToggle({
  * The templates list, shared by every surface that shows one: the top-level
  * `/templates` section, the per-number `/integrations/whatsapp/$id/templates`
  * route, and the bulk-send wizard's ManageTemplatesOverlay. Presentational
- * only — callers own the query and the navigation.
+ * only - callers own the query and the navigation.
  */
 export default function TemplatesList({
   templates,
@@ -142,10 +142,10 @@ export default function TemplatesList({
 }: {
   templates?: TemplateData[];
   /** Pass `addressLoading || templatesLoading` when the organization address is
-   *  itself resolved asynchronously — `useTemplates(undefined)` is disabled, so
+   *  itself resolved asynchronously - `useTemplates(undefined)` is disabled, so
    *  its own `isLoading` is false while the address is still in flight. */
   isLoading?: boolean;
-  /** A failed load must say so — without it a list that could not be fetched
+  /** A failed load must say so - without it a list that could not be fetched
    *  is indistinguishable from a number with no templates yet. Same reasoning
    *  as `EmailTemplatesList` below. */
   error?: Error | null;
@@ -154,7 +154,7 @@ export default function TemplatesList({
   /** Extra detail appended to a row's description line. Exists for the
    *  bulk-send wizard, where the question is "what will this cost me to fill
    *  in" (variable count, language) rather than the management surfaces'
-   *  "what is this" — rather than have the wizard fork the whole list to add
+   *  "what is this" - rather than have the wizard fork the whole list to add
    *  two spans. */
   renderMeta?: (template: TemplateData) => ReactNode;
 }) {
@@ -245,7 +245,7 @@ export default function TemplatesList({
 
 /** The email half of the same section. Separate from `TemplatesList` rather
  *  than a channel-branching mega-component: the two share a shell but nothing
- *  about a row — different fields, different status vocabulary, different
+ *  about a row - different fields, different status vocabulary, different
  *  editor. */
 export function EmailTemplatesList({
   templates,
@@ -309,7 +309,7 @@ export function EmailTemplatesList({
                 title={t(template.status)}
               />
               {/* The subject is what people recognise a template by, far more
-                  than its category — so it gets the room. */}
+                  than its category - so it gets the room. */}
               <span className="truncate" dir="auto">
                 {template.subject || t("No subject")}
               </span>

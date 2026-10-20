@@ -4,7 +4,7 @@ import useBoundStore from "@/stores/useBoundStore";
 import { PREVIEW_SIGNED_URL_TTL_SECONDS } from "@/hooks/useSignedMediaUrl";
 import { queryKeys } from "./queryKeys";
 
-/** Everything we upload lands here — see `uploadMediaToBucket`. The bucket's
+/** Everything we upload lands here - see `uploadMediaToBucket`. The bucket's
  *  RLS keys off `organizations/<orgId>/…`, so this prefix is also the boundary
  *  of what the current member is allowed to see. */
 const folderFor = (orgId: string) => `organizations/${orgId}/attachments`;
@@ -16,7 +16,7 @@ const PAGE_SIZE = 100;
 const MAX_OBJECTS = 1000;
 
 export type OrgMediaItem = {
-  /** Object path inside the `media` bucket. Stable — the signed URL is not. */
+  /** Object path inside the `media` bucket. Stable - the signed URL is not. */
   path: string;
   name: string;
   /** Signed URL, valid for `PREVIEW_SIGNED_URL_TTL_SECONDS`. */
@@ -30,7 +30,7 @@ export type OrgMediaItem = {
  * Every file in the org's `media` bucket, newest first, each with a fresh
  * signed URL.
  *
- * The bucket is private, so a listing on its own is unusable — a name without a
+ * The bucket is private, so a listing on its own is unusable - a name without a
  * signature renders nothing. Both halves therefore belong together: one `list`
  * walk for the names, one `createSignedUrls` batch for the URLs, so a hundred
  * thumbnails cost two round trips rather than a hundred and one.
@@ -39,7 +39,7 @@ export type OrgMediaItem = {
  * places images), which keeps us from minting signatures for the audio and PDF
  * attachments that WhatsApp conversations drop into the same bucket.
  *
- * Cached well inside the signature TTL — re-signing on every mount would defeat
+ * Cached well inside the signature TTL - re-signing on every mount would defeat
  * the batching above.
  */
 export function useOrgMedia({ mimePrefix }: { mimePrefix?: string } = {}) {

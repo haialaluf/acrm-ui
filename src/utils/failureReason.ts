@@ -2,7 +2,7 @@ import { knownErrorMeta } from "@/components/stats/health/errorCodes";
 import type { Json, OutgoingStatus } from "@/supabase/client";
 
 export type FailureReason = {
-  /** Provider code, when the entry carries one — Meta's number, SES's bounce
+  /** Provider code, when the entry carries one - Meta's number, SES's bounce
    *  sub-type. Render it LTR: it is an identifier, not prose. */
   code?: string;
   /** What happened. */
@@ -39,7 +39,7 @@ function text(value: unknown): string | undefined {
 /** Copy for the `{ reason }` tags our own edge functions write. */
 const REASON_TAGS: Record<string, FailureReason> = {
   suppressed: {
-    title: "Not sent — the address is on your do-not-contact list",
+    title: "Not sent - the address is on your do-not-contact list",
     hint: "It bounced, reported spam or opted out before. Take it off the list to reach it again.",
   },
   complaint: {
@@ -56,18 +56,18 @@ const REASON_TAGS: Record<string, FailureReason> = {
   },
   delivery_delay: {
     title: "The receiving server is not accepting the email yet",
-    hint: "Amazon SES is still retrying — this is not a final failure.",
+    hint: "Amazon SES is still retrying - this is not a final failure.",
   },
 };
 
 const BOUNCE_TYPES: Record<string, FailureReason> = {
   Permanent: {
     title: "The address does not exist",
-    hint: "A hard bounce. The address is now on your do-not-contact list — clean it out of your lists too.",
+    hint: "A hard bounce. The address is now on your do-not-contact list - clean it out of your lists too.",
   },
   Transient: {
     title: "The mailbox could not accept the email",
-    hint: "A soft bounce — a full mailbox, or a server that refused this one time. The address stays on your list.",
+    hint: "A soft bounce - a full mailbox, or a server that refused this one time. The address stays on your list.",
   },
 };
 
@@ -133,7 +133,7 @@ function describe(entry: unknown): FailureReason | null {
 /**
  * Why a message failed, or null when its status carries nothing usable.
  *
- * Says nothing about *whether* it failed — a transient error is recorded
+ * Says nothing about *whether* it failed - a transient error is recorded
  * without a `failed` key so the dispatcher keeps retrying, and a spam complaint
  * arrives on a message that was delivered. Callers decide when to show this.
  */

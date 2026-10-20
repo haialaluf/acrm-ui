@@ -68,7 +68,7 @@ export default function SectionItem({
         {/* Lower Row: Description.
             Flat rather than a flex wrapper around the text: inside a flex
             container the text becomes an anonymous flex item, and
-            `text-overflow: ellipsis` has nothing to apply to — the sentence
+            `text-overflow: ellipsis` has nothing to apply to - the sentence
             got clipped mid-word with no "…" to say so. */}
         {description && (
           <div

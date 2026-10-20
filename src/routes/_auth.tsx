@@ -85,7 +85,7 @@ function AppLayout() {
   // stacks inside the form panel.
   //
   // The email builder's paths carry an extra segment (/templates/email/<id>),
-  // which is what keeps them out of this regex — do not loosen it to `.*`, or
+  // which is what keeps them out of this regex - do not loosen it to `.*`, or
   // an email builder gets a WhatsApp phone preview bolted to its side.
   const isTemplateEditorRoute = /\/templates\/(?!email\/)[^/]+$/.test(pathname);
   // The email builder is a three-column app of its own (our panel, canvas, the
@@ -93,7 +93,7 @@ function AppLayout() {
   // width to the right of the menu instead of living in the left panel.
   const isEmailBuilderRoute = /^\/templates\/email\/[^/]+$/.test(pathname);
   // An open automation (`/automations/<id>`) is a canvas plus its own config
-  // drawer — the same two-column app shape the email builder has, and with the
+  // drawer - the same two-column app shape the email builder has, and with the
   // same lack of anything to put in a center panel. The list at
   // `/automations` stays an ordinary left-panel page.
   const isAutomationEditorRoute = /^\/automations\/[^/]+$/.test(pathname);
@@ -143,7 +143,7 @@ function AppLayout() {
   // The template editor is a wide form next to a narrow phone preview, so it
   // snaps the panel to the widest the drag handle allows; leaving restores
   // whatever width was in effect before. Two ways in: the standalone editor
-  // route, or `panelExpanded` — set by editors rendered *inside* the panel
+  // route, or `panelExpanded` - set by editors rendered *inside* the panel
   // (ManageTemplatesOverlay), which change no route at all.
   const shouldExpandPanel = isTemplateEditorRoute || panelExpanded;
   const wasExpandedRef = useRef(false);
@@ -176,7 +176,7 @@ function AppLayout() {
 
   // The grid owns the viewport on its own (height:100dvh/width:100vw in CSS);
   // the plan-limit banner sits above it, so hand the grid the remaining space
-  // instead — inline height/width win over the stylesheet.
+  // instead - inline height/width win over the stylesheet.
   const gridStyle = {
     height: "100%",
     width: "100%",
@@ -230,7 +230,7 @@ function AppLayout() {
           ) : (
             <Outlet />
           )}
-          {/* Resize Handle — a full-width route (email builder, automation
+          {/* Resize Handle - a full-width route (email builder, automation
             editor) owns its whole column, so there is no boundary to drag. */}
           {!isFullWidthRoute && (
             <div
@@ -338,7 +338,7 @@ function AppLayout() {
                       />
                     </HideIfNotPermitted>
                   )}
-                  {/* Names no particular integration — a card that said
+                  {/* Names no particular integration - a card that said
                     "Configure WhatsApp" would be advertising a channel to
                     someone who may want any of the other five. Suppressed on
                     /integrations itself, where the list beside it is already the

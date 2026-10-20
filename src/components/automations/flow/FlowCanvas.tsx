@@ -25,7 +25,7 @@ import "./flow.css";
  * The canvas: a React Flow viewport over a graph derived from the definition.
  *
  * Cards size themselves to their content, and the layout needs those heights to
- * know where the next node goes — so this runs two passes. The first uses
+ * know where the next node goes - so this runs two passes. The first uses
  * estimates, React Flow measures what it rendered, and the measured heights
  * feed a second layout. It converges because the second pass only moves nodes;
  * it never changes their width, which is what their height depends on.
@@ -68,7 +68,7 @@ function Canvas({
 
   // Translated from the language rather than from `useTranslation`'s
   // `translate`, which is a fresh closure on every render: depending on that
-  // would rebuild the graph — and re-measure every node — forever.
+  // would rebuild the graph - and re-measure every node - forever.
   const built = useMemo(
     () =>
       buildFlow(trigger, steps, sizes, (text) =>
@@ -103,7 +103,7 @@ function Canvas({
     if (changed) setSizes(next);
   }, [nodes, sizes]);
 
-  // The estimated first pass is real DOM — it just has the wrong gaps in it.
+  // The estimated first pass is real DOM - it just has the wrong gaps in it.
   // Held back until React Flow reports its measurements so the flow appears
   // once, laid out, instead of visibly settling. One-shot: an inserted step is
   // unmeasured for a frame too, and blinking the whole canvas for it is worse
@@ -135,7 +135,7 @@ function Canvas({
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
-          // Selection is the editor's, not React Flow's — but a node with
+          // Selection is the editor's, not React Flow's - but a node with
           // every interaction turned off is given `pointer-events: none`, so
           // this handler is also what keeps the cards clickable at all.
           onNodeClick={(_, node) => {
@@ -183,7 +183,7 @@ function Canvas({
  *
  * A single fit on open is not enough, because the two things it depends on both
  * settle after the nodes first exist: the layout takes a second pass once React
- * Flow has measured the cards, and the pane itself can still be mid-layout — a
+ * Flow has measured the cards, and the pane itself can still be mid-layout - a
  * fit against a pane that is briefly narrow leaves the flow stranded small and
  * off to one side, with nothing afterwards to correct it. So it re-fits on both
  * (node changes and pane resizes) instead, right up until the user pans or
@@ -207,7 +207,7 @@ function useAutoFit(
     const refit = () => {
       cancelAnimationFrame(frame);
       // Next frame, so React Flow's own resize observer has stored the pane's
-      // new size — fitView reads that, not the DOM.
+      // new size - fitView reads that, not the DOM.
       frame = requestAnimationFrame(() => {
         if (userMoved.current) return;
         const { width, height } = element.getBoundingClientRect();

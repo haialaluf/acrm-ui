@@ -28,7 +28,7 @@ function InstagramNew() {
 
   // Instagram Business Login is a plain redirect OAuth (no SDK/popup like
   // WhatsApp). We redirect the whole tab so the token exchange happens back in
-  // this same tab — scoped to the active org — with no fragile cross-tab
+  // this same tab - scoped to the active org - with no fragile cross-tab
   // handoff (which COOP + background-tab throttling make unreliable).
   const connect = () => {
     setError(false);

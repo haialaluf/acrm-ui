@@ -15,7 +15,7 @@ import type { FlowEdgeType } from "./layout";
  * opens a column.
  *
  * The `+` sits at the elbow of the step path and stays faintly visible instead
- * of appearing only on hover — with the whole diagram now inside a pannable
+ * of appearing only on hover - with the whole diagram now inside a pannable
  * viewport, a control you can only find by hovering the exact pixels it will
  * appear at is a control nobody finds.
  */

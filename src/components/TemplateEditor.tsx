@@ -93,7 +93,7 @@ export default function TemplateEditor({
         headerVariable: existingHeader?.example?.header_text?.[0] || "",
         // For a media header, prefill the preview from the reviewed sample Meta
         // returns (a scontent handle). It is left untouched on save unless the
-        // user picks a new file — see buildHeaderComponent / the edge function.
+        // user picks a new file - see buildHeaderComponent / the edge function.
         mediaUrl:
           existingHeader && existingHeader.format !== "TEXT"
             ? existingHeader.example?.header_handle?.[0] || ""
@@ -104,7 +104,7 @@ export default function TemplateEditor({
             : "",
         body: existingBody?.text || "",
         // Templates authored with named variables (parameter_format NAMED, e.g.
-        // created in WhatsApp Manager) carry `body_text_named_params` instead —
+        // created in WhatsApp Manager) carry `body_text_named_params` instead -
         // no positional samples to prefill, so fall back to an empty list.
         bodyVariables: (existingBody?.example?.body_text?.[0] || []).map(
           (v: string) => ({ value: v }),
@@ -155,7 +155,7 @@ export default function TemplateEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body]);
 
-  // Copy-code buttons are MARKETING-only — drop them if the category changes.
+  // Copy-code buttons are MARKETING-only - drop them if the category changes.
   useEffect(() => {
     if (category !== "MARKETING") {
       const current = watch("buttons") || [];
@@ -177,7 +177,7 @@ export default function TemplateEditor({
     buttonDefToPreview(formButtonToComponent(b), t("Copy code")),
   );
   // `mediaUrl` is an unsigned `internal://media/...` reference, which no <img>
-  // can load — re-sign it for display only. The raw reference is what gets
+  // can load - re-sign it for display only. The raw reference is what gets
   // submitted (see buildHeaderComponent); the edge function resolves it there.
   const previewMediaUrl = useSignedMediaUrl(mediaUrl || undefined);
   const previewData: MessagePreviewData = {
@@ -201,14 +201,14 @@ export default function TemplateEditor({
   }, [serializedPreview]);
   useEffect(() => () => void setPreview(null), [setPreview]);
 
-  // Sample values are required by Meta for every variable — gate submit on them.
+  // Sample values are required by Meta for every variable - gate submit on them.
   const bodyVarsComplete = bodyVarNumbers.every(
     (_, i) => !!bodyVariables?.[i]?.value?.trim(),
   );
   const headerVarComplete =
     !(headerType === "TEXT" && headerText.includes("{{1}}")) ||
     !!headerVariable.trim();
-  // Media headers need a sample asset for Meta's review — gate submit on it.
+  // Media headers need a sample asset for Meta's review - gate submit on it.
   const isMediaHeader =
     headerType === "IMAGE" ||
     headerType === "VIDEO" ||
@@ -311,7 +311,7 @@ export default function TemplateEditor({
     <>
       <SectionBody>
         {/* Mobile: the live preview stacks above the form (on desktop it lives
-            in the center panel — see _auth.tsx). */}
+            in the center panel - see _auth.tsx). */}
         <div className="md:hidden mb-[12px] h-[320px] rounded-[16px] overflow-hidden border border-border flex flex-col">
           <LiveMessagePreview variant="bubble" />
         </div>

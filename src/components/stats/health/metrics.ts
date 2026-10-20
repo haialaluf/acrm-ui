@@ -23,7 +23,7 @@ export type DayMetrics = {
   read_rate: number;
   failed_count: number;
   /**
-   * Outgoing messages a receipt could ever arrive for — the ones the CRM sent.
+   * Outgoing messages a receipt could ever arrive for - the ones the CRM sent.
    * Meta reports no delivery or read status for messages sent from the WhatsApp
    * Business app, so `delivered_rate` and `read_rate` divide by this rather
    * than by `outgoing_count`. The difference between the two is the day's
@@ -46,7 +46,7 @@ export type MetricsAggregate = {
   /**
    * Outgoing messages that could earn a receipt, i.e. everything except what
    * was sent from the WhatsApp Business app. `deliveredRate` and `readRate`
-   * divide by this, so gate on it — not on `outgoing` — before reading either,
+   * divide by this, so gate on it - not on `outgoing` - before reading either,
    * or a window sent entirely from the phone reports 0% rather than "unknown".
    */
   receiptEligible: number;
@@ -146,7 +146,7 @@ export function filterByAddress(
  * A contiguous, ascending series of exactly `count` days ending at `end`.
  *
  * The RPC emits no row at all for a day with no WhatsApp messages, so charting
- * its output directly would silently compress gaps — a quiet week would look
+ * its output directly would silently compress gaps - a quiet week would look
  * like a busy one. Missing days become explicit zeros, carrying the last known
  * cap so the ceiling line stays continuous.
  */

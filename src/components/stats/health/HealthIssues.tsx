@@ -17,7 +17,7 @@ const SEVERITY_TONE: Record<Severity, Tone> = {
  */
 export default function HealthIssues({
   issues,
-  // Only the all-clear copy is channel-specific — the issue rows themselves are
+  // Only the all-clear copy is channel-specific - the issue rows themselves are
   // already channel-agnostic, since `HealthIssue` says nothing about where an
   // issue came from. The email health page passes its own wording here rather
   // than forking the whole component.

@@ -5,7 +5,7 @@ export type MediaCategory = "audio" | "image" | "video" | "document";
 /**
  * Resolves a file part to the renderer category it should use.
  *
- * Some kinds are unambiguous and map directly regardless of MIME — a sticker is
+ * Some kinds are unambiguous and map directly regardless of MIME - a sticker is
  * always an image. The rest (a story can be a photo or a video, and the generic
  * "media" kind has no fixed shape) are decided by the MIME type. The native IG
  * "file" kind (e.g. a shared pdf) and WhatsApp "document" are always documents.
@@ -30,7 +30,7 @@ export function mediaCategory(
       return "document";
   }
 
-  // Ambiguous kinds (media, story, ig_story, story_mention, story_reply) — fall
+  // Ambiguous kinds (media, story, ig_story, story_mention, story_reply) - fall
   // back to the MIME type.
   if (mime.startsWith("audio/")) return "audio";
   if (mime.startsWith("video/")) return "video";
@@ -40,14 +40,14 @@ export function mediaCategory(
 
 // WhatsApp-style image display box. Portrait/square images are shown narrower
 // and taller; landscape wider and shorter. Height is capped so extreme ratios
-// don't run off — the caller crops the overflow with `object-fit: cover`.
+// don't run off - the caller crops the overflow with `object-fit: cover`.
 export const PORTRAIT_WIDTH = 240;
 export const LANDSCAPE_WIDTH = 320;
 export const MAX_PORTRAIT_HEIGHT = (PORTRAIT_WIDTH * 4) / 3; // 320
 export const MAX_LANDSCAPE_HEIGHT = (LANDSCAPE_WIDTH * 3) / 4; // 240
 
 /** Human-readable file size, e.g. "21 KB", "1 MB". Uses decimal (÷1000) units
- *  to match how the OS file browser and WhatsApp itself report sizes — a binary
+ *  to match how the OS file browser and WhatsApp itself report sizes - a binary
  *  (÷1024) KB would render a 21 KB file as "20 KB". Shared by the chat's media
  *  bubbles and the send preview so both always agree on the number. */
 export function fileSize(size: number) {

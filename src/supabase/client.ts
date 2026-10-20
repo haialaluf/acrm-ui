@@ -4,7 +4,7 @@ import type { IncomingMessage, OutgoingMessage } from "./types/message_types";
 import type { IncomingStatus, OutgoingStatus } from "./types/status_types";
 
 //===================================
-// Shared types — mirrored from open-bsp-api/.../_shared/types/*.
+// Shared types - mirrored from open-bsp-api/.../_shared/types/*.
 // Re-exported here so existing `@/supabase/client` imports keep working.
 //===================================
 

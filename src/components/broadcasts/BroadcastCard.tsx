@@ -12,7 +12,7 @@ import {
 import { formatBatchDay, formatBatchTime } from "./formatScheduledDate";
 
 /**
- * One broadcast batch as a card in the left panel — the design's campaign
+ * One broadcast batch as a card in the left panel - the design's campaign
  * card, mapped onto this app's per-batch list model (a 5-day split send is 5
  * cards, each carrying its own "Batch i/n" pill). Replaces the plain
  * SectionItem row so the sidebar reads as a schedule rather than a chat list.
@@ -47,7 +47,7 @@ export default function BroadcastCard({
   const upcoming = isUpcomingBatch(status);
   // The RPC's counters are cumulative (a read message also carries sent and
   // delivered), so delivered/sent is the share of what left the door that
-  // actually arrived — same ratio the design's card shows.
+  // actually arrived - same ratio the design's card shows.
   const deliveredPct = sent ? Math.round((delivered / sent) * 100) : 0;
   const batchesTotal = batch.batches_total ?? 1;
   const sendTime = formatBatchTime(batch);
@@ -66,7 +66,7 @@ export default function BroadcastCard({
       <div className="flex items-start justify-between gap-[8px]">
         <div className="flex items-center gap-[6px] min-w-0">
           {/* Both channels write content->>'kind' = 'template', which is what
-              lets one set of queries cover them — so `service` is the only
+              lets one set of queries cover them - so `service` is the only
               thing distinguishing an email campaign from a WhatsApp one here. */}
           {batch.service === "email" ? (
             <Mail
@@ -96,7 +96,7 @@ export default function BroadcastCard({
         <span className="text-foreground truncate">
           {formatBatchDay(batch, t, currentLanguage)}
         </span>
-        {/* The hour the batch actually goes out — the wizard asks for it per
+        {/* The hour the batch actually goes out - the wizard asks for it per
             batch, so a card without it reads as a whole free day. */}
         {sendTime && (
           <span className="flex items-center gap-[4px] shrink-0">
@@ -150,7 +150,7 @@ export default function BroadcastCard({
         </div>
       )}
 
-      {/* Only still-pending messages can be pulled back — cancel_broadcast_batch
+      {/* Only still-pending messages can be pulled back - cancel_broadcast_batch
           no-ops on anything the dispatcher already picked up. */}
       {pending > 0 && (
         <div className="flex gap-[6px] mt-[11px] pt-[10px] border-t border-border">

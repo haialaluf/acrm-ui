@@ -60,7 +60,7 @@ function buttonsFromPayload(
 /* The image/video/document sitting on top of a media-header template, styled
    like the chat's own media bubbles. It reports its display width so the body
    text underneath wraps to the same box, the way the real client lays it out.
-   The stored link is re-signed before use — see `useSignedMediaUrl`. */
+   The stored link is re-signed before use - see `useSignedMediaUrl`. */
 function HeaderMedia({
   media,
   onWidth,
@@ -142,7 +142,7 @@ function HeaderMedia({
           height={box.height}
         />
       )}
-      {/* The native player owns the whole frame, controls included — the same
+      {/* The native player owns the whole frame, controls included - the same
           treatment VideoMessage gives an ordinary video bubble. */}
       {url && media.format === "VIDEO" && (
         <video
@@ -188,8 +188,8 @@ export default function TemplateMessage({
 
   // Email sends share `kind: "template"` with WhatsApp (it is what lets one set
   // of broadcast queries cover both channels), so this component now sees both
-  // shapes. There is nothing WhatsApp-specific to draw for an email — no
-  // quick-reply buttons, no media header — and `content.text` already holds the
+  // shapes. There is nothing WhatsApp-specific to draw for an email - no
+  // quick-reply buttons, no media header - and `content.text` already holds the
   // rendered subject, so the plain text bubble below is the right rendering.
   if ("email_template_id" in data) {
     return (
@@ -217,7 +217,7 @@ export default function TemplateMessage({
     ? buttonsDef.buttons.map((b) => buttonDefToPreview(b, copyLabel))
     : buttonsFromPayload(template, copyLabel);
 
-  // The media header carries no text, so it is absent from `content.text` — it
+  // The media header carries no text, so it is absent from `content.text` - it
   // has to be recovered from the payload the message was sent with.
   const media = templateHeaderMedia(template);
 

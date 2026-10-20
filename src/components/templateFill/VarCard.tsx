@@ -5,8 +5,8 @@ import SegmentBtn from "./SegmentBtn";
 /** Editor for one template variable: code chip + scope label + static/field
  *  segmented control + the matching input/select.
  *
- *  Generic over the field id so each caller keeps its own vocabulary — a
- *  broadcast's contact-field enum, an automation's dotted paths — without this
+ *  Generic over the field id so each caller keeps its own vocabulary - a
+ *  broadcast's contact-field enum, an automation's dotted paths - without this
  *  component knowing either. */
 export default function VarCard<F extends string>({
   scope,
@@ -99,7 +99,7 @@ export default function VarCard<F extends string>({
               />
               <div className="text-[11px] mt-[6px] text-muted-foreground">
                 {t(
-                  "The contact's own value is used when there is one; otherwise the fallback — an empty fallback leaves a gap in the message.",
+                  "The contact's own value is used when there is one; otherwise the fallback - an empty fallback leaves a gap in the message.",
                 )}
               </div>
             </>

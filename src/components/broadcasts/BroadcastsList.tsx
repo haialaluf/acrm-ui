@@ -17,7 +17,7 @@ import { batchActivityValue, batchSortValue } from "./formatScheduledDate";
 import { encodeBatchKey } from "./batchKey";
 import BroadcastCard from "./BroadcastCard";
 
-// Master list of the org's broadcast batches — one card per day-batch, not per
+// Master list of the org's broadcast batches - one card per day-batch, not per
 // campaign (a 5-day split send shows as 5 cards). Rendered in the left panel
 // for both `/broadcasts` and `/broadcasts/$batchKey`; the detail fills the
 // center panel (see BroadcastCenter, the broadcasts analogue of
@@ -57,7 +57,7 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
 
   // Two different clocks, because the two tabs answer two different questions.
   // Upcoming is "what goes out next", so it sorts by the send instant, soonest
-  // first — by the instant rather than the day, since two batches of the same
+  // first - by the instant rather than the day, since two batches of the same
   // campaign can share a date at different hours. History is a log of what
   // happened, so it sorts by when each batch actually resolved, most recent
   // first: a batch scheduled for next week and cancelled today belongs next to
@@ -161,7 +161,7 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
             <div className="text-[12px] text-muted-foreground max-w-[260px] leading-[18px]">
               {activeTab === "upcoming"
                 ? t(
-                    "Every broadcast you schedule shows up here — you can cancel it up until it goes out.",
+                    "Every broadcast you schedule shows up here - you can cancel it up until it goes out.",
                   )
                 : t(
                     "Broadcasts that finished or were cancelled show up here with their delivery stats.",

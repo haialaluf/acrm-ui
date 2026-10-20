@@ -11,7 +11,7 @@ export type AppointmentUpdate =
   Database["public"]["Tables"]["appointments"]["Update"];
 
 // All appointments for a calendar, ordered chronologically. The board fetches
-// the whole calendar and filters by the visible range client-side — appointment
+// the whole calendar and filters by the visible range client-side - appointment
 // volumes per calendar are small enough that range-windowing isn't worth it.
 export function useAppointments(calendarId: string) {
   const userId = useBoundStore((state) => state.ui.user?.id);

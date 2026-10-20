@@ -20,7 +20,7 @@ export default function NoIntegrationNotice({
         <p className="font-bold">{t("Connect your first integration")}</p>
         <p>
           {t(
-            "{{1}} isn't connected to any platform yet. Connect a channel or a lead source to start receiving messages and leads — the rest of the app opens up as soon as one is connected.",
+            "{{1}} isn't connected to any platform yet. Connect a channel or a lead source to start receiving messages and leads - the rest of the app opens up as soon as one is connected.",
           ).replace("{{1}}", org?.name || t("Your organization"))}
         </p>
         {integrationsLink && (

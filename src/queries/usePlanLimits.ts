@@ -12,7 +12,7 @@ import {
 const NEAR_THRESHOLD = 0.9;
 
 /** Slugs of the limits that actually stop something the app lets you do, so a
- *  reached one is worth blocking the relevant control for — not just the
+ *  reached one is worth blocking the relevant control for - not just the
  *  informational quotas (a plan cap on, say, seats reads as a banner only). */
 const HARD_LIMIT_KEYS = new Set([
   "messages",
@@ -25,14 +25,14 @@ const HARD_LIMIT_KEYS = new Set([
  *  Mirrors the reading `StatsQuotas` / `QuotaBar` build from the same billing
  *  tables, so the numbers here line up with the Quotas page. */
 export type PlanLimitReading = {
-  /** stable slug derived from the product name — "messages", "ai-credits", … */
+  /** stable slug derived from the product name - "messages", "ai-credits", … */
   key: string;
   productId: string;
   /** raw product name; translate at the render site */
   name: string;
-  /** billing.products.kind — "counter" | "gauge" | "balance" */
+  /** billing.products.kind - "counter" | "gauge" | "balance" */
   kind: string;
-  /** billing.products.unit — "count" | "usd" | "mb" */
+  /** billing.products.unit - "count" | "usd" | "mb" */
   unit: string;
   /** "month" | "lifetime" */
   interval: string;
@@ -89,7 +89,7 @@ export function usePlanLimits(): PlanLimitsResult {
       planProducts?.map((pp) => [pp.product_id, pp.included]),
     );
     // Balance products read against what was actually granted, not the plan's
-    // catalogue allowance — see useCreditGrants.
+    // catalogue allowance - see useCreditGrants.
     const grantMap = new Map<string, number>();
     for (const g of grants ?? []) {
       grantMap.set(
@@ -102,7 +102,7 @@ export function usePlanLimits(): PlanLimitsResult {
 
     for (const product of products) {
       const tier = tierMap.get(product.id);
-      if (!tier) continue; // not part of this org's tier — nothing to cap
+      if (!tier) continue; // not part of this org's tier - nothing to cap
 
       const isLifetime = tier.interval === "lifetime";
       const raw = isLifetime
@@ -118,7 +118,7 @@ export function usePlanLimits(): PlanLimitsResult {
         // `raw` is the balance still available; `cap` is a floor (min allowed
         // balance, usually 0), not a ceiling. Measure spend against what the
         // org was actually given, falling back to the catalogue allowance only
-        // when no grant is on record — same order QuotaBar uses.
+        // when no grant is on record - same order QuotaBar uses.
         const remaining = raw;
         const entitlement =
           grantMap.get(product.id) ??

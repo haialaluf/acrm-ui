@@ -33,7 +33,7 @@ export default function SectionHeader({
   // Layout-rendered center panels need this for the same reason they need
   // `hideBackButton`: the relative link can't resolve from their route.
   onBack?: () => void;
-  // Hide the back control at md+ — for center panels that are full-screen on
+  // Hide the back control at md+ - for center panels that are full-screen on
   // mobile (list and menu rail hidden) but sit next to their list on desktop.
   mobileOnlyBack?: boolean;
 }) {

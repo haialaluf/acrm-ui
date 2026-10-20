@@ -69,7 +69,7 @@ type Channel = "whatsapp" | "instagram" | "email";
 
 const CHANNELS: Channel[] = ["whatsapp", "instagram", "email"];
 
-/** Phones, then Instagram, then email — so a row's index is stable as rows are
+/** Phones, then Instagram, then email - so a row's index is stable as rows are
  *  added and each channel's group stays contiguous. */
 const CHANNEL_ORDER: Record<string, number> = {
   whatsapp: 0,
@@ -89,7 +89,7 @@ export const Route = createFileRoute("/_auth/contacts/$contactId")({
   component: ContactDetail,
 });
 
-/** The RPC-shaped address list for only the NEW rows this submit would add —
+/** The RPC-shaped address list for only the NEW rows this submit would add -
  * addresses already on the contact can never collide with it. */
 function buildNewAddresses(
   data: ContactFormValues,
@@ -123,7 +123,7 @@ function ContactDetail() {
   const [channel, setChannel] = useState<Channel>("whatsapp");
   const { connected } = useIntegrations();
 
-  // Track original addresses — phones and Instagram accounts already linked are
+  // Track original addresses - phones and Instagram accounts already linked are
   // read-only, and only the rest need a conflict check.
   const originalAddresses = useMemo(
     () => new Set(contact?.addresses.map((a) => a.address) ?? []),
@@ -136,7 +136,7 @@ function ContactDetail() {
   );
 
   // Instagram profile details (avatar, @username) are read live from the
-  // linked address, which the webhook keeps fresh — they are not copied onto
+  // linked address, which the webhook keeps fresh - they are not copied onto
   // the contact record.
   const igExtra = contact?.addresses.find((a) => a.service === "instagram")
     ?.extra as InstagramContactAddressExtra | null | undefined;
@@ -212,7 +212,7 @@ function ContactDetail() {
     append({
       address: row.address,
       service: "instagram",
-      // Carried so the row renders as @username right away — the picker read
+      // Carried so the row renders as @username right away - the picker read
       // it from the same `contacts_addresses` row the form is about to link.
       extra: row.extra,
     });
@@ -237,7 +237,7 @@ function ContactDetail() {
         onSuccess: (result) => {
           setPendingConflict(null);
           // A merge keeps the OLDER contact as the survivor, which is usually
-          // the stub the address first arrived on — this contact is then
+          // the stub the address first arrived on - this contact is then
           // deleted and the route is left pointing at a row that no longer
           // exists (a blank panel, and the address looks like it was never
           // added). Follow the address to the contact that now holds it.
@@ -285,7 +285,7 @@ function ContactDetail() {
           title={t("Contact")}
           // The contact page is opened both from the contacts list and from a
           // chat's header, so the depth-based `to=".."` back link is wrong half
-          // the time — it always lands on /contacts. Step back through history
+          // the time - it always lands on /contacts. Step back through history
           // instead, falling back to the list on a direct/deep-link entry.
           onBack={() => {
             if (router.history.canGoBack()) {
@@ -369,7 +369,7 @@ function ContactDetail() {
           {/* Kept mounted so switching tabs does not drop what was typed.
               `form` is `flex-grow` in the base layer, so an empty one would
               still claim the panel and push another tab's content below the
-              fold — it is hidden outright rather than emptied. */}
+              fold - it is hidden outright rather than emptied. */}
           <form
             id="contact-form"
             className={tab === "details" ? "" : "hidden"}
@@ -453,7 +453,7 @@ function ContactDetail() {
                 {/* One channel at a time. The count on each chip is what keeps
                     an empty channel visible without opening it. Below md the
                     three named chips overflow the panel, so only the open one
-                    keeps its name there — the icon and the count carry the
+                    keeps its name there - the icon and the count carry the
                     other two, and the row still fits without scrolling. */}
                 <div className="flex gap-[8px] mb-[18px]">
                   {CHANNELS.map((key) => {
@@ -624,7 +624,7 @@ function ContactDetail() {
  * already linked is read-only (removing and re-adding is the only way to
  * change the routing key), an Instagram row is always read-only because its
  * address is an igsid nobody can type, and an email stays editable so a typo
- * can be corrected in place — the update diffs addresses, so editing one
+ * can be corrected in place - the update diffs addresses, so editing one
  * unlinks the old and links the new.
  */
 function AddressRow({
@@ -750,7 +750,7 @@ function AddressRow({
     );
   }
 
-  // A saved number is shown, never edited — so it must NOT be registered.
+  // A saved number is shown, never edited - so it must NOT be registered.
   // `register` with a rule but no element attached leaves react-hook-form
   // validating a field that can never show an error: the address is stored
   // digits-only ("46762945584"), which `isValidPhoneNumber` rejects because it
@@ -777,7 +777,7 @@ function AddressRow({
         {isSynced && (
           <div className="text-muted-foreground text-[11.5px] mt-[3px]">
             {t(
-              "This number comes from your phone's contacts — remove it there to remove it here",
+              "This number comes from your phone's contacts - remove it there to remove it here",
             )}
           </div>
         )}
@@ -819,7 +819,7 @@ function AddressRow({
       {isSynced && (
         <div className="text-muted-foreground text-[11.5px] mt-[3px]">
           {t(
-            "This number comes from your phone's contacts — remove it there to remove it here",
+            "This number comes from your phone's contacts - remove it there to remove it here",
           )}
         </div>
       )}
@@ -901,7 +901,7 @@ function ConflictWarning({
   return (
     <div className="text-warning-strong text-[11.5px]">
       {t("Already belongs to")}{" "}
-      <span dir="ltr">{conflict.contact_name || t("another contact")}</span> —{" "}
+      <span dir="ltr">{conflict.contact_name || t("another contact")}</span> -{" "}
       {t("saving will offer to merge the two contacts")}
     </div>
   );

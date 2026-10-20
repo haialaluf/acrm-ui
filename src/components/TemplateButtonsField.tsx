@@ -216,7 +216,7 @@ function ButtonCard({
         </button>
       </div>
 
-      {/* button text — fixed label for COPY */}
+      {/* button text - fixed label for COPY */}
       <div className={"flex flex-col" + (kind === "QR" ? "" : " mb-[10px]")}>
         <div className="flex items-baseline justify-between">
           <span className="text-[11px] text-muted-foreground mb-[2px]">
@@ -326,7 +326,7 @@ function ButtonCard({
         </>
       )}
 
-      {/* BOOKING specifics — the destination is fixed, so it is shown, not asked
+      {/* BOOKING specifics - the destination is fixed, so it is shown, not asked
           for. The `{{1}}` suffix becomes each recipient's own booking token. */}
       {kind === "BOOKING" && (
         <div className="flex flex-col">

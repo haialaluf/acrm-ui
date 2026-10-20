@@ -15,7 +15,7 @@ import type { Language } from "./i18n";
  * The month grid.
  *
  * A day is offered only when the server returned at least one free start for
- * it — availability is never guessed from working hours on the client, so the
+ * it - availability is never guessed from working hours on the client, so the
  * calendar can't offer a day whose time column would then come up empty.
  */
 export default function MonthCalendar({

@@ -41,7 +41,7 @@ export type AccountHealthState = {
   accountReviewStatus: string | null;
   businessVerificationStatus: string | null;
   violationType: string | null;
-  /** When the violation was reported — it is sticky, so the date matters. */
+  /** When the violation was reported - it is sticky, so the date matters. */
   violationAt: string | null;
   /** Unexpired restrictions only. */
   restrictions: Restriction[];
@@ -112,7 +112,7 @@ function parseMetaIssues(value: unknown): MetaIssue[] {
   });
 }
 
-/** `raw.phone.verified_name` on poll rows — the only place the display name lives. */
+/** `raw.phone.verified_name` on poll rows - the only place the display name lives. */
 function parseDisplayName(raw: unknown): string | null {
   if (!isRecord(raw) || !isRecord(raw.phone)) return null;
   const name = raw.phone.verified_name;
@@ -308,7 +308,7 @@ const pct = (x: number) => `${Math.round(x * 100)}%`;
  *
  * Two sources, in priority order: what Meta explicitly reported as blocking
  * (`health_status`, restrictions, quality), then what our own sending data says
- * is *about* to become a problem — the leading indicators that move days before
+ * is *about* to become a problem - the leading indicators that move days before
  * Meta acts.
  */
 export function buildHealthIssues(
@@ -328,13 +328,13 @@ export function buildHealthIssues(
         key: `restriction-${restriction.type}`,
         severity: "high",
         title: restriction.expiration
-          ? `${restriction.type} — ${t("until")} ${formatDate(restriction.expiration)}`
+          ? `${restriction.type} - ${t("until")} ${formatDate(restriction.expiration)}`
           : restriction.type,
         detail: state.violationType
           ? `${t("Meta applied a restriction after a policy violation of type")} ${state.violationType}.`
           : t("Meta applied a restriction to this number."),
         fix: t(
-          "Do not route restricted traffic through other template categories — that is what escalates a restriction into a permanent block.",
+          "Do not route restricted traffic through other template categories - that is what escalates a restriction into a permanent block.",
         ),
         meta: "restriction_info",
       });
@@ -431,7 +431,7 @@ export function buildHealthIssues(
     issues.push({
       key: "failures",
       severity: "medium",
-      title: `${t("Failures climbing —")} ${pct(recent.failedRate)} ${t("of sends")}`,
+      title: `${t("Failures climbing -")} ${pct(recent.failedRate)} ${t("of sends")}`,
       detail: topCode
         ? `${t("Most common error:")} ${topCode[0]} (${topCode[1]} ${t("occurrences")})`
         : t("Failed sends are above the healthy range."),
@@ -524,14 +524,14 @@ export function toneFor(
  * to stay upper-case.
  */
 export function formatTier(tier: string | null | undefined): string {
-  if (!tier) return "—";
+  if (!tier) return "-";
   const bare = tier.replace(/^TIER_/i, "");
   return /^\d+[KM]?$/i.test(bare) ? bare.toUpperCase() : humanizeEnum(bare);
 }
 
 /** Meta's SCREAMING_SNAKE enums, rendered for humans. */
 export function humanizeEnum(value: string | null | undefined): string {
-  if (!value) return "—";
+  if (!value) return "-";
   return value
     .toLowerCase()
     .replace(/_/g, " ")

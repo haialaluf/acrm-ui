@@ -1,5 +1,5 @@
 // WhatsApp sets each message's direction from its first strong-directional
-// character — not from the template's language field. Mirror that so the
+// character - not from the template's language field. Mirror that so the
 // preview aligns exactly like the real client (Hebrew/Arabic vs English).
 
 const RTL_RANGES: ReadonlyArray<readonly [number, number]> = [

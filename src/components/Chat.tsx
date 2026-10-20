@@ -101,8 +101,8 @@ export default function Chat() {
   const { inCSWindow } = useCSWindow();
 
   /* Reactions are stored as sibling message rows pointing at their target's
-     external_id, not as a column on the target. Index them here — off the
-     store's newest-first order, which `indexReactions` relies on — and hand
+     external_id, not as a column on the target. Index them here - off the
+     store's newest-first order, which `indexReactions` relies on - and hand
      each bubble its own. */
   const reactionsByTarget = useMemo(() => indexReactions(messages), [messages]);
 
@@ -180,7 +180,7 @@ export default function Chat() {
       ? reactionsByTarget.get(channelKey(message.external_id))
       : undefined;
 
-    // Tool traces and agent notes never reach a channel — no affordance at all.
+    // Tool traces and agent notes never reach a channel - no affordance at all.
     if (message.direction === "internal" || !conv || isGhostViewer)
       return { reactions };
 
@@ -196,7 +196,7 @@ export default function Chat() {
           ? // No channel id yet: the send is still in flight.
             t("Still sending")
           : !channelMessageId(message)
-            ? // Delivered, but the id the endpoint needs was never kept —
+            ? // Delivered, but the id the endpoint needs was never kept -
               // messages sent before the API started storing the raw WAMID.
               // Unbackfillable, so this is final.
               t("Reactions aren't available on this message")
@@ -219,13 +219,13 @@ export default function Chat() {
 
   /** Whether this bubble can be replied to, or why it cannot. */
   function replyProps(message: MessageRow) {
-    // Tool traces and agent notes never reach a channel — no affordance at all.
+    // Tool traces and agent notes never reach a channel - no affordance at all.
     if (message.direction === "internal" || !conv || isGhostViewer) return {};
 
     /* Instagram is deliberately absent: the dispatcher has no way to attach a
        quote to an Instagram send (the Instagram-with-Instagram-Login messaging
        API documents `reply_to` only on the inbound webhook, never on the send
-       payload — see instagram-dispatcher's `case "text"`). Offering Reply there
+       payload - see instagram-dispatcher's `case "text"`). Offering Reply there
        would draw a quote in the CRM that the contact never sees. Incoming IG
        replies still render their quote; only sending one is unavailable. */
     const replyDisabledReason =
@@ -380,7 +380,7 @@ export default function Chat() {
     messages
       .filter((m, idx) => {
         // A reaction belongs on the bubble it points at, not on a line of its
-        // own — `reactionsByTarget` has already claimed it.
+        // own - `reactionsByTarget` has already claimed it.
         if (isReactionRow(m)) return false;
 
         if (isAdmin) return true;
@@ -440,7 +440,7 @@ export default function Chat() {
    *
    * Opening a conversation (and its first page landing) starts at the newest
    * message. A new message sticks to the bottom only if the reader is already
-   * there — someone reading history is never yanked away from it. An older
+   * there - someone reading history is never yanked away from it. An older
    * page prepending must not move the viewport at all.
    */
 
@@ -476,8 +476,8 @@ export default function Chat() {
 
   useEffect(() => releasePin, []);
 
-  // A bubble can also grow without a React commit — an image swapping its
-  // placeholder height for the real one — so watch the sized element itself.
+  // A bubble can also grow without a React commit - an image swapping its
+  // placeholder height for the real one - so watch the sized element itself.
   const contentRef = useCallback((node: HTMLDivElement | null) => {
     contentObserver.current?.disconnect();
     contentObserver.current = null;
@@ -571,7 +571,7 @@ export default function Chat() {
     previousNewest.current = newestMessageId;
 
     // Sending always jumps to the message you just sent, wherever you were
-    // reading. An incoming one only follows if you were at the tail —
+    // reading. An incoming one only follows if you were at the tail -
     // `atBottom` is sampled while scrolling, not here: by now the new bubble is
     // in the DOM, and a tall one (an image, a template) would already have
     // pushed the reader out of the "near bottom" band.
@@ -609,7 +609,7 @@ export default function Chat() {
 
   // The last INBOUND row, not the last row. An agent turn that decides to stay
   // quiet still records an internal `[no reply sent: …]` note a few seconds
-  // later, and admins see those — so the tail of the thread is routinely
+  // later, and admins see those - so the tail of the thread is routinely
   // `internal`, and keying off it would leave the contact's message
   // unacknowledged exactly when the agent chose not to answer, the case this
   // whole path exists for.
@@ -646,7 +646,7 @@ export default function Chat() {
   }, [activeThreadKey, newestIncomingId, convIds, isGhostViewer]);
 
   /* The composer's reply bar grows the footer and so shrinks this scroller,
-     which the browser absorbs by leaving scrollTop alone — the newest message
+     which the browser absorbs by leaving scrollTop alone - the newest message
      slides out of view. Follow it, but only for a reader who was already at
      the tail. */
   const replyDraft = useBoundStore((store) =>
@@ -689,7 +689,7 @@ export default function Chat() {
    * Deliberately driven by the scroll offset rather than by the first rendered
    * index: on open, the rendered range legitimately starts at index 0 for a
    * moment (before the jump to the newest message), and an index-based trigger
-   * reads that as "at the top" and walks the entire history in one burst —
+   * reads that as "at the top" and walks the entire history in one burst -
    * exactly what paging exists to avoid.
    */
   const maybeLoadOlder = () => {
@@ -715,7 +715,7 @@ export default function Chat() {
         onScroll={() => {
           atBottom.current = isNearBottom();
           // Leaving the bottom during the opening pin can only be the reader's
-          // doing — a scrollbar drag reaches us as nothing but this event.
+          // doing - a scrollbar drag reaches us as nothing but this event.
           if (!atBottom.current) releasePin();
           maybeLoadOlder();
         }}

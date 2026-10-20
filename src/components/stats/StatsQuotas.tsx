@@ -29,7 +29,7 @@ export default function StatsQuotas() {
     ]),
   );
   // Balance products read against what was actually granted, not the plan's
-  // catalogue allowance — see useCreditGrants.
+  // catalogue allowance - see useCreditGrants.
   const grantMap = new Map<string, number>();
   for (const g of grants ?? []) {
     grantMap.set(g.product_id, (grantMap.get(g.product_id) ?? 0) + g.quantity);

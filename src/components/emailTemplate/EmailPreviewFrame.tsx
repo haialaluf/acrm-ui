@@ -28,7 +28,7 @@ import {
  * quietly falling back for half your list. `onStats` hands that count back so
  * the surrounding chrome can say so in words.
  *
- * Deliberately owns no chrome and no contact picker — both callers already have
+ * Deliberately owns no chrome and no contact picker - both callers already have
  * their own. `ContactPreview` wraps it in a full-screen overlay with a "preview
  * as" select; the bulk-send review step drops it in beside the recipient list,
  * driven by that step's own contact selector.
@@ -45,7 +45,7 @@ export default function EmailPreviewFrame({
 }: {
   /** Compiled email HTML, straight from the builder's export. A saved
    *  template's images are `internal://media/...` references, which this
-   *  component signs for display — see `useSignedEmailHtml`. */
+   *  component signs for display - see `useSignedEmailHtml`. */
   html: string;
   subject: string;
   preheader?: string | null;
@@ -70,8 +70,8 @@ export default function EmailPreviewFrame({
   const values = useMemo(() => contactValues(contact), [contact]);
 
   // A stored template points at storage, not at anything a browser can fetch.
-  // Signed here rather than at each call site so every preview surface — bulk
-  // send, an automation's email step, the builder's "preview as" overlay —
+  // Signed here rather than at each call site so every preview surface - bulk
+  // send, an automation's email step, the builder's "preview as" overlay -
   // shows the images the recipient will actually get.
   const signedHtml = useSignedEmailHtml(html);
 
@@ -92,7 +92,7 @@ export default function EmailPreviewFrame({
 
   // The organization's own name and address, never a placeholder: this footer
   // is the one part of the email the sender cannot edit, so the only useful
-  // thing to show is the text that will actually go out — including the empty
+  // thing to show is the text that will actually go out - including the empty
   // address of an organization that never filled one in, which the send path
   // renders as a bare name. Both fields are NOT NULL, so the fallback below
   // only covers the moment before the record has loaded.
@@ -104,7 +104,7 @@ export default function EmailPreviewFrame({
   return (
     <div className="w-full rounded-[6px] overflow-hidden shadow-lg">
       {/* The inbox row: what the recipient reads before opening anything.
-          Always LTR — the inbox chrome is the client's, not the email's. */}
+          Always LTR - the inbox chrome is the client's, not the email's. */}
       <div
         className="bg-white border-b border-[#e4e7e4] p-[11px_16px]"
         dir="ltr"
@@ -130,7 +130,7 @@ export default function EmailPreviewFrame({
   );
 }
 
-/** Human summary of how many slots fell back — the sentence both preview
+/** Human summary of how many slots fell back - the sentence both preview
  *  surfaces put next to the frame. */
 export function previewStatsLabel(
   stats: { resolved: number; fallbacks: number },

@@ -5,7 +5,7 @@ import BubbleButtons from "./BubbleButtons";
 import { renderInline } from "./renderWhatsAppText";
 import type { MessagePreviewData } from "./types";
 
-/** A single outgoing WhatsApp bubble — media header, header text, body,
+/** A single outgoing WhatsApp bubble - media header, header text, body,
     footer, timestamp and attached buttons. Bubble width/wrapping mirror the
     real client (max-width + word-break), so length looks true-to-life. */
 export default function WhatsAppBubble({

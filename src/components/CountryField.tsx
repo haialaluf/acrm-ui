@@ -27,7 +27,7 @@ export function useDetectedRegion(): DetectedRegion {
 
 /**
  * The country picker, shared by the calendar editor and the organization's
- * business profile — the two places that keep working hours and therefore both
+ * business profile - the two places that keep working hours and therefore both
  * need to say which clock those hours are on.
  *
  * `touched` lives in here rather than in either form: it exists only to retire
@@ -46,7 +46,7 @@ export default function CountryField({
   detected: DetectedRegion;
   // Whether `value` came from storage rather than from detection. The badge is
   // a claim about where the value came from, so it must go the moment the value
-  // is a saved choice — `isEdit` for a calendar, "already has a region" for an
+  // is a saved choice - `isEdit` for a calendar, "already has a region" for an
   // organization.
   saved?: boolean;
   disabled?: boolean;

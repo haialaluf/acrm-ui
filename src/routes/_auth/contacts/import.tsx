@@ -80,7 +80,7 @@ const EMAIL_RE = /mail|correo|email|אימייל|דואר אלקטרוני/i;
 const TAGS_RE = /tags?|etiquetas?|labels?|categor|תגית|תגיות|תווית/i;
 
 /**
- * Meta's Lead Ads export tags typed values with a short prefix — `p:` on
+ * Meta's Lead Ads export tags typed values with a short prefix - `p:` on
  * `phone_number`, like `l:` on ids. It is not part of the number, and the phone
  * validator (rightly) rejects any letter, so strip it before validating.
  */
@@ -159,7 +159,7 @@ function ImportContacts() {
         mapping.phone != null ? stripPhonePrefix(row[mapping.phone] ?? "") : "";
       const rawEmail =
         mapping.email != null ? (row[mapping.email] ?? "").trim() : "";
-      // An unusable address does not fail the row — the contact and phone are
+      // An unusable address does not fail the row - the contact and phone are
       // still perfectly good, and rejecting the lot would lose real people over
       // one bad cell. The email alone is dropped, and counted so the summary can
       // say so rather than silently importing fewer addresses than the file had.
@@ -296,7 +296,7 @@ function ImportContacts() {
 
   function startImport() {
     // Every "ok" row always goes through upsert_contact. A known "dup" row
-    // is only sent when strategy is 'merge' — under 'skip' it would just be
+    // is only sent when strategy is 'merge' - under 'skip' it would just be
     // a wasted round trip guaranteed to come back skipped, so it's excluded
     // client-side, mirroring `importableCount` above.
     const importRows = rows.filter(
@@ -351,7 +351,7 @@ function ImportContacts() {
             <>
               <p>
                 {t(
-                  "Import a list of contacts from a CSV or Excel file. The system will automatically detect the file structure — name, phone and email. All imported contacts will receive the tags you choose.",
+                  "Import a list of contacts from a CSV or Excel file. The system will automatically detect the file structure - name, phone and email. All imported contacts will receive the tags you choose.",
                 )}
               </p>
               <DropZone onPick={handleFile} t={t} />
@@ -472,7 +472,7 @@ function ImportContacts() {
                               }
                             >
                               {cell || (
-                                <span className="text-muted-foreground">—</span>
+                                <span className="text-muted-foreground">-</span>
                               )}
                             </td>
                           ))}
@@ -529,7 +529,7 @@ function ImportContacts() {
                       onChange={(v) =>
                         setMapping((m) => ({ ...m, [f.key]: v }))
                       }
-                      noneLabel={t("— None —")}
+                      noneLabel={t("- None -")}
                     />
                   ))}
                 </div>
@@ -608,7 +608,7 @@ function ImportContacts() {
                       </div>
                       <div className="text-[12px] text-muted-foreground">
                         {t(
-                          "Contacts with a phone number that already exists will be merged into the existing contact — filling in blanks, adding the email and the new tags, without overwriting anything",
+                          "Contacts with a phone number that already exists will be merged into the existing contact - filling in blanks, adding the email and the new tags, without overwriting anything",
                         )}
                       </div>
                     </div>
@@ -717,7 +717,7 @@ function ImportContacts() {
                     value={counts.err}
                   />
                 )}
-                {/* A conflict the RPC discovered at write time — not one the
+                {/* A conflict the RPC discovered at write time - not one the
                     file-level dup check already knew about (those are counted
                     above, and under 'skip' never even reach the RPC). A
                     silent skip must never look like success. */}
@@ -873,7 +873,7 @@ function DropZone({
             className="w-[14px] h-[14px] shrink-0"
             style={{ color: "var(--primary)" }}
           />
-          {t("Automatic column detection — any file format is supported")}
+          {t("Automatic column detection - any file format is supported")}
         </div>
       </div>
     </div>
@@ -954,7 +954,7 @@ function ValidationBanner({
       >
         <Check className="w-4 h-4 shrink-0" strokeWidth={2.5} />
         <span>
-          {fill(t, "Clean file — {n} rows ready to import", {
+          {fill(t, "Clean file - {n} rows ready to import", {
             n: counts.total,
           })}
         </span>

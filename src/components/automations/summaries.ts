@@ -10,8 +10,8 @@ import { STEP_TYPES, TRIGGER_ICONS } from "./catalog";
  * The one-line summaries the canvas prints on every node, and the plain-language
  * sentence under the editor's title.
  *
- * They read from the same live data the drawer edits — agents, templates,
- * calendars — rather than from anything stored on the step, so a renamed
+ * They read from the same live data the drawer edits - agents, templates,
+ * calendars - rather than from anything stored on the step, so a renamed
  * template is renamed on the canvas too.
  */
 
@@ -84,7 +84,7 @@ export function triggerInfo(
           "{{1}}",
           (trigger.times ?? []).join(" · "),
         ) || t("Every day"),
-      // The trigger has no audience of its own — it sweeps everyone, and a
+      // The trigger has no audience of its own - it sweeps everyone, and a
       // Filter step is how a flow narrows that. So the subtitle says the scope
       // plainly rather than listing conditions that no longer live here.
       sub: t("Every open conversation") + " · " + trigger.tz,
@@ -140,7 +140,7 @@ export function triggerInfo(
   };
 }
 
-/** How many comparisons a rule holds — enough for a node subtitle. */
+/** How many comparisons a rule holds - enough for a node subtitle. */
 export function countClauses(rule: Predicate | undefined): number {
   if (!rule) return 0;
   if ("all" in rule) return rule.all.reduce((n, r) => n + countClauses(r), 0);
@@ -266,7 +266,7 @@ export function stepInfo(
 
 /**
  * The plain-language line under the editor's title: what this flow does, read
- * left to right. Branch contents are flattened into it deliberately — it is a
+ * left to right. Branch contents are flattened into it deliberately - it is a
  * summary, and the canvas below is the accurate picture.
  */
 export function flowSentence(

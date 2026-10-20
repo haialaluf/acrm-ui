@@ -34,7 +34,7 @@ const theme = {
  *
  * The QR points at the public /sync/<token> page rather than straight at the
  * configuration profile, so the person scanning sees which calendar they are
- * about to add to their device before anything is installed — and so Android
+ * about to add to their device before anything is installed - and so Android
  * and desktop clients have somewhere to get the raw CalDAV settings.
  */
 export default function SyncToPhoneModal({
@@ -174,7 +174,7 @@ export default function SyncToPhoneModal({
 
                 The label is wrapped in a span carrying the colour: global.css
                 has an unlayered `a { color: inherit }`, which beats antd's own
-                anchor-button colour whatever its specificity — the same trap
+                anchor-button colour whatever its specificity - the same trap
                 documented in booking/Sync.tsx. */}
             <Button
               block

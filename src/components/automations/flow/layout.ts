@@ -9,7 +9,7 @@ import type { Translate } from "../summaries";
  * so the tree shape the old CSS grid produced for free is computed here instead.
  * The rules are the same ones that shape mattered for: a branching step fans out
  * into parallel columns, and columns that rejoin visibly arrive back at the
- * trunk — a 10% holdout path with no steps in it still reaches the step below
+ * trunk - a 10% holdout path with no steps in it still reaches the step below
  * the split.
  *
  * Nothing here reads a stored position. The graph is a pure function of the
@@ -17,7 +17,7 @@ import type { Translate } from "../summaries";
  * a saved coordinate has to be reconciled with.
  */
 
-/** Every node is this wide, caps included — they centre a pill inside a
+/** Every node is this wide, caps included - they centre a pill inside a
  *  full-width transparent box. One width for everything is what lets a column
  *  be laid out at x=0 and then slid sideways by translating positions. */
 export const NODE_W = 302;
@@ -30,7 +30,7 @@ const EST_STEP_H = 78; // used for the first paint, before measurement
 const EST_CAP_H = 26;
 
 export type InsertPoint = {
-  /** `[stepId, branchId, …]` — the list the new step goes into. */
+  /** `[stepId, branchId, …]` - the list the new step goes into. */
   path: string[];
   index: number;
   /** Empty branches keep their `+` lit; everywhere else it sits back. */
@@ -188,7 +188,7 @@ function layoutStep(
     if (empty) {
       const capId = `cap:empty:${branching.id}:${branch.id}`;
       sub.nodes.push(
-        cap(capId, ctx.t("Empty path — contacts fall through"), 0, nextY),
+        cap(capId, ctx.t("Empty path - contacts fall through"), 0, nextY),
       );
       sub.edges.push(insertLink(tailId, capId, branchPath, 0, true));
       tailId = capId;
@@ -268,7 +268,7 @@ function layoutStep(
     };
   }
 
-  // Nothing rejoins, but the parent trunk still resumes below the columns —
+  // Nothing rejoins, but the parent trunk still resumes below the columns -
   // an invisible node is what the connector after this step leaves from.
   const anchorId = `anchor:${branching.id}`;
   e.nodes.push({

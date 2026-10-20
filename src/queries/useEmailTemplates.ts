@@ -13,7 +13,7 @@ import type {
  * Email templates go through the `email-management/templates` edge function
  * rather than PostgREST: `public.email_templates` is select-only under RLS, so
  * the function's role check is what authorizes every write (see
- * `05-18_email_templates_rls.sql`). One path, verb per operation — the same
+ * `05-18_email_templates_rls.sql`). One path, verb per operation - the same
  * shape as `whatsapp-management/templates` in `useTemplates.ts`, so the two
  * template APIs read alike.
  */
@@ -23,7 +23,7 @@ import type {
  * whose message is the useless "Edge Function returned a non-2xx status code";
  * the real reason is in `context`, the raw `Response`. Our functions answer with
  * `{ message, cause }` (see `app.onError` in email-management), so read it out
- * and rethrow with something worth showing — 'A template named "Welcome"
+ * and rethrow with something worth showing - 'A template named "Welcome"
  * already exists' instead of a status code.
  */
 async function toError(error: unknown): Promise<Error> {
@@ -55,7 +55,7 @@ async function invokeTemplates<T>(
   return data as T;
 }
 
-/** Every template in the org, newest edit first. Summaries only — the builder
+/** Every template in the org, newest edit first. Summaries only - the builder
  *  project and compiled HTML are fetched per template by `useEmailTemplate`. */
 export function useEmailTemplates() {
   const organization_id = useBoundStore((state) => state.ui.activeOrgId);
@@ -71,7 +71,7 @@ export function useEmailTemplates() {
   });
 }
 
-/** One template including its builder project — what the editor opens on. */
+/** One template including its builder project - what the editor opens on. */
 export function useEmailTemplate(id?: string) {
   const organization_id = useBoundStore((state) => state.ui.activeOrgId);
 

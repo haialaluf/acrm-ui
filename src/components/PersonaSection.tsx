@@ -15,7 +15,7 @@ type PersonaSectionProps<T extends FieldValues> = {
  *
  * `tone` is a textarea rather than the one-line input it started as: it is the
  * only field describing HOW to write, so a company with a real voice puts the
- * register, the things it never says, and a few example lines in here — and
+ * register, the things it never says, and a few example lines in here - and
  * none of that survives a single-line input.
  */
 export default function PersonaSection<T extends FieldValues>({

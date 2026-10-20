@@ -32,7 +32,7 @@ function FacebookOAuthCallback() {
   const [failureReason, setFailureReason] = useState<string>();
   const ran = useRef(false);
 
-  // Leg 1 — the connect page redirected this same tab to Facebook and back, so
+  // Leg 1 - the connect page redirected this same tab to Facebook and back, so
   // the token exchange runs here, scoped to the (persisted) active org.
   useEffect(() => {
     if (ran.current) return;
@@ -65,7 +65,7 @@ function FacebookOAuthCallback() {
     );
   }, [code, state, error, listPages, navigate]);
 
-  // Leg 2 — connect the chosen Page. Instagram connects a single account and so
+  // Leg 2 - connect the chosen Page. Instagram connects a single account and so
   // needs no picker; a Facebook user commonly administers several Pages.
   const handleSelect = (page_id: string) => {
     if (!pages) return;

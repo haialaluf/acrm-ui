@@ -51,7 +51,7 @@ function EditOrganization() {
 
   // Back-office and personal-assistant agents are excluded: this picker is
   // who answers a contact by default, which neither kind can ever do
-  // (agent-client never lets either into that fallback — see its AGENT
+  // (agent-client never lets either into that fallback - see its AGENT
   // SELECTION block).
   const aiAgents = (agents ?? []).filter(
     (a) => a.ai && a.kind !== "back_office" && a.kind !== "personal_assistant",
@@ -62,7 +62,7 @@ function EditOrganization() {
 
   const detected = useDetectedRegion();
   // Whether the country was already a saved choice, which is what retires the
-  // "detected from browser" badge — the organization's answer to CalendarForm's
+  // "detected from browser" badge - the organization's answer to CalendarForm's
   // `isEdit`, since the organization itself always exists but this field is new
   // and unset on every organization that predates it.
   const savedRegion = !!org?.extra?.business_profile?.region;
@@ -83,7 +83,7 @@ function EditOrganization() {
           ...org.extra?.business_profile,
           // Seeded from the browser exactly as CalendarForm seeds a new
           // calendar's. It is the form's baseline, so it does not by itself
-          // make the form dirty — nothing is written until the owner saves.
+          // make the form dirty - nothing is written until the owner saves.
           region: org.extra?.business_profile?.region ?? detected.region,
         },
       },
@@ -106,7 +106,7 @@ function EditOrganization() {
 
   // Overlapping or backwards windows would render to the agent as nonsense
   // ("Sunday: 17:00-09:00"), and RHF's own `isValid` can't see inside a
-  // Controller-held object — so gate the save the way CalendarForm does.
+  // Controller-held object - so gate the save the way CalendarForm does.
   const workingHours = useWatch({
     control,
     name: "extra.business_profile.working_hours",
@@ -133,7 +133,7 @@ function EditOrganization() {
                     ...profile,
                     // A day switched off leaves the object entirely, and
                     // `organizations.extra` is deep-merged by the
-                    // `merge_update` trigger — which never removes a key.
+                    // `merge_update` trigger - which never removes a key.
                     // Without this, closing a day would save nothing and the
                     // agent would keep quoting the old hours.
                     // `expandClosedDays` sends `[]` instead.
@@ -264,7 +264,7 @@ function EditOrganization() {
             />
 
             {/* Named to the client when the agent hands a conversation over.
-                Left blank the agent says "someone will get back to you" — the
+                Left blank the agent says "someone will get back to you" - the
                 honest default for a rota or a shared inbox. */}
             <label>
               <div className="label">{t("Who follows up")}</div>
@@ -281,7 +281,7 @@ function EditOrganization() {
               </div>
             </label>
 
-            {/* Which clock the hours below are kept on — the calendar
+            {/* Which clock the hours below are kept on - the calendar
                 editor's picker, unchanged. */}
             <Controller
               control={control}
@@ -297,7 +297,7 @@ function EditOrganization() {
               )}
             />
 
-            {/* When the business is OPEN — not when it takes appointments.
+            {/* When the business is OPEN - not when it takes appointments.
                 Booking hours stay on each calendar; these only exist so the
                 agent can answer "are you open on Saturday?" from the prompt
                 instead of coming back to the client with it. */}
@@ -318,8 +318,8 @@ function EditOrganization() {
             />
           </SectionField>
 
-          {/* Machine-reads the files clients send — voice notes, photos,
-              documents — so the agent has their contents as text. Its own
+          {/* Machine-reads the files clients send - voice notes, photos,
+              documents - so the agent has their contents as text. Its own
               section rather than two loose fields, because the language only
               means anything while the switch is on. */}
           <SectionField
@@ -352,7 +352,7 @@ function EditOrganization() {
               )}
             />
 
-            {/* Only offered while transcription is on — the hint is dead
+            {/* Only offered while transcription is on - the hint is dead
                 config otherwise, and a set-but-inert field reads as a bug. */}
             {transcriptionMode === "active" && (
               <div className="flex flex-col gap-[8px]">

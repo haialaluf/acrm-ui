@@ -27,11 +27,11 @@ export const queryKeys = {
     instagramAddresses: (orgId: NullableId) =>
       [orgId, "contacts_addresses", "instagram"] as const,
     /** Last received / sent timestamps for one contact, keyed by its (sorted)
-     *  addresses — see `useContactActivity`. */
+     *  addresses - see `useContactActivity`. */
     activity: (orgId: NullableId, addresses: string[]) =>
       [orgId, "contacts", "activity", addresses] as const,
     /** Server-resolved recency-filter sets, keyed by the four since-thresholds
-     *  (ms epoch or null) — see `useContactActivityMatch`. */
+     *  (ms epoch or null) - see `useContactActivityMatch`. */
     activityMatch: (
       orgId: NullableId,
       recvSince: number | null,
@@ -56,7 +56,7 @@ export const queryKeys = {
     /** Appointments booked against one contact, for its activity tab. */
     appointments: (orgId: NullableId, contactId: NullableId) =>
       [orgId, "contacts", contactId, "appointments"] as const,
-    /** Threads belonging to one contact, resolved through its addresses —
+    /** Threads belonging to one contact, resolved through its addresses -
      *  which are part of the key, since they are what the query filters on. */
     conversations: (
       orgId: NullableId,
@@ -94,7 +94,7 @@ export const queryKeys = {
     recent: (orgId: NullableId) => [orgId, "leads", "api"] as const,
   },
   emailTemplates: {
-    /** List for the org — summaries only, without the project/html payloads. */
+    /** List for the org - summaries only, without the project/html payloads. */
     all: (orgId: NullableId) => [orgId, "email_templates"] as const,
     /** One template with its builder project, for the editor. */
     detail: (orgId: NullableId, id: NullableId) =>
@@ -142,7 +142,7 @@ export const queryKeys = {
       [orgId, "appointments", calendarId] as const,
   },
   messageTemplates: {
-    /** Every approved WhatsApp template in the org, from the local mirror —
+    /** Every approved WhatsApp template in the org, from the local mirror -
      *  unlike useTemplates, which fetches one number's list live from Graph. */
     approved: (orgId: NullableId) =>
       [orgId, "message_templates", "approved"] as const,

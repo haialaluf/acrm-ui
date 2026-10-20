@@ -8,7 +8,7 @@ const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 /**
  * Builds the Instagram Business Login authorize URL server-side (the client_id
  * and scopes live in the backend). `state` carries CSRF protection / the
- * onboarding token. The endpoint is public, so the anon key is enough — used by
+ * onboarding token. The endpoint is public, so the anon key is enough - used by
  * both the in-app connect and the public onboarding-link flows.
  */
 export async function getInstagramAuthorizeUrl(

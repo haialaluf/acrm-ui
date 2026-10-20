@@ -10,7 +10,7 @@ import { useAccess, type OutboundChannel } from "@/hooks/useAccess";
 /**
  * "Start from a recipe": prebuilt flows, opened as real editable definitions.
  *
- * Every recipe is an ordinary trigger + steps pair — nothing is locked, and
+ * Every recipe is an ordinary trigger + steps pair - nothing is locked, and
  * picking one creates a normal draft. They exist because a blank canvas with
  * eleven step types and three trigger kinds is a bad first screen, not because
  * the shapes are special.
@@ -18,7 +18,7 @@ import { useAccess, type OutboundChannel } from "@/hooks/useAccess";
 
 export type Recipe = {
   id: string;
-  /** English source strings — the i18n keys. */
+  /** English source strings - the i18n keys. */
   title: string;
   description: string;
   kind: "lead" | "date" | "schedule" | "blank";
@@ -98,7 +98,7 @@ export function recipes(): Recipe[] {
       id: "reminder",
       title: "Remind before a meeting",
       description:
-        "One day before a scheduled meeting, send a WhatsApp reminder — or fall back to email for anyone not reachable on WhatsApp.",
+        "One day before a scheduled meeting, send a WhatsApp reminder - or fall back to email for anyone not reachable on WhatsApp.",
       kind: "date",
       art: "branch",
       trigger: {
@@ -156,7 +156,7 @@ export function recipes(): Recipe[] {
       steps: [
         // The sweep reaches every open conversation, so the flow says who it
         // is for in a step. Outside the 24-hour window an agent can only send
-        // approved templates, which makes a free-form follow-up a no-op — this
+        // approved templates, which makes a free-form follow-up a no-op - this
         // is where that used to live as a trigger checkbox.
         {
           id: id(),
@@ -191,7 +191,7 @@ export function recipes(): Recipe[] {
     },
     {
       id: "quote",
-      title: "Quote sent — 3 day nudge",
+      title: "Quote sent - 3 day nudge",
       description:
         "When a contact is tagged as quoted, wait three days and write again if they have not replied.",
       kind: "lead",
@@ -236,7 +236,7 @@ const KIND_ICONS = {
   blank: Plus,
 };
 
-/** A miniature of the flow's shape — enough to tell a split from a branch. */
+/** A miniature of the flow's shape - enough to tell a split from a branch. */
 function RecipeArt({ art }: { art: Recipe["art"] }) {
   const box = (filled?: boolean) => (
     <div
@@ -301,7 +301,7 @@ export default function RecipeGallery({
 }) {
   const { translate: t } = useTranslation();
   const { allows } = useAccess();
-  // A recipe is offered only when *every* channel it sends on is connected —
+  // A recipe is offered only when *every* channel it sends on is connected -
   // the one allOf rule in the app, composed here rather than complicating the
   // table, which is anyOf throughout. The sweep and blank recipes send on none,
   // so the gallery is never empty.
@@ -328,7 +328,7 @@ export default function RecipeGallery({
             </h2>
             <p className="mt-[5px] text-[13.5px] text-muted-foreground">
               {t(
-                "Each one opens as a real, editable flow — nothing is locked.",
+                "Each one opens as a real, editable flow - nothing is locked.",
               )}
             </p>
           </div>

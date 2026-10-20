@@ -21,7 +21,7 @@ const maxOf = (a: number | null, b: number | null) =>
 /**
  * Last received / sent timestamps for the ONE contact whose page is open,
  * fetched on demand from the `contact_message_activity` RPC filtered to that
- * contact's addresses (`.in(...)` — PostgREST applies it to the set-returning
+ * contact's addresses (`.in(...)` - PostgREST applies it to the set-returning
  * function's result). The org-wide variant is gone: an org has more addresses
  * with history than PostgREST's 1000-row response cap, so a whole-org fetch
  * silently dropped every contact past the first page.
@@ -79,7 +79,7 @@ export function useContactActivity(addresses: string[] | undefined): {
  * Every contact address whose last message in `column` is at or after `sinceMs`.
  *
  * Pages the RPC (ordered by address, which it does not order itself) so the
- * result is not clipped at PostgREST's 1000-row cap — a wide threshold ("sent
+ * result is not clipped at PostgREST's 1000-row cap - a wide threshold ("sent
  * in the last year") can match more than that.
  */
 async function addressesActiveSince(
@@ -113,7 +113,7 @@ async function addressesActiveSince(
  * `.gte(...)` so only the matching addresses come back.
  *
  * `null` predicate when no recency filter is set (or while the queries are in
- * flight) — the list then shows every contact and narrows once they resolve,
+ * flight) - the list then shows every contact and narrows once they resolve,
  * same as before.
  *
  * "not … since" also has to pass contacts that were never messaged at all;

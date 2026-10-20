@@ -8,7 +8,7 @@ import { Card, CardHead, Ltr, formatNumber, formatPercent } from "./primitives";
  *
  * The count matters less than the mix: 200 failures that are all 131047
  * (expired window) is a scheduling bug, while 200 that are all 131049 is Meta
- * throttling you — opposite problems with opposite fixes.
+ * throttling you - opposite problems with opposite fixes.
  */
 export default function ErrorBreakdown({
   aggregate,

@@ -25,7 +25,7 @@ export type InstagramAddressRow = ContactAddressRow & {
  * igsid, an id scoped to our own IG account that Meta only ever hands us on an
  * inbound event (`instagram-webhook`), and the send path uses it verbatim as
  * `recipient.id`. A typed @username resolves to nothing we could message, so
- * the only honest input is "one of the people who have written to us" — the
+ * the only honest input is "one of the people who have written to us" - the
  * footnote says so rather than leaving the user hunting for the missing field.
  *
  * Built on the native <dialog> for the same reason ConfirmModal is (see its
@@ -39,7 +39,7 @@ export default function InstagramAddressPicker({
   onCancel,
 }: {
   open: boolean;
-  /** Addresses already on the form — shown as picked, not selectable again. */
+  /** Addresses already on the form - shown as picked, not selectable again. */
   excluded: Set<string>;
   onPick: (row: InstagramAddressRow) => void;
   onCancel: () => void;
@@ -192,7 +192,7 @@ export default function InstagramAddressPicker({
 
       <div className="px-5 pb-5 pt-[14px] text-[12px] leading-[1.5] text-muted-foreground">
         {t(
-          "Only people who have messaged your Instagram account appear here — Instagram gives no way to reach someone by username alone.",
+          "Only people who have messaged your Instagram account appear here - Instagram gives no way to reach someone by username alone.",
         )}
       </div>
     </dialog>

@@ -68,8 +68,8 @@ export default function AutomationEditor({ id }: { id: string }) {
 
   const { data: stepStats } = useAutomationStepStats(id, showStats);
 
-  // Leaving with unsaved edits — the back button, a sidebar link, a browser
-  // back/refresh — silently discards them, since the definition only lives in
+  // Leaving with unsaved edits - the back button, a sidebar link, a browser
+  // back/refresh - silently discards them, since the definition only lives in
   // local state until "Save" is pressed. Block navigation and ask first.
   const leaveBlocker = useBlocker({
     shouldBlockFn: () => dirty,

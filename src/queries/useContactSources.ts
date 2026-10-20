@@ -11,7 +11,7 @@ import { useContacts } from "./useContacts";
  *
  * This is what the org has *used*, which is the right answer for a filter over
  * existing contacts. It is the wrong answer for anything that configures future
- * behaviour — see {@link useContactSourceOptions}.
+ * behaviour - see {@link useContactSourceOptions}.
  */
 export function useContactSources() {
   const contacts = useContacts();
@@ -27,7 +27,7 @@ export function useContactSources() {
   return { ...contacts, data: sources };
 }
 
-/** Human labels for the known sources. English source strings — the i18n keys.
+/** Human labels for the known sources. English source strings - the i18n keys.
  *
  *  Kept here rather than in src/supabase/types/contact_source_types.ts because
  *  that file is a verbatim mirror of the API's copy, and how a value is worded
@@ -55,18 +55,18 @@ export type ContactSourceOption = { id: string; name: string };
  * the leads it is meant to catch arrive, so an org that has never received a
  * Facebook lead must still be able to build the automation that handles the
  * first one. Offering only observed values makes that impossible, and the
- * failure is silent — the option simply is not there.
+ * failure is silent - the option simply is not there.
  *
  * That argument is about "never used", which is not the same as "cannot
  * receive". It defends offering `facebook_lead` to an org that has Facebook
  * connected and no leads yet; it does not defend offering it to an org with no
  * Facebook connection at all, where a trigger on it could never fire whatever
- * happens. So the canonical list is filtered by what is connected — one row
+ * happens. So the canonical list is filtered by what is connected - one row
  * per ContactSource in the SURFACES table, which a new source must join before
  * it compiles.
  *
  * The observed values are appended *unfiltered*. That covers rows written by an
- * older deploy or a channel added since — and, now, a channel since
+ * older deploy or a channel added since - and, now, a channel since
  * disconnected: a saved trigger's selection must stay selectable, or opening an
  * old automation would silently drop it.
  */

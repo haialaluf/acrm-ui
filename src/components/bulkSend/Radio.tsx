@@ -1,5 +1,5 @@
 /** Circular radio indicator used in the "send now / later" picker. Pure
- *  display — the parent button handles the click. */
+ *  display - the parent button handles the click. */
 export default function Radio({ checked }: { checked: boolean }) {
   return (
     <span

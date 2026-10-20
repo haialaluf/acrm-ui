@@ -9,7 +9,7 @@ export type MessageStatusKind =
   | "cancelled"
   // Email only, written by email-webhook and email-dispatcher. Each is a
   // scalar timestamp key rather than an entry in status.errors, because the
-  // merge_update trigger REPLACES arrays instead of merging them — a second
+  // merge_update trigger REPLACES arrays instead of merging them - a second
   // event for the same message overwrites the whole errors array.
   | "bounced"
   | "soft_bounced"
@@ -24,9 +24,9 @@ export const EMAIL_STATUS_KINDS = [
   "suppressed",
 ] as const satisfies readonly MessageStatusKind[];
 
-/** Single status bucket for one recipient's message.status jsonb — terminal
+/** Single status bucket for one recipient's message.status jsonb - terminal
  *  states first. Used only to LABEL a row (the single most-advanced thing
- *  that happened to it) — NOT for filtering, see messageMatchesStatus below:
+ *  that happened to it) - NOT for filtering, see messageMatchesStatus below:
  *  status keys accumulate (a delivered message still carries `accepted`), so
  *  a message can match multiple buckets at once and this exclusive pick
  *  would make "delivered" messages vanish from a "sent" filter. */
@@ -35,13 +35,13 @@ export function messageStatusKind(status: Json): MessageStatusKind {
   if (s.cancelled) return "cancelled";
   // Before `failed`, and before `read`/`delivered`. These are the *reason* a
   // message failed, so showing the generic "Failed" instead would throw away
-  // the only information the recipient row carries — it is what made an invalid
+  // the only information the recipient row carries - it is what made an invalid
   // address indistinguishable from a broken template.
   //
   // `complained` outranks `delivered` and `read` for a different reason: a
   // complaint means the mail arrived and was reported as spam, so the row does
   // legitimately carry `delivered` too. Labelling it "Delivered" is technically
-  // true and practically useless — the spam report is the thing worth knowing.
+  // true and practically useless - the spam report is the thing worth knowing.
   if (s.suppressed) return "suppressed";
   if (s.bounced) return "bounced";
   if (s.soft_bounced) return "soft_bounced";
@@ -56,7 +56,7 @@ export function messageStatusKind(status: Json): MessageStatusKind {
 /** Inclusive membership test, mirroring list_broadcast_batches's own
  *  `count(*) filter (...)` predicates exactly (sent/delivered/read/failed/
  *  cancelled all just check "is this key present", so a delivered message
- *  counts as both sent AND delivered — only "pending" is exclusive, since
+ *  counts as both sent AND delivered - only "pending" is exclusive, since
  *  its SQL predicate requires every later key to be absent). Filtering the
  *  recipient list by a clicked stat tile must use this, not
  *  messageStatusKind, so the filtered count matches the tile's own count. */
@@ -101,7 +101,7 @@ export function messageMatchesStatus(
 
 /** The buckets that mean the message did not reach the recipient as intended,
  *  and so are worth pairing with the reason from `status.errors`. `complained`
- *  is one of them even though it was delivered — the spam report is the thing
+ *  is one of them even though it was delivered - the spam report is the thing
  *  the operator needs to see. */
 export const FAILURE_KINDS = new Set<MessageStatusKind>([
   "failed",
@@ -121,12 +121,12 @@ const KIND_LABELS: Record<MessageStatusKind, string> = {
   bounced: "Bounced",
   soft_bounced: "Soft bounced",
   complained: "Reported as spam",
-  suppressed: "Not sent — opted out",
+  suppressed: "Not sent - opted out",
 };
 
 /** Where the two channels genuinely mean different things by the same key.
  *  `read` on WhatsApp is a read receipt; on email it is an SES `Open` event,
- *  i.e. the tracking pixel loaded — which plenty of clients block, so calling
+ *  i.e. the tracking pixel loaded - which plenty of clients block, so calling
  *  it "Read" would overstate it. Everything else reads the same either way. */
 const EMAIL_KIND_LABELS: Partial<Record<MessageStatusKind, string>> = {
   read: "Opened",
@@ -156,11 +156,11 @@ export function messageStatusLabel(
 
 /**
  * When one bucket was reached, from the ISO timestamp its own status key
- * holds (see OutgoingStatus — every key is a `new Date().toISOString()`).
+ * holds (see OutgoingStatus - every key is a `new Date().toISOString()`).
  * Null when the message never reached that state.
  *
  * `pending` deliberately has none: its timestamp is when the broadcast was
- * *queued*, which for a scheduled batch is hours before it goes out — the
+ * *queued*, which for a scheduled batch is hours before it goes out - the
  * caller shows messages.timestamp (the send slot) instead, which is what
  * "Pending" is actually waiting for.
  */

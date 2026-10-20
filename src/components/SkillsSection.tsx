@@ -60,7 +60,7 @@ export default function SkillsSection<T extends FieldValues>({
   const { translate: t } = useTranslation();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // "" is the explicit "use the platform default" choice — the API reads it as
+  // "" is the explicit "use the platform default" choice - the API reads it as
   // falsy and falls back to its own DEFAULT_SKILL_MODEL (see acrm-api
   // _shared/models.ts). The UI does not name the concrete model.
   const defaultSkillModelLabel = t("Default");
@@ -218,7 +218,7 @@ function SkillConfigFieldInput<T extends FieldValues>({
   disabled?: boolean;
 }) {
   const { translate: t } = useTranslation();
-  // Options the static catalog cannot enumerate — the org's own calendars.
+  // Options the static catalog cannot enumerate - the org's own calendars.
   const calendars = useCalendars().data ?? [];
 
   const configPath = `extra.skills.${index}.config.${field.key}` as Path<T>;
@@ -336,7 +336,7 @@ function SkillConfigFieldInput<T extends FieldValues>({
             </>
           )}
 
-          {/* Leaves the agent form, so unsaved edits are lost — the same
+          {/* Leaves the agent form, so unsaved edits are lost - the same
               trade-off as the organization settings link on the agent page. */}
           <Link
             to="/calendars/new"
@@ -381,7 +381,7 @@ function SkillConfigFieldInput<T extends FieldValues>({
                   url: result.url,
                 });
               } catch {
-                // Popup blocked or closed — leave the connection untouched.
+                // Popup blocked or closed - leave the connection untouched.
               }
             }}
           >

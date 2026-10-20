@@ -12,7 +12,7 @@ import timezone from "dayjs/plugin/timezone";
  *    whether they open the link from Madrid or from a plane.
  * 2. Nothing here formats by hand. `Intl` already knows month names, weekday
  *    order, and whether the visitor's locale wants 09:00 or 9:00 AM, in every
- *    language the site ships — hand-rolled tables would only be a worse copy.
+ *    language the site ships - hand-rolled tables would only be a worse copy.
  *
  * dayjs (+ utc/timezone, both already dependencies) does the civil-calendar
  * arithmetic: "which day, in Asia/Jerusalem, does this instant fall on".
@@ -26,7 +26,7 @@ export type DayKey = string;
 
 export type CalendarDay = {
   key: DayKey;
-  /** Noon of that day — the instant to hand to `Intl` for display. */
+  /** Noon of that day - the instant to hand to `Intl` for display. */
   date: Date;
   dayOfMonth: number;
   /** 0 = Sunday. */
@@ -109,7 +109,7 @@ export function addMinutes(iso: string, minutes: number): Date {
 
 // ── display ───────────────────────────────────────────────────────────────
 
-/** First weekday of the week for a locale — 1 = Monday … 7 = Sunday. */
+/** First weekday of the week for a locale - 1 = Monday … 7 = Sunday. */
 export function firstWeekday(locale: string): number {
   const info = new Intl.Locale(locale) as Intl.Locale & {
     getWeekInfo?: () => { firstDay: number };
@@ -134,7 +134,7 @@ export function weekdayLabel(weekday: number, locale: string): string {
     new Date(REFERENCE_SUNDAY).getTime() + weekday * 86_400_000,
   );
   return new Intl.DateTimeFormat(locale, {
-    // Hebrew's short weekday is "יום א׳" — too wide for a 40px column, and its
+    // Hebrew's short weekday is "יום א׳" - too wide for a 40px column, and its
     // narrow form ("א") is the one Hebrew calendars actually use. English
     // narrow would be a bare "S" for both Saturday and Sunday, so it keeps
     // "Sun".
@@ -144,7 +144,7 @@ export function weekdayLabel(weekday: number, locale: string): string {
 }
 
 export function formatTime(instant: Date | string, tz: string, locale: string) {
-  // "09:00" reads right in a 24-hour column; "09:00 AM" does not — a 12-hour
+  // "09:00" reads right in a 24-hour column; "09:00 AM" does not - a 12-hour
   // locale wants the hour unpadded.
   const hour12 = new Intl.DateTimeFormat(locale, {
     hour: "numeric",
@@ -202,7 +202,7 @@ export function formatMonthYear(month: MonthKey, tz: string, locale: string) {
   }).format(noon(`${month}-01`, tz).toDate());
 }
 
-/** "Jerusalem · GMT+3" — the zone the times above it are in. */
+/** "Jerusalem · GMT+3" - the zone the times above it are in. */
 export function zoneLabel(tz: string, locale: string): string {
   const city = tz.split("/").pop()?.replace(/_/g, " ") ?? tz;
   try {
@@ -223,7 +223,7 @@ export function visitorIsElsewhere(tz: string): boolean {
   try {
     const here = new Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (here === tz) return false;
-    // Same offset right now is close enough — the times on screen match.
+    // Same offset right now is close enough - the times on screen match.
     const stamp = (zone: string) =>
       new Intl.DateTimeFormat("en", {
         timeZone: zone,

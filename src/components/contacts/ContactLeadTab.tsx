@@ -75,7 +75,7 @@ export default function ContactLeadTab({
             <Row label={t("Placement")} value={lead.platform} />
           </>
         )}
-        {/* Meta returns ids on the lead and nothing else — resolving them to
+        {/* Meta returns ids on the lead and nothing else - resolving them to
             campaign and ad names is a separate Graph call the app does not
             make, so the id is shown rather than a name we do not have. */}
         {lead?.campaign_id && (

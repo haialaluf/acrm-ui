@@ -97,7 +97,7 @@ function FacebookAddressDetail() {
                   ? t("Active since") +
                     " " +
                     new Date(extra.messaging_subscribed_at).toLocaleString()
-                  : t("Not enabled — reconnect the Page to turn it on")
+                  : t("Not enabled - reconnect the Page to turn it on")
               }
               readOnly
             />

@@ -27,8 +27,8 @@ function FacebookNew() {
   const [error, setError] = useState(false);
 
   // Plain redirect OAuth, same shape as Instagram: we redirect the whole tab so
-  // the token exchange happens back in this same tab — scoped to the active org
-  // — with no fragile cross-tab handoff.
+  // the token exchange happens back in this same tab - scoped to the active org
+  // - with no fragile cross-tab handoff.
   const connect = () => {
     setError(false);
     setLoading(true);
@@ -65,7 +65,7 @@ function FacebookNew() {
             </li>
             <li>
               {t(
-                "Leads from ads shown on Instagram are included — they belong to the same Facebook Page.",
+                "Leads from ads shown on Instagram are included - they belong to the same Facebook Page.",
               )}
             </li>
             <li>

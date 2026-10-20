@@ -7,7 +7,7 @@ import { contactEmail, contactFullName } from "@/utils/ContactAddressUtils";
 import EmailPreviewFrame, { previewStatsLabel } from "./EmailPreviewFrame";
 
 /**
- * "Preview as" — the builder's full-screen preview, showing the compiled email
+ * "Preview as" - the builder's full-screen preview, showing the compiled email
  * with a real contact's data substituted in.
  *
  * The frame itself (iframe, tinting, inbox row, compliance footer) is
@@ -52,7 +52,7 @@ export default function ContactPreview({
           value={contactId}
           onChange={(e) => setContactId(e.target.value)}
         >
-          <option value="">{t("Nobody — show fallbacks")}</option>
+          <option value="">{t("Nobody - show fallbacks")}</option>
           {contacts?.slice(0, 200).map((c) => (
             <option key={c.id} value={c.id}>
               {contactFullName(c) || contactEmail(c) || t("Unnamed")}

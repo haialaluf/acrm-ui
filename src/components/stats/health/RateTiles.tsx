@@ -27,7 +27,7 @@ type Tile = {
 /**
  * The four rates that describe send health, each with its own 30/90-day shape
  * and its change against the previous equal-length window. A rate without a
- * direction is not actionable — 62% read could be recovery or collapse.
+ * direction is not actionable - 62% read could be recovery or collapse.
  */
 export default function RateTiles({
   days,
@@ -45,14 +45,14 @@ export default function RateTiles({
   // `receiptEligible` instead and these are called out rather than counted as
   // undelivered. With none of them the two are equal and nothing below changes.
   const appSent = Math.max(0, current.outgoing - current.receiptEligible);
-  // Nothing Meta reports on means the rates have no denominator — show that
+  // Nothing Meta reports on means the rates have no denominator - show that
   // they are unknown rather than rendering a red 0.0% the account cannot act on.
   const measurable = current.receiptEligible > 0;
 
   const tiles: Tile[] = [
     {
       label: t("Delivered rate"),
-      value: measurable ? formatPercent(current.deliveredRate, 1) : "—",
+      value: measurable ? formatPercent(current.deliveredRate, 1) : "-",
       now: current.deliveredRate,
       prev: previous?.deliveredRate ?? null,
       series: days.map((d) => d.delivered_rate),
@@ -67,7 +67,7 @@ export default function RateTiles({
     },
     {
       label: t("Read rate"),
-      value: measurable ? formatPercent(current.readRate, 1) : "—",
+      value: measurable ? formatPercent(current.readRate, 1) : "-",
       now: current.readRate,
       prev: previous?.readRate ?? null,
       series: days.map((d) => d.read_rate),
@@ -82,7 +82,7 @@ export default function RateTiles({
       asPercentagePoints: true,
       sub:
         appSent > 0
-          ? `${formatNumber(appSent)} ${t("app-sent messages excluded — Meta reports no receipts for those")}`
+          ? `${formatNumber(appSent)} ${t("app-sent messages excluded - Meta reports no receipts for those")}`
           : t("A low read rate feeds quality drops"),
     },
     {
@@ -152,7 +152,7 @@ export default function RateTiles({
   );
 }
 
-/** Shape only — no axes, no tooltip. The number above carries the value. */
+/** Shape only - no axes, no tooltip. The number above carries the value. */
 function Sparkline({ values, color }: { values: number[]; color: string }) {
   const data = values.map((value, i) => ({ i, value }));
   return (

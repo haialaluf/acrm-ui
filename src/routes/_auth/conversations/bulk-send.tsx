@@ -82,7 +82,7 @@ import {
  * real `PostgrestError` when the query used `.throwOnError()`; otherwise the
  * `error` field is a plain `{ message, details, hint, code }` object parsed from
  * the response body. So an `instanceof Error` check misses it and `String(e)`
- * yields "[object Object]" — which is worse than useless on the failure screen.
+ * yields "[object Object]" - which is worse than useless on the failure screen.
  * Read `message` structurally instead, and keep `details` when Postgres supplied
  * it (that is where the failing row shows up).
  */
@@ -152,7 +152,7 @@ function BulkSendWizard() {
   );
   // Only `live` templates on a domain this org has actually connected. A draft
   // is unfinished by definition, and a template whose domain was disconnected
-  // has nowhere to send from — its `organization_address` was set to null by
+  // has nowhere to send from - its `organization_address` was set to null by
   // the FK.
   const sendableEmailTemplates = useMemo(
     () =>
@@ -178,12 +178,12 @@ function BulkSendWizard() {
   >(false);
   // Selected ADDRESSES, not contact ids: the recipients step lists one row per
   // address, so a contact with two phone numbers can be sent to on both (or on
-  // just one). Addresses are unique org-wide — they are `contacts_addresses`'
-  // primary key — so they key the selection on their own.
+  // just one). Addresses are unique org-wide - they are `contacts_addresses`'
+  // primary key - so they key the selection on their own.
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [vars, setVars] = useState<Record<string, VarValue>>({});
-  /* Which channels this organization can broadcast on at all — the same list
+  /* Which channels this organization can broadcast on at all - the same list
    * the templates section and the nav rail read, so the three cannot drift
    * apart on what "you can send" means. */
   const { channels: available } = useOutboundChannels();
@@ -207,7 +207,7 @@ function BulkSendWizard() {
   const [emailVars, setEmailVars] = useState<EmailVarOverrides>({});
   // Signed URL for a template's mandatory media header (image/video/document),
   // plus the picked file's name for display only. Empty when the chosen
-  // template has a text/no header. Always set together — see `pickHeaderMedia`.
+  // template has a text/no header. Always set together - see `pickHeaderMedia`.
   const [headerMedia, setHeaderMedia] = useState("");
   const [headerMediaName, setHeaderMediaName] = useState("");
   // Byte size of the picked document, for the preview's "PDF · 21 KB" sub-line.
@@ -220,7 +220,7 @@ function BulkSendWizard() {
   };
   // Which calendar a booking-link template books against, and how long the
   // appointment it offers runs. Both are properties of the minted link rather
-  // than of the template, so they are asked for per broadcast — see
+  // than of the template, so they are asked for per broadcast - see
   // `bookingCalendarId` below.
   const [pickedCalendarId, setPickedCalendarId] = useState("");
   const [bookingDuration, setBookingDuration] = useState(
@@ -247,7 +247,7 @@ function BulkSendWizard() {
    * It is snapshotted onto every message so that changing the domain's default
    * sender, or the template's `from_name`, cannot retarget mail that is already
    * queued. `default_from_address` is set on the domain detail page once the
-   * domain verifies, and validated server-side to be at that domain — until
+   * domain verifies, and validated server-side to be at that domain - until
    * someone does, there is no legitimate address to send from and the review
    * step blocks. */
   const emailFrom = useMemo(() => {
@@ -256,7 +256,7 @@ function BulkSendWizard() {
 
     return {
       address: extra.default_from_address,
-      // The template may override the domain-wide display name — a newsletter
+      // The template may override the domain-wide display name - a newsletter
       // and a receipt can legitimately come from "Acme News" and "Acme".
       name:
         (emailTemplate?.extra as EmailTemplateExtra | null)?.from_name ||
@@ -282,7 +282,7 @@ function BulkSendWizard() {
     const tpl = approved.find((t) => t.id === prefillTemplateId);
     const contact = contacts.find((c) => c.id === prefillContactId);
     if (!tpl || !contact) return;
-    // The prefill comes from a conversation, so there is a number — but it is
+    // The prefill comes from a conversation, so there is a number - but it is
     // the address, not the contact, that the selection is keyed by.
     const phone = contactPhone(contact);
     if (!phone) return;
@@ -300,7 +300,7 @@ function BulkSendWizard() {
     setStage("variables");
   }, [prefillContactId, prefillTemplateId, contacts, approved]);
 
-  /* Resolved recipients — one per selected ADDRESS on the chosen channel.
+  /* Resolved recipients - one per selected ADDRESS on the chosen channel.
    *
    * Re-expanding the contacts rather than trusting the selection alone keeps
    * a stale pick out of the send: an address deleted after it was ticked, or a
@@ -318,7 +318,7 @@ function BulkSendWizard() {
   /* Self-service booking links. A template carries them by pointing a dynamic
    * URL button at the booking site; when one does, every recipient needs their
    * OWN token in that button's parameter. Minting needs a calendar and an
-   * appointment length, both asked for on the review step — except that a lone
+   * appointment length, both asked for on the review step - except that a lone
    * calendar is pre-selected, since there is nothing to choose between. */
   const bookingIndex = template ? bookingButtonIndex(template) : null;
   const bookingCalendarId =
@@ -331,7 +331,7 @@ function BulkSendWizard() {
   /* Daily-limit batching: split the broadcast into one batch per day when it
    * exceeds the WhatsApp messaging limit fetched from Meta.
    *
-   * Null for email — the messaging limit is a Meta tier, a property of a phone
+   * Null for email - the messaging limit is a Meta tier, a property of a phone
    * number, with no email equivalent. A null limit makes `computeBatches` yield
    * a single batch and takes the "split over days" option off the review step,
    * which is the correct behaviour rather than a missing feature. */
@@ -343,7 +343,7 @@ function BulkSendWizard() {
     [recipients, dailyLimit],
   );
   // Recipients that go out immediately (the rest of a split send are
-  // scheduled). Any batch — including batch 0 — can be pushed to a later
+  // scheduled). Any batch - including batch 0 - can be pushed to a later
   // date/time via the review step's per-batch scheduler.
   const sendToday =
     effectiveScheduling(scheduling, overLimit) === "split"
@@ -417,7 +417,7 @@ function BulkSendWizard() {
         });
       } catch (e) {
         // Without tokens every recipient would receive the template's example
-        // link — one shared URL pointing at somebody else's booking page — so
+        // link - one shared URL pointing at somebody else's booking page - so
         // fail the send instead.
         console.error("minting booking links failed", e);
         setSendError(describeError(e));
@@ -431,7 +431,7 @@ function BulkSendWizard() {
     // will mint any token this misses (ensure_unsubscribe_link), so the reason
     // to do it here is not correctness but cost: one round-trip for the whole
     // campaign instead of one query per recipient at send time. A failure still
-    // aborts — a broadcast whose opt-out links cannot be created is one that
+    // aborts - a broadcast whose opt-out links cannot be created is one that
     // should not go out.
     if (channel === "email") {
       try {
@@ -456,7 +456,7 @@ function BulkSendWizard() {
       channel === "email" ? emailAddress!.address : whatsappAddress!.address;
 
     for (const { recipient, scheduledIso } of items) {
-      // The address is the recipient — not "the contact's phone", which would
+      // The address is the recipient - not "the contact's phone", which would
       // collapse both of a two-number contact's rows onto whichever one came
       // first and send them the same message twice.
       const { contact, address } = recipient;
@@ -531,7 +531,7 @@ function BulkSendWizard() {
         skipped.push(recipient);
         continue;
       }
-      // Skip optimistic push for scheduled messages — the chat only shows
+      // Skip optimistic push for scheduled messages - the chat only shows
       // messages whose timestamp has passed, and `pushMessageToStore` stamps
       // the optimistic copy with `now`, so a scheduled send would flicker into
       // the conversation and disappear once the server row syncs back.
@@ -546,7 +546,7 @@ function BulkSendWizard() {
     try {
       if (messageRecords.length) {
         // One transaction for both tables. Writing them as two requests could
-        // half-succeed — on 2026-07-23 the conversations landed, the messages
+        // half-succeed - on 2026-07-23 the conversations landed, the messages
         // failed, and the org was left with 1084 orphan conversations and
         // nothing sent. All-or-nothing also makes a retry after a failure safe,
         // since there is never a partially-sent broadcast to duplicate.
@@ -554,7 +554,7 @@ function BulkSendWizard() {
         // The RPC omits defaulted columns rather than sending them as NULL,
         // which is what broke split sends here: postgrest-js derives `columns`
         // from the *union* of the records' keys and writes NULL for every key a
-        // record is missing, so immediate rows (no `timestamp` — the column
+        // record is missing, so immediate rows (no `timestamp` - the column
         // default `now()` should apply) mixed with scheduled ones (explicit
         // `timestamp`) violated the not-null constraint and took the whole
         // broadcast down.

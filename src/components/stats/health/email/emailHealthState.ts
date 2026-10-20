@@ -7,7 +7,7 @@ import type { Tone } from "../primitives";
 /**
  * Thresholds the issue rules fire on.
  *
- * These are not house style — they are Amazon's. AWS publishes two levels per
+ * These are not house style - they are Amazon's. AWS publishes two levels per
  * metric, and the difference matters: "under review" is automatic and
  * recoverable, "may pause" stops delivery.
  *
@@ -17,7 +17,7 @@ import type { Tone } from "../primitives";
  * The asymmetry is the single most misunderstood thing about deliverability:
  * one spam report per two hundred sends can pause an account, where it takes
  * one bounce in ten to do the same. So the complaint constants sit exactly on
- * AWS's two levels — there is no room to warn late — while the bounce ones sit
+ * AWS's two levels - there is no room to warn late - while the bounce ones sit
  * deliberately below, WARN at 2% so the page is read before AWS looks at all.
  */
 export const BOUNCE_RATE_WARN = 0.02;
@@ -25,14 +25,14 @@ export const BOUNCE_RATE_WARN = 0.02;
 export const BOUNCE_RATE_CRITICAL = 0.05;
 /** AWS's review threshold. */
 export const COMPLAINT_RATE_WARN = 0.001;
-/** AWS's *pause* threshold — sending can stop here. */
+/** AWS's *pause* threshold - sending can stop here. */
 export const COMPLAINT_RATE_CRITICAL = 0.005;
 
 /**
  * Below this many sends, a rate is noise and no rule fires on it.
  *
  * One bounce out of three sends is a 33% bounce rate and means nothing. SES
- * applies the same idea — its findings require "a representative volume" — so
+ * applies the same idea - its findings require "a representative volume" - so
  * without this the page would scream at every organization's first test send.
  */
 export const MIN_VOLUME_FOR_RATES = 50;
@@ -187,7 +187,7 @@ export function toneForReputation(status: string | null): Tone {
  * Everything wrong with this domain's sending, worst first.
  *
  * Every issue carries a `fix`, because a deliverability warning without an
- * action is just anxiety — and unlike most metrics on this page, the fixes here
+ * action is just anxiety - and unlike most metrics on this page, the fixes here
  * are genuinely actionable (stop importing purchased lists, re-confirm an old
  * list, slow down).
  */
@@ -234,7 +234,7 @@ export function buildEmailHealthIssues(
     });
   }
 
-  // Below the volume floor every rate is noise — see MIN_VOLUME_FOR_RATES.
+  // Below the volume floor every rate is noise - see MIN_VOLUME_FOR_RATES.
   if (window.sent >= MIN_VOLUME_FOR_RATES) {
     if (window.complaintRate >= COMPLAINT_RATE_WARN) {
       const critical = window.complaintRate >= COMPLAINT_RATE_CRITICAL;
@@ -247,7 +247,7 @@ export function buildEmailHealthIssues(
           : t("Your spam-complaint rate is above the safe range"),
         detail: critical
           ? t(
-              "At 0.5% — one report per two hundred emails — Amazon SES may stop this account from sending at all. That is twenty times stricter than the equivalent bounce threshold.",
+              "At 0.5% - one report per two hundred emails - Amazon SES may stop this account from sending at all. That is twenty times stricter than the equivalent bounce threshold.",
             )
           : t(
               "Amazon SES places senders under review at a complaint rate of 0.1%, far lower than most people expect: roughly one report per thousand emails.",

@@ -17,9 +17,9 @@ const THREAD_SEPARATOR = "~";
 /**
  * The UI's unit of conversation.
  *
- * The DB may hold several `conversations` rows for the same counterpart — a row
+ * The DB may hold several `conversations` rows for the same counterpart - a row
  * can be closed and a new one opened, and `before_insert_on_messages` always
- * attaches new messages to the newest `active` row — but the sidebar shows one
+ * attaches new messages to the newest `active` row - but the sidebar shows one
  * entry per counterpart. Rows therefore collapse onto
  * `organization_address ~ contact_address`, matching what `updateConvExtra` and
  * `saveDraft` below already do (they update *every* row for the pair).
@@ -75,7 +75,7 @@ const MAX_PAUSE_MINUTES = 30 * 24 * 60;
 
 /**
  * How long the agent stays silent after a human's reply, in ms. Mirrors
- * `pauseWindowMs` in the API's `_shared/conversations.ts` — `extra` is jsonb
+ * `pauseWindowMs` in the API's `_shared/conversations.ts` - `extra` is jsonb
  * and can hold anything, so anything out of range falls back to the default.
  * 0 is a valid choice: the agent never pauses.
  */
@@ -113,7 +113,7 @@ export function assistantState(
 
 /**
  * How long a paused thread has left before its agent answers again, in ms.
- * 0 when the thread is not paused, or the window has already run out — the
+ * 0 when the thread is not paused, or the window has already run out - the
  * same boundary `assistantState` uses to stop calling it "paused".
  */
 export function pauseRemainingMs(

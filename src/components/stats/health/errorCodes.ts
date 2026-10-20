@@ -19,7 +19,7 @@ export type ErrorMeta = {
 const ERROR_CODES: Record<string, ErrorMeta> = {
   "131049": {
     title: "Meta held the message to protect user experience",
-    hint: "Healthy-ecosystem throttling. Meta is limiting marketing sends to this recipient — reduce marketing volume and spread it across the day.",
+    hint: "Healthy-ecosystem throttling. Meta is limiting marketing sends to this recipient - reduce marketing volume and spread it across the day.",
   },
   "131047": {
     title: "Re-engagement message required",

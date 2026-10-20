@@ -37,8 +37,8 @@ const TEMPLATE_SEND_DAYS = 30;
 /**
  * Per-number WhatsApp account health.
  *
- * Reads four independent sources — health snapshots, the daily-metrics RPC, the
- * template mirror and the events log — and answers one question at the top:
+ * Reads four independent sources - health snapshots, the daily-metrics RPC, the
+ * template mirror and the events log - and answers one question at the top:
  * is this number at risk, and what should be done about it.
  */
 export default function AccountHealth() {
@@ -102,7 +102,7 @@ export default function AccountHealth() {
   const isLoading = snapshotsLoading || metricsLoading;
   // Only the hero, the issue list and the account facts need a health snapshot.
   // The charts are computed from `messages`, so they are just as useful before
-  // the poller has ever run — blocking the whole page on a snapshot would hide
+  // the poller has ever run - blocking the whole page on a snapshot would hide
   // the data most likely to explain why sending is going wrong.
   const hasNeverBeenChecked = !snapshotsLoading && !state;
 

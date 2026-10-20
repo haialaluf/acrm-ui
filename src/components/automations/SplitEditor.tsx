@@ -188,7 +188,7 @@ export default function SplitEditor({
             <button
               type="button"
               // A split needs at least two paths to be a split at all, so the
-              // last two cannot be removed — disabled with a reason rather than
+              // last two cannot be removed - disabled with a reason rather than
               // hidden, which would just look like a missing button.
               disabled={branches.length <= 2}
               aria-label={t("Remove path")}
@@ -214,7 +214,7 @@ export default function SplitEditor({
       {total !== 100 && (
         <div className="mt-[9px] flex items-center gap-[6px] text-xs text-warning-strong">
           <Info className="h-[14px] w-[14px]" />
-          {t("Adds up to {{1}}% — must be 100%.").replace(
+          {t("Adds up to {{1}}% - must be 100%.").replace(
             "{{1}}",
             String(total),
           )}

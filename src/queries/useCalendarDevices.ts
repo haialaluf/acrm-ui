@@ -10,7 +10,7 @@ export type CalendarDeviceRow =
  * Devices (phones, CalDAV clients) connected to one calendar.
  *
  * The `token` on these rows is the credential a device authenticates with, so
- * these queries are the only place it is read — it goes into a QR code and
+ * these queries are the only place it is read - it goes into a QR code and
  * nowhere else. Revoked rows are filtered out rather than deleted, so a
  * device's history stays auditable.
  */
@@ -38,7 +38,7 @@ export function useCalendarDevices(calendarId: string) {
  * Mint a sync link for a calendar.
  *
  * `token` and `secret` are both column defaults, so the database generates them
- * — the client never invents a credential.
+ * - the client never invents a credential.
  */
 export function useCreateCalendarDevice() {
   const queryClient = useQueryClient();

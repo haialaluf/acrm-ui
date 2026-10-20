@@ -28,7 +28,7 @@ const DENSE_ROW_HEIGHT = 52 + ROW_GAP;
 
 /**
  * The virtualized contact list, shared by the contacts page and the bulk-send
- * recipients step. Only the rows in view are mounted — an org with thousands
+ * recipients step. Only the rows in view are mounted - an org with thousands
  * of contacts used to render every row (and an `<Avatar>` image each) on every
  * keystroke in the filter.
  */
@@ -69,7 +69,7 @@ export default function ContactList({
 
   // Read out here, not inside the JSX: the React Compiler memoizes the list
   // markup on the values it can see, and a `virtualizer.getVirtualItems()`
-  // call buried in the tree is not one of them — the window would then stay
+  // call buried in the tree is not one of them - the window would then stay
   // frozen at whatever it was on mount, so scrolling showed blank space.
   const virtualItems = virtualizer.getVirtualItems();
 

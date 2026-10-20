@@ -30,8 +30,8 @@ const PENDING_POLL_MS = 15_000;
 
 /**
  * `pollWhilePending` exists for the email-domain setup screen, where the row
- * changes because of something happening outside the app — SES noticing the
- * customer's DNS records — with no event to subscribe to. The realtime channel
+ * changes because of something happening outside the app - SES noticing the
+ * customer's DNS records - with no event to subscribe to. The realtime channel
  * in `useRealtimeSubscription` covers conversations and messages, not this
  * table, and extending it for one screen would cost a subscription for every
  * session. The poll only runs while the row says `pending`, so it stops on its

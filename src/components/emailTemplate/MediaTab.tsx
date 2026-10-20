@@ -139,7 +139,7 @@ export default function MediaTab({ editor }: { editor: Editor | null }) {
         ) : (
           <div className="rounded-[10px] border border-dashed border-border p-[12px] text-[11.5px] text-muted-foreground leading-[1.55]">
             {t(
-              "No images yet. Anything you upload here — or drag onto the email — shows up in this list.",
+              "No images yet. Anything you upload here - or drag onto the email - shows up in this list.",
             )}
           </div>
         )}
@@ -155,7 +155,7 @@ export default function MediaTab({ editor }: { editor: Editor | null }) {
           </b>
           <span className="text-[11.5px] text-muted-foreground leading-[1.55]">
             {t(
-              "Images are stored in your organization's private media storage when you save the template — they stay in your account and survive if we ever swap the builder.",
+              "Images are stored in your organization's private media storage when you save the template - they stay in your account and survive if we ever swap the builder.",
             )}
           </span>
         </div>

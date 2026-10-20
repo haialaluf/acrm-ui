@@ -89,7 +89,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
   );
 
   // Counted server-side by `conversations_page` over the whole history and kept
-  // live by realtime — the loaded window is far too small to derive it here.
+  // live by realtime - the loaded window is far too small to derive it here.
   const unreadCount = useBoundStore(
     (state) => state.chat.threads.get(itemId)?.unread ?? 0,
   );
@@ -154,7 +154,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
     conversation?.service === "email" ? conversation.extra?.subject : undefined;
 
   // Set when the agent handed this conversation off to a person and cleared
-  // the moment one of them actually replies here — so its presence means
+  // the moment one of them actually replies here - so its presence means
   // still waiting.
   const handoff = conversation?.extra?.handoff;
 

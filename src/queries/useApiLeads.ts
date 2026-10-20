@@ -7,7 +7,7 @@ import type { OrganizationAddressRow } from "@/supabase/client";
 /**
  * The public lead-intake connection: one row per organization, keyed by this
  * constant `address`. Mirrors ADDRESS in supabase/functions/lead-intake/index.ts
- * — the two must agree or the toggle writes a row the endpoint never reads.
+ * - the two must agree or the toggle writes a row the endpoint never reads.
  */
 export const API_LEADS_ADDRESS = "api";
 
@@ -120,8 +120,8 @@ export function useDisableApiLeads() {
  * The most recent leads that arrived through the endpoint.
  *
  * This is how the page answers "is it actually working?". The connection row
- * deliberately stores no counters — writing stats there would fire the
- * organizations_addresses webhook on every accepted lead — so the evidence is
+ * deliberately stores no counters - writing stats there would fire the
+ * organizations_addresses webhook on every accepted lead - so the evidence is
  * read from `leads` instead, which the partial index
  * `leads_api_created_time_idx` serves directly.
  */

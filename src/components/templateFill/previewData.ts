@@ -23,15 +23,15 @@ import {
 /**
  * Build the WhatsApp preview payload for a template and a set of values.
  *
- * One builder for every screen that shows a template — the bulk-send variables
- * and review steps, the automation editor's send-template step — because the
+ * One builder for every screen that shows a template - the bulk-send variables
+ * and review steps, the automation editor's send-template step - because the
  * bubble is the only honest preview: it is the client's own layout, with the
  * media header, the footer and the buttons the message actually carries.
  *
  * `substitute` is the difference between the two questions being asked. The
  * review step has a specific recipient, so it bakes their values into the text
  * and shows the exact copy they receive. The editors have no recipient, so they
- * leave `{{n}}` in place and hand the values over as `headerVars`/`bodyVars` —
+ * leave `{{n}}` in place and hand the values over as `headerVars`/`bodyVars` -
  * the bubble then renders each one as a tinted chip (amber when still empty),
  * which is what makes a binding visible without a second preview beside it.
  */
@@ -112,7 +112,7 @@ export function templatePreviewData(params: {
 /**
  * What each slot shows in an editor's preview: a fixed value as itself, a
  * per-contact binding as the field's name ("Name", "Phone"), an unfilled slot
- * as nothing — which the bubble renders as an amber `{{n}}`.
+ * as nothing - which the bubble renders as an amber `{{n}}`.
  */
 export function bindingPreviewValues<F extends string>(params: {
   components: TemplateData["components"];

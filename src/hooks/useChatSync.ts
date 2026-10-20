@@ -82,7 +82,7 @@ export const useChatSync = () => {
 
       // Only the sidebar list: it decides *which* threads exist, so a thread
       // that became relevant while the tab slept has to be re-fetched. The
-      // per-thread message queries are deliberately left alone — invalidating
+      // per-thread message queries are deliberately left alone - invalidating
       // one replays every page the reader scrolled through.
       queryClient.invalidateQueries({
         queryKey: [orgId, "conversations", "page"],

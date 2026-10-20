@@ -91,7 +91,7 @@ function AgentDetail() {
     });
 
     // Agent chats have no contact address, so their thread key is built from
-    // the conversation id — see `threadKey`.
+    // the conversation id - see `threadKey`.
     navigate({ hash: threadKey(conv) });
   };
 

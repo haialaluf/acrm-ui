@@ -67,9 +67,9 @@ export default function ConversationAgentSelect({
 
   const windowMs = pauseWindowMs(shown?.extra);
 
-  // On only when agent-client would actually reply. Every reason it wouldn't —
+  // On only when agent-client would actually reply. Every reason it wouldn't -
   // "None" pinned here, automatic replies off org-wide, or the pause a human
-  // reply starts — reads as off.
+  // reply starts - reads as off.
   const state = assistantState(conversation, org?.extra, windowMs);
   const on = state === "active";
 

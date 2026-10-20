@@ -34,7 +34,7 @@ export default function VolumeChart({ days }: { days: DayMetrics[] }) {
     label: dayLabel(d.day),
     day: d.day,
     read: d.read_count,
-    // Each segment is the remainder of the one above it — `status` accumulates,
+    // Each segment is the remainder of the one above it - `status` accumulates,
     // so a read message also carries `delivered` and stacking the raw counts
     // would double-count it. Messages Meta never sent a receipt for get their
     // own segment rather than being dropped, so the stack really does sum to
@@ -63,7 +63,7 @@ export default function VolumeChart({ days }: { days: DayMetrics[] }) {
           ? t("day pinned to the cap")
           : t("days pinned to the cap")
       }`
-    : t("No cap reported yet — the health check has not run for this number.");
+    : t("No cap reported yet - the health check has not run for this number.");
 
   return (
     <Card>

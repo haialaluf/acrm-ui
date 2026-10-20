@@ -16,7 +16,7 @@ const STATUS_DOT: Record<EmailTemplateStatus, string> = {
 };
 
 /** The column is `text`, not an enum, so a status we have never heard of is a
- *  real possibility — it gets a neutral dot rather than no dot at all. */
+ *  real possibility - it gets a neutral dot rather than no dot at all. */
 export function statusDot(status: string): string {
   return STATUS_DOT[status as EmailTemplateStatus] ?? "bg-muted-foreground";
 }

@@ -9,7 +9,7 @@ function subscribe(onChange: () => void) {
 }
 
 /**
- * Whether the pointer can hover — true on a mouse, false on touch.
+ * Whether the pointer can hover - true on a mouse, false on touch.
  *
  * Gates affordances that only a hover can reach. A tooltip is one: on touch it
  * would have to open on tap, and the tap belongs to whatever it sits on.

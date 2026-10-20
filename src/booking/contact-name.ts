@@ -4,7 +4,7 @@
  * The CRM stores whatever the channel gave it: a real first name, but just as
  * often a phone number ("+34 600 11 22 33"), an email, an id, or a WhatsApp
  * push name full of emoji. "Hola +34600112233" reads worse than no greeting at
- * all, so the name is rendered only when it actually looks like a name —
+ * all, so the name is rendered only when it actually looks like a name -
  * letters (any script), with the punctuation real names carry.
  */
 const NAME = /^\p{L}[\p{L}\p{M}'’.\- ]*$/u;

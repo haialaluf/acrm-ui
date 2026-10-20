@@ -16,7 +16,7 @@ export function clearFormDraft(key: string) {
   try {
     localStorage.removeItem(PREFIX + key);
   } catch {
-    // Storage unavailable (private mode, blocked site data) — nothing to clear.
+    // Storage unavailable (private mode, blocked site data) - nothing to clear.
   }
 }
 
@@ -43,7 +43,7 @@ export function useFormDraft<T extends FieldValues>(
       try {
         localStorage.setItem(PREFIX + key, JSON.stringify(values));
       } catch {
-        // Quota exceeded or storage blocked — the form still works, unsaved.
+        // Quota exceeded or storage blocked - the form still works, unsaved.
       }
     });
     return () => subscription.unsubscribe();

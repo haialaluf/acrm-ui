@@ -26,7 +26,7 @@ type Integrations = {
    * The first connected row per integration, for callers that need the address
    * itself (templates, bulk-send's From address, the paused-email banner).
    *
-   * "First" is the assumption bulk-send already relies on — organizations with
+   * "First" is the assumption bulk-send already relies on - organizations with
    * several numbers or domains manage each one under
    * `/integrations/<service>/$orgAddressId`.
    */
@@ -45,14 +45,14 @@ type Integrations = {
    * (no organization), and after an error.
    *
    * Deliberately NOT `!isLoading`: with no active organization the query is
-   * *disabled*, so `isLoading` is false and every flag reads `false` — fine for
+   * *disabled*, so `isLoading` is false and every flag reads `false` - fine for
    * hiding a button, catastrophic for a redirect, which would bounce a
    * bookmarked URL on every hard refresh.
    *
    * Reading `organizations_addresses` this early is safe because the root
    * route's `beforeLoad` awaits `supabase.auth.getSession()` before anything
    * under `_auth` mounts, so the client already carries the JWT that RLS needs
-   * — the query cannot come back empty for want of a session.
+   * - the query cannot come back empty for want of a session.
    *
    * So: hide on `!connected`; redirect only on `isResolved && !connected`. When
    * the query errors this stays false, which hides surfaces (fail closed)
@@ -74,14 +74,14 @@ const EMPTY: OrganizationAddressRow[] = [];
  * should put a surface on screen that promises otherwise.
  *
  * This hook reports only the facts. What those facts *permit* lives in
- * `useAccess`, whose table is where a new gated surface is declared — reading
+ * `useAccess`, whose table is where a new gated surface is declared - reading
  * `connected` directly is for the few places that need one specific address, not
  * for deciding what to render.
  *
  * The rule the pair exists to serve: **gate the entry point, not the row.** UI
  * that creates, edits or sends on a channel gates; UI that describes something
- * already in the database — a conversation, a broadcast, a saved automation
- * step — reads that row's own `service` and never comes here. A disconnected
+ * already in the database - a conversation, a broadcast, a saved automation
+ * step - reads that row's own `service` and never comes here. A disconnected
  * WhatsApp must leave every past thread rendering exactly as it did.
  */
 export function useIntegrations(): Integrations {
@@ -109,7 +109,7 @@ export function useIntegrations(): Integrations {
       facebook: all((r) => r.service === "facebook"),
       email: all((r) => r.service === "email"),
       // API Leads is one row per organization keyed by a constant address, not
-      // a service the user picks — see API_LEADS_ADDRESS.
+      // a service the user picks - see API_LEADS_ADDRESS.
       api: all((r) => r.address === API_LEADS_ADDRESS),
     };
 

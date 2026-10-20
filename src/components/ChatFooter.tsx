@@ -77,7 +77,7 @@ export default function ChatFooter() {
   const { data: contactAddress } = useContactAddress(conv?.contact_address);
   // 'removed' is contacts.status, the single "remove me" flag regardless of
   // which channel the request came in on. 'inactive' is this address row's
-  // own status — this exact number/mailbox is undeliverable, which says
+  // own status - this exact number/mailbox is undeliverable, which says
   // nothing about the contact's other channels. An address with no contact
   // carries 'removed' itself (opt_out_follows_address).
   const isRemoved =
@@ -99,7 +99,7 @@ export default function ChatFooter() {
   const { inCSWindow, remaining } = useCSWindow();
 
   // A reached message/conversation plan limit pauses every send, template or
-  // not — surface it and disable the composer rather than letting the send
+  // not - surface it and disable the composer rather than letting the send
   // fail at dispatch.
   const { blocking } = usePlanLimits();
   const sendingBlocked = blocking.some(
@@ -109,12 +109,12 @@ export default function ChatFooter() {
   const { allows } = useAccess();
   /**
    * Reopening a closed conversation means sending a template, which needs a
-   * live WhatsApp connection — not merely a conversation that once was one.
+   * live WhatsApp connection - not merely a conversation that once was one.
    *
    * The one place this file consults connectivity rather than the row: it is an
    * authoring action, and with the number disconnected the send would fail at
    * dispatch anyway. Without it the footer falls through to the same copy every
-   * other channel shows — wait for them to write again — which is true. The
+   * other channel shows - wait for them to write again - which is true. The
    * "will close in" countdown below stays on `conv.service` alone: that is
    * window state, not something you are being offered.
    */
@@ -199,7 +199,7 @@ export default function ChatFooter() {
     // If the conv has the `updated_at` unset, it means it has not been pushed to the DB yet.
     !conv.updated_at && (await pushConversationToDb(conv));
 
-    // The endpoint's id, not our storage key — see channelMessageId. A target
+    // The endpoint's id, not our storage key - see channelMessageId. A target
     // that cannot produce one is not offered a Reply in the first place.
     const re_message_id = replyTarget
       ? channelMessageId(replyTarget)
@@ -245,7 +245,7 @@ export default function ChatFooter() {
           <div className="flex items-center gap-[8px] rounded-[24px] bg-background px-[12px] py-[10px] text-[14px] text-muted-foreground shadow-[0_0_4px_0px_rgba(0,0,0,0.1)]">
             <EyeOff className="h-[16px] w-[16px] shrink-0" />
             <span className="min-w-0 grow">
-              {t("Super admin — replies are disabled")}
+              {t("Super admin - replies are disabled")}
             </span>
             {canReopenWithTemplate && (
               <button
@@ -260,7 +260,7 @@ export default function ChatFooter() {
         ) : (
           <>
             {/* The bar carries the composer's own surface colour rather than the
-            translucent tint the in-bubble quote uses — out here it sits on the
+            translucent tint the in-bubble quote uses - out here it sits on the
             chat wallpaper, where a tint would barely read. */}
             {!!replyTargetId && (
               <div className="mb-[6px] p-[4px] rounded-[12px] bg-incoming-chat-bubble shadow-[0_0_4px_0px_rgba(0,0,0,0.1)]">
@@ -281,7 +281,7 @@ export default function ChatFooter() {
                 <Lock className="h-[14px] w-[14px] shrink-0" />
                 <span className="min-w-0">
                   {t(
-                    "Sending is paused — you've used every message in this month's plan. Contact support to upgrade.",
+                    "Sending is paused - you've used every message in this month's plan. Contact support to upgrade.",
                   )}
                 </span>
               </div>
@@ -442,7 +442,7 @@ export default function ChatFooter() {
                         className={
                           "absolute bottom-[1px] py-[10px] mx-[5px] max-h-[40px] text-[15px] text-muted-foreground" +
                           // Only a pointer when clicking actually opens the template
-                          // picker — closed with no way to reopen, it does nothing.
+                          // picker - closed with no way to reopen, it does nothing.
                           (!inCSWindow && canReopenWithTemplate
                             ? " cursor-pointer"
                             : "")

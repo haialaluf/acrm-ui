@@ -58,7 +58,7 @@ export function useUsageHistory(interval: "day" | "month") {
   });
 }
 
-/** Credit actually added to the org's balances — the plan grants emitted by
+/** Credit actually added to the org's balances - the plan grants emitted by
  *  billing.change_plan plus any top-ups. This, not plans_products.included, is
  *  what a balance's "Available" reading is a fraction of: an org can sit on a
  *  plan whose catalogue allowance was never granted to it (the legacy tier was

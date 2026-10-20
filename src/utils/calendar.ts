@@ -30,7 +30,7 @@ export const DAY_INDEX: Record<Weekday, number> = {
   sat: 6,
 };
 
-// getDay() indices the calendar accepts bookings on — used to grey out closed
+// getDay() indices the calendar accepts bookings on - used to grey out closed
 // days on the board.
 export function workingDayIndexSet(hours: CalendarWorkingHours): Set<number> {
   const set = new Set<number>();
@@ -41,7 +41,7 @@ export function workingDayIndexSet(hours: CalendarWorkingHours): Set<number> {
 }
 
 // Earliest "from" and latest "to" across every window of every active day, as
-// Date times on an arbitrary day — react-big-calendar only reads the
+// Date times on an arbitrary day - react-big-calendar only reads the
 // hour/minute for its `min`/`max` time-grid bounds. Falls back to 09:00–17:00
 // when empty.
 export function workingHoursBounds(hours: CalendarWorkingHours): {
@@ -116,7 +116,7 @@ export function windowIssues(windows: WorkingHoursDay[]): WindowIssue[] {
   return issues;
 }
 
-// Whether any active day in `hours` has a window problem — gates saving.
+// Whether any active day in `hours` has a window problem - gates saving.
 export function hasWorkingHoursIssues(hours: CalendarWorkingHours): boolean {
   return WEEKDAYS.some((d) => {
     const windows = hours[d.key];
@@ -137,13 +137,13 @@ export function nextWindowSuggestion(
 
 // Write out every weekday, closed ones as an explicit `[]`.
 //
-// Only needed where the value lands in a deep-merged jsonb column — today
+// Only needed where the value lands in a deep-merged jsonb column - today
 // `organizations.extra.business_profile.working_hours`. The `merge_update`
 // trigger recurses into objects and only ever SETS leaves, so a key the new
 // value omits keeps whatever it held before: switching Friday off by deleting
 // its key would silently leave Friday's old hours in the database, and the
 // agent would go on telling clients the business is open. An empty array is a
-// value, so it overwrites — and every reader already reads `[]` and "absent"
+// value, so it overwrites - and every reader already reads `[]` and "absent"
 // the same way ("closed").
 //
 // Calendars don't need this: `calendars.working_hours` is its own column,
@@ -156,7 +156,7 @@ export function expandClosedDays(
   return next;
 }
 
-// Sun–Thu 09:00–17:00, Fri/Sat closed — a sensible default business week.
+// Sun–Thu 09:00–17:00, Fri/Sat closed - a sensible default business week.
 export function defaultWorkingHours(): CalendarWorkingHours {
   const hours: CalendarWorkingHours = {};
   for (const day of WORKDAYS) hours[day] = [{ from: "09:00", to: "17:00" }];
@@ -204,7 +204,7 @@ export const COUNTRY_CODES = [
   "ZA",
 ];
 
-// Primary IANA timezone per country — what we persist to `calendars.timezone`
+// Primary IANA timezone per country - what we persist to `calendars.timezone`
 // when the user picks a country other than the auto-detected one.
 const REGION_TZ: Record<string, string> = {
   IL: "Asia/Jerusalem",

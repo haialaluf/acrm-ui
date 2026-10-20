@@ -16,13 +16,13 @@ import type { EmailDayMetrics } from "./emailMetrics";
  * Daily volume, split by outcome.
  *
  * Stacked rather than several series, because the question is "of what I sent
- * that day, how much landed" — a composition, not a comparison. Each segment is
+ * that day, how much landed" - a composition, not a comparison. Each segment is
  * the remainder of the one above it: `status` accumulates, so a bounced message
  * also carries `failed`, and stacking the raw counts would double-count it.
  *
  * Spam reports are deliberately absent from the stack. A complaint is not an
- * outcome of delivery — the message *was* delivered, and the recipient then
- * reported it — so it belongs to neither the delivered nor the failed segment.
+ * outcome of delivery - the message *was* delivered, and the recipient then
+ * reported it - so it belongs to neither the delivered nor the failed segment.
  * It gets its own row of numbers below instead, where it cannot be read as a
  * share of volume.
  */
@@ -38,7 +38,7 @@ export default function EmailVolumeChart({
     // Everything that failed for a reason that is not a bounce: a rejection, a
     // rendering failure, a recipient we declined to mail.
     const otherFailed = Math.max(0, d.failed_count - bounced);
-    // Accepted by SES but with no delivery event yet — in flight, or an event
+    // Accepted by SES but with no delivery event yet - in flight, or an event
     // that never arrived.
     const pending = Math.max(
       0,

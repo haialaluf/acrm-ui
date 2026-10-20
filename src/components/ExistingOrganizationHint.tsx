@@ -13,7 +13,7 @@ export default function ExistingOrganizationHint() {
       </p>
       <p className="text-muted-foreground">
         {t(
-          "Don't create another one — ask your organization's administrator to send an invitation to your email address. It will appear here as soon as it's sent.",
+          "Don't create another one - ask your organization's administrator to send an invitation to your email address. It will appear here as soon as it's sent.",
         )}
       </p>
       {email && (

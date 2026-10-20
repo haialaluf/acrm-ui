@@ -55,7 +55,7 @@ export default function BroadcastBatchDetail({
   );
 
   // Batch-level stats already come aggregated from the same list query the
-  // left panel uses — no separate stats fetch needed.
+  // left panel uses - no separate stats fetch needed.
   const { data: batches } = useBroadcastBatches();
   const batch = batches?.find(
     (b) => b.created_at === createdAt && b.scheduled_date === scheduledDate,
@@ -105,7 +105,7 @@ export default function BroadcastBatchDetail({
     });
   }
 
-  // The six buckets every channel has. Always rendered, however empty — a tile
+  // The six buckets every channel has. Always rendered, however empty - a tile
   // disappearing when its count is zero would read as a broken page.
   const coreTiles: StatTileSpec[] = [
     {
@@ -128,7 +128,7 @@ export default function BroadcastBatchDetail({
     },
     {
       kind: "read",
-      // An email "read" is an SES Open event — the tracking pixel loading — not
+      // An email "read" is an SES Open event - the tracking pixel loading - not
       // a read receipt. See EMAIL_KIND_LABELS in messageStatus.ts.
       label: batch.service === "email" ? t("Opened") : t("Read"),
       value: batch.read_count ?? 0,
@@ -149,8 +149,8 @@ export default function BroadcastBatchDetail({
   ];
 
   // Appended rather than replacing the Failed tile: bounced and suppressed are
-  // a subset *of* failed but do not account for all of it — a rejection or a
-  // rendering failure is neither — so dropping Failed would hide those
+  // a subset *of* failed but do not account for all of it - a rejection or a
+  // rendering failure is neither - so dropping Failed would hide those
   // entirely.
   //
   // Each appears only once it has happened, except spam reports, which stay
@@ -199,7 +199,7 @@ export default function BroadcastBatchDetail({
     <div className="flex flex-col h-full overflow-hidden bg-muted">
       {/* The back button is mobile-only: the list panel and menu rail are
           hidden while a batch is open full-screen, so without it the detail is
-          a dead end. The hash is dropped on purpose — keeping it would re-open
+          a dead end. The hash is dropped on purpose - keeping it would re-open
           the active conversation's center panel instead of the list. */}
       <SectionHeader
         title={batch.template_name ?? t("Broadcast")}

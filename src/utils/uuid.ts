@@ -1,6 +1,6 @@
 // Mirror of public.uuid_generate_v7() in acrm-api
 // (supabase/schemas/02_functions/02-00_uuid.sql). Used where a row id has to
-// exist before the insert — an optimistic row pushed to the store has to carry
+// exist before the insert - an optimistic row pushed to the store has to carry
 // the same id the server will store. Keeps those ids time-ordered like the
 // column defaults, so they cluster in the primary key.
 export function uuidv7(): string {

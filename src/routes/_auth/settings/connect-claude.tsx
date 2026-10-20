@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_auth/settings/connect-claude")({
   component: ConnectClaude,
 });
 
-// One fixed URL for every customer — identity comes from the OAuth login (or
+// One fixed URL for every customer - identity comes from the OAuth login (or
 // an API key), not from anything embedded in the URL, so it never changes
 // per org and there is nothing to regenerate if org membership changes.
 const MCP_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mcp/operator`;
@@ -104,7 +104,7 @@ function ConnectClaude() {
             </li>
             <li>
               {t(
-                "Check how your channels are doing — quality rating, messaging limits, sending reputation",
+                "Check how your channels are doing - quality rating, messaging limits, sending reputation",
               )}
             </li>
             <li>
@@ -124,7 +124,7 @@ function ConnectClaude() {
           <div className="label">{t("Ready-made workflows")}</div>
           <p className="text-[13px] text-muted-foreground">
             {t(
-              "These you start by name — type them in Claude Code, or pick them from the + menu in Claude Desktop. Claude won't offer them on its own, so it is worth knowing they are there.",
+              "These you start by name - type them in Claude Code, or pick them from the + menu in Claude Desktop. Claude won't offer them on its own, so it is worth knowing they are there.",
             )}
           </p>
           <ul className="list-disc pl-[20px] text-[13px] text-muted-foreground flex flex-col gap-[4px]">
@@ -132,7 +132,7 @@ function ConnectClaude() {
               <code className="font-mono" dir="ltr">
                 setup_agent
               </code>{" "}
-              —{" "}
+              -{" "}
               {t(
                 "configure an AI agent end to end, stopping before it goes live",
               )}
@@ -141,25 +141,25 @@ function ConnectClaude() {
               <code className="font-mono" dir="ltr">
                 audit_agent
               </code>{" "}
-              — {t("review an agent you already have and get concrete fixes")}
+              - {t("review an agent you already have and get concrete fixes")}
             </li>
             <li>
               <code className="font-mono" dir="ltr">
                 diagnose_delivery
               </code>{" "}
-              — {t("work out why messages aren't going out")}
+              - {t("work out why messages aren't going out")}
             </li>
             <li>
               <code className="font-mono" dir="ltr">
                 weekly_summary
               </code>{" "}
-              — {t("a recap of conversations, channel health and broadcasts")}
+              - {t("a recap of conversations, channel health and broadcasts")}
             </li>
             <li>
               <code className="font-mono" dir="ltr">
                 draft_broadcast
               </code>{" "}
-              — {t("scope an audience, count it, and draft the message")}
+              - {t("scope an audience, count it, and draft the message")}
             </li>
           </ul>
         </div>
@@ -169,7 +169,7 @@ function ConnectClaude() {
           <a href="/settings/api-keys" className="underline">
             {t("API Keys")}
           </a>{" "}
-          {t("page instead — send it as the")}{" "}
+          {t("page instead - send it as the")}{" "}
           <code className="font-mono">api-key</code> {t("header.")}
         </p>
       </SectionBody>

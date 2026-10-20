@@ -8,7 +8,7 @@ import { STEP_GROUPS, STEP_TYPES, type StepType } from "./catalog";
  * per-step overflow.
  *
  * Both are positioned from the DOMRect of whatever was clicked and clamped to
- * the viewport, because the canvas scrolls in both axes — a menu anchored to a
+ * the viewport, because the canvas scrolls in both axes - a menu anchored to a
  * node near the bottom would otherwise open off-screen.
  */
 

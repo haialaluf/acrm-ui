@@ -87,7 +87,7 @@ function OnboardFacebook() {
             <div className="instructions text-left text-[14px] text-muted-foreground flex flex-col gap-2">
               <p>
                 {t(
-                  "New leads from your Instant Forms will be added to your contacts automatically. Leads from ads shown on Instagram are included — they belong to the same Facebook Page.",
+                  "New leads from your Instant Forms will be added to your contacts automatically. Leads from ads shown on Instagram are included - they belong to the same Facebook Page.",
                 )}
               </p>
               <p>
@@ -100,7 +100,7 @@ function OnboardFacebook() {
                   customizes lead access, apps must be granted it explicitly. */}
               <p>
                 {t(
-                  "If your business uses Leads Access Manager, grant this app lead access there as well — otherwise the connection succeeds but no leads are delivered.",
+                  "If your business uses Leads Access Manager, grant this app lead access there as well - otherwise the connection succeeds but no leads are delivered.",
                 )}
               </p>
             </div>

@@ -15,7 +15,7 @@ import { useTemplates } from "@/queries/useTemplates";
 
 // The shell gates the `/templates` prefix on this same row of the table. This
 // gate is not redundant: the shell's guard is `!!activeOrgId &&`, so an account
-// with no organization selected falls through to here — and lands on
+// with no organization selected falls through to here - and lands on
 // `/conversations`, which offers "Create organization", rather than on
 // `/integrations`, where there is nothing yet to connect to.
 export const Route = createFileRoute("/_auth/templates/")({
@@ -41,7 +41,7 @@ function TemplatesIndexBody() {
   // Null until someone picks, so the default can follow what the organization
   // actually has connected rather than being frozen at first render. That
   // default is `channels[0]`, which is WhatsApp-first by `useOutboundChannels`'
-  // push order — an email-only org still lands on email because WhatsApp is
+  // push order - an email-only org still lands on email because WhatsApp is
   // simply absent from the list.
   //
   // A pick is honoured only while that channel is still connected, so a

@@ -1,6 +1,6 @@
 // Static mirror of the API skill registry's catalog subset
 // (acrm-api/.../_shared/skills/*). The UI only needs id/title/description/icon
-// and the configSpec to render the SkillsSection editor — never the executable
+// and the configSpec to render the SkillsSection editor - never the executable
 // prompt/tools. Keep the ids and configSpec field keys in sync with the API.
 
 export type SkillConfigFieldType =

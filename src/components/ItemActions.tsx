@@ -102,7 +102,7 @@ export default function ItemActions({
       disabled: true,
     },*/
     // Deleting wipes the thread's whole history for the entire organization,
-    // so only admins and owners are offered it — the restrictive RLS policy on
+    // so only admins and owners are offered it - the restrictive RLS policy on
     // `conversations` enforces the same rule server-side.
     ...(isAdmin
       ? [

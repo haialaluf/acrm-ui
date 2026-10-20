@@ -3,7 +3,7 @@ import { MEDIA_INTERNAL_URI_PREFIX } from "@/utils/uploadMediaToBucket";
 
 /**
  * The shared vocabulary for filling an approved WhatsApp template's `{{n}}`
- * placeholders — used by the bulk-send wizard and by the automation editor's
+ * placeholders - used by the bulk-send wizard and by the automation editor's
  * "send template" step.
  *
  * The two callers disagree on what a placeholder may draw from, and that is the
@@ -14,7 +14,7 @@ import { MEDIA_INTERNAL_URI_PREFIX } from "@/utils/uploadMediaToBucket";
  * options as a prop, rather than either side owning a hard-coded list.
  */
 
-/** Which component a placeholder sits in — Meta numbers the two independently. */
+/** Which component a placeholder sits in - Meta numbers the two independently. */
 export type Scope = "head" | "body";
 
 /**
@@ -34,7 +34,7 @@ export type VarBinding<F extends string = string> =
 export type FieldOption<F extends string = string> = { id: F; label: string };
 
 /** Media header formats. A template whose HEADER is one of these requires a
- *  mandatory media file supplied at send time — the header is fixed content,
+ *  mandatory media file supplied at send time - the header is fixed content,
  *  not a per-recipient text variable. */
 export type HeaderMediaFormat = "IMAGE" | "VIDEO" | "DOCUMENT";
 
@@ -45,7 +45,7 @@ export function countVars(text: string | undefined | null): number {
 }
 
 /** WhatsApp fetches header media from a public URL (`link`), so it must end
- *  up as an http(s) URL by the time it reaches Meta — but whatsapp-dispatcher
+ *  up as an http(s) URL by the time it reaches Meta - but whatsapp-dispatcher
  *  now resolves our own `internal://media/...` storage references to a
  *  signed link at send time, so those are valid here too (matches the
  *  backend's isValidMediaUrl in _shared/whatsapp_templates.ts). */
@@ -101,7 +101,7 @@ export function varExamples(components: Components, scope: Scope): string[] {
 }
 
 /** The placeholder slots a template exposes, in the order Meta numbers them.
- *  A media header carries none — its content is the file. */
+ *  A media header carries none - its content is the file. */
 export function templateSlots(
   components: Components,
 ): { scope: Scope; n: number }[] {
@@ -133,7 +133,7 @@ export function slotKey(scope: Scope, n: number | string): string {
  * fill in the rest itself: which field a freshly switched binding should point
  * at depends on the caller's vocabulary, and the two arms of the union carry
  * different fields. Both callers share this rather than each writing the
- * mode-switching by hand — that is where the two copies drifted before.
+ * mode-switching by hand - that is where the two copies drifted before.
  */
 export function applyBindingPatch<F extends string>(
   current: VarBinding<F> | undefined,

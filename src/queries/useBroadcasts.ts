@@ -4,14 +4,14 @@ import useBoundStore from "@/stores/useBoundStore";
 import { queryKeys } from "./queryKeys";
 
 /**
- * One row of useBroadcastBatches — a single day-batch of a broadcast.
+ * One row of useBroadcastBatches - a single day-batch of a broadcast.
  *
  * `scheduled_at` (the batch's exact send instant, as opposed to `scheduled_date`,
- * its day) and `activity_at` (when the batch actually resolved — sent, failed or
+ * its day) and `activity_at` (when the batch actually resolved - sent, failed or
  * cancelled) are spliced in by hand because db_types.ts is regenerated from the
  * live database and these columns ship with the migrations that add them. Drop
- * the intersection — not the fields, which the generated type will then carry
- * on its own — after the next `supabase gen types` run.
+ * the intersection - not the fields, which the generated type will then carry
+ * on its own - after the next `supabase gen types` run.
  */
 export type BroadcastBatchRow =
   Database["public"]["Functions"]["list_broadcast_batches"]["Returns"][number] & {
@@ -20,7 +20,7 @@ export type BroadcastBatchRow =
   };
 
 /**
- * One row per batch — a distinct sending day within one broadcast "campaign".
+ * One row per batch - a distinct sending day within one broadcast "campaign".
  * Broadcasts have no dedicated table; list_broadcast_batches derives them from
  * `messages` (see its own SQL comment for the exact campaign/batch key), so
  * this is the read side of the broadcast-status page's list.
@@ -74,7 +74,7 @@ export function useBroadcastBatchMessages(
 }
 
 /** Cancels every still-pending message in one batch. No-ops (0 rows) for any
- *  message the dispatcher already picked up — see cancel_broadcast_batch. */
+ *  message the dispatcher already picked up - see cancel_broadcast_batch. */
 export function useCancelBroadcastBatch() {
   const queryClient = useQueryClient();
   const orgId = useBoundStore((state) => state.ui.activeOrgId);

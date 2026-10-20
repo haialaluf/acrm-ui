@@ -11,7 +11,7 @@ dayjs.extend(relativeTime);
 
 /** A boxed number, matching StatTile's proportions but taking any string.
  *  Durations ("8 minutes") are split so the amount stays big and the unit sits
- *  under it on its own line — otherwise the unit wraps mid-tile and the three
+ *  under it on its own line - otherwise the unit wraps mid-tile and the three
  *  tiles stop lining up, especially at mobile widths. */
 function Tile({
   label,
@@ -89,7 +89,7 @@ function Event({
  * know: last-message timestamps per direction, their appointments, and the
  * lead row (or the contact's own creation) that started the record.
  *
- * Deliberately not a full message timeline — the conversation itself is one
+ * Deliberately not a full message timeline - the conversation itself is one
  * click away and reproducing it here would duplicate the chat.
  */
 export default function ContactActivityTab({
@@ -107,7 +107,7 @@ export default function ContactActivityTab({
   const meetings = appointments ?? [];
 
   const ago = (ms: number | null | undefined) =>
-    ms ? dayjs(ms).fromNow(true) : "—";
+    ms ? dayjs(ms).fromNow(true) : "-";
 
   return (
     <div className="flex flex-col gap-[24px] px-[20px] pt-[20px]">

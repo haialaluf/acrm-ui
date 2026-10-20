@@ -3,7 +3,7 @@
  * The library ships neutral defaults; everything here is either a token swap so
  * the canvas follows light/dark with the rest of the app, or the removal of an
  * affordance the editor does not offer (handles are layout anchors, not
- * connection points — nothing on this canvas is wired by hand).
+ * connection points - nothing on this canvas is wired by hand).
  *
  * Scoped under .acrm-flow so none of it can reach another React Flow instance.
  */

@@ -8,7 +8,7 @@ import { useConversationsPage } from "@/queries/useConversationsPage";
 import { useTranslation } from "@/hooks/useTranslation";
 import Spinner from "./Spinner";
 
-/** Row height (72px item + 4px gap) — items are fixed height, so no measuring. */
+/** Row height (72px item + 4px gap) - items are fixed height, so no measuring. */
 const ROW_HEIGHT = 76;
 
 function pinnedAscending(a?: string | null, b?: string | null) {
@@ -36,7 +36,7 @@ const ChatList = () => {
   const tagsFilter = useBoundStore((state) => state.ui.tagsFilter);
   const setTagsFilter = useBoundStore((state) => state.ui.setTagsFilter);
 
-  // Filter, search and tags are applied by the RPC — with the list paginated,
+  // Filter, search and tags are applied by the RPC - with the list paginated,
   // narrowing client-side would only ever search the part already fetched.
   const {
     threadKeys,
@@ -63,7 +63,7 @@ const ChatList = () => {
 
     const loaded = threadKeys.map(describe);
 
-    // A message can arrive over realtime for a thread no page has returned —
+    // A message can arrive over realtime for a thread no page has returned -
     // a first-time contact, or one that sat below the loaded window. It is
     // newer than everything on screen, so it belongs at the top; anything
     // older stays hidden until the next refetch places it properly.
@@ -71,7 +71,7 @@ const ChatList = () => {
     // Only while the list is unnarrowed, though: search and tags are RPC-side
     // predicates with no local equivalent, so admitting a thread the server did
     // not return would show a non-matching chat. With the store still holding
-    // the unfiltered list, that leaked every thread newer than the newest hit —
+    // the unfiltered list, that leaked every thread newer than the newest hit -
     // i.e. search looked like it filtered nothing at all.
     const narrowed = !!searchPattern || tagsFilter.length > 0;
 

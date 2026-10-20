@@ -16,7 +16,7 @@ export interface LeadFieldAnswer {
  * rather than through a form.
  *
  * A contact can in principle have several (a merge repoints every loser's
- * leads at the survivor), so this takes the newest — the submission that
+ * leads at the survivor), so this takes the newest - the submission that
  * describes how this record looks today. `extra.lead_fields` on the contact
  * already carries the flattened answers; this is for everything the flattening
  * drops: which form, which campaign, which ad, and the raw `field_data`.

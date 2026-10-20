@@ -10,7 +10,7 @@ import useBoundStore from "@/stores/useBoundStore";
  * `mint_unsubscribe_links` upserts every contact in a single statement and
  * hands back the EXISTING token for anyone who already has a live link, so
  * re-sending a campaign reuses each person's link rather than scattering new
- * ones. There is nothing to invalidate — tokens are read by the public
+ * ones. There is nothing to invalidate - tokens are read by the public
  * unsubscribe endpoint and by the dispatcher, never by the app.
  *
  * Two differences from the booking version, both deliberate:
@@ -21,7 +21,7 @@ import useBoundStore from "@/stores/useBoundStore";
  *     later. There is nothing to time-box about "stop emailing me".
  *   * Contacts sharing a mailbox share a token. `mint_unsubscribe_links`
  *     dedupes on the address, so two contacts on the same `info@` both map to
- *     one token — and one opt-out silences both, which is what the person
+ *     one token - and one opt-out silences both, which is what the person
  *     pressing the link means.
  *
  * The send path does not depend on this having run: email-dispatcher calls

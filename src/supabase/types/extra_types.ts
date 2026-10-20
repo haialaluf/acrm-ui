@@ -6,7 +6,7 @@
 // Pure UI-only additions (no API counterpart) live in ./ui_types.ts.
 //===================================
 
-// @ui-divergence: no imports — the API imports DatabaseGenerated for the
+// @ui-divergence: no imports - the API imports DatabaseGenerated for the
 // HumanAgentExtra role enum, which the UI inlines instead.
 
 export type Memory = {
@@ -36,7 +36,7 @@ export type BusinessProfile = {
   business_name?: string; // defaults from organization.name in the UI
   description?: string;
   services?: string; // freeform multiline ("Corte 30min $20 …")
-  // When the business itself is open — NOT a calendar. Nothing is booked
+  // When the business itself is open - NOT a calendar. Nothing is booked
   // against these and no free-slot maths reads them; they exist so the agent
   // can answer "are you open on Saturday?" instead of guessing. A calendar's
   // own `working_hours` stays the authority for scheduling, and the two are
@@ -51,7 +51,7 @@ export type BusinessProfile = {
   // The clock `working_hours` is written in, mirroring the split a calendar
   // makes between `extra.region` and its `timezone` column: `region` is the ISO
   // country the CRM's picker shows, `timezone` the IANA id everything else
-  // reads. Both absent on organizations that predate the picker — the hours
+  // reads. Both absent on organizations that predate the picker - the hours
   // still render, the agent is simply told it cannot place them on a clock.
   region?: string; // ISO 3166 alpha-2, e.g. "IL"
   timezone?: string; // IANA id, e.g. "Asia/Jerusalem"
@@ -61,7 +61,7 @@ export type BusinessProfile = {
   // open a `# Business` section for an organization with nothing else filled in.
   //
   // Leave it unset for anything with a rota or a shared inbox. The platform's
-  // default is deliberately vague because it is usually the truth — naming one
+  // default is deliberately vague because it is usually the truth - naming one
   // person on a queue that five people watch is a worse promise than naming
   // nobody. Set it where a client really does always hear back from the same
   // person, which for a studio, a clinic or a one-owner shop is most of them.
@@ -118,7 +118,7 @@ export type FacebookOrganizationAddressExtra = {
   page_id?: string;
   page_name?: string;
   // App-scoped id of the user who connected the Page. Stored so Meta's data
-  // deletion callback — which identifies a user, never a Page — has something
+  // deletion callback - which identifies a user, never a Page - has something
   // to match on.
   fb_user_id?: string;
   // @ui-divergence: access_token and user_access_token omitted; they are
@@ -148,14 +148,14 @@ export type EmailDnsRecord = {
   priority?: number; // MX only
   purpose: "dkim" | "mail_from_mx" | "mail_from_spf" | "dmarc" | "inbound_mx";
   // DKIM and MAIL FROM records are required to verify and send. The DMARC record
-  // is a suggestion — the UI renders it separately, because replacing a domain's
+  // is a suggestion - the UI renders it separately, because replacing a domain's
   // existing _dmarc record with our permissive default would weaken it.
   required: boolean;
 };
 
 // What our own resolver saw for one of those records, refreshed on every check
 // (see `email-management/lookup.ts` in acrm-api). Advisory: SES verifies against
-// its own resolvers, so `found` is not "verified" and — importantly — `unknown`
+// its own resolvers, so `found` is not "verified" and - importantly - `unknown`
 // (our lookup failed) is not "missing".
 export type EmailDnsCheck = {
   type: EmailDnsRecord["type"];
@@ -164,7 +164,7 @@ export type EmailDnsCheck = {
   state:
     | "found" // published and matching
     | "missing" // nothing of this type at this name
-    | "mismatch" // something else is there — typo, proxy, another provider
+    | "mismatch" // something else is there - typo, proxy, another provider
     | "unknown"; // the lookup itself failed; say nothing rather than accuse
   // Only on `mismatch`, so the customer can see what to correct without
   // leaving the page.
@@ -222,7 +222,7 @@ export type EmailOrganizationAddressExtra = {
 
 // The public lead-intake connection (service = 'api', address = 'api').
 //
-// Deliberately almost empty, and deliberately holds NO statistics — no counter,
+// Deliberately almost empty, and deliberately holds NO statistics - no counter,
 // no `last_lead_at`. Every write to organizations_addresses fires
 // `z_notify_webhook_organizations_addresses`, so touching this row on each
 // accepted lead would fan a webhook out to the organization on the wrong entity,
@@ -230,7 +230,7 @@ export type EmailOrganizationAddressExtra = {
 // (source = 'api') instead, which costs one indexed read and no writes.
 //
 // The credential is not here either: callers authenticate with an `api_keys`
-// row, and this row is only the on/off switch — read via its `status` column,
+// row, and this row is only the on/off switch - read via its `status` column,
 // not via `extra`.
 export type ApiOrganizationAddressExtra = {
   // Display label, for a future world where an org runs more than one intake
@@ -238,7 +238,7 @@ export type ApiOrganizationAddressExtra = {
   name?: string;
 };
 
-// Union — the column accepts any of these shapes; consumers narrow via the
+// Union - the column accepts any of these shapes; consumers narrow via the
 // row's `service` column (or via a cast at service-specific read sites).
 export type OrganizationAddressExtra =
   | WhatsAppOrganizationAddressExtra
@@ -316,10 +316,10 @@ export type InstagramContactAddressExtra = {
  *
  * Written by three SQL functions in 04-10_unsubscribe.sql, each stamping its
  * own `source`:
- *   'unsubscribe_link' — apply_unsubscribe; the recipient clicked the footer
+ *   'unsubscribe_link' - apply_unsubscribe; the recipient clicked the footer
  *                        link. Carries `link_id`, and `undone_at` if they used
  *                        the 24h undo.
- *   'ses_feedback'     — apply_email_suppression; SES reported a hard bounce or
+ *   'ses_feedback'     - apply_email_suppression; SES reported a hard bounce or
  *                        a spam complaint. `reason` is `hard_bounce:<subtype>`
  *                        or `complaint:<feedbackType>`.
  * and by the email-management un-suppress route, which stamps `restored_at`
@@ -340,7 +340,7 @@ export type EmailContactAddressExtra = {
   };
 };
 
-// Union — the column accepts any of these shapes; consumers narrow via the
+// Union - the column accepts any of these shapes; consumers narrow via the
 // row's `service` column (or via the per-service Row/Insert aliases below).
 export type ContactAddressExtra =
   | WhatsAppContactAddressExtra
@@ -402,7 +402,7 @@ export type SkillInstance = {
   model?: string;
 };
 
-// Per-agent identity — what makes the leads agent differ from the support agent.
+// Per-agent identity - what makes the leads agent differ from the support agent.
 export type AgentPersona = {
   goal?: string; // "Contactar nuevos leads y calificarlos…"
   tone?: string;
@@ -426,7 +426,7 @@ export type HumanAgentExtra = {
  *
  * Structured rows rather than a paragraph inside `instructions`, for two
  * reasons the free-text field cannot serve. The company edits one answer
- * without retyping a wall of prose — a price changes far more often than a
+ * without retyping a wall of prose - a price changes far more often than a
  * policy does. And the platform gets to frame the list in the API's
  * `renderFaq`, which is what stops a model from reading a list of answers as
  * the LIMIT of what the business does and answering "no" to anything absent.
@@ -442,7 +442,7 @@ export type FaqEntry = {
 };
 
 /**
- * Reference material the business gave the agent — a price list, a menu, a
+ * Reference material the business gave the agent - a price list, a menu, a
  * brochure, a web page, a screenshot. Every kind is turned into `text` once,
  * when it is added (see the `agent-resources` function), and that text is what
  * the agent reads; `source` only records where it came from.
@@ -479,11 +479,11 @@ export type AIAgentExtra = {
   thinking?: "minimal" | "low" | "medium" | "high";
   instructions?: string;
   // The answers the company wrote for the questions it gets most. Rendered as
-  // its own prompt section rather than folded into `instructions` — see
+  // its own prompt section rather than folded into `instructions` - see
   // `FaqEntry`.
   faq?: FaqEntry[];
   resources?: AgentResource[];
-  // Reply only when the message is business this agent can handle — see the
+  // Reply only when the message is business this agent can handle - see the
   // API's `renderReplyScope`. Undefined ⇒ on: the guard is the default posture.
   on_topic_only?: boolean;
   send_inline_files_up_to_size_mb?: number;
@@ -513,7 +513,7 @@ export type WorkingHoursDay = { from: string; to: string };
 // closed too.
 export type CalendarWorkingHours = Partial<Record<Weekday, WorkingHoursDay[]>>;
 
-// public.booking_links.extra — per-link overrides for the public booking page.
+// public.booking_links.extra - per-link overrides for the public booking page.
 export type BookingLinkExtra = {
   // How far ahead of `now` a slot must start to be offered (default 60).
   min_notice_minutes?: number;

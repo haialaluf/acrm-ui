@@ -6,7 +6,7 @@ import { sharedContactName } from "@/components/Message/SharedContactCard";
 import { UserRound } from "lucide-react";
 
 /**
- * One message boiled down to a single line — the sidebar's last-message row and
+ * One message boiled down to a single line - the sidebar's last-message row and
  * the quoted block above a reply both draw it, so they can never drift apart.
  */
 
@@ -148,7 +148,7 @@ export function messagePreviewText(
 
   if (message.content.type === "data") {
     // A data part that was rendered for display (a template, for one) carries
-    // the flattened text the recipient sees — show that rather than the raw
+    // the flattened text the recipient sees - show that rather than the raw
     // payload. The JSON stays as the fallback for parts with nothing
     // human-readable.
     if (

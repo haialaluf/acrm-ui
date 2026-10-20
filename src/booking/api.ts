@@ -1,8 +1,8 @@
 /**
  * Typed wrapper over the public `booking` edge function.
  *
- * Covers the whole endpoint contract — link context, free slots, and the three
- * appointment mutations — and is the only place the page talks to the network.
+ * Covers the whole endpoint contract - link context, free slots, and the three
+ * appointment mutations - and is the only place the page talks to the network.
  *
  * No supabase client: these routes take no key and no session. The token in
  * the path is the entire credential, so it is never logged or put in a query
@@ -26,7 +26,7 @@ export function googleCalendarSubscribeUrl(feedUrl: string): string {
 }
 
 /** What the visitor may know about their own appointment. Nothing else on the
- *  calendar is ever exposed — not titles, not who booked, not busy times. */
+ *  calendar is ever exposed - not titles, not who booked, not busy times. */
 export type BookingAppointment = {
   id: string;
   starts_at: string;
@@ -41,12 +41,12 @@ export type BookingLinkContext = {
   /** IANA zone the slot instants are expressed in. */
   timezone: string;
   duration_minutes: number;
-  /** First name only — the URL is shareable, so PII in it stays minimal. */
+  /** First name only - the URL is shareable, so PII in it stays minimal. */
   contact_first_name: string | null;
   appointment: BookingAppointment | null;
 };
 
-/** An unknown, expired or revoked token — deliberately indistinguishable. */
+/** An unknown, expired or revoked token - deliberately indistinguishable. */
 export type InvalidLink = { valid: false };
 
 export class BookingError extends Error {
@@ -105,7 +105,7 @@ export type SyncContext = {
   organization_name: string;
   calendar_name: string;
   timezone: string;
-  /** Apple configuration profile — one tap on iOS. */
+  /** Apple configuration profile - one tap on iOS. */
   profile_url: string;
   /** False on a deployment with no signing certificate: iOS will say
    *  "Unverified" in red, and the page has to warn about it. */
@@ -120,7 +120,7 @@ export type SyncContext = {
 
 /**
  * Context for a calendar sync link. Like `getLink`, an unusable token is a page
- * state rather than an error — and unknown, revoked and malformed are all the
+ * state rather than an error - and unknown, revoked and malformed are all the
  * same 404, so this cannot be used to probe which tokens exist.
  */
 export async function getSyncContext(
@@ -138,7 +138,7 @@ export async function getSyncContext(
   }
 }
 
-/** Free start instants (ISO, with the calendar's offset) — free ones only. */
+/** Free start instants (ISO, with the calendar's offset) - free ones only. */
 export async function getSlots(
   token: string,
   range: { from?: Date; to?: Date } = {},

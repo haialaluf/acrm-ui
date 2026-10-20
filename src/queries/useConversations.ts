@@ -8,7 +8,7 @@ import { queryKeys } from "./queryKeys";
  * Permanently deletes a thread: every `conversations` row of the counterpart
  * (closed ones included, like `updateConvExtra`), whose whole message history
  * goes with them through the `messages` foreign key cascade. Irreversible, and
- * reserved to admins/owners by a restrictive RLS policy — a member's delete
+ * reserved to admins/owners by a restrictive RLS policy - a member's delete
  * removes no rows.
  */
 export function useDeleteConversation() {
@@ -29,7 +29,7 @@ export function useDeleteConversation() {
         .throwOnError();
 
       // RLS rejects a forbidden delete by matching no rows rather than by
-      // erroring, so a silent 0 has to be turned into a failure — otherwise the
+      // erroring, so a silent 0 has to be turned into a failure - otherwise the
       // dialog would close on a chat that is still there.
       if (!count) {
         throw new Error("Conversation was not deleted");

@@ -17,7 +17,7 @@ export type ImportContactInput = {
 };
 
 export type ImportContactsArgs = {
-  /** No default — every upsert_contact caller names it explicitly. */
+  /** No default - every upsert_contact caller names it explicitly. */
   strategy: "skip" | "merge";
   contacts: ImportContactInput[];
   /** Tags applied to every imported / merged contact. */
@@ -40,7 +40,7 @@ export type ImportProgress = {
   total: number;
 };
 
-/** Max simultaneous `upsert_contact` calls in flight — bounded so a large
+/** Max simultaneous `upsert_contact` calls in flight - bounded so a large
  * file never opens hundreds/thousands of concurrent connections, while still
  * keeping meaningful throughput (unlike a fully serial loop). */
 const CONCURRENCY = 8;
@@ -75,14 +75,14 @@ async function runPool<T, R>(
 type RowOutcome = { action: string } | { error: true };
 
 /**
- * Bulk-import contacts from a parsed file through `upsert_contact` — the same
+ * Bulk-import contacts from a parsed file through `upsert_contact` - the same
  * one write path every other contact-creating surface uses, so a duplicate
  * phone number is resolved by `strategy` instead of silently stealing the
  * address or creating an orphaned second contact.
  *
  * `p_contact_id` is always omitted (even for a client-detected duplicate):
  * `upsert_contact` discovers the address collision itself and, per
- * `strategy`, either skips the write or merges into the existing contact —
+ * `strategy`, either skips the write or merges into the existing contact -
  * so a client-known dup and an RPC-discovered one are resolved identically,
  * without a separate "updates" batch.
  */
@@ -140,7 +140,7 @@ export function useImportContacts() {
             return data as unknown as { action: string };
           } catch {
             // A single row's failure (network blip, RPC validation error)
-            // must not abort the rest of the file — count it and move on.
+            // must not abort the rest of the file - count it and move on.
             return { error: true };
           }
         },
@@ -157,7 +157,7 @@ export function useImportContacts() {
       return result;
     },
     // Rows are written one at a time, so a partial failure still leaves
-    // earlier rows committed — invalidate on both outcomes so a retry (and
+    // earlier rows committed - invalidate on both outcomes so a retry (and
     // its duplicate detection) never works off a stale contacts cache.
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: [orgId, "contacts"] });

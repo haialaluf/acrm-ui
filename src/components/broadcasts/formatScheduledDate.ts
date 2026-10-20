@@ -14,7 +14,7 @@ function dayInput(batch: Scheduled) {
   return batch.scheduled_at ?? batch.scheduled_date;
 }
 
-/** Relative day label for a date or instant, forward and backward — unlike
+/** Relative day label for a date or instant, forward and backward - unlike
  *  Chat.tsx's formatDate, batches can be future-dated. `null` once the day is
  *  far enough out that only the calendar date is meaningful. */
 function relativeDayLabel(d: dayjs.Dayjs, t: (s: string) => string) {
@@ -27,7 +27,7 @@ function relativeDayLabel(d: dayjs.Dayjs, t: (s: string) => string) {
   return null;
 }
 
-/** Day label for a batch — "Today", "Tomorrow", "Thursday", "14 March, 2026".
+/** Day label for a batch - "Today", "Tomorrow", "Thursday", "14 March, 2026".
  *  Kept short for the list cards; see `formatBatchDayLong` for the detail. */
 export function formatBatchDay(
   batch: Scheduled,
@@ -38,7 +38,7 @@ export function formatBatchDay(
   return relativeDayLabel(d, t) ?? d.format("DD MMMM, YYYY");
 }
 
-/** Day label with the calendar date spelled out — "Thursday, 27 August 2026".
+/** Day label with the calendar date spelled out - "Thursday, 27 August 2026".
  *  A relative label alone doesn't say *which* Thursday, and the detail screen
  *  has the room the cards don't. Days past the relative window already read as
  *  a date, so they are returned unchanged rather than doubled up. */
@@ -64,8 +64,8 @@ export function formatBatchTime(batch: Scheduled) {
 }
 
 /**
- * Clock time for one event inside a batch — a recipient being sent, delivered,
- * cancelled — prefixed with its date when that date is not the batch's own send
+ * Clock time for one event inside a batch - a recipient being sent, delivered,
+ * cancelled - prefixed with its date when that date is not the batch's own send
  * day. The rows sit under a header that already names the batch's day, so a
  * bare "14:45" reads as that day; wrong for a batch cancelled days before its
  * slot, or a receipt that lands after it.
@@ -77,14 +77,14 @@ export function formatEventTime(at: string, batch: Scheduled, locale: string) {
     : d.format("D MMM HH:mm");
 }
 
-/** Sortable instant for a batch — the exact send time, or its day at midnight
+/** Sortable instant for a batch - the exact send time, or its day at midnight
  *  local when that is all there is. */
 export function batchSortValue(batch: Scheduled) {
   return dayjs(dayInput(batch)).valueOf();
 }
 
 /**
- * Sortable instant for history — when the batch actually resolved (sent, failed
+ * Sortable instant for history - when the batch actually resolved (sent, failed
  * or cancelled) rather than when it was meant to go out. A batch scheduled for
  * next week and cancelled today belongs where it was cancelled, not pinned to
  * the top of the list behind a date it never reached. Falls back to the send

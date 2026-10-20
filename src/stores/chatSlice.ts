@@ -46,7 +46,7 @@ export type ThreadState = {
   key: string;
   /** Conversation rows of this thread, newest first. */
   convIds: string[];
-  /** Row new messages are written to — see `primaryConversation`. */
+  /** Row new messages are written to - see `primaryConversation`. */
   primaryConvId: string;
   /**
    * Unread incoming messages. Comes from `conversations_page` (which counts
@@ -79,7 +79,7 @@ export type ChatState = {
   fileDrafts: Map<string, FileDraft[]>; // by thread key
   /** Message being replied to, by thread key. Holds our uuid, not the channel
    *  id: the row is resolved from `messages` when the quote is drawn and when
-   *  the reply is sent. UI buffer only — never persisted to `conv.extra.draft`. */
+   *  the reply is sent. UI buffer only - never persisted to `conv.extra.draft`. */
   replyDrafts: Map<string, string>;
   mediaLoads: Map<string, MediaLoad>;
 };
@@ -90,7 +90,7 @@ export type ChatActions = {
   removeThread: (key: string) => void;
   pushMessages: (msgs: MessageRow[]) => void;
   pushThreadPage: (rows: ThreadPageRow[]) => void;
-  /** Realtime arrival — the only path that moves the unread counter. */
+  /** Realtime arrival - the only path that moves the unread counter. */
   notifyRealtimeMessage: (msg: MessageRow) => void;
   setMediaLoad: (messageId: string, mediaLoad: MediaLoad) => void;
   setThreadTextDraft: (threadKey: string, textDraft: string) => void;
@@ -228,7 +228,7 @@ export const createChatSlice: StateCreator<Partial<AppState>> = (
       if (!thread) return {};
 
       // Only the contact's messages can make a thread unread; anything the
-      // organization sends (from here or from the WhatsApp app) clears it —
+      // organization sends (from here or from the WhatsApp app) clears it -
       // the same rule the badge used when it walked the message list.
       const unread =
         msg.direction === "incoming"
@@ -406,7 +406,7 @@ function applyMessages(
   const msgs = toV1Messages(msgsMixedVersions)
     // Do not display scheduled messages (timestamp in the future). Compared
     // against the clock, not against updated_at: a send whose row is never
-    // re-saved after its scheduled time — a cancelled one, say — keeps an
+    // re-saved after its scheduled time - a cancelled one, say - keeps an
     // updated_at older than its timestamp forever, and the updated_at form
     // hid it for good. `conversations_page` picks the sidebar's last message
     // with the same `timestamp <= now()` rule, so dropping it here left the

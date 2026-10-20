@@ -12,7 +12,7 @@ import type { MessageRow } from "@/supabase/client";
  * The customer service window of the active thread.
  *
  * WhatsApp and Instagram only accept free-form messages within a day of the
- * contact's last one — and a reaction is a message like any other, so both the
+ * contact's last one - and a reaction is a message like any other, so both the
  * composer and the reaction picker gate on this. Messenger allows a person
  * (never the AI agent) to keep replying for 7 days under the HUMAN_AGENT tag,
  * and everything sent from this composer is a person.

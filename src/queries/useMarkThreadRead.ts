@@ -3,7 +3,7 @@ import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 
 /**
- * Tell the contact their message was seen — because it was: someone opened the
+ * Tell the contact their message was seen - because it was: someone opened the
  * thread here.
  *
  * The RPC stamps `status.read` on the thread's newest inbound message, which is

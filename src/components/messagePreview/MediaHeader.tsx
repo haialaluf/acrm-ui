@@ -59,7 +59,7 @@ export default function MediaHeader({
   };
 
   // Shape the media box to the file's natural ratio (like the real chat) and
-  // report the width so the parent bubble hugs it — shared by image & video.
+  // report the width so the parent bubble hugs it - shared by image & video.
   const applySize = (naturalWidth: number, naturalHeight: number) => {
     const size = whatsappImageSize(naturalWidth, naturalHeight);
     setBox(size);

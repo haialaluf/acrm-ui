@@ -105,7 +105,7 @@ export default function AutomationsList() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* Header. Title block, then search and the new-automation button on
-          their own row — side by side they would fight over a panel that is
+          their own row - side by side they would fight over a panel that is
           often only ~350px wide, which is what squeezed the search field down
           to its icon. */}
       <div className="shrink-0 px-[18px] pt-[18px]">
@@ -114,7 +114,7 @@ export default function AutomationsList() {
         </h1>
         <p className="mt-[5px] text-[13px] text-muted-foreground">
           {t(
-            "Flows that run on their own — when something happens, before a date, or on a schedule.",
+            "Flows that run on their own - when something happens, before a date, or on a schedule.",
           )}
         </p>
 
@@ -200,7 +200,7 @@ export default function AutomationsList() {
 
                     The design lays this out as a four-column table, which it
                     can afford at full page width. Here the list lives in the
-                    resizable left panel — often ~350px — so fixed column
+                    resizable left panel - often ~350px - so fixed column
                     tracks do not fit, and viewport breakpoints cannot tell:
                     `md:` is true on a wide screen even when this panel is
                     narrow. Stacking is the only shape that holds at every

@@ -27,7 +27,7 @@ const TONE_FOR: Record<SuppressionKind, "destructive" | "warning" | "neutral"> =
  * diagnosis: a list that is mostly invalid addresses was not collected from
  * real recipients, and any meaningful number of spam reports is the thing
  * that gets an account paused. A plain unsubscribe-link click never appears
- * here — see `useSuppressedAddresses`. The full list, with the un-suppress
+ * here - see `useSuppressedAddresses`. The full list, with the un-suppress
  * action, lives on the email integration page.
  */
 export default function SuppressionSummary() {

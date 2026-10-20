@@ -11,7 +11,7 @@ import PillSearch from "./PillSearch";
 import { type Channel, countVars } from "./types";
 
 /**
- * Step 1 — pick the template, which also picks the channel.
+ * Step 1 - pick the template, which also picks the channel.
  *
  * The lists are the same components `/templates` renders (`ChannelToggle`,
  * `TemplatesList`, `EmailTemplatesList`) rather than a wizard-local copy, so a
@@ -80,7 +80,7 @@ export default function TemplateStep({
 
       {/* No `overflow-y-auto` here: `SectionBody` inside the lists is already a
           full-height scroller, and nesting the two made the pane scroll with
-          three rows in it — and pushed the footer below the fold. */}
+          three rows in it - and pushed the footer below the fold. */}
       <div className="grow min-h-0 flex flex-col">
         {/* No "not connected" fallbacks: the route is gated on having at least
             one channel, and `channel` is seeded from `available` on the very

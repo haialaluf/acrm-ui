@@ -23,8 +23,8 @@ import { fill } from "@/utils/fill";
  *
  * Two shapes, one write. Without `currentContact` it LINKS: a thread whose
  * address belongs to nobody joins an existing contact, or seeds a new one.
- * With `currentContact` it MERGES: the thread already has a contact — almost
- * always the stub the inbound webhook minted from an @handle — and picking
+ * With `currentContact` it MERGES: the thread already has a contact - almost
+ * always the stub the inbound webhook minted from an @handle - and picking
  * another contact folds the two into one, conversations included.
  *
  * Both are the same `upsert_contact` call with `strategy: 'merge'`; whether
@@ -36,11 +36,11 @@ export default function LinkAddressToContactModal({
   open,
   address,
   service,
-  /** Name to seed a new contact with — an Instagram profile name, a push name. */
+  /** Name to seed a new contact with - an Instagram profile name, a push name. */
   suggestedName,
   /** Instagram @username, shown instead of the igsid wherever the address is. */
   username,
-  /** The contact this thread already belongs to — turns the dialog into a merge. */
+  /** The contact this thread already belongs to - turns the dialog into a merge. */
   currentContact,
   onMerged,
   onClose,
@@ -102,7 +102,7 @@ export default function LinkAddressToContactModal({
       .slice(0, 50);
   }, [contacts, search, currentContact?.id]);
 
-  /** What the user sees this thread called — never a raw igsid if avoidable. */
+  /** What the user sees this thread called - never a raw igsid if avoidable. */
   const addressLabel = username
     ? `@${username}`
     : service === "whatsapp"
@@ -231,7 +231,7 @@ export default function LinkAddressToContactModal({
       )}
 
       <div className="flex items-center justify-between gap-3 px-5 pb-5 pt-[14px]">
-        {/* Creating a contact only makes sense while the address has none —
+        {/* Creating a contact only makes sense while the address has none -
             merging is about two records that already exist. */}
         <button
           type="button"

@@ -104,7 +104,7 @@ function ApiLeadsIntegration() {
         <div className="instructions">
           <p>
             {t(
-              "Send a POST request to this URL to create a contact. Any system that can make an HTTP request can use it — a website form, a landing page, Zapier, or your own app.",
+              "Send a POST request to this URL to create a contact. Any system that can make an HTTP request can use it - a website form, a landing page, Zapier, or your own app.",
             )}
           </p>
         </div>

@@ -38,7 +38,7 @@ export function Field({
 /**
  * The field styling without a width.
  *
- * Use this wherever the caller sets its own width — `flex-1`, `w-16`, a fixed
+ * Use this wherever the caller sets its own width - `flex-1`, `w-16`, a fixed
  * pixel width. Appending those to `inputClass` below does NOT work: two
  * utilities for the same property collide, and which one wins depends on their
  * order in the generated stylesheet rather than in the class string, so a
@@ -85,7 +85,7 @@ export function Segmented<T extends string>({
   );
 }
 
-/** Multi-select over a fixed vocabulary. Values are whatever `id` is — a uuid
+/** Multi-select over a fixed vocabulary. Values are whatever `id` is - a uuid
  *  for agents and calendars, the tag string itself for tags and sources. */
 export function CheckList<T extends { id: string; name: string }>({
   items,

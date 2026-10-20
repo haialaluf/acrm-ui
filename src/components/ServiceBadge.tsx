@@ -10,7 +10,7 @@ import { Bot, Mail } from "lucide-react";
  * bottom corner of its avatar.
  *
  * Shared by the conversation list and the chat header so the two can never
- * disagree about what a channel looks like — the colours are the platforms'
+ * disagree about what a channel looks like - the colours are the platforms'
  * own (#25D366, #E1306C, #0866FF), not theme tokens, and they are the whole point of
  * the badge.
  */

@@ -27,7 +27,7 @@ async function resolveAddresses(
 
 /**
  * Previews address ownership before a contact write, via the same
- * `resolve_contact_addresses` RPC `upsert_contact` uses internally — so the
+ * `resolve_contact_addresses` RPC `upsert_contact` uses internally - so the
  * inline warning and the submit-time confirmation can never disagree with
  * what the write actually does.
  *
@@ -55,7 +55,7 @@ export function useAddressConflicts(excludeContactId?: string) {
   }
 
   /**
-   * Authoritative check right before submit — returns the first address
+   * Authoritative check right before submit - returns the first address
    * that's owned by someone other than the contact being edited, or null if
    * the write can proceed without a merge.
    */

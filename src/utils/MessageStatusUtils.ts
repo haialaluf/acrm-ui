@@ -29,7 +29,7 @@ const RECEIPT_STATUSES = ["delivered", "read", "played", "failed"] as const;
  * the CRM, and so can never be marked delivered or read.
  *
  * Meta does not send status webhooks for messages a business sends from the
- * WhatsApp Business app under coexistence — the documented `smb_message_echoes`
+ * WhatsApp Business app under coexistence - the documented `smb_message_echoes`
  * payload carries no `statuses` array, and the status webhook's triggers cover
  * only messages the API sent. The echo is therefore written once with `sent`
  * (whatsapp-webhook/index.ts) and nothing ever updates it, which used to leave
@@ -57,7 +57,7 @@ export function isAppSentWithoutReceipts(status: OutgoingStatus): boolean {
 
 /** Tooltip for the tick on an app-sent message. Translated at the call site. */
 export const APP_SENT_TOOLTIP =
-  "Sent from the WhatsApp app — Meta doesn't report delivery receipts for these";
+  "Sent from the WhatsApp app - Meta doesn't report delivery receipts for these";
 
 /**
  * From a status object determine based on the hierarchy created by the objects
@@ -129,8 +129,8 @@ export function getStatusIcon(
 /**
  * The icon, colour and tooltip to render for one outgoing message's status.
  *
- * Both renderers — the message bubble (Message/StatusIcon) and the chat list
- * preview (ChatListItem) — go through here so the app-sent case is decided once
+ * Both renderers - the message bubble (Message/StatusIcon) and the chat list
+ * preview (ChatListItem) - go through here so the app-sent case is decided once
  * rather than duplicated with two chances to drift.
  *
  * App-sent messages get the grey double tick, never the blue one: they really

@@ -10,7 +10,7 @@ export type ConversationRow =
  * The conversations belonging to a contact, newest first.
  *
  * Keyed by the contact's ADDRESSES rather than by a contact id, because
- * `conversations` carries no contact_id — a thread is identified by the pair
+ * `conversations` carries no contact_id - a thread is identified by the pair
  * (organization_address, contact_address), which is what `threadKey` builds.
  * Passing the address list in keeps this honest about a contact with several
  * numbers: each one can have its own thread.

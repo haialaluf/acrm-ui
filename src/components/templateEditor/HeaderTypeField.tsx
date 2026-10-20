@@ -94,7 +94,7 @@ export default function HeaderTypeField({
                   aria-label={o.label}
                 >
                   <Icon size={15} />
-                  {/* Labels would overflow on phones — icons only below md. */}
+                  {/* Labels would overflow on phones - icons only below md. */}
                   <span className="hidden md:inline text-[13px]">
                     {o.label}
                   </span>

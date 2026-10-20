@@ -10,7 +10,7 @@ import type { AutomationStep } from "@/supabase/client";
  * half.
  *
  * A `path` is the chain of `[stepId, branchId, stepId, branchId, ...]` that
- * locates a nested step list — the flat form the tree components already pass
+ * locates a nested step list - the flat form the tree components already pass
  * down as they render.
  */
 
@@ -122,7 +122,7 @@ export function duplicateStep(step: AutomationStep): AutomationStep {
   return copy;
 }
 
-/** Total steps in the tree, branches included — the list's "N steps" figure. */
+/** Total steps in the tree, branches included - the list's "N steps" figure. */
 export function countSteps(steps: AutomationStep[]): number {
   return steps.reduce(
     (total, step) =>

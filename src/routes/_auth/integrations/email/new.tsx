@@ -29,7 +29,7 @@ function EmailNew() {
   });
 
   // The server normalizes and validates the domain and reports the real reason
-  // — already claimed, malformed, SES rejected it — so show its message rather
+  // - already claimed, malformed, SES rejected it - so show its message rather
   // than duplicating the rules here.
   const error = connect.error?.message;
 
@@ -93,7 +93,7 @@ function EmailNew() {
               </li>
               <li>
                 {t(
-                  "Enter the domain only, without www or an email address — for example acme.com.",
+                  "Enter the domain only, without www or an email address - for example acme.com.",
                 )}
               </li>
             </ul>

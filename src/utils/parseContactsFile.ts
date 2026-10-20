@@ -39,7 +39,7 @@ function formatBytes(bytes: number): string {
  *
  * `File.text()` always decodes as UTF-8, which mangles the UTF-16 exports some
  * tools produce (Meta's Lead Ads download is UTF-16LE) into NUL-interleaved
- * mojibake — every header and cell then fails to match anything.
+ * mojibake - every header and cell then fails to match anything.
  */
 async function readText(file: File): Promise<string> {
   const bytes = new Uint8Array(await file.arrayBuffer());

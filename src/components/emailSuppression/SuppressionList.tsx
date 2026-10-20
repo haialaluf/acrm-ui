@@ -22,11 +22,11 @@ const FILTERS: { key: SuppressionKind | "all"; label: string }[] = [
  * Everyone Amazon SES has flagged as undeliverable, and why.
  *
  * `contacts_addresses.status = 'inactive'` (email service) is written by two
- * SES-feedback paths and surfaced here — a greyed-out row in the bulk-send
+ * SES-feedback paths and surfaced here - a greyed-out row in the bulk-send
  * wizard is the only other place it showed. A plain unsubscribe-link click
  * does not appear in this list: it sets `contacts.status = 'removed'` on the
  * contact instead (the same "remove me" flag WhatsApp's `הסר` sets), which is
- * a person's own choice rather than a deliverability problem — nothing to
+ * a person's own choice rather than a deliverability problem - nothing to
  * "un-suppress" here.
  *
  * The un-suppress action is deliberately gated and deliberately noisy. Putting

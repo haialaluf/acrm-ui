@@ -16,7 +16,7 @@ export const DEFAULT_BOOKING_DURATION = 30;
  * One round-trip for the whole broadcast: `mint_booking_links` upserts every
  * contact in a single statement and hands back the EXISTING token for anyone
  * who already has a live link, so re-sending a campaign extends links instead
- * of scattering new ones. There is nothing to invalidate — links are read only
+ * of scattering new ones. There is nothing to invalidate - links are read only
  * by the public booking endpoint, never by the app.
  */
 export function useMintBookingLinks() {

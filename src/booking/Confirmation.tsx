@@ -5,7 +5,7 @@ import { formatDateLong, formatTime, zoneLabel } from "./datetime";
 import type { Translate } from "./i18n";
 
 /**
- * The booked state — what the visitor lands on after confirming, and what they
+ * The booked state - what the visitor lands on after confirming, and what they
  * see straight away if the link already holds an appointment.
  *
  * The add-to-calendar links come from `calendar-link`: hand-rolling them means

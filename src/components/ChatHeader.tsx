@@ -69,8 +69,8 @@ export default function Header() {
 
   // Threads worth pointing at a different contact. Two cases, one button:
   //
-  //  - no contact at all (an address that predates auto-creation) — link it;
-  //  - a contact the webhook minted from an @handle or nothing — merge it into
+  //  - no contact at all (an address that predates auto-creation) - link it;
+  //  - a contact the webhook minted from an @handle or nothing - merge it into
   //    the person who is almost certainly already in the contact list under a
   //    phone number.
   //
@@ -112,7 +112,7 @@ export default function Header() {
         <ArrowLeft className="w-[24px] h-[24px] text-foreground" />
       </button>
 
-      {/* Contact info — avatar and name open the contact panel. Split into two
+      {/* Contact info - avatar and name open the contact panel. Split into two
           buttons rather than one so the line underneath can be a control of its
           own on a phone; the wrapper carries the hover so it still reads as a
           single target. */}
@@ -167,7 +167,7 @@ export default function Header() {
           </div>
 
           {/* On a phone the action takes this line. It is the one place in the
-              header that costs no width — and on exactly the threads that need
+              header that costs no width - and on exactly the threads that need
               linking, the line it replaces only repeats the id already shown
               above it. The desktop header keeps both: address here, button
               beside the name. */}
@@ -209,7 +209,7 @@ export default function Header() {
       </div>
 
       {/* Sits with the name rather than with the agent select: it acts on who
-          this conversation is, not on who answers it. Desktop only — the phone
+          this conversation is, not on who answers it. Desktop only - the phone
           gets the same action on the line under the name. */}
       {unlinked && (
         <button

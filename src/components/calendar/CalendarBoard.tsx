@@ -125,7 +125,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
   );
 
   // Grey out the gap between two working-hour windows on an otherwise-open
-  // day (e.g. a lunch break) — dayPropGetter only handles fully-closed days.
+  // day (e.g. a lunch break) - dayPropGetter only handles fully-closed days.
   function slotPropGetter(slot: Date) {
     const windows = calendar?.working_hours?.[WEEKDAYS[slot.getDay()].key];
     if (!windows?.length) return {};

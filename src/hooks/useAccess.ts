@@ -10,7 +10,7 @@ import { useIntegrations, type Integration } from "./useIntegrations";
  * (`HideIfNotPermitted`, which renders nothing, and `IntegrationGate`, which
  * redirects) and by the handful of places that filter a list rather than show
  * or hide a block. Adding a gated surface means adding a row here, not writing
- * a rule at a call site — which is how `/templates` previously ended up spelled
+ * a rule at a call site - which is how `/templates` previously ended up spelled
  * two different ways in the nav rail and the shell.
  *
  * The rule is always *anyOf*: one listed integration connected is enough.
@@ -18,7 +18,7 @@ import { useIntegrations, type Integration } from "./useIntegrations";
  * composed at that call site with `.every`, which keeps the rare case visible
  * instead of complicating every row.
  *
- * "Connected" means `status === "connected"` and nothing else — see
+ * "Connected" means `status === "connected"` and nothing else - see
  * `useIntegrations`, which owns that question. This module owns only what the
  * answer permits.
  */
@@ -26,12 +26,12 @@ import { useIntegrations, type Integration } from "./useIntegrations";
 /** No integration required. Distinct from `[]`, which would permit nothing. */
 const ALWAYS = "always" as const;
 
-/** An outbound channel — something to actually send on. */
+/** An outbound channel - something to actually send on. */
 const CAN_SEND = ["whatsapp", "email"] as const;
 
 /**
  * Any way in at all: a channel (WhatsApp, Instagram, Email) or a lead source
- * (Facebook, API) — the two groups the Integrations page names. Contacts can
+ * (Facebook, API) - the two groups the Integrations page names. Contacts can
  * exist either way, whether because someone messaged you or because a form was
  * submitted.
  *
@@ -53,7 +53,7 @@ type Requirement = typeof ALWAYS | readonly Integration[];
 /**
  * Keys the table must cover completely. A new `StepType` or `ContactSource`
  * fails to compile until it has been classified here, which is the point: the
- * failure mode otherwise is silent — an option that is simply never offered, or
+ * failure mode otherwise is silent - an option that is simply never offered, or
  * one offered to an organization that can never receive it.
  */
 type ExhaustiveSurfaces = Record<
@@ -67,21 +67,21 @@ export const SURFACES = {
   // redirects). With nothing connected at all, `useOnboarding` narrows the
   // whole app to Integrations and Settings first; past that, every section
   // NOT listed is always reachable, deliberately:
-  //   /conversations — message history outlives the connection that produced
+  //   /conversations - message history outlives the connection that produced
   //     it, and burying a year of customer threads behind a disconnect is
   //     worse than an inbox you cannot currently send from.
-  //   /agents — worth writing before there is a channel to answer on.
-  //   /stats — Quotas and Usage report the subscription, not a channel. An
+  //   /agents - worth writing before there is a channel to answer on.
+  //   /stats - Quotas and Usage report the subscription, not a channel. An
   //     agent chatted with over the `local` address spends AI Credits with
   //     nothing connected, and Storage keeps counting media from a channel
   //     since disconnected. Its two per-channel health tabs gate themselves.
-  //   /integrations — the section that changes all of this.
-  //   /settings — where an owner manages the organization, its members and its
+  //   /integrations - the section that changes all of this.
+  //   /settings - where an owner manages the organization, its members and its
   //     API keys. Locking it would strand anyone whose next step is fixing the
   //     organization rather than connecting a channel.
   // The trade-off against an allowlist: a section added later defaults to
   // reachable rather than hidden. That is the safer failure for a section that
-  // needs no channel, which is the common case — but a new channel-dependent
+  // needs no channel, which is the common case - but a new channel-dependent
   // section must remember to add a row here and to GATED_SECTIONS.
   "/broadcasts": CAN_SEND,
   /** Per-channel all the way down, so with neither connected there is
@@ -114,14 +114,14 @@ export const SURFACES = {
    *  place in the app that appears because nothing is connected. */
   "app.connected": ANY_INTEGRATION,
   /** Nothing to start a conversation on without a channel, and the wizard
-   *  behind the button is itself gated — the link would only bounce. */
+   *  behind the button is itself gated - the link would only bounce. */
   "header.newConversation": CAN_SEND,
   "home.startConversation": CAN_SEND,
   /** Only the create button. Past broadcasts stay listed in full whatever
    *  happened to the channel they went out on. */
   "broadcasts.create": CAN_SEND,
   /** Reopening a closed conversation means sending a template, which needs a
-   *  live connection — not merely a conversation that once was one. Combined
+   *  live connection - not merely a conversation that once was one. Combined
    *  at the call site with the conversation's own `service`. */
   "chat.reopenWithTemplate": ["whatsapp"],
 
@@ -133,7 +133,7 @@ export const SURFACES = {
   // ── Automation step types ──────────────────────────────────────────────
   // Which steps can be *added*. Only the messaging steps are gated: a step
   // that sends on a channel you have not connected is one that silently does
-  // nothing at run time. Steps already saved in a flow are untouched —
+  // nothing at run time. Steps already saved in a flow are untouched -
   // `catalog.ts` deliberately keeps every type so the canvas can still draw
   // them and StepPanel can still open their editors.
   "step.template": ["whatsapp"],
@@ -165,7 +165,7 @@ export const SURFACES = {
   "source.whatsapp": ["whatsapp"],
   "source.instagram": ["instagram"],
   "source.facebook_lead": ["facebook"],
-  /** A Meta Lead Ads form, split by the placement it ran on — so an Instagram
+  /** A Meta Lead Ads form, split by the placement it ran on - so an Instagram
    *  lead needs the Instagram connection, not the Facebook one. */
   "source.instagram_lead": ["instagram"],
   "source.api_lead": ["api"],
@@ -192,7 +192,7 @@ export type GatedSection = (typeof GATED_SECTIONS)[number];
  * Answers whether a surface may be shown.
  *
  * Returns a predicate rather than a record because half the callers test keys
- * inside a `filter` — step types, contact sources — where a record would mean
+ * inside a `filter` - step types, contact sources - where a record would mean
  * building the whole table's worth of booleans to read three of them.
  *
  * `isResolved` is the caller's decision to make, and the two components make it
@@ -220,7 +220,7 @@ export type OutboundChannel = "whatsapp" | "email";
 
 /**
  * The channels this organization can send on, in the order the toggles show
- * them — WhatsApp first, which is what makes it the default a two-channel
+ * them - WhatsApp first, which is what makes it the default a two-channel
  * organization lands on. An email-only organization still lands on email,
  * because WhatsApp is simply absent from the list.
  *

@@ -20,7 +20,7 @@ import { contactEmail } from "@/utils/ContactAddressUtils";
  * - `recvSince`/`sentSince`: ms epoch. Match contacts that *have* received /
  *   sent a message since that instant (last message in that direction is at or
  *   after it).
- * - `notRecvSince`/`notSentSince`: ms epoch. The inverse — contacts that have
+ * - `notRecvSince`/`notSentSince`: ms epoch. The inverse - contacts that have
  *   *not* received / sent a message since then (last one predates it, or they
  *   never had one). Useful for finding stale / re-engagement contacts. All four
  *   are resolved server-side by `useContactActivityMatch`, which hands
@@ -70,7 +70,7 @@ export function activeFilterCount(f: ContactFilterValue): number {
 export function applyContactFilter<T extends ContactWithAddressesRow>(
   contacts: T[],
   f: ContactFilterValue,
-  /** Recency predicate from `useContactActivityMatch` — resolves the four
+  /** Recency predicate from `useContactActivityMatch` - resolves the four
    *  `*Since` fields server-side. Omitted / null when no recency filter is set
    *  or its queries are still loading, in which case that dimension is skipped. */
   activityMatch?: ((contact: ContactWithAddressesRow) => boolean) | null,
@@ -223,7 +223,7 @@ function toRange(
     : null;
 }
 
-/** A labeled filter field — a caption above the control, shared by every filter
+/** A labeled filter field - a caption above the control, shared by every filter
  *  so they line up consistently. */
 function FilterField({
   label,

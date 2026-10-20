@@ -19,7 +19,7 @@ import {
  *
  * Shared by the bulk-send wizard's variables step and the automation editor's
  * send-template step. Neither owns the layout, so a template asks for the same
- * things, in the same order, in the same words, wherever you meet it — the two
+ * things, in the same order, in the same words, wherever you meet it - the two
  * had drifted into a card-based picker on one side and a row of bare selects on
  * the other.
  */
@@ -33,7 +33,7 @@ export default function TemplateVarsEditor<F extends string>({
   empty,
 }: {
   components: TemplateData["components"];
-  /** Keyed by `slotKey(scope, n)`. A missing entry is legal — `VarCard` then
+  /** Keyed by `slotKey(scope, n)`. A missing entry is legal - `VarCard` then
    *  shows an empty fixed value. */
   bindings: Record<string, VarBinding<F> | undefined>;
   fields: readonly FieldOption<F>[];
@@ -114,7 +114,7 @@ export function varsIntro(
 
   if (hasMedia && !hasVars) {
     return t(
-      "This template requires a file in the header — it is mandatory to send it.",
+      "This template requires a file in the header - it is mandatory to send it.",
     );
   }
   if (hasVars) {
