@@ -20,17 +20,14 @@ const CLINIC_NEVER_SEES = [
 ];
 
 const PATIENT_SEES = [
-  "This patient's name, date of birth, sessions and payments",
+  "This patient's details, including phone, email and emergency contact",
+  "Their sessions and payments",
   "Their notes and session reports",
   "The names of their files",
   "Their recent messages with the clinic",
 ];
 
-const PATIENT_NEVER_SEES = [
-  "Other patients",
-  "What is inside their files",
-  "Phone numbers, emails and the emergency contact",
-];
+const PATIENT_NEVER_SEES = ["Other patients", "What is inside their files"];
 
 export type AskAiScope = "clinic" | "patient";
 
