@@ -7,6 +7,7 @@ import { useOrganizationAddress } from "@/queries/useOrganizationsAddresses";
 import { useInstagramDisconnect } from "@/queries/useInstagramSignup";
 import { useCurrentAgent } from "@/queries/useAgents";
 import type { InstagramOrganizationAddressExtra } from "@/supabase/client";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute(
   "/_auth/integrations/instagram/$orgAddressId/",
@@ -24,7 +25,7 @@ function InstagramAddressDetail() {
 
   if (!integration) return;
 
-  const isOwner = agent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(agent?.extra?.role);
   const extra = integration.extra as
     | InstagramOrganizationAddressExtra
     | undefined;

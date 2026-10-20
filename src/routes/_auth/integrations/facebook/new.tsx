@@ -7,6 +7,7 @@ import Button from "@/components/Button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { getFacebookAuthorizeUrl } from "@/queries/useFacebookSignup";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/integrations/facebook/new")({
   component: FacebookNew,
@@ -21,7 +22,7 @@ export const FB_INAPP_REDIRECT_PATH = "/oauth/facebook";
 function FacebookNew() {
   const { translate: t } = useTranslation();
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 

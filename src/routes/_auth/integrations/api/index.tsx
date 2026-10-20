@@ -14,6 +14,7 @@ import {
   useEnableApiLeads,
   useRecentApiLeads,
 } from "@/queries/useApiLeads";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/integrations/api/")({
   component: ApiLeadsIntegration,
@@ -35,7 +36,7 @@ function ApiLeadsIntegration() {
   const enable = useEnableApiLeads();
   const disable = useDisableApiLeads();
 
-  const isOwner = agent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(agent?.extra?.role);
   const connection = addresses?.find(
     (address) => address.address === API_LEADS_ADDRESS,
   );

@@ -11,6 +11,7 @@ import { useThreadConversation } from "@/hooks/useThread";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useDeleteConversation } from "@/queries/useConversations";
 import ConfirmModal from "./ConfirmModal";
+import { isAdminRole } from "@/utils/roles";
 
 export default function ItemActions({
   children,
@@ -40,7 +41,7 @@ export default function ItemActions({
 
   const activeThreadKey = useBoundStore((state) => state.ui.activeThreadKey);
   const { data: agent } = useCurrentAgent();
-  const isAdmin = ["admin", "owner"].includes(agent?.extra?.role || "");
+  const isAdmin = isAdminRole(agent?.extra?.role);
 
   const deleteConversation = useDeleteConversation();
   const [confirmDelete, setConfirmDelete] = useState(false);

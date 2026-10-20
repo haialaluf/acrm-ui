@@ -31,6 +31,7 @@ import {
   contactPicture,
 } from "@/utils/ContactAddressUtils";
 import { mediaPreview, messagePreviewText } from "@/utils/messagePreview";
+import { isAdminRole } from "@/utils/roles";
 
 function statusIcon(status: OutgoingStatus, t: (text: string) => string) {
   const { icon, color, title } = getStatusPresentation(status);
@@ -77,7 +78,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
 
   const { data: agent } = useCurrentAgent();
   const { data: agents } = useCurrentAgents();
-  const isAdmin = ["admin", "owner"].includes(agent?.extra?.role || "");
+  const isAdmin = isAdminRole(agent?.extra?.role);
 
   // The sidebar only ever holds the thread's most recent message (or whatever
   // the open conversation loaded), so this list is a preview source, never a

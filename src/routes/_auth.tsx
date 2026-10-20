@@ -21,7 +21,8 @@ import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 import { GATED_SECTIONS, useAccess } from "@/hooks/useAccess";
 import { useResizable } from "@/hooks/useResizable";
 import { isRtl, type Language } from "@/stores/uiSlice";
-import { useCurrentAgents } from "@/queries/useAgents";
+import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
+import { isGhost } from "@/utils/roles";
 import StatsCenter from "@/components/stats/StatsCenter";
 import CalendarCenter from "@/components/calendar/CalendarCenter";
 import BroadcastCenter from "@/components/broadcasts/BroadcastCenter";
@@ -48,6 +49,8 @@ function AppLayout() {
   const { translate: t, currentLanguage } = useTranslation();
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
   const { data: agents } = useCurrentAgents();
+  const { data: currentAgent } = useCurrentAgent();
+  const isGhostViewer = isGhost(currentAgent?.extra?.role);
   const hasAiAgents = agents?.some((a) => a.ai);
   const { allows, isResolved } = useAccess();
   // The one surface read inverted: this card exists *because* nothing is
@@ -247,7 +250,7 @@ function AppLayout() {
                         ? " flex bg-chat"
                         : " hidden md:flex bg-muted")
           }
-          onDragEnter={() => setIsHoveringFiles(true)}
+          onDragEnter={() => !isGhostViewer && setIsHoveringFiles(true)}
           onDrop={() => setIsHoveringFiles(false)}
         >
           {isTemplateEditorRoute ? (

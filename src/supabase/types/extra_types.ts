@@ -411,7 +411,7 @@ export type AgentPersona = {
 
 export type HumanAgentExtra = {
   // @ui-divergence: role enum inlined (API: DatabaseGenerated[...]["Enums"]["role"]).
-  role: "member" | "admin" | "owner";
+  role: "member" | "admin" | "owner" | "super_admin";
   invitation?: {
     organization_name: string;
     email: string;

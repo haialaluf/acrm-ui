@@ -302,11 +302,14 @@ function Avatar({
 }) {
   const { data: agent } = useAgent(agentId);
 
+  // RLS hides super-admin agents, so their messages resolve to no agent row.
+  if (!agent) return null;
+
   if (display === "picture-left" || display === "picture-right") {
     return (
       <AvatarComponent
-        src={agent?.picture}
-        fallback={agent?.name.charAt(0) || "A"}
+        src={agent.picture}
+        fallback={agent.name.charAt(0) || "A"}
         size={28}
         className={
           `${(color && AVATAR_BG_COLORS[color]) || ""} absolute text-foreground border border-border -top-[0.25px]` +
@@ -321,7 +324,7 @@ function Avatar({
       <div
         className={`text-[12.8px] p-[6px] pb-0 ${(color && AVATAR_TEXT_COLORS[color]) || ""}`}
       >
-        {agent?.name || "?"}
+        {agent.name}
       </div>
     );
   }

@@ -7,6 +7,7 @@ import { useOrganizationAddress } from "@/queries/useOrganizationsAddresses";
 import { useFacebookDisconnect } from "@/queries/useFacebookSignup";
 import { useCurrentAgent } from "@/queries/useAgents";
 import type { FacebookOrganizationAddressExtra } from "@/supabase/client";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute(
   "/_auth/integrations/facebook/$orgAddressId/",
@@ -24,7 +25,7 @@ function FacebookAddressDetail() {
 
   if (!integration) return;
 
-  const isOwner = agent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(agent?.extra?.role);
   const extra = integration.extra as
     | FacebookOrganizationAddressExtra
     | undefined;

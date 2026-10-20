@@ -8,6 +8,7 @@ import useBoundStore from "@/stores/useBoundStore";
 import Button from "@/components/Button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
+import { isOwnerRole } from "@/utils/roles";
 
 export default function WhatsAppIntegration({
   onSuccess,
@@ -25,7 +26,7 @@ export default function WhatsAppIntegration({
   );
   const [error, setError] = useState<string | null>(null);
   const { data: agent } = useCurrentAgent();
-  const isOwner = agent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(agent?.extra?.role);
   // The Facebook SDK loads asynchronously from connect.facebook.net, which is
   // commonly blocked by tracking protection / ad blockers. If it fails to load,
   // show the error up front instead of a button that cannot work.

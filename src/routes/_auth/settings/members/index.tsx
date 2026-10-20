@@ -6,6 +6,7 @@ import SectionItem from "@/components/SectionItem";
 import Avatar from "@/components/Avatar";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/members/")({
   component: ListMembers,
@@ -16,9 +17,10 @@ function ListMembers() {
   const navigate = useNavigate();
   const { data: agents } = useCurrentAgents();
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
 
   const roles: Record<string, string> = {
+    super_admin: t("Super admin"),
     owner: t("Owner"),
     admin: t("Administrator"),
     member: t("Member"),

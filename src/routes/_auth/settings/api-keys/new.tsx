@@ -9,6 +9,7 @@ import SectionBody from "@/components/SectionBody";
 import Button from "@/components/Button";
 import type { ApiKeyInsert } from "@/supabase/client";
 import SelectField from "@/components/SelectField";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/api-keys/new")({
   component: AddApiKey,
@@ -19,7 +20,7 @@ function AddApiKey() {
   const navigate = useNavigate();
   const createApiKey = useCreateApiKey();
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
 
   const {
     register,

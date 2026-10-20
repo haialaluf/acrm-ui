@@ -6,6 +6,7 @@ import { useCurrentAgent } from "@/queries/useAgents";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus, Webhook } from "lucide-react";
+import { isAdminRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/webhooks/")({
   component: ListWebhooks,
@@ -16,7 +17,7 @@ function ListWebhooks() {
   const navigate = useNavigate();
   const { data: webhooks } = useWebhooks();
   const { data: currentAgent } = useCurrentAgent();
-  const isAdmin = ["admin", "owner"].includes(currentAgent?.extra?.role || "");
+  const isAdmin = isAdminRole(currentAgent?.extra?.role);
 
   return (
     <>

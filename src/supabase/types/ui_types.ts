@@ -10,7 +10,7 @@
 // Narrowed insert/update shapes for the human-agent `extra` column, used by the
 // members forms. The API has no insert/update variants of HumanAgentExtra.
 export type HumanAgentExtraInsert = {
-  role: "member" | "admin" | "owner";
+  role: "member" | "admin" | "owner" | "super_admin";
   invitation?: {
     organization_name: string;
     email: string;
@@ -19,7 +19,7 @@ export type HumanAgentExtraInsert = {
 };
 
 export type HumanAgentExtraUpdate = {
-  role?: "member" | "admin" | "owner";
+  role?: "member" | "admin" | "owner" | "super_admin";
   invitation?: {
     organization_name?: string;
     email?: string;

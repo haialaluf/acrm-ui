@@ -13,6 +13,7 @@ import SectionFooter from "@/components/SectionFooter";
 import { useCurrentAgent } from "@/queries/useAgents";
 import Button from "@/components/Button";
 import SelectField from "@/components/SelectField";
+import { isAdminRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/webhooks/$webhookId")({
   component: EditWebhook,
@@ -24,7 +25,7 @@ function EditWebhook() {
   const { webhookId } = Route.useParams();
   const { data: webhook } = useWebhook(webhookId);
   const { data: currentAgent } = useCurrentAgent();
-  const isAdmin = ["admin", "owner"].includes(currentAgent?.extra?.role || "");
+  const isAdmin = isAdminRole(currentAgent?.extra?.role);
   const updateWebhook = useUpdateWebhook();
   const deleteWebhook = useDeleteWebhook();
 

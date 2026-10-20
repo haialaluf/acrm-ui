@@ -2593,7 +2593,7 @@ export type Database = {
       appointment_status: "scheduled" | "confirmed" | "cancelled" | "completed"
       direction: "incoming" | "outgoing" | "internal"
       log_level: "info" | "warning" | "error"
-      role: "owner" | "admin" | "member"
+      role: "owner" | "admin" | "member" | "super_admin"
       service:
         | "whatsapp"
         | "instagram"
@@ -3292,7 +3292,7 @@ export const Constants = {
       appointment_status: ["scheduled", "confirmed", "cancelled", "completed"],
       direction: ["incoming", "outgoing", "internal"],
       log_level: ["info", "warning", "error"],
-      role: ["owner", "admin", "member"],
+      role: ["owner", "admin", "member", "super_admin"],
       service: [
         "whatsapp",
         "instagram",

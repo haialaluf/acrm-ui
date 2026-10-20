@@ -17,7 +17,7 @@ function AgentName({ agentId }: { agentId: string }) {
   // Your own message reads as "You", the way WhatsApp labels it.
   if (agentId === currentAgent?.id) return <>{t("You")}</>;
 
-  return <>{agent?.name || "?"}</>;
+  return agent ? <>{agent.name}</> : <OrganizationName />;
 }
 
 function ContactName({ address }: { address: string }) {

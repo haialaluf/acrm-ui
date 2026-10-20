@@ -27,6 +27,7 @@ import {
   resolveTimezone,
 } from "@/utils/calendar";
 import { NO_DEFAULT_AGENT, type OrganizationUpdate } from "@/supabase/client";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/organization/")({
   beforeLoad: () => {
@@ -46,7 +47,7 @@ function EditOrganization() {
   const { data: org } = useCurrentOrganization();
   const { data: agent } = useCurrentAgent();
   const { data: agents } = useCurrentAgents();
-  const isOwner = agent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(agent?.extra?.role);
 
   // Back-office and personal-assistant agents are excluded: this picker is
   // who answers a contact by default, which neither kind can ever do

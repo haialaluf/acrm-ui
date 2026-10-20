@@ -34,6 +34,7 @@ import {
   indexByChannelId,
 } from "@/utils/messageRefs";
 import Spinner from "./Spinner";
+import { isAdminRole, isGhost } from "@/utils/roles";
 
 /** Rough height of a text bubble; every row is measured after its first paint. */
 const ESTIMATED_ROW_HEIGHT = 72;
@@ -121,7 +122,8 @@ export default function Chat() {
 
   const { data: agent } = useCurrentAgent();
   const activeAgentId = agent?.id;
-  const isAdmin = ["admin", "owner"].includes(agent?.extra?.role || "");
+  const isAdmin = isAdminRole(agent?.extra?.role);
+  const isGhostViewer = isGhost(agent?.extra?.role);
 
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -179,7 +181,8 @@ export default function Chat() {
       : undefined;
 
     // Tool traces and agent notes never reach a channel — no affordance at all.
-    if (message.direction === "internal" || !conv) return { reactions };
+    if (message.direction === "internal" || !conv || isGhostViewer)
+      return { reactions };
 
     const reactDisabledReason = ![
       "whatsapp",
@@ -217,7 +220,7 @@ export default function Chat() {
   /** Whether this bubble can be replied to, or why it cannot. */
   function replyProps(message: MessageRow) {
     // Tool traces and agent notes never reach a channel — no affordance at all.
-    if (message.direction === "internal" || !conv) return {};
+    if (message.direction === "internal" || !conv || isGhostViewer) return {};
 
     /* Instagram is deliberately absent: the dispatcher has no way to attach a
        quote to an Instagram send (the Instagram-with-Instagram-Login messaging
@@ -622,6 +625,7 @@ export default function Chat() {
   }
 
   useEffect(() => {
+    if (isGhostViewer) return;
     if (!activeThreadKey || !convIds?.length || !newestIncomingId) return;
 
     const mark = () => {
@@ -639,7 +643,7 @@ export default function Chat() {
 
     return () => document.removeEventListener("visibilitychange", mark);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeThreadKey, newestIncomingId, convIds]);
+  }, [activeThreadKey, newestIncomingId, convIds, isGhostViewer]);
 
   /* The composer's reply bar grows the footer and so shrinks this scroller,
      which the browser absorbs by leaving scrollTop alone — the newest message

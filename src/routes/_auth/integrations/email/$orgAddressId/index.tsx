@@ -19,6 +19,7 @@ import type {
   EmailDnsRecord,
   EmailOrganizationAddressExtra,
 } from "@/supabase/client";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute(
   "/_auth/integrations/email/$orgAddressId/",
@@ -124,7 +125,7 @@ function EmailDomainDetail() {
 
   if (!integration) return;
 
-  const isOwner = agent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(agent?.extra?.role);
   const extra = integration.extra as EmailOrganizationAddressExtra | undefined;
   const domain = integration.address;
   const records = withInboundRecord(extra?.dns_records ?? [], domain, extra);

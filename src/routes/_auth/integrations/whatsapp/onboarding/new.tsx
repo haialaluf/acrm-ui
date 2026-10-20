@@ -8,6 +8,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useCreateOnboardingToken } from "@/queries/useOnboardingTokens";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useForm } from "react-hook-form";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute(
   "/_auth/integrations/whatsapp/onboarding/new",
@@ -27,7 +28,7 @@ function NewOnboardingToken() {
   const navigate = useNavigate();
   const createToken = useCreateOnboardingToken("whatsapp");
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
 
   const { control, register, handleSubmit } = useForm<FormValues>({
     defaultValues: {

@@ -6,6 +6,7 @@ import { useCurrentAgent } from "@/queries/useAgents";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Key, Plus } from "lucide-react";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/api-keys/")({
   component: ListApiKeys,
@@ -16,7 +17,7 @@ function ListApiKeys() {
   const navigate = useNavigate();
   const { data: apiKeys } = useApiKeys();
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
 
   const roles: Record<string, string> = {
     owner: t("Owner"),

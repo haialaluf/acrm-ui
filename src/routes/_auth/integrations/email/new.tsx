@@ -7,6 +7,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useConnectEmailDomain } from "@/queries/useEmailDomain";
 import { useForm } from "react-hook-form";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/integrations/email/new")({
   component: EmailNew,
@@ -21,7 +22,7 @@ function EmailNew() {
   const navigate = useNavigate();
   const connect = useConnectEmailDomain();
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
 
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: { domain: "" },

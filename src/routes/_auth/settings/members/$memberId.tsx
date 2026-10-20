@@ -20,6 +20,7 @@ import { Bell } from "lucide-react";
 import Button from "@/components/Button";
 import SelectField from "@/components/SelectField";
 import { queryKeys } from "@/queries/queryKeys";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/members/$memberId")({
   component: EditMember,
@@ -32,7 +33,7 @@ function EditMember() {
   const { data: agent } = useAgent<HumanAgentRow>(memberId);
   const { data: allAgents } = useCurrentAgents(); // Fetch all agents to check for owners
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
   const isMe = currentAgent?.id === memberId;
   const setActiveOrg = useBoundStore((state) => state.ui.setActiveOrg);
   const queryClient = useQueryClient();

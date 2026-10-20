@@ -17,6 +17,7 @@ import FaqSection from "@/components/FaqSection";
 import ResourcesSection from "@/components/ResourcesSection";
 import SwitchField from "@/components/SwitchField";
 import { MODEL_OPTIONS } from "@/models/catalog";
+import { isAdminRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/agents/new")({
   component: AddAgent,
@@ -27,7 +28,7 @@ function AddAgent() {
   const navigate = useNavigate();
   const createAgent = useCreateAgent();
   const { data: currentAgent } = useCurrentAgent();
-  const isAdmin = ["admin", "owner"].includes(currentAgent?.extra?.role || "");
+  const isAdmin = isAdminRole(currentAgent?.extra?.role);
 
   const {
     register,
