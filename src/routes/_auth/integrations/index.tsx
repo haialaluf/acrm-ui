@@ -45,7 +45,12 @@ function IntegrationsIndex() {
 
   return (
     <>
-      <SectionHeader title={t("Integrations")} />
+      <SectionHeader
+        title={t("Integrations")}
+        onBack={() =>
+          navigate({ to: "/settings", hash: (prevHash) => prevHash! })
+        }
+      />
       <SectionBody className="gap-4">
         {onboardingStep === "integration" && (
           <NoIntegrationNotice invitationLink={hasInvitations} />

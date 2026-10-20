@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { MoreHorizontal, Plus, Search } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, Plus, Search } from "lucide-react";
 import { Dropdown, Switch } from "antd";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgents } from "@/queries/useAgents";
@@ -109,9 +109,21 @@ export default function AutomationsList() {
           often only ~350px wide, which is what squeezed the search field down
           to its icon. */}
       <div className="shrink-0 px-[18px] pt-[18px]">
-        <h1 className="m-0 text-[21px] font-semibold text-card-foreground">
-          {t("Automations")}
-        </h1>
+        <div className="flex items-center">
+          <button
+            type="button"
+            className="p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]"
+            title={t("Back")}
+            onClick={() =>
+              void navigate({ to: "/settings", hash: (prevHash) => prevHash! })
+            }
+          >
+            <ArrowLeft className="w-[24px] h-[24px]" />
+          </button>
+          <h1 className="m-0 text-[21px] font-semibold text-card-foreground">
+            {t("Automations")}
+          </h1>
+        </div>
         <p className="mt-[5px] text-[13px] text-muted-foreground">
           {t(
             "Flows that run on their own - when something happens, before a date, or on a schedule.",

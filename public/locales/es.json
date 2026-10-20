@@ -1569,7 +1569,7 @@
   "Or create a new organization": "O crea una nueva organización",
   "Create a new organization to get started.": "Crea una nueva organización para empezar.",
   "Does your organization already exist?": "¿Tu organización ya existe?",
-  "Don't create another one — ask your organization's administrator to send an invitation to your email address. It will appear here as soon as it's sent.": "No crees otra: pide al administrador de tu organización que envíe una invitación a tu correo electrónico. Aparecerá aquí en cuanto la envíe.",
+  "Don't create another one - ask your organization's administrator to send an invitation to your email address. It will appear here as soon as it's sent.": "No crees otra: pide al administrador de tu organización que envíe una invitación a tu correo electrónico. Aparecerá aquí en cuanto la envíe.",
   "Copy email": "Copiar correo",
   "Connect your first integration": "Conecta tu primera integración",
   "{{1}} isn't connected to any platform yet. Connect a channel or a lead source to start receiving messages and leads — the rest of the app opens up as soon as one is connected.": "{{1}} todavía no está conectada a ninguna plataforma. Conecta un canal o una fuente de leads para empezar a recibir mensajes y leads: el resto de la aplicación se habilita en cuanto conectes uno.",

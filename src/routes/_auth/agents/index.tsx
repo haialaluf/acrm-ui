@@ -28,7 +28,12 @@ function ListAgents() {
 
   return (
     <>
-      <SectionHeader title={t("Agents")} />
+      <SectionHeader
+        title={t("Agents")}
+        onBack={() =>
+          navigate({ to: "/settings", hash: (prevHash) => prevHash! })
+        }
+      />
 
       <SectionBody>
         <SectionItem

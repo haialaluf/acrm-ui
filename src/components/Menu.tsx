@@ -7,8 +7,6 @@ import {
   LogOut,
   Settings,
   MessageSquareText,
-  Unplug,
-  Bot,
   BarChart3,
   Languages,
   Plus,
@@ -17,7 +15,6 @@ import {
   CalendarDays,
   ChevronRight,
   Megaphone,
-  Workflow,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { LinkButton } from "./LinkButton";
@@ -27,6 +24,15 @@ import { Dropdown } from "antd";
 import { useOrganizations } from "@/queries/useOrganizations";
 import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 import { useOnboarding } from "@/hooks/useOnboarding";
+
+// Sections reached from the Settings page rather than their own menu button,
+// so the Settings button stays highlighted while inside any of them.
+const SETTINGS_SECTIONS = [
+  "/settings",
+  "/agents",
+  "/automations",
+  "/integrations",
+];
 
 export default function Menu() {
   const user = useBoundStore((state) => state.ui.user);
@@ -59,8 +65,7 @@ export default function Menu() {
       {/* Upper section */}
       <div className="flex flex-col items-center">
         {/* While onboarding only the sections `useOnboarding` names are
-            shown. Otherwise Messages, Agents, Integrations and Statistics are
-            never hidden; the rest name a surface, and why each one requires what it does is
+            shown. Otherwise Messages and Statistics are never hidden; the rest name a surface, and why each one requires what it does is
             written once in the SURFACES table. The shell redirects on those
             same rows, so a button can never point at a route that would only
             bounce back. */}
@@ -122,26 +127,6 @@ export default function Menu() {
             </HideIfNotPermitted>
 
             <LinkButton
-              to="/agents"
-              title={t("Agents")}
-              isActive={pathname.startsWith("/agents")}
-              className="mt-[10px]"
-            >
-              <Bot className="w-[24px] h-[24px] stroke-[2]" />
-            </LinkButton>
-
-            <HideIfNotPermitted surface="/automations">
-              <LinkButton
-                to="/automations"
-                title={t("Automations")}
-                isActive={pathname.startsWith("/automations")}
-                className="mt-[10px]"
-              >
-                <Workflow className="w-[24px] h-[24px] stroke-[2]" />
-              </LinkButton>
-            </HideIfNotPermitted>
-
-            <LinkButton
               to="/stats"
               title={t("Statistics")}
               isActive={pathname.startsWith("/stats")}
@@ -151,17 +136,6 @@ export default function Menu() {
             </LinkButton>
           </>
         )}
-
-        {shows("/integrations") && (
-          <LinkButton
-            to="/integrations"
-            title={t("Integrations")}
-            isActive={pathname.startsWith("/integrations")}
-            className="mt-[10px]"
-          >
-            <Unplug className="w-[24px] h-[24px] stroke-[2]" />
-          </LinkButton>
-        )}
       </div>
       {/* Lower section */}
       <div className="flex flex-col items-center">
@@ -169,7 +143,9 @@ export default function Menu() {
           <LinkButton
             to="/settings"
             title={t("Settings")}
-            isActive={pathname.startsWith("/settings")}
+            isActive={SETTINGS_SECTIONS.some((section) =>
+              pathname.startsWith(section),
+            )}
             className="mt-[10px]"
           >
             <Settings className="w-[20px] h-[20px] stroke-[2]" />
