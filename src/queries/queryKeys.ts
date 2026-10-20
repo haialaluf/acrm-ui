@@ -54,6 +54,8 @@ export const queryKeys = {
       [orgId, "contacts", contactId, "notes"] as const,
     files: (orgId: NullableId, contactId: NullableId) =>
       [orgId, "contacts", contactId, "files"] as const,
+    caseSummary: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "contacts", contactId, "case-summary"] as const,
     chatFiles: (
       orgId: NullableId,
       contactId: NullableId,

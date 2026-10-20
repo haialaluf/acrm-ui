@@ -64,6 +64,7 @@ import InstagramAddressPicker, {
 import ContactActivityTab from "@/components/contacts/ContactActivityTab";
 import ContactLeadTab from "@/components/contacts/ContactLeadTab";
 import ContactNotesTab from "@/components/contacts/ContactNotesTab";
+import CaseSummaryTab from "@/components/therapy/CaseSummaryTab";
 import RemovedBadge from "@/components/contacts/RemovedBadge";
 import ContactSessionsTab from "@/components/contacts/ContactSessionsTab";
 import ContactFilesTab from "@/components/contacts/ContactFilesTab";
@@ -74,13 +75,27 @@ import { threadKey } from "@/utils/ConversationUtils";
 
 type ContactFormValues = ContactWithAddressesUpdate;
 
-type Tab = "details" | "sessions" | "notes" | "files" | "activity" | "lead";
+type Tab =
+  | "details"
+  | "summary"
+  | "sessions"
+  | "notes"
+  | "files"
+  | "activity"
+  | "lead";
 
 const COMPANY_TABS: Tab[] = ["details", "notes", "activity", "lead"];
-const THERAPY_TABS: Tab[] = ["details", "sessions", "notes", "files"];
+const THERAPY_TABS: Tab[] = [
+  "details",
+  "summary",
+  "sessions",
+  "notes",
+  "files",
+];
 
 const TAB_LABELS: Record<Tab, string> = {
   details: "Details",
+  summary: "Summary",
   sessions: "Sessions",
   notes: "Notes",
   files: "Files",
@@ -707,6 +722,19 @@ function ContactDetail() {
               )}
             </form>
 
+            {tab === "summary" && (
+              <CaseSummaryTab
+                contact={contact}
+                onOpenSource={(source) =>
+                  source.kind === "report"
+                    ? void navigate({
+                        to: "/contacts/$contactId/reports/$reportId",
+                        params: { contactId: contact.id, reportId: source.id },
+                      })
+                    : setTab(source.kind === "note" ? "notes" : "files")
+                }
+              />
+            )}
             {tab === "sessions" && <ContactSessionsTab contact={contact} />}
             {tab === "notes" && <ContactNotesTab contact={contact} />}
             {tab === "files" && <ContactFilesTab contact={contact} />}

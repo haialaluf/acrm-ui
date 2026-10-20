@@ -71,7 +71,9 @@ export default function ContactNotesTab({
         {isTherapy ? (
           <>
             <Lock className="w-[14px] h-[14px]" />
-            {t("Private to your clinic. Not shared with any AI.")}
+            {t(
+              "Private to your clinic. Only the patient Ask AI reads them; your AI agents never do.",
+            )}
           </>
         ) : (
           <>
