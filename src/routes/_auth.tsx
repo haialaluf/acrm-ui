@@ -55,11 +55,6 @@ function AppLayout() {
   const isGhostViewer = isGhost(currentAgent?.extra?.role);
   const hasAiAgents = agents?.some((a) => a.ai);
   const { allows, isResolved } = useAccess();
-  // The one surface read inverted: this card exists *because* nothing is
-  // connected. Gated on `isResolved` too, so an organization that turns out to
-  // have everything connected is not shown it for a frame on every load.
-  const needsIntegrations =
-    isResolved && !allows("app.connected") && !!activeOrgId;
   const activeThreadKey = useBoundStore((state) => state.ui.activeThreadKey);
   const panelExpanded = useBoundStore((state) => state.ui.panelExpanded);
   const setActiveThread = useBoundStore((state) => state.ui.setActiveThread);
@@ -289,31 +284,14 @@ function AppLayout() {
             </>
           ) : (
             <div className="flex gap-[32px] items-center justify-center h-full">
-              {onboarding.step === "organization" &&
-                pathname === NEW_ORGANIZATION_PATH && (
-                  <OnboardingHint
-                    icon={<Building2 className="w-[24px] h-[24px]" />}
-                    title={t("Create your organization")}
-                    description={t(
-                      "Fill in a name and an address in the form beside, and you can start connecting channels and inviting your team.",
-                    )}
-                  />
-                )}
-              {onboarding.step === "integration" &&
-                pathname === "/integrations" && (
-                  <OnboardingHint
-                    icon={<Unplug className="w-[24px] h-[24px]" />}
-                    title={t("Connect your first integration")}
-                    description={t(
-                      "Pick a channel or a lead source from the list beside to start receiving messages and leads.",
-                    )}
-                  />
-                )}
-              {!activeOrgId && pathname !== NEW_ORGANIZATION_PATH && (
-                <ActionCard
+              {!activeOrgId && (
+                <OnboardingHint
                   icon={<Building2 className="w-[24px] h-[24px]" />}
-                  title={t("Create organization")}
-                  to="/settings/organization/new"
+                  title={t("Create your organization")}
+                  description={t(
+                    "Give it a name and an address, and you can start connecting channels and inviting your team.",
+                  )}
+                  to={NEW_ORGANIZATION_PATH}
                 />
               )}
               {activeOrgId && (
@@ -340,17 +318,17 @@ function AppLayout() {
                   )}
                   {/* Names no particular integration - a card that said
                     "Configure WhatsApp" would be advertising a channel to
-                    someone who may want any of the other five. Suppressed on
-                    /integrations itself, where the list beside it is already the
-                    answer and the card would only point at the current page. */}
-                  {needsIntegrations &&
-                    !pathname.startsWith("/integrations") && (
-                      <ActionCard
-                        icon={<Unplug className="w-[24px] h-[24px]" />}
-                        title={t("Integrations")}
-                        to="/integrations"
-                      />
-                    )}
+                    someone who may want any of the other five. */}
+                  {onboarding.step === "integration" && (
+                    <OnboardingHint
+                      icon={<Unplug className="w-[24px] h-[24px]" />}
+                      title={t("Connect your first integration")}
+                      description={t(
+                        "Connect a channel or a lead source to start receiving messages and leads.",
+                      )}
+                      to="/integrations"
+                    />
+                  )}
                 </>
               )}
             </div>
