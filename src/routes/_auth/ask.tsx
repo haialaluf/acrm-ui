@@ -97,7 +97,7 @@ function PracticeAsk() {
         <span className="text-[12px] px-[9px] py-[2px] rounded-full bg-muted text-muted-foreground">
           {t("Your whole clinic")}
         </span>
-        {isTherapy && <ClinicAiPrivacyButton />}
+        {isTherapy && <ClinicAiPrivacyButton scope="clinic" />}
       </div>
       {isTherapy ? (
         <AiChat
@@ -105,7 +105,7 @@ function PracticeAsk() {
           layout="split"
           contextLabel={t("All patients")}
           canAttach={false}
-          emptyNote={<ClinicAiPrivacySummary />}
+          emptyNote={<ClinicAiPrivacySummary scope="clinic" />}
           emptyTitle={t("Ask about your clinic…")}
           suggestions={[
             t("Who hasn't paid this month?"),

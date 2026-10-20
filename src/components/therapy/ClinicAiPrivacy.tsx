@@ -113,24 +113,37 @@ export function ClinicAiPrivacyNote({ scope }: { scope: AskAiScope }) {
   );
 }
 
-export function ClinicAiPrivacySummary() {
+export function ClinicAiPrivacySummary({ scope }: { scope: AskAiScope }) {
   const { translate: t } = useTranslation();
   return (
     <div className="flex gap-[10px] text-start text-[12px] leading-[1.5] text-muted-foreground">
       <ShieldCheck className="w-[16px] h-[16px] mt-[1px] text-primary shrink-0" />
-      <div>
-        <span className="text-card-foreground">
+      {scope === "patient" ? (
+        <div>
+          <span className="text-card-foreground">
+            {t(
+              "Sees this patient's whole record: details, sessions, payments, notes, reports, files and messages.",
+            )}
+          </span>{" "}
+          {t("Never other patients. Each question is logged.")}
+        </div>
+      ) : (
+        <div>
+          <span className="text-card-foreground">
+            {t(
+              "Sees only names, session times, payments and which reports are approved.",
+            )}
+          </span>{" "}
           {t(
-            "Sees only names, session times, payments and which reports are approved.",
+            "Never notes, report content, files, messages or contact details.",
           )}
-        </span>{" "}
-        {t("Never notes, report content, files, messages or contact details.")}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
 
-export function ClinicAiPrivacyButton() {
+export function ClinicAiPrivacyButton({ scope }: { scope: AskAiScope }) {
   const { translate: t } = useTranslation();
   const { open, toggle, ref } = usePopover();
   return (
@@ -148,7 +161,7 @@ export function ClinicAiPrivacyButton() {
       </button>
       {open && (
         <div className={`${PANEL} top-[calc(100%+6px)] end-0`}>
-          <ClinicAiPrivacyNote scope="clinic" />
+          <ClinicAiPrivacyNote scope={scope} />
         </div>
       )}
     </div>

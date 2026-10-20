@@ -12,6 +12,8 @@ import {
   AskAiSwedenModel,
   type AskAiSpeed,
   ClinicAiLocationChip,
+  ClinicAiPrivacyButton,
+  ClinicAiPrivacySummary,
   useAskAiInSweden,
 } from "./ClinicAiPrivacy";
 import { usePatientAnswers } from "./patientAnswers";
@@ -48,10 +50,11 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
           />
           <span className="truncate">{contact.name}</span>
         </span>
+        <ClinicAiPrivacyButton scope="patient" />
         <button
           type="button"
           title={t("Close")}
-          className="ms-auto w-[34px] h-[34px] rounded-full flex items-center justify-center hover:bg-accent"
+          className="w-[34px] h-[34px] rounded-full flex items-center justify-center hover:bg-accent"
           onClick={() =>
             void navigate({
               to: "/contacts/$contactId",
@@ -69,6 +72,7 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
         layout="split"
         contextLabel={`${name}'s record`}
         emptyTitle={`${t("Ask anything about")} ${name}…`}
+        emptyNote={<ClinicAiPrivacySummary scope="patient" />}
         suggestions={[
           t("Prepare me for the next session"),
           t("Summarize all sessions so far"),
