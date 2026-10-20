@@ -28,6 +28,8 @@ import CalendarCenter from "@/components/calendar/CalendarCenter";
 import BroadcastCenter from "@/components/broadcasts/BroadcastCenter";
 import LiveMessagePreview from "@/components/messagePreview/LiveMessagePreview";
 import PlanLimitBanner from "@/components/PlanLimitBanner";
+import OnboardingHint from "@/components/OnboardingHint";
+import { NEW_ORGANIZATION_PATH, useOnboarding } from "@/hooks/useOnboarding";
 
 export const Route = createFileRoute("/_auth")({
   component: AppLayout,
@@ -107,8 +109,8 @@ function AppLayout() {
    * is unmet. Enforced around the one `<Outlet />` rather than route by route,
    * so a new route cannot forget to guard itself.
    *
-   * The no-organization case is never gated: there is nothing to connect yet,
-   * and the center panel below already answers it with "Create organization".
+   * The no-organization case is never gated here: there is nothing to connect
+   * yet, and `redirectForOnboarding` sends it to its own onboarding pages.
    */
   const gatedSection = GATED_SECTIONS.find((prefix) =>
     pathname.startsWith(prefix),
@@ -119,6 +121,10 @@ function AppLayout() {
   // later is exactly the flash the gates elsewhere exist to prevent. Only the
   // gated sections wait; everything else renders immediately.
   const holdingForIntegrations = !!activeOrgId && !isResolved && !!gatedSection;
+
+  const onboarding = useOnboarding();
+  const redirectForOnboarding =
+    onboarding.isResolved && !onboarding.isAllowedPath(pathname);
 
   const [isHoveringFiles, setIsHoveringFiles] = useState(false);
 
@@ -205,7 +211,13 @@ function AppLayout() {
             (showCenterPanel ? "hidden md:flex" : "flex")
           }
         >
-          {blockedForNoIntegrations ? (
+          {redirectForOnboarding ? (
+            <Navigate
+              to={onboarding.homePath}
+              hash={(prevHash) => prevHash!}
+              replace
+            />
+          ) : blockedForNoIntegrations ? (
             <Navigate
               to="/integrations"
               hash={(prevHash) => prevHash!}
@@ -277,7 +289,27 @@ function AppLayout() {
             </>
           ) : (
             <div className="flex gap-[32px] items-center justify-center h-full">
-              {!activeOrgId && (
+              {onboarding.step === "organization" &&
+                pathname === NEW_ORGANIZATION_PATH && (
+                  <OnboardingHint
+                    icon={<Building2 className="w-[24px] h-[24px]" />}
+                    title={t("Create your organization")}
+                    description={t(
+                      "Fill in a name and an address in the form beside, and you can start connecting channels and inviting your team.",
+                    )}
+                  />
+                )}
+              {onboarding.step === "integration" &&
+                pathname === "/integrations" && (
+                  <OnboardingHint
+                    icon={<Unplug className="w-[24px] h-[24px]" />}
+                    title={t("Connect your first integration")}
+                    description={t(
+                      "Pick a channel or a lead source from the list beside to start receiving messages and leads.",
+                    )}
+                  />
+                )}
+              {!activeOrgId && pathname !== NEW_ORGANIZATION_PATH && (
                 <ActionCard
                   icon={<Building2 className="w-[24px] h-[24px]" />}
                   title={t("Create organization")}
@@ -288,14 +320,14 @@ function AppLayout() {
                 <>
                   {/* An agent with no channel to answer on has nothing to do, so
                     connecting comes first. */}
-                  {!hasAiAgents && (
+                  {!onboarding.step && !hasAiAgents && (
                     <ActionCard
                       icon={<Bot className="w-[24px] h-[24px]" />}
                       title={t("Create agent")}
                       to="/agents/new"
                     />
                   )}
-                  {hasAiAgents && (
+                  {!onboarding.step && hasAiAgents && (
                     <HideIfNotPermitted surface="home.startConversation">
                       <ActionCard
                         icon={

@@ -53,13 +53,11 @@ export default function SectionItem({
       }
       onClick={isDisabled ? undefined : onClick}
     >
-      {/* Left Pane: Avatar/Icon */}
-      <div className="pl-[10px] pr-[15px] flex items-center">{aside}</div>
+      <div className="ps-[10px] pe-[15px] flex items-center">{aside}</div>
 
-      {/* Right Pane: Content */}
       <div
         className={`flex flex-col justify-center grow min-w-0 ${
-          actions ? "pr-[6px]" : "pr-[15px]"
+          actions ? "pe-[6px]" : "pe-[15px]"
         }`}
       >
         {/* Upper Row: Title */}

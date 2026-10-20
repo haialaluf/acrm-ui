@@ -64,7 +64,9 @@ type ExhaustiveSurfaces = Record<
 export const SURFACES = {
   // ── Sections ───────────────────────────────────────────────────────────
   // Read by the nav rail (which hides the button) and by the shell (which
-  // redirects). Every section NOT listed is always reachable, deliberately:
+  // redirects). With nothing connected at all, `useOnboarding` narrows the
+  // whole app to Integrations and Settings first; past that, every section
+  // NOT listed is always reachable, deliberately:
   //   /conversations — message history outlives the connection that produced
   //     it, and burying a year of customer threads behind a disconnect is
   //     worse than an inbox you cannot currently send from.

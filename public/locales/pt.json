@@ -1290,5 +1290,20 @@
   "Calendar address (iCal)": "Endereço da agenda (iCal)",
   "Copy calendar address (iCal)": "Copiar endereço da agenda (iCal)",
   "Create a link to add this calendar to your iPhone, iPad or Mac, or to view it in Google Calendar. Appointments you add on your phone appear here, and the other way round.": "Crie um link para adicionar este calendário ao seu iPhone, iPad ou Mac, ou para vê-lo no Google Agenda. Os compromissos que você adicionar no celular aparecem aqui, e vice-versa.",
-  "Every device and Google Calendar already using this link will stop syncing and has to be connected again.": "Todos os dispositivos e o Google Agenda que já usam este link vão parar de sincronizar e precisarão ser conectados de novo."
+  "Every device and Google Calendar already using this link will stop syncing and has to be connected again.": "Todos os dispositivos e o Google Agenda que já usam este link vão parar de sincronizar e precisarão ser conectados de novo.",
+  "You're not part of any organization yet": "Você ainda não faz parte de nenhuma organização",
+  "You've been invited to join an organization. Accept the invitation to get started.": "Você foi convidado para participar de uma organização. Aceite o convite para começar.",
+  "Or create a new organization": "Ou crie uma nova organização",
+  "Create a new organization to get started.": "Crie uma nova organização para começar.",
+  "Does your organization already exist?": "Sua organização já existe?",
+  "Don't create another one — ask your organization's administrator to send an invitation to your email address. It will appear here as soon as it's sent.": "Não crie outra — peça ao administrador da sua organização que envie um convite para o seu e-mail. Ele aparecerá aqui assim que for enviado.",
+  "Copy email": "Copiar e-mail",
+  "Connect your first integration": "Conecte sua primeira integração",
+  "{{1}} isn't connected to any platform yet. Connect a channel or a lead source to start receiving messages and leads — the rest of the app opens up as soon as one is connected.": "{{1}} ainda não está conectada a nenhuma plataforma. Conecte um canal ou uma fonte de leads para começar a receber mensagens e leads — o restante do app é liberado assim que um for conectado.",
+  "Go to integrations": "Ir para integrações",
+  "You've also been invited to join another organization.": "Você também foi convidado para participar de outra organização.",
+  "View invitation": "Ver convite",
+  "Create your organization": "Crie sua organização",
+  "Fill in a name and an address in the form beside, and you can start connecting channels and inviting your team.": "Preencha um nome e um endereço no formulário ao lado e você poderá começar a conectar canais e convidar sua equipe.",
+  "Pick a channel or a lead source from the list beside to start receiving messages and leads.": "Escolha um canal ou uma fonte de leads na lista ao lado para começar a receber mensagens e leads."
 }

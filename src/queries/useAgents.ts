@@ -31,7 +31,9 @@ export function useAgent<T = AgentRow>(id: string) {
   });
 }
 
-export function useInvitations() {
+export function useInvitations({
+  refetchInterval,
+}: { refetchInterval?: number | false } = {}) {
   const userId = useBoundStore((state) => state.ui.user?.id);
 
   return useQuery({
@@ -47,6 +49,7 @@ export function useInvitations() {
     select: (data) => data.data as HumanAgentRow[],
     experimental_prefetchInRender: true,
     staleTime: CONFIG_STALE_TIME,
+    refetchInterval,
   });
 }
 

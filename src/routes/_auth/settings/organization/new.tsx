@@ -8,6 +8,9 @@ import SectionBody from "@/components/SectionBody";
 import type { OrganizationInsert } from "@/supabase/client";
 import SectionFooter from "@/components/SectionFooter";
 import Button from "@/components/Button";
+import NoOrganizationNotice from "@/components/NoOrganizationNotice";
+import ExistingOrganizationHint from "@/components/ExistingOrganizationHint";
+import { useOnboarding } from "@/hooks/useOnboarding";
 
 export const Route = createFileRoute("/_auth/settings/organization/new")({
   component: NewOrganization,
@@ -18,6 +21,8 @@ function NewOrganization() {
   const navigate = useNavigate();
   const createOrg = useCreateOrganization();
   const setActiveOrg = useBoundStore((state) => state.ui.setActiveOrg);
+  const { step, hasInvitations } = useOnboarding();
+  const hasNoOrganization = step === "organization";
 
   const {
     register,
@@ -27,7 +32,11 @@ function NewOrganization() {
 
   return (
     <>
-      <SectionHeader title={t("New organization")} closeButton={true} />
+      <SectionHeader
+        title={t("New organization")}
+        closeButton={true}
+        hideBackButton={hasNoOrganization}
+      />
 
       <SectionBody>
         <form
@@ -44,6 +53,10 @@ function NewOrganization() {
             ),
           )}
         >
+          {hasNoOrganization && (
+            <NoOrganizationNotice hasInvitations={hasInvitations} />
+          )}
+
           <p>
             {t(
               "Your organization is the workspace where you collaborate with your team.",
@@ -76,6 +89,8 @@ function NewOrganization() {
             />
           </label>
         </form>
+
+        {hasNoOrganization && !hasInvitations && <ExistingOrganizationHint />}
       </SectionBody>
 
       <SectionFooter>

@@ -4,6 +4,8 @@ import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Mail, Webhook } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import NoIntegrationNotice from "@/components/NoIntegrationNotice";
 import {
   FacebookFilled,
   InstagramOutlined,
@@ -39,11 +41,15 @@ function GroupLabel({ children }: { children: React.ReactNode }) {
 function IntegrationsIndex() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
+  const { step: onboardingStep, hasInvitations } = useOnboarding();
 
   return (
     <>
       <SectionHeader title={t("Integrations")} />
       <SectionBody className="gap-4">
+        {onboardingStep === "integration" && (
+          <NoIntegrationNotice invitationLink={hasInvitations} />
+        )}
         <div className="flex flex-col">
           <GroupLabel>{t("Channels")}</GroupLabel>
           <SectionItem
