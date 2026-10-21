@@ -28,6 +28,15 @@ import {
 
 export type Answer = Omit<ChatMessage, "id" | "role" | "createdAt">;
 
+/** Where a chat's history is kept: this browser by default, or the server
+ *  (the patient Ask AI). `loaded` is false until a remote list has arrived. */
+export type ChatStore = {
+  chats: ChatThread[];
+  loaded?: boolean;
+  saveChat: (chat: ChatThread) => void;
+  deleteChat: (id: string) => void;
+};
+
 type Props = {
   scope: string;
   contextLabel: string;
@@ -46,6 +55,7 @@ type Props = {
   onCitation?: (citation: Citation) => void;
   onAction?: (message: ChatMessage) => Answer | null;
   renderExtra?: (message: ChatMessage) => ReactNode;
+  store?: ChatStore;
 };
 
 const CITATION_ICONS = {
@@ -283,9 +293,11 @@ export default function AiChat({
   onCitation,
   onAction,
   renderExtra,
+  store: remote,
 }: Props) {
   const { translate: t } = useTranslation();
-  const store = useTherapyStore();
+  const local = useTherapyStore();
+  const store: ChatStore = remote ?? local;
   const threads = store.chats
     .filter((c) => c.scope === scope)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
@@ -302,6 +314,17 @@ export default function AiChat({
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const active = threads.find((c) => c.id === activeId) ?? null;
+
+  // A remote list arrives after the first render; open its newest chat then,
+  // as the browser store does on mount.
+  const opened = useRef(false);
+  useEffect(() => {
+    if (opened.current || store.loaded === false) return;
+    opened.current = true;
+    if (layout === "split" && !activeId && threads[0]) {
+      setActiveId(threads[0].id);
+    }
+  }, [store.loaded, threads, layout, activeId]);
   const inChat = composing || !!active;
 
   useEffect(() => {

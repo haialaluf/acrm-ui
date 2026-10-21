@@ -17,12 +17,14 @@ import {
   useAskAiInSweden,
 } from "./ClinicAiPrivacy";
 import { usePatientAnswers } from "./patientAnswers";
+import { usePatientChats } from "@/queries/usePatientChats";
 import { patientChatScope } from "./therapyStore";
 
 function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
   const { answer, name } = usePatientAnswers(contact);
+  const chats = usePatientChats(contact.id);
   const inSweden = useAskAiInSweden();
   const [speed, setSpeed] = useState<AskAiSpeed>("fast");
 
@@ -69,6 +71,7 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
       <AiChat
         key={contact.id}
         scope={patientChatScope(contact.id)}
+        store={chats}
         layout="split"
         contextLabel={`${name}'s record`}
         emptyTitle={`${t("Ask anything about")} ${name}…`}

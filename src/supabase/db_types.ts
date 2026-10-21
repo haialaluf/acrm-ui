@@ -1993,6 +1993,47 @@ export type Database = {
           },
         ]
       }
+      patient_ask_chats: {
+        Row: {
+          contact_id: string
+          created_at: string
+          data_region: string
+          id: string
+          organization_id: string
+          storage_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          data_region: string
+          id: string
+          organization_id: string
+          storage_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          data_region?: string
+          id?: string
+          organization_id?: string
+          storage_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_ask_chats_contact_id_fkey"
+            columns: ["organization_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
       patient_data_access_log: {
         Row: {
           action: string
