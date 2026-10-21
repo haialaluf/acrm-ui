@@ -5,6 +5,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { useCurrentOrganization } from "@/queries/useOrganizations";
 import AiChat from "@/components/therapy/AiChat";
+import ClinicAiIcon from "@/components/therapy/ClinicAiIcon";
 import { usePracticeAnswers } from "@/components/therapy/practiceAnswers";
 import {
   AskAiSpeedToggle,
@@ -91,8 +92,11 @@ function PracticeAsk() {
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="h-[60px] shrink-0 px-[20px] flex items-center gap-[10px] border-b border-border">
+        <span className="w-[30px] h-[30px] rounded-[10px] bg-accent text-primary flex items-center justify-center">
+          <ClinicAiIcon className="w-[16px] h-[16px]" />
+        </span>
         <div className="text-[18px] font-semibold text-card-foreground">
-          {t("Ask AI")}
+          {t("Clinic AI")}
         </div>
         <span className="text-[12px] px-[9px] py-[2px] rounded-full bg-muted text-muted-foreground">
           {t("Your whole clinic")}
@@ -106,6 +110,7 @@ function PracticeAsk() {
           contextLabel={t("All patients")}
           canAttach={false}
           emptyNote={<ClinicAiPrivacySummary scope="clinic" />}
+          icon={ClinicAiIcon}
           emptyTitle={t("Ask about your clinic…")}
           suggestions={[
             t("Who hasn't paid this month?"),
@@ -148,7 +153,7 @@ function PracticeAsk() {
       ) : (
         org && (
           <div className="p-[24px] text-[14px] text-muted-foreground">
-            {t("Ask AI is part of the Therapy clinic workspace.")}
+            {t("Clinic AI is part of the Therapy clinic workspace.")}
           </div>
         )
       )}

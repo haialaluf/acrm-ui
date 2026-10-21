@@ -429,11 +429,11 @@ function ContactDetail() {
                     ? "bg-primary text-primary-foreground"
                     : "bg-accent text-accent-foreground")
                 }
-                title={t("Ask AI about this patient")}
+                title={t("Ask Patient AI about this patient")}
                 onClick={openAskAi}
               >
                 <Sparkles className="w-[17px] h-[17px]" />
-                {t("Ask AI")}
+                {t("Patient AI")}
               </button>
             )}
             {conversations.data?.length ? (

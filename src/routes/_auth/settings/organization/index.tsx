@@ -316,7 +316,7 @@ function EditOrganization() {
               <SelectField
                 control={control}
                 name="extra.ask_ai_location"
-                label={t("Where Ask AI works out answers")}
+                label={t("Where Clinic AI and Patient AI work out answers")}
                 options={[
                   {
                     value: "eu",
@@ -508,7 +508,7 @@ function EditOrganization() {
             {workspaceType === "therapy" ? (
               <p className="text-muted-foreground text-[14px]">
                 {t(
-                  "Not available in a therapy clinic: patients' voice messages are never sent to an AI, and their files are read only by the patient Ask AI.",
+                  "Not available in a therapy clinic: patients' voice messages are never sent to an AI, and their files are read only by Patient AI.",
                 )}
               </p>
             ) : (

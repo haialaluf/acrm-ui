@@ -42,7 +42,7 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
           <Sparkles className="w-[16px] h-[16px]" />
         </span>
         <div className="text-[16px] font-semibold text-card-foreground">
-          {t("Ask AI")}
+          {t("Patient AI")}
         </div>
         <span className="flex items-center gap-[6px] text-[13px] text-muted-foreground min-w-0">
           <Avatar

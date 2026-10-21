@@ -18,7 +18,6 @@ import {
   ChevronRight,
   Megaphone,
   Workflow,
-  Sparkles,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { LinkButton } from "./LinkButton";
@@ -27,6 +26,7 @@ import { useCurrentAgent } from "@/queries/useAgents";
 import { Dropdown } from "antd";
 import { useOrganizations } from "@/queries/useOrganizations";
 import HideIfNotPermitted from "@/components/HideIfNotPermitted";
+import ClinicAiIcon from "@/components/therapy/ClinicAiIcon";
 import { useWorkspace } from "@/hooks/useWorkspace";
 
 export default function Menu() {
@@ -87,11 +87,11 @@ export default function Menu() {
         {isTherapy && (
           <LinkButton
             to="/ask"
-            title={t("Ask AI")}
+            title={t("Clinic AI")}
             isActive={pathname.startsWith("/ask")}
             className="mt-[10px]"
           >
-            <Sparkles className="w-[24px] h-[24px] stroke-[2]" />
+            <ClinicAiIcon className="w-[24px] h-[24px] stroke-[2]" />
           </LinkButton>
         )}
 

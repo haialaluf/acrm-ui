@@ -15,6 +15,7 @@ import {
   Paperclip,
   Plus,
   Sparkles,
+  type LucideIcon,
   SquarePen,
   Trash2,
   Upload,
@@ -46,6 +47,7 @@ type Props = {
   contextLabel: string;
   emptyTitle: string;
   emptyNote?: ReactNode;
+  icon?: LucideIcon;
   suggestions: string[];
   recordFiles?: string[];
   canAttach?: boolean;
@@ -216,11 +218,13 @@ function AssistantMessage({
   onCitation,
   onAction,
   extra,
+  icon: Icon,
 }: {
   message: ChatMessage;
   onCitation?: (c: Citation) => void;
   onAction?: (m: ChatMessage) => void;
   extra?: ReactNode;
+  icon: LucideIcon;
 }) {
   const { translate: t } = useTranslation();
   const [copied, setCopied] = useState(false);
@@ -235,7 +239,7 @@ function AssistantMessage({
       {basis && (
         <div className="flex items-center gap-[8px] text-[12px] text-muted-foreground">
           <span className="w-[24px] h-[24px] rounded-[8px] bg-accent text-primary flex items-center justify-center">
-            <Sparkles className="w-[14px] h-[14px]" />
+            <Icon className="w-[14px] h-[14px]" />
           </span>
           {basis}
         </div>
@@ -351,6 +355,7 @@ export default function AiChat({
   contextLabel,
   emptyTitle,
   emptyNote,
+  icon: Icon = Sparkles,
   suggestions,
   recordFiles = [],
   canAttach = true,
@@ -628,7 +633,7 @@ export default function AiChat({
           {!active && (
             <div className="grow flex flex-col items-center justify-center gap-[14px] text-center py-[24px]">
               <span className="w-[44px] h-[44px] rounded-[14px] bg-accent text-primary flex items-center justify-center">
-                <Sparkles className="w-[22px] h-[22px]" />
+                <Icon className="w-[22px] h-[22px]" />
               </span>
               <div className="text-[18px] font-semibold text-card-foreground">
                 {emptyTitle}
@@ -641,7 +646,7 @@ export default function AiChat({
                     className="flex items-center gap-[10px] px-[12px] py-[10px] border border-border rounded-[12px] bg-popover text-[13px] text-start text-card-foreground hover:bg-accent"
                     onClick={() => void send(s)}
                   >
-                    <Sparkles className="w-[15px] h-[15px] text-primary shrink-0" />
+                    <Icon className="w-[15px] h-[15px] text-primary shrink-0" />
                     {s}
                   </button>
                 ))}
@@ -682,13 +687,14 @@ export default function AiChat({
                 onCitation={onCitation}
                 onAction={runAction}
                 extra={renderExtra?.(message)}
+                icon={Icon}
               />
             ),
           )}
           {thinking && (
             <div className="flex items-center gap-[8px] text-[13px] text-muted-foreground">
               <span className="w-[24px] h-[24px] rounded-[8px] bg-accent text-primary flex items-center justify-center">
-                <Sparkles className="w-[14px] h-[14px] animate-pulse" />
+                <Icon className="w-[14px] h-[14px] animate-pulse" />
               </span>
               {t("Reading the record…")}
             </div>
@@ -748,7 +754,7 @@ export default function AiChat({
                   setTimeout(() => void send(s), 0);
                 }}
               >
-                <Sparkles className="w-[15px] h-[15px] text-primary shrink-0" />
+                <Icon className="w-[15px] h-[15px] text-primary shrink-0" />
                 {s}
               </button>
             ))}

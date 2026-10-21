@@ -72,7 +72,7 @@ export default function ContactNotesTab({
           <>
             <Lock className="w-[14px] h-[14px]" />
             {t(
-              "Private to your clinic. Only the patient Ask AI reads them; your AI agents never do.",
+              "Private to your clinic. Only Patient AI reads them; your AI agents never do.",
             )}
           </>
         ) : (

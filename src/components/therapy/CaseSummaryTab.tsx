@@ -76,7 +76,7 @@ export default function CaseSummaryTab({
       <div className="flex flex-col items-start gap-[12px] px-[20px] py-[24px] text-[14px] text-muted-foreground">
         <p>
           {t(
-            "No case summary yet. The patient Ask AI writes one after a note is saved or a report is approved.",
+            "No case summary yet. Patient AI writes one after a note is saved or a report is approved.",
           )}
         </p>
         <Button
@@ -99,7 +99,7 @@ export default function CaseSummaryTab({
       <div className="flex items-center gap-[8px] text-[12px] text-muted-foreground">
         <Sparkles className="w-[14px] h-[14px] text-primary shrink-0" />
         <span className="grow">
-          {t("Kept up to date by the patient Ask AI")} · {t("Updated")}{" "}
+          {t("Kept up to date by Patient AI")} · {t("Updated")}{" "}
           {day(summary.updated_at, "D MMM, HH:mm")}
           {summary.edited_at &&
             ` · ${t("you corrected it on")} ${day(summary.edited_at, "D MMM")}`}
@@ -193,7 +193,7 @@ export default function CaseSummaryTab({
           </button>
           <span className="text-[12px] text-muted-foreground">
             {t(
-              "The patient Ask AI keeps your corrections when it updates the summary.",
+              "Patient AI keeps your corrections when it updates the summary.",
             )}
           </span>
         </div>

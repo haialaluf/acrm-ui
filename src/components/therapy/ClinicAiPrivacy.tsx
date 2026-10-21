@@ -66,7 +66,9 @@ export function ClinicAiPrivacyNote({ scope }: { scope: AskAiScope }) {
     <div className="flex flex-col gap-[12px] text-start text-[13px] leading-[1.5]">
       <div className="flex items-center gap-[8px] font-semibold text-card-foreground">
         <ShieldCheck className="w-[16px] h-[16px] text-primary shrink-0" />
-        {t("What Ask AI can see here")}
+        {scope === "patient"
+          ? t("What Patient AI can see here")
+          : t("What Clinic AI can see here")}
       </div>
       <ul className="flex flex-col gap-[4px]">
         {sees.map((item) => (
@@ -98,10 +100,10 @@ export function ClinicAiPrivacyNote({ scope }: { scope: AskAiScope }) {
               )
           : inSweden
             ? t(
-                "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in Stockholm, Sweden; nothing leaves Sweden and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
+                "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in Stockholm, Sweden; nothing leaves Sweden and nothing is used to train AI. To ask about one patient's sessions and notes, use Patient AI on that patient's page.",
               )
             : t(
-                "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in the EU; nothing leaves the EU and nothing is used to train AI. To ask about one patient's sessions and notes, use Ask AI on that patient's page.",
+                "Only members of your clinic can ask, and only about your clinic. Answers are worked out by Claude on Amazon's servers in the EU; nothing leaves the EU and nothing is used to train AI. To ask about one patient's sessions and notes, use Patient AI on that patient's page.",
               )}
       </p>
       <p className="text-[12px] text-muted-foreground">

@@ -335,7 +335,7 @@ export default function SessionReportView({
           onClick={() => setAsking(true)}
         >
           <Sparkles className="w-[15px] h-[15px]" />
-          {t("Ask AI")}
+          {t("Patient AI")}
         </button>
       </div>
 
