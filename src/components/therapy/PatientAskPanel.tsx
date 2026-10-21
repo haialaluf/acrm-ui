@@ -73,7 +73,7 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
         scope={patientChatScope(contact.id)}
         store={chats}
         layout="split"
-        contextLabel={`${name}'s record`}
+        contextLabel={t("{{1}}'s record").replace("{{1}}", name)}
         emptyTitle={`${t("Ask anything about")} ${name}…`}
         emptyNote={<ClinicAiPrivacySummary scope="patient" />}
         suggestions={[

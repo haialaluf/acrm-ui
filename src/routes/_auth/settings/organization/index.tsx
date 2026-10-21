@@ -508,7 +508,7 @@ function EditOrganization() {
             {workspaceType === "therapy" ? (
               <p className="text-muted-foreground text-[14px]">
                 {t(
-                  "Not available in a therapy clinic: patients' files and voice messages are never sent to an AI.",
+                  "Not available in a therapy clinic: patients' voice messages are never sent to an AI, and their files are read only by the patient Ask AI.",
                 )}
               </p>
             ) : (

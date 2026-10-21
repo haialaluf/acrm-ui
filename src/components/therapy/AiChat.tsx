@@ -176,12 +176,14 @@ function AssistantMessage({
         </div>
       )}
       {message.text && (
-        <p className="whitespace-pre-line text-pretty">{message.text}</p>
+        <p dir="auto" className="whitespace-pre-line text-pretty">
+          {message.text}
+        </p>
       )}
       {message.bullets && (
         <ul className="ps-[18px] list-disc flex flex-col gap-[4px]">
           {message.bullets.map((bullet, i) => (
-            <li key={i}>
+            <li key={i} dir="auto">
               {bullet.text}
               {bullet.citation && (
                 <CitationChip
@@ -488,6 +490,7 @@ export default function AiChat({
           </div>
         )}
         <textarea
+          dir="auto"
           rows={1}
           className="resize-none bg-transparent outline-none text-[14px] text-card-foreground px-[2px] py-[4px] max-h-[140px]"
           placeholder={active ? t("Reply…") : emptyTitle}
@@ -599,7 +602,10 @@ export default function AiChat({
                     {name}
                   </span>
                 ))}
-                <div className="bg-[var(--chat-out)] text-card-foreground text-[14px] leading-[1.5] px-[13px] py-[9px] rounded-[16px] rounded-ee-[4px] whitespace-pre-line">
+                <div
+                  dir="auto"
+                  className="bg-[var(--chat-out)] text-card-foreground text-[14px] leading-[1.5] px-[13px] py-[9px] rounded-[16px] rounded-ee-[4px] whitespace-pre-line"
+                >
                   {message.text}
                 </div>
               </div>

@@ -139,13 +139,17 @@ export default function CaseSummaryTab({
             </h3>
             {draft ? (
               <textarea
+                dir="auto"
                 rows={3}
                 className="w-full rounded-[12px] border border-border bg-popover px-[12px] py-[8px] text-[14px] leading-[1.5] text-card-foreground outline-none focus:border-primary"
                 value={draft[key]}
                 onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
               />
             ) : (
-              <p className="text-[14px] leading-[1.55] text-card-foreground whitespace-pre-line">
+              <p
+                dir="auto"
+                className="text-[14px] leading-[1.55] text-card-foreground whitespace-pre-line"
+              >
                 {section!.text}
                 {section!.sources.map((source) => (
                   <CitationChip
