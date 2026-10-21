@@ -1660,7 +1660,7 @@
   "The only Claude model that runs in Stockholm itself": "מודל Claude היחיד שרץ בשטוקהולם עצמה",
   "Fastest, for simple questions": "המהיר ביותר, לשאלות פשוטות",
   "Not available yet": "עדיין לא זמין",
-  "No case summary yet. The patient Ask AI writes one after a note is saved or a report is approved.": "עדיין אין סיכום מקרה. ה-AI של המטופל כותב אותו אחרי שנשמרת הערה או שמאושר סיכום פגישה.",
+  "No case summary yet. The patient Ask AI writes one after a note is saved or a report is approved.": "עדיין אין סיכום. ה-AI של המטופל כותב אותו אחרי שנשמרת הערה או שמאושר סיכום פגישה.",
   "Writing…": "כותב…",
   "Write it now": "לכתוב עכשיו",
   "Kept up to date by the patient Ask AI": "מתעדכן על ידי ה-AI של המטופל",
@@ -1711,7 +1711,15 @@
   "Current homework": "משימות בית נוכחיות",
   "Risks": "סיכונים",
   "To follow up next time": "לבדוק בפגישה הבאה",
-  "Summary": "סיכום מקרה",
+  "Summary": "סיכום",
   "Not available in a therapy clinic: patients' voice messages are never sent to an AI, and their files are read only by the patient Ask AI.": "לא זמין בקליניקה טיפולית: הודעות קוליות של מטופלים לעולם לא נשלחות ל-AI, והקבצים שלהם נקראים רק על ידי ה-AI של המטופל.",
-  "{{1}}'s record": "התיק של {{1}}"
+  "{{1}}'s record": "התיק של {{1}}",
+  "Report": "סיכום פגישה",
+  "Note": "הערה",
+  "p.": "עמ'",
+  "Based on {{1}} patients and {{2}} sessions": "על סמך {{1}} מטופלים ו-{{2}} פגישות",
+  "Based on the case summary, {{1}} sessions and the latest {{2}} notes and {{3}} reports": "על סמך הסיכום, {{1}} פגישות, ההערות האחרונות ({{2}}) וסיכומי הפגישות האחרונים ({{3}})",
+  ", plus a search of the record": ", וחיפוש בתיק",
+  "Based on {{1}} sessions and the latest {{2}} notes and {{3}} reports (older ones not included)": "על סמך {{1}} פגישות, ההערות האחרונות ({{2}}) וסיכומי הפגישות האחרונים ({{3}}); ישנים יותר לא נכללו",
+  "Based on {{1}} sessions, {{2}} notes and {{3}} reports": "על סמך {{1}} פגישות, {{2}} הערות ו-{{3}} סיכומי פגישות"
 }

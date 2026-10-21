@@ -1,5 +1,9 @@
 import { useState } from "react";
 import dayjs from "dayjs";
+import "dayjs/locale/he";
+import "dayjs/locale/es";
+import "dayjs/locale/pt";
+import "dayjs/locale/fr";
 import { Pencil, RefreshCw, Sparkles } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
@@ -35,7 +39,9 @@ export default function CaseSummaryTab({
   contact: ContactWithAddressesRow;
   onOpenSource: (source: Source) => void;
 }) {
-  const { translate: t } = useTranslation();
+  const { translate: t, currentLanguage } = useTranslation();
+  const day = (iso: string, format: string) =>
+    dayjs(iso).locale(currentLanguage).format(format);
   const { data: summary, isLoading } = useCaseSummary(contact.id);
   const refresh = useRefreshCaseSummary(contact.id);
   const save = useSaveCaseSummary(contact.id);
@@ -94,11 +100,9 @@ export default function CaseSummaryTab({
         <Sparkles className="w-[14px] h-[14px] text-primary shrink-0" />
         <span className="grow">
           {t("Kept up to date by the patient Ask AI")} · {t("Updated")}{" "}
-          {dayjs(summary.updated_at).format("D MMM, HH:mm")}
+          {day(summary.updated_at, "D MMM, HH:mm")}
           {summary.edited_at &&
-            ` · ${t("you corrected it on")} ${dayjs(summary.edited_at).format(
-              "D MMM",
-            )}`}
+            ` · ${t("you corrected it on")} ${day(summary.edited_at, "D MMM")}`}
         </span>
         {!draft && (
           <>
@@ -160,6 +164,7 @@ export default function CaseSummaryTab({
                       contactId: contact.id,
                       reportId:
                         source.kind === "report" ? source.id : undefined,
+                      date: source.date || undefined,
                     }}
                     onClick={() => onOpenSource(source)}
                   />

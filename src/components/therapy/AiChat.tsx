@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import dayjs from "dayjs";
+import "dayjs/locale/he";
+import "dayjs/locale/es";
+import "dayjs/locale/pt";
+import "dayjs/locale/fr";
 import {
   ArrowLeft,
   ArrowUp,
@@ -73,7 +77,20 @@ export function CitationChip({
   citation: Citation;
   onClick?: () => void;
 }) {
+  const { translate: t, currentLanguage } = useTranslation();
   const Icon = CITATION_ICONS[citation.kind];
+  const day = (iso: string) =>
+    dayjs(iso).locale(currentLanguage).format("D MMM");
+  const label =
+    citation.date && citation.kind === "report"
+      ? `${t("Report")} ${day(citation.date)}`
+      : citation.date && citation.kind === "note"
+        ? `${t("Note")} ${day(citation.date)}`
+        : citation.kind === "file" && citation.page
+          ? `${citation.label}, ${t("p.")} ${citation.page}`
+          : citation.kind === "session"
+            ? t(citation.label)
+            : citation.label;
   return (
     <button
       type="button"
@@ -81,7 +98,7 @@ export function CitationChip({
       className="inline-flex items-center gap-[4px] h-[20px] px-[7px] rounded-[6px] bg-muted text-primary text-[11px] font-semibold align-[1px] whitespace-nowrap ms-[4px]"
     >
       <Icon className="w-[11px] h-[11px]" />
-      {citation.label}
+      {label}
     </button>
   );
 }
@@ -99,7 +116,7 @@ function ThreadList({
   onNew: () => void;
   onDelete: (id: string) => void;
 }) {
-  const { translate: t } = useTranslation();
+  const { translate: t, currentLanguage } = useTranslation();
   return (
     <div className="flex flex-col gap-[4px]">
       <button
@@ -125,7 +142,9 @@ function ThreadList({
               {thread.title}
             </div>
             <div className="text-[12px] text-muted-foreground">
-              {dayjs(thread.updatedAt).format("D MMM, HH:mm")}
+              {dayjs(thread.updatedAt)
+                .locale(currentLanguage)
+                .format("D MMM, HH:mm")}
               {thread.attachments.length > 0 &&
                 ` · ${thread.attachments.length} ${t("files")}`}
             </div>
@@ -147,6 +166,51 @@ function ThreadList({
   );
 }
 
+function basisText(
+  message: ChatMessage,
+  t: (key: string) => string,
+): string | undefined {
+  const c = message.basisCounts;
+  if (!c) return message.basis;
+  const fill = (key: string, ...values: number[]) =>
+    values.reduce<string>(
+      (text, v, i) => text.replace(`{{${i + 1}}}`, String(v)),
+      t(key),
+    );
+  if (c.patients !== undefined) {
+    return fill(
+      "Based on {{1}} patients and {{2}} sessions",
+      c.patients,
+      c.sessions,
+    );
+  }
+  const notes = c.notes ?? 0;
+  const reports = c.reports ?? 0;
+  if (c.summary) {
+    return (
+      fill(
+        "Based on the case summary, {{1}} sessions and the latest {{2}} notes and {{3}} reports",
+        c.sessions,
+        notes,
+        reports,
+      ) + (c.searched ? t(", plus a search of the record") : "")
+    );
+  }
+  return c.older
+    ? fill(
+        "Based on {{1}} sessions and the latest {{2}} notes and {{3}} reports (older ones not included)",
+        c.sessions,
+        notes,
+        reports,
+      )
+    : fill(
+        "Based on {{1}} sessions, {{2}} notes and {{3}} reports",
+        c.sessions,
+        notes,
+        reports,
+      );
+}
+
 function AssistantMessage({
   message,
   onCitation,
@@ -160,6 +224,7 @@ function AssistantMessage({
 }) {
   const { translate: t } = useTranslation();
   const [copied, setCopied] = useState(false);
+  const basis = basisText(message, t);
   const plain = [
     message.text,
     ...(message.bullets ?? []).map((b) => `• ${b.text}`),
@@ -167,12 +232,12 @@ function AssistantMessage({
 
   return (
     <div className="flex flex-col gap-[8px] text-[14px] leading-[1.55] text-card-foreground">
-      {message.basis && (
+      {basis && (
         <div className="flex items-center gap-[8px] text-[12px] text-muted-foreground">
           <span className="w-[24px] h-[24px] rounded-[8px] bg-accent text-primary flex items-center justify-center">
             <Sparkles className="w-[14px] h-[14px]" />
           </span>
-          {message.basis}
+          {basis}
         </div>
       )}
       {message.text && (
@@ -490,7 +555,8 @@ export default function AiChat({
           </div>
         )}
         <textarea
-          dir="auto"
+          // An empty "auto" box falls back to LTR, so the placeholder follows the page.
+          dir={draft ? "auto" : undefined}
           rows={1}
           className="resize-none bg-transparent outline-none text-[14px] text-card-foreground px-[2px] py-[4px] max-h-[140px]"
           placeholder={active ? t("Reply…") : emptyTitle}

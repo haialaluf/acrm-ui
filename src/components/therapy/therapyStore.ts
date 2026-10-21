@@ -31,6 +31,8 @@ export type Citation = {
   kind: "report" | "note" | "session" | "file" | "patient";
   contactId?: string;
   reportId?: string;
+  date?: string;
+  page?: number;
 };
 
 export type ChatMessage = {
@@ -42,6 +44,15 @@ export type ChatMessage = {
   drafts?: { contactId: string; name: string; text: string }[];
   action?: "draft_reminders";
   basis?: string;
+  basisCounts?: {
+    patients?: number;
+    sessions: number;
+    notes?: number;
+    reports?: number;
+    summary?: boolean;
+    searched?: boolean;
+    older?: boolean;
+  };
   attachments?: string[];
   failed?: boolean;
   createdAt: string;
