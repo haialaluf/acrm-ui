@@ -92,9 +92,13 @@ function AppLayout() {
   // same lack of anything to put in a center panel. The list at
   // `/automations` stays an ordinary left-panel page.
   const isAutomationEditorRoute = /^\/automations\/[^/]+$/.test(pathname);
-  // Both full-width routes get identical layout treatment; kept as one flag so
-  // the four places below cannot drift apart.
-  const isFullWidthRoute = isEmailBuilderRoute || isAutomationEditorRoute;
+  // The Leads page lays out its own list, panel and board, and the setup
+  // wizard is a full page of its own.
+  const isLeadsRoute = pathname === "/leads" || pathname.startsWith("/leads/");
+  // Full-width routes get identical layout treatment; kept as one flag so the
+  // four places below cannot drift apart.
+  const isFullWidthRoute =
+    isEmailBuilderRoute || isAutomationEditorRoute || isLeadsRoute;
 
   /**
    * Redirect out of a section this organization cannot use yet.

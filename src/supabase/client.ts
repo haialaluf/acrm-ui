@@ -18,6 +18,7 @@ export * from "./types/status_types";
 export * from "./types/message_types";
 export * from "./types/extra_types";
 export * from "./types/automation_types";
+export * from "./types/lead_types";
 export * from "./types/contact_source_types";
 export * from "./types/ui_types";
 export * from "./types/database_types";

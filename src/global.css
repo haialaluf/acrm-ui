@@ -349,6 +349,22 @@ button:disabled {
     color: oklch(0.84 0.08 var(--avatar-hue));
   }
 
+  /* Lead stages: an org picks a hue per stage (--stage-hue); --stage-c is 1,
+     or near 0 for the neutral, uncoloured stage. */
+  .stage-tone {
+    --stage-dot: oklch(0.74 calc(0.13 * var(--stage-c)) var(--stage-hue));
+    --stage-bg: oklch(0.95 calc(0.04 * var(--stage-c)) var(--stage-hue));
+    --stage-fg: oklch(0.42 calc(0.1 * var(--stage-c)) var(--stage-hue));
+    --stage-line: oklch(0.84 calc(0.08 * var(--stage-c)) var(--stage-hue));
+  }
+
+  .dark .stage-tone {
+    --stage-dot: oklch(0.7 calc(0.12 * var(--stage-c)) var(--stage-hue));
+    --stage-bg: oklch(0.33 calc(0.05 * var(--stage-c)) var(--stage-hue));
+    --stage-fg: oklch(0.86 calc(0.08 * var(--stage-c)) var(--stage-hue));
+    --stage-line: oklch(0.46 calc(0.07 * var(--stage-c)) var(--stage-hue));
+  }
+
   .spin {
     @apply animate-spin [transform-box:fill-box] [transform-origin:center] stroke-current fill-none;
   }

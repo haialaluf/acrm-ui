@@ -40,6 +40,15 @@ export function threadKey(conv: ConversationRow | ConversationInsert): string {
   return `${conv.organization_address}${THREAD_SEPARATOR}${counterpart}`;
 }
 
+/** The thread with a contact on a channel, for linking to it from outside the
+ *  inbox (no conversation row in hand). Not for email - see `threadKey`. */
+export function contactThreadKey(
+  organizationAddress: string,
+  contactAddress: string,
+): string {
+  return `${organizationAddress}${THREAD_SEPARATOR}${contactAddress}`;
+}
+
 /** Splits a thread key back into its two halves. The counterpart may itself be
  *  a conversation id (see `threadKey`), which callers detect by shape. */
 export function parseThreadKey(key: string) {

@@ -15,6 +15,7 @@ import {
   CalendarDays,
   ChevronRight,
   Megaphone,
+  Target,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { LinkButton } from "./LinkButton";
@@ -90,6 +91,17 @@ export default function Menu() {
                 className="mt-[10px]"
               >
                 <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
+              </LinkButton>
+            </HideIfNotPermitted>
+
+            <HideIfNotPermitted surface="/leads">
+              <LinkButton
+                to="/leads"
+                title={t("Leads")}
+                isActive={pathname.startsWith("/leads")}
+                className="mt-[10px]"
+              >
+                <Target className="w-[24px] h-[24px] stroke-[2]" />
               </LinkButton>
             </HideIfNotPermitted>
 

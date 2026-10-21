@@ -6,8 +6,9 @@
 // Pure UI-only additions (no API counterpart) live in ./ui_types.ts.
 //===================================
 
-// @ui-divergence: no imports - the API imports DatabaseGenerated for the
+// @ui-divergence: no DatabaseGenerated import - the API imports it for the
 // HumanAgentExtra role enum, which the UI inlines instead.
+import type { LeadFlow } from "./lead_types";
 
 export type Memory = {
   [key: string]: string | undefined | Memory;
@@ -78,6 +79,7 @@ export type OrganizationExtra = {
   transcription?: TranscriptionConfig;
   error_messages_direction?: "internal" | "outgoing";
   business_profile?: BusinessProfile;
+  lead_flow?: LeadFlow;
 };
 
 export type WhatsAppOrganizationAddressExtra = {
@@ -267,14 +269,8 @@ export type ConversationExtra = {
   } | null;
 };
 
-export type ContactExtra = {
-  // Answers to the custom questions on a Meta Instant Form. The standard
-  // fields (name / email / phone) are projected onto real columns and the
-  // contacts_addresses row; anything the advertiser asked beyond those has no
-  // column to live in, so it is flattened here as question -> answer. The
-  // complete, unflattened submission is always on the `leads` row.
-  lead_fields?: Record<string, string>;
-};
+// Form answers moved to leads.pipeline.answers (see LeadPipeline).
+export type ContactExtra = Record<string, unknown>;
 
 export type WhatsAppContactAddressExtra = {
   name?: string;

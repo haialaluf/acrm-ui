@@ -23,6 +23,7 @@ import type {
   OrganizationExtra,
 } from "./extra_types";
 import type { CalendarWorkingHours } from "./extra_types";
+import type { LeadPipeline } from "./lead_types";
 import type {
   AppointmentExtra,
   AppointmentStatus,
@@ -179,6 +180,11 @@ export type Database = MergeDeep<
             extra?: CalendarExtra | null;
           };
         };
+        leads: {
+          Row: { pipeline: LeadPipeline | null };
+          Insert: { pipeline?: LeadPipeline | null };
+          Update: { pipeline?: LeadPipeline | null };
+        };
         appointments: {
           Row: { status: AppointmentStatus; extra: AppointmentExtra | null };
           Insert: {
@@ -214,6 +220,7 @@ export type OrganizationUpdate =
   Database["public"]["Tables"]["organizations"]["Update"];
 
 export type ContactRow = Database["public"]["Tables"]["contacts"]["Row"];
+export type LeadRow = Database["public"]["Tables"]["leads"]["Row"];
 export type ContactInsert = Database["public"]["Tables"]["contacts"]["Insert"];
 export type ContactUpdate = Database["public"]["Tables"]["contacts"]["Update"];
 

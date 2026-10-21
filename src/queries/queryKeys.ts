@@ -93,6 +93,13 @@ export const queryKeys = {
     /** Recent leads posted to the public intake endpoint, newest first. */
     recent: (orgId: NullableId) => [orgId, "leads", "api"] as const,
   },
+  leads: {
+    all: (orgId: NullableId) => [orgId, "leads"] as const,
+    pipeline: (orgId: NullableId) => [orgId, "leads", "pipeline"] as const,
+    submissions: (orgId: NullableId, leadId: NullableId) =>
+      [orgId, "leads", leadId, "submissions"] as const,
+    flow: (orgId: NullableId) => [orgId, "lead_flow"] as const,
+  },
   emailTemplates: {
     /** List for the org - summaries only, without the project/html payloads. */
     all: (orgId: NullableId) => [orgId, "email_templates"] as const,

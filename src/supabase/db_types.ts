@@ -1497,10 +1497,12 @@ export type Database = {
           form_id: string | null
           form_name: string | null
           leadgen_id: string
+          merged_into: string | null
           organization_id: string
           page_id: string | null
+          pipeline: Json | null
           platform: string | null
-          source: string
+          source: string | null
           updated_at: string
         }
         Insert: {
@@ -1514,10 +1516,12 @@ export type Database = {
           form_id?: string | null
           form_name?: string | null
           leadgen_id: string
+          merged_into?: string | null
           organization_id: string
           page_id?: string | null
+          pipeline?: Json | null
           platform?: string | null
-          source?: string
+          source?: string | null
           updated_at?: string
         }
         Update: {
@@ -1531,10 +1535,12 @@ export type Database = {
           form_id?: string | null
           form_name?: string | null
           leadgen_id?: string
+          merged_into?: string | null
           organization_id?: string
           page_id?: string | null
+          pipeline?: Json | null
           platform?: string | null
-          source?: string
+          source?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1544,6 +1550,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "contacts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_merged_into_fkey"
+            columns: ["organization_id", "merged_into"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["organization_id", "leadgen_id"]
           },
           {
             foreignKeyName: "leads_organization_id_fkey"
@@ -2184,8 +2197,23 @@ export type Database = {
         Args: { p_address: string; p_organization_id: string; p_reason: string }
         Returns: undefined
       }
+      apply_lead_outcome: {
+        Args: {
+          p_fields?: Json
+          p_leadgen_id: string
+          p_next?: Json
+          p_organization_id: string
+          p_outcome_id?: string
+          p_to_stage?: string
+        }
+        Returns: Json
+      }
       apply_unsubscribe: {
         Args: { p_link_id: string; p_undo?: boolean }
+        Returns: undefined
+      }
+      attach_leads: {
+        Args: { p_leads: Json; p_organization_id: string }
         Returns: undefined
       }
       automation_stats: {
@@ -2371,6 +2399,10 @@ export type Database = {
         }
         Returns: Json
       }
+      create_lead: {
+        Args: { p_contact_id: string; p_organization_id: string }
+        Returns: string
+      }
       email_daily_metrics: {
         Args: { p_days?: number; p_organization_id: string }
         Returns: {
@@ -2422,6 +2454,7 @@ export type Database = {
         Args: { role?: Database["public"]["Enums"]["role"] }
         Returns: string[]
       }
+      get_lead_flow: { Args: { p_organization_id: string }; Returns: Json }
       init_data: {
         Args: {
           p_limit?: number
@@ -2518,13 +2551,38 @@ export type Database = {
         Args: { p_addresses: Json; p_organization_id: string }
         Returns: Json
       }
+      restore_lead: {
+        Args: {
+          p_expected: Json
+          p_leadgen_id: string
+          p_organization_id: string
+          p_pipeline: Json
+        }
+        Returns: Json
+      }
+      save_lead_flow: {
+        Args: {
+          p_flow: Json
+          p_organization_id: string
+          p_stage_remap?: Json
+        }
+        Returns: Json
+      }
       send_broadcast: {
         Args: { _conversations?: Json; _messages?: Json }
         Returns: number
       }
+      snooze_lead: {
+        Args: { p_leadgen_id: string; p_next: Json; p_organization_id: string }
+        Returns: Json
+      }
       try_claim_automation_lock: {
         Args: { p_ttl_seconds?: number }
         Returns: boolean
+      }
+      update_lead_fields: {
+        Args: { p_fields: Json; p_leadgen_id: string; p_organization_id: string }
+        Returns: Json
       }
       upsert_contact: {
         Args: {

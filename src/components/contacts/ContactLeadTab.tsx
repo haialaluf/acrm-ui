@@ -1,10 +1,13 @@
 import dayjs from "dayjs";
-import { FileText } from "lucide-react";
-import { useMemo } from "react";
+import { Target } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContactLead } from "@/queries/useContactLead";
-import type { ContactExtra, ContactWithAddressesRow } from "@/supabase/client";
+import { useCreateLead, useLeadFlow } from "@/queries/useLeads";
+import type { ContactWithAddressesRow } from "@/supabase/client";
 import { ltrIsolate } from "@/utils/FormatUtils";
+import { stageOf } from "@/utils/leads";
+import { NextLine, StagePill } from "@/components/leads/LeadBits";
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -31,13 +34,9 @@ function AnswerRow({ question, answer }: { question: string; answer: string }) {
 }
 
 /**
- * Where a lead came from, and what they answered.
- *
- * Two halves, because they come from two places and only one of them is always
- * there: `contacts.source` and `created_at` exist for every contact, while the
- * campaign/form detail lives on the `leads` row, which only a Meta Instant
- * Form or a lead-intake POST produces. Someone who wrote in first has no such
- * row, so that half says why it is empty rather than rendering blank.
+ * The contact's lead: where it stands in the pipeline, where it came from, and
+ * what was answered on the form. A contact who wrote in rather than filling a
+ * form has no lead until someone adds them as one.
  */
 export default function ContactLeadTab({
   contact,
@@ -45,16 +44,61 @@ export default function ContactLeadTab({
   contact: ContactWithAddressesRow;
 }) {
   const { translate: t } = useTranslation();
+  const navigate = useNavigate();
   const { data: lead } = useContactLead(contact.id);
-
-  const answers = useMemo(
-    () =>
-      Object.entries((contact.extra as ContactExtra | null)?.lead_fields ?? {}),
-    [contact],
-  );
+  const { data: flow } = useLeadFlow();
+  const createLead = useCreateLead();
+  const pipeline = lead?.pipeline;
+  const answers = Object.entries(pipeline?.answers ?? {});
 
   return (
     <div className="flex flex-col gap-[26px] px-[20px] pt-[20px]">
+      {lead && pipeline ? (
+        <div>
+          <div className="label mb-[4px]">{t("Pipeline")}</div>
+          <div className="flex items-center gap-[10px] py-[9px] flex-wrap">
+            <StagePill stage={stageOf(flow, pipeline.stage)} size="md" />
+            <span className="text-[13px] text-muted-foreground">
+              <NextLine pipeline={pipeline} createdTime={lead.created_time} />
+            </span>
+            <span className="grow" />
+            <Link
+              to="/leads"
+              search={{ view: "all", lead: lead.leadgen_id }}
+              className="text-[13px] text-primary hover:underline"
+            >
+              {t("Open in Leads")}
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-[12px] border border-dashed border-border p-[20px_18px] flex flex-col items-center gap-[10px] text-center">
+          <Target className="w-[24px] h-[24px] text-muted-foreground" />
+          <div className="text-[15px]">{t("Not a lead")}</div>
+          <div className="text-[13px] text-muted-foreground leading-relaxed">
+            {t(
+              "They wrote to you rather than filling in a form. Add them as a lead to work them in the pipeline.",
+            )}
+          </div>
+          <button
+            type="button"
+            className="primary px-[16px] text-[14px]"
+            disabled={createLead.isPending}
+            onClick={() =>
+              createLead.mutate(contact.id, {
+                onSuccess: (leadId) =>
+                  navigate({
+                    to: "/leads",
+                    search: { view: "all", lead: leadId },
+                  }),
+              })
+            }
+          >
+            {t("Add as lead")}
+          </button>
+        </div>
+      )}
+
       <div>
         <div className="label mb-[4px]">{t("Where it came from")}</div>
         <Row label={t("Source")} value={contact.source} />
@@ -101,18 +145,6 @@ export default function ContactLeadTab({
               <AnswerRow question={question} answer={answer} />
             </div>
           ))}
-        </div>
-      )}
-
-      {!lead && (
-        <div className="rounded-[12px] border border-dashed border-border p-[20px_18px] flex flex-col items-center gap-[10px] text-center">
-          <FileText className="w-[24px] h-[24px] text-muted-foreground" />
-          <div className="text-[15px]">{t("No form behind this lead")}</div>
-          <div className="text-[13px] text-muted-foreground leading-relaxed">
-            {t(
-              "They wrote to you rather than filling in an ad form, so there is no campaign or answers to show.",
-            )}
-          </div>
         </div>
       )}
     </div>

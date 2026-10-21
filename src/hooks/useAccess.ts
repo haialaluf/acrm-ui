@@ -92,6 +92,9 @@ export const SURFACES = {
    *  that arrive is the point of collecting them. */
   "/calendars": ANY_INTEGRATION,
   "/contacts": ANY_INTEGRATION,
+  /** Leads arrive from a form, the API or a contact added by hand, so any
+   *  integration is enough. */
+  "/leads": ANY_INTEGRATION,
   /** A lead arriving from the API can be tagged, routed and assigned with no
    *  channel at all. */
   "/automations": ANY_INTEGRATION,
@@ -183,6 +186,7 @@ export const GATED_SECTIONS = [
   "/templates",
   "/calendars",
   "/contacts",
+  "/leads",
   "/automations",
 ] as const satisfies readonly Surface[];
 
