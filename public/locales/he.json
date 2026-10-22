@@ -1770,5 +1770,7 @@
   "This batch is paused": "המנה מושהית",
   "messages are waiting and won't go out until you resume.": "הודעות ממתינות ולא יישלחו עד שתמשיכו את השליחה.",
   "Stops the messages that have not gone out yet. You can resume at any time.": "עוצר את ההודעות שעדיין לא נשלחו. אפשר להמשיך בכל עת.",
-  "Every broadcast you schedule shows up here - you can pause or cancel it up until it goes out.": "כל שליחה מתוזמנת מופיעה כאן - אפשר להשהות או לבטל אותה עד שהיא יוצאת."
+  "Every broadcast you schedule shows up here - you can pause or cancel it up until it goes out.": "כל שליחה מתוזמנת מופיעה כאן - אפשר להשהות או לבטל אותה עד שהיא יוצאת.",
+  "Update contact": "עדכון איש קשר",
+  "Lets the agent save notes, tags, and contact details the client gives, and move their lead to the next stage.": "מאפשר לסוכן לשמור הערות, תגיות ופרטי קשר שהלקוח מוסר, ולהעביר את הליד שלו לשלב הבא."
 }

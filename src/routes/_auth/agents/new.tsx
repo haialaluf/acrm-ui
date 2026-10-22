@@ -51,6 +51,7 @@ function AddAgent() {
         faq: [],
         resources: [],
         on_topic_only: true,
+        update_contact: true,
       },
     },
   });

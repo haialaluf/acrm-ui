@@ -482,6 +482,10 @@ export type AIAgentExtra = {
   // Reply only when the message is business this agent can handle - see the
   // API's `renderReplyScope`. Undefined ⇒ on: the guard is the default posture.
   on_topic_only?: boolean;
+  // Whether the agent gets the `update_contact` tool (notes, tags, addresses,
+  // lead moves). Undefined ⇒ on, so agents saved before the switch keep it.
+  // Ignored by back_office agents: recording is their only output.
+  update_contact?: boolean;
   send_inline_files_up_to_size_mb?: number;
   // Minutes the agent stays silent after a person from the business replies in
   // the thread. Undefined ⇒ `PAUSED_CONV_WINDOW`; 0 ⇒ never pause.

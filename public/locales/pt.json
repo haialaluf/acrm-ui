@@ -1305,5 +1305,7 @@
   "View invitation": "Ver convite",
   "Create your organization": "Crie sua organização",
   "Give it a name and an address, and you can start connecting channels and inviting your team.": "Dê a ela um nome e um endereço, e você poderá começar a conectar canais e convidar sua equipe.",
-  "Connect a channel or a lead source to start receiving messages and leads.": "Conecte um canal ou uma fonte de leads para começar a receber mensagens e leads."
+  "Connect a channel or a lead source to start receiving messages and leads.": "Conecte um canal ou uma fonte de leads para começar a receber mensagens e leads.",
+  "Update contact": "Atualizar contato",
+  "Lets the agent save notes, tags, and contact details the client gives, and move their lead to the next stage.": "Permite que o agente salve notas, tags e os dados de contato que o cliente informa, e mova o lead dele para a próxima etapa."
 }

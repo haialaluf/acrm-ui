@@ -3,6 +3,7 @@ import {
   type Control,
   type FieldValues,
   type Path,
+  type PathValue,
   useFieldArray,
   type UseFormRegister,
   type UseFormSetValue,
@@ -14,6 +15,7 @@ import {
   Check,
   ChevronRight,
   Database,
+  UserPen,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -83,8 +85,16 @@ export default function SkillsSection<T extends FieldValues>({
       name: "extra.skills" as any,
     }) as { id: string }[] | undefined) || [];
 
+  const updateContactEnabled =
+    useWatch({
+      control,
+      name: "extra.update_contact" as Path<T>,
+    }) !== false;
+
   const indexOf = (id: string) => instances.findIndex((s) => s?.id === id);
-  const enabledCount = SKILL_CATALOG.filter((s) => indexOf(s.id) > -1).length;
+  const enabledCount =
+    SKILL_CATALOG.filter((s) => indexOf(s.id) > -1).length +
+    (updateContactEnabled ? 1 : 0);
 
   const toggle = (entry: SkillCatalogEntry, enable: boolean) => {
     const index = indexOf(entry.id);
@@ -113,6 +123,31 @@ export default function SkillsSection<T extends FieldValues>({
       description={enabledCount ? `${enabledCount} ${t("active")}` : t("None")}
       disabled={disabled}
     >
+      <div className="flex items-start gap-[12px]">
+        <UserPen className="w-[24px] h-[24px] text-muted-foreground shrink-0 mt-[2px]" />
+
+        <div className="flex flex-col grow min-w-0">
+          <span className="text-foreground">{t("Update contact")}</span>
+          <span className="text-muted-foreground text-[14px]">
+            {t(
+              "Lets the agent save notes, tags, and contact details the client gives, and move their lead to the next stage.",
+            )}
+          </span>
+        </div>
+
+        <Switch
+          checked={updateContactEnabled}
+          disabled={disabled}
+          onChange={(e) =>
+            setValue(
+              "extra.update_contact" as Path<T>,
+              e.target.checked as PathValue<T, Path<T>>,
+              { shouldDirty: true },
+            )
+          }
+        />
+      </div>
+
       {SKILL_CATALOG.map((entry) => {
         const Icon = ICONS[entry.icon] ?? Calendar;
         const enabled = indexOf(entry.id) > -1;
