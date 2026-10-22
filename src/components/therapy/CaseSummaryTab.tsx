@@ -4,7 +4,7 @@ import "dayjs/locale/he";
 import "dayjs/locale/es";
 import "dayjs/locale/pt";
 import "dayjs/locale/fr";
-import { Pencil, RefreshCw, Sparkles } from "lucide-react";
+import { Loader2, Pencil, RefreshCw, Sparkles } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
   type CaseSummary,
@@ -69,7 +69,7 @@ export default function CaseSummaryTab({
     );
   }
 
-  if (isLoading) return null;
+  if (isLoading) return <SummarySkeleton />;
 
   if (!summary) {
     return (
@@ -203,6 +203,27 @@ export default function CaseSummaryTab({
           {(refresh.error ?? save.error)?.message}
         </p>
       )}
+    </div>
+  );
+}
+
+function SummarySkeleton() {
+  const { translate: t } = useTranslation();
+  return (
+    <div className="flex flex-col gap-[22px] px-[20px] pt-[20px] pb-[24px]">
+      <div className="flex items-center gap-[8px] text-[13px] text-muted-foreground">
+        <Loader2 className="w-[15px] h-[15px] text-primary animate-spin" />
+        {t("Loading summary…")}
+      </div>
+      <div className="flex flex-col gap-[22px] animate-pulse">
+        {SUMMARY_SECTIONS.map((key) => (
+          <div key={key} className="flex flex-col gap-[8px]">
+            <div className="h-[14px] w-[35%] rounded-full bg-muted-foreground/25" />
+            <div className="h-[12px] w-full rounded-full bg-muted-foreground/15" />
+            <div className="h-[12px] w-[85%] rounded-full bg-muted-foreground/15" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

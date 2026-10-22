@@ -49,12 +49,12 @@ async function call(
 
 /** The patient Ask AI's case summary, kept in the clinic's patient-data
  *  bucket; null until one has been written. */
-export function useCaseSummary(contactId: string) {
+export function useCaseSummary(contactId: string, enabled = true) {
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
   return useQuery({
     queryKey: queryKeys.contacts.caseSummary(orgId, contactId),
     queryFn: () => call(contactId, "summary", "GET"),
-    enabled: !!orgId,
+    enabled: !!orgId && enabled,
   });
 }
 

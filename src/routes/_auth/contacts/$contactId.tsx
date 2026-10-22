@@ -71,6 +71,7 @@ import ContactFilesTab from "@/components/contacts/ContactFilesTab";
 import { CURRENCY_SYMBOLS, useWorkspace } from "@/hooks/useWorkspace";
 import { useIntegrations } from "@/hooks/useIntegrations";
 import { useContactConversations } from "@/queries/useContactConversations";
+import { useCaseSummary } from "@/queries/useCaseSummary";
 import { threadKey } from "@/utils/ConversationUtils";
 
 type ContactFormValues = ContactWithAddressesUpdate;
@@ -185,6 +186,10 @@ function ContactDetail() {
     contactId,
     useMemo(() => contact?.addresses.map((a) => a.address) ?? [], [contact]),
   );
+
+  // Loaded with the page so a cold patient-data start is over by the time the
+  // Summary tab is opened.
+  useCaseSummary(contactId, isTherapy);
 
   // Instagram profile details (avatar, @username) are read live from the
   // linked address, which the webhook keeps fresh — they are not copied onto
@@ -320,6 +325,8 @@ function ContactDetail() {
     (conversation) => conversation.service === "email",
   );
 
+  const hasFooter = tab === "details" || !isTherapy;
+
   function openConversation() {
     const conversation = conversations.data?.[0];
     if (!conversation) return;
@@ -378,6 +385,22 @@ function ContactDetail() {
           action={
             isTherapy ? (
               <div className="flex items-center gap-[4px]">
+                {conversations.data?.length ? (
+                  <button
+                    type="button"
+                    className={
+                      "h-[36px] px-[12px] rounded-full flex items-center gap-[6px] shrink-0 text-[14px] font-medium " +
+                      (location.hash && !search.ai
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-accent text-accent-foreground")
+                    }
+                    title={t("Open conversation")}
+                    onClick={openConversation}
+                  >
+                    <MessageSquare className="w-[16px] h-[16px]" />
+                    {t("Message")}
+                  </button>
+                ) : null}
                 <ExportPatientButton contactId={contactId} />
                 {!contact.archived_at && (
                   <ArchivePatientButton contactId={contactId} />
@@ -436,15 +459,10 @@ function ContactDetail() {
                 {t("Patient AI")}
               </button>
             )}
-            {conversations.data?.length ? (
+            {!isTherapy && conversations.data?.length ? (
               <button
                 type="button"
-                className={
-                  "w-[40px] h-[40px] rounded-full flex items-center justify-center shrink-0 " +
-                  (isTherapy && location.hash && !search.ai
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-accent text-accent-foreground")
-                }
+                className="w-[40px] h-[40px] rounded-full flex items-center justify-center shrink-0 bg-accent text-accent-foreground"
                 title={t("Open conversation")}
                 onClick={openConversation}
               >
@@ -740,31 +758,38 @@ function ContactDetail() {
             {tab === "files" && <ContactFilesTab contact={contact} />}
             {tab === "activity" && <ContactActivityTab contact={contact} />}
             {tab === "lead" && <ContactLeadTab contact={contact} />}
+            {/* Sticky inside the scroll area so it stays off the scrollbar,
+                and doubles as the bottom spacing once scrolled to the end. */}
+            {!hasFooter && (
+              <div className="pointer-events-none sticky bottom-0 h-[72px] shrink-0 bg-gradient-to-b from-transparent to-background" />
+            )}
           </SectionBody>
         </div>
 
-        <SectionFooter>
-          {tab === "details" ? (
-            <Button
-              form="contact-form"
-              type="submit"
-              invalid={!isValid || !isDirty}
-              loading={updateContact.isPending}
-              className="primary"
-            >
-              {t("Update")}
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              className="primary"
-              disabled={!conversations.data?.length}
-              onClick={openConversation}
-            >
-              {t("Open conversation")}
-            </Button>
-          )}
-        </SectionFooter>
+        {hasFooter && (
+          <SectionFooter>
+            {tab === "details" ? (
+              <Button
+                form="contact-form"
+                type="submit"
+                invalid={!isValid || !isDirty}
+                loading={updateContact.isPending}
+                className="primary"
+              >
+                {t("Update")}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                className="primary"
+                disabled={!conversations.data?.length}
+                onClick={openConversation}
+              >
+                {t("Open conversation")}
+              </Button>
+            )}
+          </SectionFooter>
+        )}
 
         <InstagramAddressPicker
           open={pickingInstagram}
