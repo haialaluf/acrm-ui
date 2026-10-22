@@ -39,6 +39,8 @@ export type Answer = Omit<ChatMessage, "id" | "role" | "createdAt">;
 export type ChatStore = {
   chats: ChatThread[];
   loaded?: boolean;
+  failed?: boolean;
+  retry?: () => void;
   saveChat: (chat: ChatThread) => void;
   deleteChat: (id: string) => void;
 };
@@ -108,12 +110,14 @@ export function CitationChip({
 
 function ThreadList({
   threads,
+  store,
   activeId,
   onOpen,
   onNew,
   onDelete,
 }: {
   threads: ChatThread[];
+  store: ChatStore;
   activeId?: string;
   onOpen: (id: string) => void;
   onNew: () => void;
@@ -130,6 +134,26 @@ function ThreadList({
         <SquarePen className="w-[15px] h-[15px]" />
         {t("New chat")}
       </button>
+      {store.failed ? (
+        <div className="flex items-center gap-[8px] px-[12px] py-[9px] text-[13px] text-muted-foreground">
+          <span className="grow">{t("Couldn't load your chats.")}</span>
+          {store.retry && (
+            <button
+              type="button"
+              className="text-primary font-medium"
+              onClick={store.retry}
+            >
+              {t("Retry")}
+            </button>
+          )}
+        </div>
+      ) : (
+        store.loaded === false && (
+          <div className="px-[12px] py-[9px] text-[13px] text-muted-foreground animate-pulse">
+            {t("Loading chats…")}
+          </div>
+        )
+      )}
       {threads.map((thread) => (
         <div
           key={thread.id}
@@ -752,6 +776,7 @@ export default function AiChat({
         <div className="w-[250px] shrink-0 border-e border-border bg-sidebar p-[12px] overflow-y-auto hidden md:block">
           <ThreadList
             threads={threads}
+            store={store}
             activeId={active?.id}
             onOpen={(id) => {
               setActiveId(id);
@@ -774,6 +799,7 @@ export default function AiChat({
       <div className="flex flex-col gap-[14px] px-[20px] pt-[16px] pb-[20px]">
         <ThreadList
           threads={threads}
+          store={store}
           onOpen={(id) => {
             setActiveId(id);
             setComposing(true);

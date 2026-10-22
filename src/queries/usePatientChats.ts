@@ -30,7 +30,7 @@ export function usePatientChats(contactId: string): ChatStore {
   const key = queryKeys.contacts.askChats(orgId, contactId);
   const scope = patientChatScope(contactId);
 
-  const { data, isSuccess } = useQuery({
+  const { data, isSuccess, isError, refetch } = useQuery({
     queryKey: key,
     queryFn: async () => {
       const result = await supabase.functions.invoke<{
@@ -62,6 +62,8 @@ export function usePatientChats(contactId: string): ChatStore {
   return {
     chats: data ?? [],
     loaded: isSuccess,
+    failed: isError,
+    retry: () => void refetch(),
     saveChat: (chat) => {
       put((chats) => [chat, ...chats.filter((c) => c.id !== chat.id)]);
       void supabase.functions
