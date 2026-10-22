@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/he";
+import "dayjs/locale/sv";
 import "dayjs/locale/es";
 import "dayjs/locale/pt";
 import "dayjs/locale/fr";
@@ -165,6 +166,30 @@ function ThreadList({
         </div>
       ))}
     </div>
+  );
+}
+
+function dayLabel(iso: string, t: (key: string) => string, locale: string) {
+  const d = dayjs(iso).locale(locale);
+  const diff = dayjs().startOf("day").diff(d.startOf("day"), "day");
+  if (diff === 0) return t("Today");
+  if (diff === 1) return `${t("Yesterday")} · ${d.format("ddd D MMM")}`;
+  if (diff < 7) return d.format("dddd D MMM");
+  return d.format("D MMM YYYY");
+}
+
+function MessageTime({ at }: { at?: string }) {
+  const { currentLanguage } = useTranslation();
+  if (!at) return null;
+  const d = dayjs(at).locale(currentLanguage);
+  return (
+    <time
+      dateTime={at}
+      title={d.format("dddd D MMMM YYYY, HH:mm")}
+      className="text-[11px] text-muted-foreground"
+    >
+      {d.format("HH:mm")}
+    </time>
   );
 }
 
@@ -345,6 +370,9 @@ function AssistantMessage({
             <Copy className="w-[15px] h-[15px]" />
           )}
         </button>
+        <span className="ms-[4px]">
+          <MessageTime at={message.createdAt} />
+        </span>
       </div>
     </div>
   );
@@ -367,7 +395,7 @@ export default function AiChat({
   renderExtra,
   store: remote,
 }: Props) {
-  const { translate: t } = useTranslation();
+  const { translate: t, currentLanguage } = useTranslation();
   const local = useTherapyStore();
   const store: ChatStore = remote ?? local;
   const threads = store.chats
@@ -658,39 +686,51 @@ export default function AiChat({
               )}
             </div>
           )}
-          {active?.messages.map((message) =>
-            message.role === "user" ? (
-              <div
-                key={message.id}
-                className="self-end max-w-[85%] flex flex-col items-end gap-[6px]"
-              >
-                {message.attachments?.map((name) => (
-                  <span
-                    key={name}
-                    className="inline-flex items-center gap-[6px] h-[28px] px-[10px] rounded-[9px] bg-muted text-[12px] text-accent-foreground"
+          {active?.messages.map((message, i, messages) => (
+            <Fragment key={message.id}>
+              {message.createdAt &&
+                !dayjs(message.createdAt).isSame(
+                  messages[i - 1]?.createdAt,
+                  "day",
+                ) && (
+                  <div className="flex items-center gap-[12px] text-[12px] text-muted-foreground">
+                    <span className="grow h-px bg-border" />
+                    <span className="px-[10px] py-[3px] rounded-full bg-muted font-medium">
+                      {dayLabel(message.createdAt, t, currentLanguage)}
+                    </span>
+                    <span className="grow h-px bg-border" />
+                  </div>
+                )}
+              {message.role === "user" ? (
+                <div className="self-end max-w-[85%] flex flex-col items-end gap-[6px]">
+                  {message.attachments?.map((name) => (
+                    <span
+                      key={name}
+                      className="inline-flex items-center gap-[6px] h-[28px] px-[10px] rounded-[9px] bg-muted text-[12px] text-accent-foreground"
+                    >
+                      <FileText className="w-[13px] h-[13px]" />
+                      {name}
+                    </span>
+                  ))}
+                  <div
+                    dir="auto"
+                    className="bg-[var(--chat-out)] text-card-foreground text-[14px] leading-[1.5] px-[13px] py-[9px] rounded-[16px] rounded-ee-[4px] whitespace-pre-line"
                   >
-                    <FileText className="w-[13px] h-[13px]" />
-                    {name}
-                  </span>
-                ))}
-                <div
-                  dir="auto"
-                  className="bg-[var(--chat-out)] text-card-foreground text-[14px] leading-[1.5] px-[13px] py-[9px] rounded-[16px] rounded-ee-[4px] whitespace-pre-line"
-                >
-                  {message.text}
+                    {message.text}
+                  </div>
+                  <MessageTime at={message.createdAt} />
                 </div>
-              </div>
-            ) : (
-              <AssistantMessage
-                key={message.id}
-                message={message}
-                onCitation={onCitation}
-                onAction={runAction}
-                extra={renderExtra?.(message)}
-                icon={Icon}
-              />
-            ),
-          )}
+              ) : (
+                <AssistantMessage
+                  message={message}
+                  onCitation={onCitation}
+                  onAction={runAction}
+                  extra={renderExtra?.(message)}
+                  icon={Icon}
+                />
+              )}
+            </Fragment>
+          ))}
           {thinking && (
             <div className="flex items-center gap-[8px] text-[13px] text-muted-foreground">
               <span className="w-[24px] h-[24px] rounded-[8px] bg-accent text-primary flex items-center justify-center">
