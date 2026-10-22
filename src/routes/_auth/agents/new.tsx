@@ -193,16 +193,18 @@ function AddAgent() {
                 placeholder={t("Default")}
               />
 
-              <DurationField
-                name="extra.pause_after_human_reply_minutes"
-                control={control}
-                label={t("Pause after a human replies")}
-                description={t(
-                  "How long this agent stays silent after someone from the business answers in the thread. Leave blank for 12 hours; 0 means it never pauses.",
-                )}
-                placeholder="12"
-                disabled={!isAdmin}
-              />
+              {!isBackOffice && (
+                <DurationField
+                  name="extra.pause_after_human_reply_minutes"
+                  control={control}
+                  label={t("Pause after a human replies")}
+                  description={t(
+                    "How long this agent stays silent after someone from the business answers in the thread. Leave blank for 12 hours; 0 means it never pauses.",
+                  )}
+                  placeholder="12"
+                  disabled={!isAdmin}
+                />
+              )}
             </SectionField>
           </fieldset>
         </form>
