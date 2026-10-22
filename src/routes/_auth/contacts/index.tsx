@@ -195,6 +195,7 @@ function ListContacts() {
         >
           <div className="text-[14px] leading-[1.5]">
             {t("Delete the selected contacts?")} ({selected.size}){" "}
+            {t("Their leads will be deleted too.")}{" "}
             {t("This action cannot be undone.")}
           </div>
           <div className="flex items-center gap-[10px] mt-[12px]">

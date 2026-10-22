@@ -189,11 +189,27 @@ async function putWrittenContactInCaches(
 
 /** The mirror image: contacts that no longer exist leave every cache they were
  *  in, and the addresses they held stop resolving to them. */
+// The leads FK only nulls contact_id, so a person's leads must go first or
+// they linger in the pipeline with no one attached.
+async function deleteContactsWithLeads(orgId: string, ids: string[]) {
+  await supabase
+    .from("leads")
+    .delete()
+    .eq("organization_id", orgId)
+    .in("contact_id", ids)
+    .throwOnError();
+  await supabase.from("contacts").delete().in("id", ids).throwOnError();
+}
+
 function dropContactsFromCaches(
   queryClient: QueryClient,
   orgId: OrgId,
   ids: string[],
 ) {
+  void queryClient.invalidateQueries({ queryKey: queryKeys.leads.all(orgId) });
+  for (const id of ids) {
+    queryClient.removeQueries({ queryKey: queryKeys.contacts.lead(orgId, id) });
+  }
   const gone = new Set(ids);
   const listKey = queryKeys.contacts.all(orgId);
   const list = queryClient.getQueryData<{ data: ContactWithAddressesRow[] }>(
@@ -633,7 +649,7 @@ export function useDeleteContact() {
     mutationFn: async (id: string) => {
       if (!orgId) throw new Error("No active organization");
 
-      await supabase.from("contacts").delete().eq("id", id).throwOnError();
+      await deleteContactsWithLeads(orgId, [id]);
     },
     onSuccess: (_data, id) => {
       dropContactsFromCaches(queryClient, orgId, [id]);
@@ -654,8 +670,7 @@ export function useDeleteContacts() {
       // limits when removing large selections.
       const CHUNK_SIZE = 200;
       for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
-        const chunk = ids.slice(i, i + CHUNK_SIZE);
-        await supabase.from("contacts").delete().in("id", chunk).throwOnError();
+        await deleteContactsWithLeads(orgId, ids.slice(i, i + CHUNK_SIZE));
       }
     },
     onSuccess: (_data, ids) => {
