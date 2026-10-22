@@ -2,6 +2,7 @@ import type { Json } from "@/supabase/client";
 
 export type MessageStatusKind =
   | "pending"
+  | "paused"
   | "sent"
   | "delivered"
   | "read"
@@ -50,6 +51,7 @@ export function messageStatusKind(status: Json): MessageStatusKind {
   if (s.read) return "read";
   if (s.delivered) return "delivered";
   if (s.accepted || s.sent) return "sent";
+  if (s.paused) return "paused";
   return "pending";
 }
 
@@ -76,6 +78,8 @@ export function messageMatchesStatus(
         !s.failed &&
         !s.cancelled
       );
+    case "paused":
+      return messageMatchesStatus(status, "pending") && !!s.paused;
     case "sent":
       return !!s.accepted || !!s.sent;
     case "delivered":
@@ -113,6 +117,7 @@ export const FAILURE_KINDS = new Set<MessageStatusKind>([
 
 const KIND_LABELS: Record<MessageStatusKind, string> = {
   pending: "Pending",
+  paused: "Paused",
   sent: "Sent",
   delivered: "Delivered",
   read: "Read",

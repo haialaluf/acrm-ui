@@ -2477,6 +2477,7 @@ export type Database = {
           created_at: string
           delivered_count: number
           failed_count: number
+          paused_count: number
           pending_count: number
           read_count: number
           recipient_count: number
@@ -2532,6 +2533,14 @@ export type Database = {
         Args: { p_id: string; p_name: string }
         Returns: boolean
       }
+      pause_broadcast_batch: {
+        Args: {
+          p_created_at: string
+          p_organization_id: string
+          p_scheduled_date: string
+        }
+        Returns: number
+      }
       record_soft_bounce: {
         Args: {
           p_address: string
@@ -2559,6 +2568,14 @@ export type Database = {
           p_pipeline: Json
         }
         Returns: Json
+      }
+      resume_broadcast_batch: {
+        Args: {
+          p_created_at: string
+          p_organization_id: string
+          p_scheduled_date: string
+        }
+        Returns: number
       }
       save_lead_flow: {
         Args: {

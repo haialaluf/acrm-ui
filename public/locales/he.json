@@ -784,7 +784,6 @@
   "New broadcast": "שליחה מרובה חדשה",
   "No scheduled broadcasts": "אין שליחות מתוזמנות",
   "No past broadcasts": "אין שליחות קודמות",
-  "Every broadcast you schedule shows up here — you can cancel it up until it goes out.": "כל שליחה מרובה שתתזמנו תופיע כאן — ניתן לבטל אותה עד לרגע השליחה.",
   "Broadcasts that finished or were cancelled show up here with their delivery stats.": "שליחות שהסתיימו או בוטלו יופיעו כאן עם נתוני המסירה.",
   "sent": "נשלחו",
   "delivered": "נמסרו",
@@ -1763,5 +1762,13 @@
   "Pick a lead to work on": "בחרו ליד לטיפול",
   "Start": "התחלה",
   "Call outcomes": "תוצאות שיחה",
-  "Review": "סיכום"
+  "Review": "סיכום",
+  "Pause": "השהיה",
+  "Resume": "המשך שליחה",
+  "Pause sending": "השהיית שליחה",
+  "waiting to send": "ממתינות לשליחה",
+  "This batch is paused": "המנה מושהית",
+  "messages are waiting and won't go out until you resume.": "הודעות ממתינות ולא יישלחו עד שתמשיכו את השליחה.",
+  "Stops the messages that have not gone out yet. You can resume at any time.": "עוצר את ההודעות שעדיין לא נשלחו. אפשר להמשיך בכל עת.",
+  "Every broadcast you schedule shows up here - you can pause or cancel it up until it goes out.": "כל שליחה מתוזמנת מופיעה כאן - אפשר להשהות או לבטל אותה עד שהיא יוצאת."
 }
