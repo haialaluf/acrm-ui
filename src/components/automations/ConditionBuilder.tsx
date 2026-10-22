@@ -61,6 +61,11 @@ function fieldSpecs(t: (s: string) => string): FieldSpec[] {
       kind: "hours",
     },
     {
+      path: "conversation.incoming_since_last_run",
+      label: t("Contact wrote since the last run"),
+      kind: "boolean",
+    },
+    {
       path: "appointment.starts_at",
       label: t("Meeting start"),
       kind: "date",
