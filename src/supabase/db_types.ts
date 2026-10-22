@@ -1126,7 +1126,10 @@ export type Database = {
           size_bytes: number | null
           storage: string
           storage_path: string
+          text_pages: number | null
+          text_pages_read: number | null
           text_status: string | null
+          text_reading_since: string | null
         }
         Insert: {
           appointment_id?: string | null
@@ -1140,7 +1143,10 @@ export type Database = {
           size_bytes?: number | null
           storage?: string
           storage_path: string
+          text_pages?: number | null
+          text_pages_read?: number | null
           text_status?: string | null
+          text_reading_since?: string | null
         }
         Update: {
           appointment_id?: string | null
@@ -1154,7 +1160,10 @@ export type Database = {
           size_bytes?: number | null
           storage?: string
           storage_path?: string
+          text_pages?: number | null
+          text_pages_read?: number | null
           text_status?: string | null
+          text_reading_since?: string | null
         }
         Relationships: [
           {

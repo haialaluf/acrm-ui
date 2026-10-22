@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import dayjs from "dayjs";
+import { Tooltip } from "antd";
 import {
   FileText,
   Image as ImageIcon,
@@ -58,6 +59,32 @@ function formatSize(bytes: number | null) {
   if (!bytes) return null;
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function ReadingProgress({ row }: { row: ContactFileRow }) {
+  const { translate: t } = useTranslation();
+  const read = row.text_pages_read ?? 0;
+  const total = row.text_pages;
+  const percent = total ? Math.round((read / total) * 100) : 0;
+  return (
+    <div className="flex flex-wrap items-center gap-x-[10px] gap-y-[6px] mt-[6px]">
+      <div className="grow basis-[140px] h-[6px] rounded-full bg-primary/15 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-500"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      <Tooltip title={t("So Patient AI can search it.")}>
+        <span className="shrink-0 px-[10px] py-[3px] rounded-full bg-primary/15 text-primary text-[12px] font-semibold whitespace-nowrap">
+          {total
+            ? t("Reading file · {{1}} of {{2}} pages")
+                .replace("{{1}}", String(read))
+                .replace("{{2}}", String(total))
+            : t("Reading file…")}
+        </span>
+      </Tooltip>
+    </div>
+  );
 }
 
 export default function ContactFilesTab({
@@ -222,6 +249,9 @@ export default function ContactFilesTab({
                       .format("D MMM YYYY")}
                     {formatSize(item.size) && ` · ${formatSize(item.size)}`}
                   </div>
+                  {item.row?.text_status === "reading" && (
+                    <ReadingProgress row={item.row} />
+                  )}
                 </div>
               </button>
               {item.row && (

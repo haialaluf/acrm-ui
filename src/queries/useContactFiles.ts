@@ -34,6 +34,8 @@ export function useContactFiles(contactId: string) {
       return data ?? [];
     },
     enabled: !!userId && !!orgId && !!contactId,
+    refetchInterval: (query) =>
+      query.state.data?.some((f) => f.text_status === "reading") ? 5000 : false,
   });
 }
 

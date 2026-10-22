@@ -1723,5 +1723,8 @@
   "Based on the case summary, {{1}} sessions and the latest {{2}} notes and {{3}} reports": "על סמך הסיכום, {{1}} פגישות, ההערות האחרונות ({{2}}) וסיכומי הפגישות האחרונים ({{3}})",
   ", plus a search of the record": ", וחיפוש בתיק",
   "Based on {{1}} sessions and the latest {{2}} notes and {{3}} reports (older ones not included)": "על סמך {{1}} פגישות, ההערות האחרונות ({{2}}) וסיכומי הפגישות האחרונים ({{3}}); ישנים יותר לא נכללו",
-  "Based on {{1}} sessions, {{2}} notes and {{3}} reports": "על סמך {{1}} פגישות, {{2}} הערות ו-{{3}} סיכומי פגישות"
+  "Based on {{1}} sessions, {{2}} notes and {{3}} reports": "על סמך {{1}} פגישות, {{2}} הערות ו-{{3}} סיכומי פגישות",
+  "Reading file · {{1}} of {{2}} pages": "קורא את הקובץ · {{1}} מתוך {{2}} עמודים",
+  "Reading file…": "קורא את הקובץ…",
+  "So Patient AI can search it.": "כדי ש-Patient AI יוכל לחפש בו."
 }
