@@ -1,88 +1,71 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import dayjs from "dayjs";
 import {
   Bookmark,
   Check,
-  CircleCheck,
-  Circle,
+  CloudAlert,
+  CloudCheck,
   Lock,
   Mic,
+  Monitor,
   Pause,
   Pencil,
   Play,
   Square,
+  Users,
 } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+import { useBlocker, useNavigate } from "@tanstack/react-router";
 import Avatar from "@/components/Avatar";
+import ConfirmModal from "@/components/ConfirmModal";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContactAppointments } from "@/queries/useContactAppointments";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import { nameInitials } from "@/utils/FormatUtils";
-import { demoTranscript, fillReport } from "./templates";
+import { emptySections } from "./templates";
 import {
   useReportTemplates,
   useSaveSessionReport,
 } from "@/queries/useSessionReports";
+import {
+  RecorderStartError,
+  type RecorderState,
+  type RecordingMode,
+  reportProgress,
+  SessionRecorder,
+} from "./sessionRecorder";
 
-type Step = "setup" | "recording" | "writing";
+type Step = "setup" | "starting" | "recording" | "saving" | "writing";
 
 const BAR_COUNT = 28;
+const IDLE_STATE: RecorderState = {
+  seconds: 0,
+  paused: false,
+  uploaded: 0,
+  waiting: 0,
+  connectionProblem: false,
+  callAudioLost: false,
+};
 
-function useMicLevels(active: boolean) {
+function useLevels(recorder: SessionRecorder | null, paused: boolean) {
   const [levels, setLevels] = useState<number[]>(() =>
     Array.from({ length: BAR_COUNT }, () => 0.08),
   );
-  const [live, setLive] = useState(false);
-
   useEffect(() => {
-    if (!active) return;
-    let frame = 0;
-    let stream: MediaStream | null = null;
-    let context: AudioContext | null = null;
-    let cancelled = false;
-    let analyser: AnalyserNode | null = null;
-    const buffer = new Uint8Array(256);
-
-    const tick = () => {
-      let level: number;
-      if (analyser) {
-        analyser.getByteTimeDomainData(buffer);
-        let sum = 0;
-        for (const v of buffer) sum += ((v - 128) / 128) ** 2;
-        level = Math.min(1, Math.sqrt(sum / buffer.length) * 5);
-      } else {
-        level = 0.25 + Math.random() * 0.55;
-      }
+    if (!recorder || paused) return;
+    const id = window.setInterval(() => {
+      const level = recorder.level();
       setLevels((prev) => [...prev.slice(1), Math.max(0.08, level)]);
-      frame = window.setTimeout(tick, 110);
-    };
+    }, 110);
+    return () => window.clearInterval(id);
+  }, [recorder, paused]);
+  return levels;
+}
 
-    navigator.mediaDevices
-      ?.getUserMedia({ audio: true })
-      .then((s) => {
-        if (cancelled) {
-          s.getTracks().forEach((t) => t.stop());
-          return;
-        }
-        stream = s;
-        context = new AudioContext();
-        analyser = context.createAnalyser();
-        analyser.fftSize = 256;
-        context.createMediaStreamSource(s).connect(analyser);
-        setLive(true);
-      })
-      .catch(() => setLive(false));
-
-    tick();
-    return () => {
-      cancelled = true;
-      window.clearTimeout(frame);
-      stream?.getTracks().forEach((t) => t.stop());
-      void context?.close();
-    };
-  }, [active]);
-
-  return { levels, live };
+function useRecorderState(recorder: SessionRecorder | null) {
+  return useSyncExternalStore(
+    recorder?.subscribe ?? (() => () => {}),
+    recorder?.getState ?? (() => IDLE_STATE),
+  );
 }
 
 export default function RecordSession({
@@ -102,72 +85,225 @@ export default function RecordSession({
   const [step, setStep] = useState<Step>("setup");
   const [chosenTemplateId, setTemplateId] = useState("");
   const templateId = chosenTemplateId || templates[0]?.id || "";
+  const [mode, setMode] = useState<RecordingMode>("room");
   const [language, setLanguage] = useState("auto");
   const [consent, setConsent] = useState(false);
-  const [paused, setPaused] = useState(false);
-  const [seconds, setSeconds] = useState(0);
+  const [startError, setStartError] = useState("");
+  const [saveError, setSaveError] = useState("");
+  const [phase, setPhase] = useState<"transcribing" | "writing">(
+    "transcribing",
+  );
+  const [writeError, setWriteError] = useState("");
+  const [recorder, setRecorder] = useState<SessionRecorder | null>(null);
+  const recorderRef = useRef<SessionRecorder | null>(null);
+  const state = useRecorderState(recorder);
+  const levels = useLevels(recorder, state.paused);
   const [marks, setMarks] = useState(0);
-  const startedAt = useRef<string>("");
 
   const template = templates.find((tpl) => tpl.id === templateId);
-  const { levels, live } = useMicLevels(step === "recording" && !paused);
+  const busy = step === "recording" || step === "saving" || step === "writing";
+  const saved = useRef(false);
+  const leaveBlocker = useBlocker({
+    shouldBlockFn: () => busy && !saved.current,
+    enableBeforeUnload: busy,
+    withResolver: true,
+  });
 
-  useEffect(() => {
-    if (step !== "recording" || paused) return;
-    const id = window.setInterval(() => setSeconds((s) => s + 1), 1000);
-    return () => window.clearInterval(id);
-  }, [step, paused]);
+  useEffect(() => () => recorderRef.current?.release(), []);
 
-  const sections = template?.sections ?? [];
-  const heard = Math.min(sections.length, Math.floor(seconds / 3));
-
-  function stop() {
-    if (!template) return;
-    setStep("writing");
-    const first =
-      contact.firstname || contact.name?.split(" ")[0] || t("The patient");
-    const recordedAt = dayjs(startedAt.current);
-    const linked = (appointments ?? [])
+  const linkedAppointment = () =>
+    (appointments ?? [])
       .filter((a) => a.status !== "cancelled")
       .map((a) => ({
         a,
-        gap: Math.abs(dayjs(a.starts_at).diff(recordedAt, "minute")),
+        gap: Math.abs(dayjs(a.starts_at).diff(dayjs(), "minute")),
       }))
       .filter(({ gap }) => gap < 12 * 60)
-      .sort((x, y) => x.gap - y.gap)[0]?.a;
+      .sort((x, y) => x.gap - y.gap)[0]?.a ?? null;
 
-    saveReport.mutate(
-      {
+  async function start() {
+    setStartError("");
+    setStep("starting");
+    try {
+      const started = await SessionRecorder.start({
         contactId: contact.id,
-        appointmentId: linked?.id ?? null,
-        templateId: template.id,
-        templateName: template.name,
-        durationSeconds: Math.max(seconds, 1),
-        status: "draft",
-        sections: fillReport(template, first),
-        transcript: demoTranscript(first),
-      },
-      {
-        onSuccess: (saved) => onDone(saved.id),
-        onError: () => setStep("recording"),
-      },
-    );
+        appointmentId: linkedAppointment()?.id ?? null,
+        mode,
+        language,
+      });
+      recorderRef.current = started;
+      setRecorder(started);
+      setStep("recording");
+    } catch (err) {
+      setStep("setup");
+      const reason = err instanceof RecorderStartError ? err.reason : "server";
+      if (reason === "cancelled") return;
+      setStartError(
+        reason === "microphone"
+          ? t("Allow microphone access in the browser to record.")
+          : reason === "no-tab-audio"
+            ? t(
+                'The call\'s sound was not shared. Start again and turn on "Also share tab audio".',
+              )
+            : (err as Error).message.startsWith("Choose where")
+              ? t(
+                  "Choose where this clinic's patient data is stored (Settings → Organization) first.",
+                )
+              : t("Could not start the recording. Please try again."),
+      );
+    }
   }
 
-  const time = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+  async function stop() {
+    if (!recorder || !template) return;
+    setStep("saving");
+    setSaveError("");
+    try {
+      const { transcribing } = await recorder.stop(template.id);
+      if (transcribing) {
+        setStep("writing");
+        await followReport(recorder.id);
+      } else {
+        await writeByHand();
+      }
+    } catch {
+      setSaveError(t("Could not save the recording. Please try again."));
+    }
+  }
+
+  async function followReport(recordingId: string) {
+    for (;;) {
+      const progress = await reportProgress(recordingId).catch(() => null);
+      if (progress?.status === "done") {
+        saved.current = true;
+        onDone(progress.reportId);
+        return;
+      }
+      if (progress?.status === "failed") {
+        setWriteError(progress.error);
+        return;
+      }
+      if (progress) setPhase(progress.status);
+      await new Promise((r) => setTimeout(r, 4000));
+    }
+  }
+
+  async function writeByHand() {
+    if (!recorder || !template) return;
+    const report = await saveReport.mutateAsync({
+      contactId: contact.id,
+      appointmentId: linkedAppointment()?.id ?? null,
+      recordingId: recorder.id,
+      templateId: template.id,
+      templateName: template.name,
+      durationSeconds: Math.max(state.seconds, 1),
+      status: "draft",
+      sections: emptySections(template),
+      transcript: [],
+    });
+    saved.current = true;
+    onDone(report.id);
+  }
+
+  const time = `${String(Math.floor(state.seconds / 60)).padStart(2, "0")}:${String(
+    state.seconds % 60,
+  ).padStart(2, "0")}`;
+
+  const leaveModal = (
+    <ConfirmModal
+      open={leaveBlocker.status === "blocked"}
+      title={
+        step === "writing"
+          ? t("Leave before the report is ready?")
+          : t("Stop recording and leave?")
+      }
+      body={
+        step === "writing"
+          ? t(
+              "The recording is saved, but the report is still being written. If you leave now, it won't be finished.",
+            )
+          : t(
+              "The recording is still running. If you leave now it will not be turned into a report.",
+            )
+      }
+      confirmLabel={t("Leave")}
+      onConfirm={() => {
+        recorderRef.current?.release();
+        leaveBlocker.proceed?.();
+      }}
+      onCancel={() => leaveBlocker.reset?.()}
+    />
+  );
 
   if (step === "writing") {
     return (
       <div className="flex flex-col items-center justify-center gap-[16px] grow px-[24px] text-center">
+        {leaveModal}
+        {!writeError && (
+          <span className="w-[56px] h-[56px] rounded-[18px] bg-accent text-primary flex items-center justify-center">
+            <span className="w-[22px] h-[22px] border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
+          </span>
+        )}
+        <div className="text-[18px] font-semibold text-card-foreground">
+          {writeError
+            ? t("The report couldn't be written")
+            : phase === "transcribing"
+              ? t("Turning the session into text")
+              : t("Writing the report")}
+        </div>
+        <div className="text-[14px] text-muted-foreground max-w-[320px]">
+          {writeError
+            ? t(
+                "The recording is saved. You can write the report yourself from the template.",
+              )
+            : phase === "transcribing"
+              ? t(
+                  "This usually takes a minute or two. Please keep this page open.",
+                )
+              : t("Filling in the template from what was said in the session…")}
+        </div>
+        {writeError && (
+          <button
+            type="button"
+            disabled={saveReport.isPending}
+            className="h-[44px] px-[22px] rounded-full bg-primary text-white text-[15px] disabled:opacity-50"
+            onClick={() => void writeByHand().catch(() => {})}
+          >
+            {t("Write it myself")}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  if (step === "saving") {
+    return (
+      <div className="flex flex-col items-center justify-center gap-[16px] grow px-[24px] text-center">
+        {leaveModal}
         <span className="w-[56px] h-[56px] rounded-[18px] bg-accent text-primary flex items-center justify-center">
           <span className="w-[22px] h-[22px] border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
         </span>
         <div className="text-[18px] font-semibold text-card-foreground">
-          {t("Writing the report")}
+          {saveError ? t("Not saved yet") : t("Saving the recording")}
         </div>
         <div className="text-[14px] text-muted-foreground max-w-[300px]">
-          {t("Filling in the template from what was said in the session…")}
+          {saveError ||
+            (state.waiting > 0
+              ? t("Uploading the last {{1}} parts…").replace(
+                  "{{1}}",
+                  String(state.waiting),
+                )
+              : t("Putting the recording together…"))}
         </div>
+        {saveError && (
+          <button
+            type="button"
+            className="h-[44px] px-[22px] rounded-full bg-primary text-white text-[15px]"
+            onClick={() => void stop()}
+          >
+            {t("Try again")}
+          </button>
+        )}
       </div>
     );
   }
@@ -175,17 +311,19 @@ export default function RecordSession({
   if (step === "recording") {
     return (
       <div className="flex flex-col items-center gap-[18px] grow px-[24px] pt-[24px] pb-[20px] overflow-y-auto">
+        {leaveModal}
         <div className="flex items-center gap-[8px]">
           <span className="inline-flex items-center gap-[6px] h-[24px] px-[10px] rounded-full bg-destructive/12 text-destructive text-[12px] font-semibold">
             <span
               className={
                 "w-[8px] h-[8px] rounded-full bg-destructive " +
-                (paused ? "" : "animate-pulse")
+                (state.paused ? "" : "animate-pulse")
               }
             />
-            {paused ? t("Paused") : t("Recording")}
+            {state.paused ? t("Paused") : t("Recording")}
           </span>
           <span className="text-[12px] text-muted-foreground">
+            {mode === "online" ? t("Online session") : t("In the room")} ·{" "}
             {template?.name}
           </span>
         </div>
@@ -199,54 +337,45 @@ export default function RecordSession({
               className="w-[5px] rounded-full bg-primary transition-[height] duration-100"
               style={{
                 height: `${Math.round(8 + level * 56)}px`,
-                opacity: paused ? 0.3 : 0.45 + level * 0.55,
+                opacity: state.paused ? 0.3 : 0.45 + level * 0.55,
               }}
             />
           ))}
         </div>
         <div className="text-[12px] text-muted-foreground -mt-[8px]">
-          {live ? t("Listening through your microphone") : t("Listening")}
+          {mode === "online"
+            ? t("Listening to your microphone and the call tab")
+            : t("Listening through your microphone")}
         </div>
 
-        <div className="self-stretch bg-popover border border-border rounded-[14px] px-[16px] py-[14px] flex flex-col gap-[9px]">
-          <div className="flex items-center text-[12px] text-muted-foreground">
-            <span>{t("Heard so far")}</span>
-            <span className="ms-auto">
-              {heard} / {sections.length}
-            </span>
-          </div>
-          <div className="h-[6px] rounded-full bg-muted overflow-hidden">
-            <div
-              className="h-full bg-primary transition-[width] duration-500"
-              style={{
-                width: `${(heard / Math.max(1, sections.length)) * 100}%`,
-              }}
-            />
-          </div>
-          {sections.slice(Math.max(0, heard - 3), heard + 3).map((s, i) => {
-            const done = sections.indexOf(s) < heard;
-            return (
-              <div
-                key={s.id}
-                className={
-                  "flex items-center gap-[9px] text-[13px] " +
-                  (done ? "text-card-foreground" : "text-muted-foreground")
-                }
-              >
-                {done ? (
-                  <CircleCheck className="w-[15px] h-[15px] text-success shrink-0" />
-                ) : (
-                  <Circle className="w-[15px] h-[15px] shrink-0" />
-                )}
-                <span className="truncate">{s.title}</span>
-                {i === 0 && marks > 0 && done && (
-                  <span className="ms-auto text-[11px] text-muted-foreground">
-                    {marks} {t("marks")}
-                  </span>
-                )}
-              </div>
-            );
-          })}
+        <div className="self-stretch bg-popover border border-border rounded-[14px] px-[16px] py-[14px] flex flex-col gap-[9px] text-[13px]">
+          {state.connectionProblem ? (
+            <div className="flex items-center gap-[9px] text-warning">
+              <CloudAlert className="w-[16px] h-[16px] shrink-0" />
+              {t(
+                "Connection problem. Keep recording: the audio is kept here and sent when the connection is back.",
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-[9px] text-card-foreground">
+              <CloudCheck className="w-[16px] h-[16px] text-success shrink-0" />
+              {t("Saved to the clinic's secure storage as you go")}
+            </div>
+          )}
+          {state.callAudioLost && (
+            <div className="flex items-center gap-[9px] text-destructive">
+              <Monitor className="w-[16px] h-[16px] shrink-0" />
+              {t(
+                "The call tab stopped sharing. Only your microphone is being recorded now.",
+              )}
+            </div>
+          )}
+          {marks > 0 && (
+            <div className="flex items-center gap-[9px] text-muted-foreground">
+              <Bookmark className="w-[15px] h-[15px] shrink-0" />
+              {marks} {t("marks")}
+            </div>
+          )}
         </div>
 
         <div className="flex items-start gap-[22px] mt-auto pt-[8px]">
@@ -254,23 +383,25 @@ export default function RecordSession({
             <button
               type="button"
               className="w-[56px] h-[56px] rounded-full border border-border bg-popover flex items-center justify-center"
-              onClick={() => setPaused((p) => !p)}
+              onClick={() =>
+                state.paused ? recorder?.resume() : recorder?.pause()
+              }
             >
-              {paused ? (
+              {state.paused ? (
                 <Play className="w-[20px] h-[20px]" />
               ) : (
                 <Pause className="w-[20px] h-[20px]" />
               )}
             </button>
             <span className="text-[12px] text-muted-foreground">
-              {paused ? t("Resume") : t("Pause")}
+              {state.paused ? t("Resume") : t("Pause")}
             </span>
           </div>
           <div className="flex flex-col items-center gap-[6px]">
             <button
               type="button"
               className="w-[72px] h-[72px] rounded-full bg-destructive text-white flex items-center justify-center shadow-[0_6px_18px_rgba(200,40,40,.3)]"
-              onClick={stop}
+              onClick={() => void stop()}
             >
               <Square className="w-[24px] h-[24px] fill-white" />
             </button>
@@ -282,7 +413,10 @@ export default function RecordSession({
             <button
               type="button"
               className="w-[56px] h-[56px] rounded-full border border-border bg-popover flex items-center justify-center"
-              onClick={() => setMarks((m) => m + 1)}
+              onClick={() => {
+                recorder?.mark();
+                setMarks((m) => m + 1);
+              }}
             >
               <Bookmark className="w-[20px] h-[20px]" />
             </button>
@@ -291,15 +425,6 @@ export default function RecordSession({
             </span>
           </div>
         </div>
-        {saveReport.isError && (
-          <p className="text-destructive text-[13px] text-center">
-            {saveReport.error.message.startsWith("Choose where")
-              ? t(
-                  "Choose where this clinic's patient data is stored (Settings → Organization) first.",
-                )
-              : t("Could not save the report. Please try again.")}
-          </p>
-        )}
         <div className="flex items-center gap-[6px] text-[12px] text-muted-foreground">
           <Lock className="w-[13px] h-[13px]" />
           {t("Audio is deleted once the report is approved")}
@@ -307,6 +432,26 @@ export default function RecordSession({
       </div>
     );
   }
+
+  const modes: {
+    id: RecordingMode;
+    icon: typeof Users;
+    title: string;
+    description: string;
+  }[] = [
+    {
+      id: "room",
+      icon: Users,
+      title: t("In the room"),
+      description: t("Your microphone hears you and the patient"),
+    },
+    {
+      id: "online",
+      icon: Monitor,
+      title: t("Online session"),
+      description: t("A call in a browser tab: Google Meet, Zoom, Teams…"),
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-[14px] grow px-[20px] pt-[18px] pb-[20px] overflow-y-auto">
@@ -325,6 +470,41 @@ export default function RecordSession({
           </div>
         </div>
       </div>
+
+      <div className="label mb-0">{t("Session")}</div>
+      <div className="grid grid-cols-2 gap-[8px]">
+        {modes.map(({ id, icon: Icon, title, description }) => (
+          <button
+            key={id}
+            type="button"
+            className={
+              "flex flex-col gap-[4px] px-[12px] py-[11px] rounded-[12px] border text-start " +
+              (id === mode
+                ? "border-primary bg-primary/6"
+                : "border-border bg-popover hover:bg-accent")
+            }
+            onClick={() => setMode(id)}
+          >
+            <Icon
+              className={
+                "w-[18px] h-[18px] " +
+                (id === mode ? "text-primary" : "text-muted-foreground")
+              }
+            />
+            <div className="text-[14px] text-card-foreground">{title}</div>
+            <div className="text-[12px] text-muted-foreground">
+              {description}
+            </div>
+          </button>
+        ))}
+      </div>
+      {mode === "online" && (
+        <div className="text-[13px] text-muted-foreground bg-accent rounded-[12px] px-[12px] py-[10px]">
+          {t(
+            'Open the call in this browser first. After you press Start, pick the call\'s tab and turn on "Also share tab audio". Headphones give the clearest recording.',
+          )}
+        </div>
+      )}
 
       <div className="flex items-center">
         <div className="label mb-0">{t("Template")}</div>
@@ -398,6 +578,10 @@ export default function RecordSession({
         {t("The patient agreed to have this session recorded")}
       </button>
 
+      {startError && (
+        <p className="text-destructive text-[13px]">{startError}</p>
+      )}
+
       <div className="flex gap-[8px] mt-auto pt-[8px]">
         <button
           type="button"
@@ -408,15 +592,12 @@ export default function RecordSession({
         </button>
         <button
           type="button"
-          disabled={!consent || !template}
+          disabled={!consent || !template || step === "starting"}
           className="grow h-[48px] rounded-full bg-destructive text-white text-[15px] font-medium flex items-center justify-center gap-[8px] disabled:opacity-40"
-          onClick={() => {
-            startedAt.current = new Date().toISOString();
-            setStep("recording");
-          }}
+          onClick={() => void start()}
         >
           <Mic className="w-[18px] h-[18px]" />
-          {t("Start recording")}
+          {step === "starting" ? t("Starting…") : t("Start recording")}
         </button>
       </div>
     </div>

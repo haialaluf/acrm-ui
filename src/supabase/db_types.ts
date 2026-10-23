@@ -2157,6 +2157,115 @@ export type Database = {
           },
         ]
       }
+      session_recordings: {
+        Row: {
+          appointment_id: string | null
+          audio_bytes: number | null
+          audio_deleted_at: string | null
+          channels: number
+          chunk_count: number
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          data_region: string
+          duration_seconds: number | null
+          finished_at: string | null
+          id: string
+          language: string | null
+          marks: Json
+          mime_type: string
+          mode: string
+          organization_id: string
+          report_id: string | null
+          status: string
+          storage_key: string
+          template_id: string | null
+          transcript_error: string | null
+          transcript_job: string | null
+          transcript_started_at: string | null
+          transcript_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          audio_bytes?: number | null
+          audio_deleted_at?: string | null
+          channels?: number
+          chunk_count?: number
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          data_region: string
+          duration_seconds?: number | null
+          finished_at?: string | null
+          id: string
+          language?: string | null
+          marks?: Json
+          mime_type: string
+          mode: string
+          organization_id: string
+          report_id?: string | null
+          status?: string
+          storage_key: string
+          template_id?: string | null
+          transcript_error?: string | null
+          transcript_job?: string | null
+          transcript_started_at?: string | null
+          transcript_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          audio_bytes?: number | null
+          audio_deleted_at?: string | null
+          channels?: number
+          chunk_count?: number
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          data_region?: string
+          duration_seconds?: number | null
+          finished_at?: string | null
+          id?: string
+          language?: string | null
+          marks?: Json
+          mime_type?: string
+          mode?: string
+          organization_id?: string
+          report_id?: string | null
+          status?: string
+          storage_key?: string
+          template_id?: string | null
+          transcript_error?: string | null
+          transcript_job?: string | null
+          transcript_started_at?: string | null
+          transcript_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_recordings_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_recordings_contact_id_fkey"
+            columns: ["organization_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "session_recordings_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "session_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       session_reports: {
         Row: {
           appointment_id: string | null

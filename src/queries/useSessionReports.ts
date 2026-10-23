@@ -94,6 +94,7 @@ export function useSaveSessionReport() {
     mutationFn: async (
       report: Omit<SessionReport, "id" | "createdAt"> & {
         id?: string;
+        recordingId?: string;
       },
     ) => {
       const { data, error } = await supabase.functions.invoke<SessionReportRow>(
@@ -108,6 +109,7 @@ export function useSaveSessionReport() {
             templateName: report.templateName,
             durationSeconds: report.durationSeconds,
             status: report.status,
+            recordingId: report.recordingId,
             content: {
               sections: report.sections,
               transcript: report.transcript,
