@@ -259,6 +259,14 @@ export default function SessionReportView({
   const [report, setReport] = useState(saved);
   const [dirty, setDirty] = useState(false);
   const [view, setView] = useState<"report" | "transcript">("report");
+  const [highlight, setHighlight] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (view !== "transcript" || !highlight.length) return;
+    document
+      .getElementById(`transcript-line-${highlight[0]}`)
+      ?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [view, highlight]);
   const [asking, setAsking] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -351,7 +359,10 @@ export default function SessionReportView({
                   ? "bg-popover text-card-foreground shadow-sm"
                   : "text-muted-foreground")
               }
-              onClick={() => setView(v)}
+              onClick={() => {
+                setHighlight([]);
+                setView(v);
+              }}
             >
               {v === "report" ? t("Report") : t("Transcript")}
             </button>
@@ -362,7 +373,16 @@ export default function SessionReportView({
       <div className="grow overflow-y-auto px-[20px] py-[14px] flex flex-col gap-[12px]">
         {view === "transcript"
           ? report.transcript.map((line, i) => (
-              <div key={i} className="flex gap-[10px] text-[14px]">
+              <div
+                key={i}
+                id={`transcript-line-${i + 1}`}
+                className={
+                  "flex gap-[10px] text-[14px] rounded-[10px] " +
+                  (highlight.includes(i + 1)
+                    ? "bg-primary/8 -mx-[8px] px-[8px] py-[6px]"
+                    : "")
+                }
+              >
                 <span className="text-[12px] text-muted-foreground tabular-nums w-[40px] shrink-0 pt-[2px]">
                   {line.at}
                 </span>
@@ -370,7 +390,10 @@ export default function SessionReportView({
                   <div className="text-[12px] font-semibold text-muted-foreground">
                     {line.speaker === "therapist" ? t("You") : contact.name}
                   </div>
-                  <div className="text-card-foreground leading-[1.5]">
+                  <div
+                    className="text-card-foreground leading-[1.5]"
+                    dir="auto"
+                  >
                     {line.text}
                   </div>
                 </div>
@@ -400,6 +423,14 @@ export default function SessionReportView({
                     </button>
                   )}
                 </div>
+                {s.flagged && s.check && (
+                  <div
+                    className="text-[12px] leading-[1.45] text-warning"
+                    dir="auto"
+                  >
+                    {s.check}
+                  </div>
+                )}
                 {s.options ? (
                   <div className="flex flex-col gap-[6px]">
                     {s.options.map((option) => {
@@ -433,6 +464,16 @@ export default function SessionReportView({
                         </button>
                       );
                     })}
+                    {(s.value || report.status !== "approved") && (
+                      <textarea
+                        className="resize-none bg-transparent outline-none text-[14px] leading-[1.5] text-foreground placeholder:italic"
+                        dir="auto"
+                        rows={Math.max(1, Math.ceil(s.value.length / 48))}
+                        placeholder={t("Notes")}
+                        value={s.value}
+                        onChange={(e) => update(i, { value: e.target.value })}
+                      />
+                    )}
                   </div>
                 ) : (
                   <textarea
@@ -443,9 +484,23 @@ export default function SessionReportView({
                       Math.ceil(s.value.length / 48),
                     )}
                     placeholder={t("Not discussed")}
+                    dir="auto"
                     value={s.value}
                     onChange={(e) => update(i, { value: e.target.value })}
                   />
+                )}
+                {!!s.sources?.length && report.transcript.length > 0 && (
+                  <button
+                    type="button"
+                    className="self-start text-[12px] text-primary"
+                    onClick={() => {
+                      setHighlight(s.sources ?? []);
+                      setView("transcript");
+                    }}
+                  >
+                    {t("From the session")} ·{" "}
+                    {report.transcript[s.sources[0] - 1]?.at}
+                  </button>
                 )}
               </div>
             ))}

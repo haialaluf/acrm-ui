@@ -11,6 +11,10 @@ export type ReportSection = {
   options?: string[];
   checked?: string[];
   flagged?: boolean;
+  /** What the therapist should verify, from the report writer. */
+  check?: string;
+  /** Transcript line numbers (1-based) the section was written from. */
+  sources?: number[];
 };
 
 export type SessionReport = {
