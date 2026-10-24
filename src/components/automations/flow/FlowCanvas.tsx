@@ -13,10 +13,11 @@ import {
 import { Minus, Plus } from "lucide-react";
 import type { AutomationStep, AutomationTrigger } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { getTranslation } from "@/i18n/translations";
 import { FlowContext, type FlowContextValue } from "./context";
 import FlowEdge from "./FlowEdge";
-import { buildFlow, type FlowEdgeType, type FlowNode } from "./layout";
+import { buildFlow, NODE_W, type FlowEdgeType, type FlowNode } from "./layout";
 import { AnchorNode, CapNode, StepNode, TriggerNode } from "./nodes";
 import "@xyflow/react/dist/style.css";
 import "./flow.css";
@@ -188,13 +189,19 @@ function Canvas({
  * off to one side, with nothing afterwards to correct it. So it re-fits on both
  * (node changes and pane resizes) instead, right up until the user pans or
  * zooms; from then on the viewport is theirs.
+ *
+ * A phone gets a different frame. Fitting a whole flow into ~375px shrinks the
+ * cards past reading, so instead the trunk fills the width and the trigger
+ * sits at the top - the flow reads like a list you scroll down, and the fit
+ * button is still there for the overview.
  */
 function useAutoFit(
   pane: RefObject<HTMLDivElement | null>,
   nodes: FlowNode[],
   userMoved: RefObject<boolean>,
 ) {
-  const { fitView } = useReactFlow();
+  const { fitView, setViewport } = useReactFlow();
+  const isMobile = useIsMobile();
 
   const laidOut =
     nodes.length > 0 && nodes.every((node) => node.measured?.height != null);
@@ -212,6 +219,11 @@ function useAutoFit(
         if (userMoved.current) return;
         const { width, height } = element.getBoundingClientRect();
         if (width < 1 || height < 1) return;
+        if (isMobile) {
+          const zoom = Math.min(1, Math.max(0.5, (width - 32) / NODE_W));
+          void setViewport({ x: width / 2, y: 20, zoom }, { duration: 0 });
+          return;
+        }
         void fitView({ padding: 0.2, maxZoom: 1, duration: 0 });
       });
     };
@@ -224,7 +236,7 @@ function useAutoFit(
       cancelAnimationFrame(frame);
       observer.disconnect();
     };
-  }, [pane, nodes, laidOut, userMoved, fitView]);
+  }, [pane, nodes, laidOut, userMoved, fitView, setViewport, isMobile]);
 }
 
 /** The zoom control. */
@@ -234,11 +246,11 @@ function ZoomBar() {
   const { zoom } = useViewport();
 
   return (
-    <div className="absolute bottom-[18px] left-1/2 z-[8] flex -translate-x-1/2 items-center gap-[3px] rounded-[10px] border border-border bg-card p-1 shadow-md">
+    <div className="absolute bottom-[calc(18px+env(safe-area-inset-bottom))] left-1/2 z-[8] flex -translate-x-1/2 items-center gap-[3px] rounded-[10px] border border-border bg-card p-1 shadow-md">
       <button
         type="button"
         aria-label={t("Zoom out")}
-        className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+        className="rounded-md p-1 text-muted-foreground hover:bg-muted pointer-coarse:p-2"
         onClick={() => void zoomOut({ duration: 120 })}
       >
         <Minus className="h-[15px] w-[15px]" />
@@ -249,14 +261,14 @@ function ZoomBar() {
       <button
         type="button"
         aria-label={t("Zoom in")}
-        className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+        className="rounded-md p-1 text-muted-foreground hover:bg-muted pointer-coarse:p-2"
         onClick={() => void zoomIn({ duration: 120 })}
       >
         <Plus className="h-[15px] w-[15px]" />
       </button>
       <button
         type="button"
-        className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+        className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted pointer-coarse:py-2"
         onClick={() =>
           void fitView({ padding: 0.2, maxZoom: 1, duration: 160 })
         }

@@ -142,7 +142,7 @@ export default function AutomationsList() {
           </div>
           <button
             type="button"
-            className="inline-flex shrink-0 items-center gap-[7px] whitespace-nowrap rounded-[9px] border border-primary bg-primary px-[13px] py-[7px] text-[13.5px] text-white hover:opacity-90"
+            className="inline-flex shrink-0 items-center gap-[7px] whitespace-nowrap rounded-[9px] border border-primary bg-primary px-[13px] py-[7px] text-[13.5px] text-white hover:opacity-90 max-md:text-[14px]"
             onClick={() => setGalleryOpen(true)}
           >
             <Plus className="h-[15px] w-[15px]" />
@@ -205,7 +205,7 @@ export default function AutomationsList() {
                     params: { automationId: automation.id },
                   });
                 }}
-                className="cursor-pointer border-b border-border px-1 py-[13px] hover:bg-primary/5"
+                className="cursor-pointer border-b border-border px-1 py-[13px] hover:bg-primary/5 active:bg-primary/5"
               >
                 {/* Name and the controls share the first line; everything else
                     stacks under it.
@@ -265,7 +265,7 @@ export default function AutomationsList() {
                       <button
                         type="button"
                         aria-label={t("More options")}
-                        className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+                        className="rounded-md p-1 text-muted-foreground hover:bg-muted pointer-coarse:p-2"
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </button>

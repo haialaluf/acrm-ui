@@ -10,6 +10,7 @@ import type {
 } from "@/supabase/client";
 import { WEEK_DAYS } from "@/supabase/types/automation_types";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useHoverCapable } from "@/hooks/useHoverCapable";
 import { useContactTags } from "@/queries/useContactTags";
 import { useContactSourceOptions } from "@/queries/useContactSources";
 import { useCalendars } from "@/queries/useCalendars";
@@ -34,6 +35,7 @@ const timePickerTheme = { components: { DatePicker: timePickerTokens } };
 // last column, which completes the pick.
 function AddTimeInput({ onAdd }: { onAdd: (time: string) => void }) {
   const [open, setOpen] = useState(false);
+  const hoverCapable = useHoverCapable();
 
   useEffect(() => {
     if (!open) return;
@@ -62,6 +64,9 @@ function AddTimeInput({ onAdd }: { onAdd: (time: string) => void }) {
           minuteStep={5}
           needConfirm={false}
           allowClear={false}
+          // On touch the columns are the picker; a focused text field would
+          // only pop the keyboard over them.
+          inputReadOnly={!hoverCapable}
           className="w-[100px]"
           classNames={{ popup: { root: "trigger-time-popup" } }}
           onChange={(d: Dayjs | null) => d && onAdd(d.format("HH:mm"))}

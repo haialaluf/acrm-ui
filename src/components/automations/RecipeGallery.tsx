@@ -314,14 +314,14 @@ export default function RecipeGallery({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 p-8"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 p-8 max-md:items-end max-md:p-0 max-md:pt-6"
       onClick={onClose}
     >
       <div
-        className="flex max-h-full w-full max-w-[980px] flex-col overflow-hidden rounded-[18px] bg-background shadow-lg"
+        className="flex max-h-full w-full max-w-[980px] flex-col overflow-hidden rounded-[18px] bg-background shadow-lg max-md:sheet-slide-up max-md:h-full max-md:rounded-b-none max-md:rounded-t-[20px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-border px-7 pb-4 pt-6">
+        <div className="flex items-start justify-between gap-4 border-b border-border px-7 pb-4 pt-6 max-md:px-4 max-md:pt-5">
           <div>
             <h2 className="m-0 text-xl font-semibold text-card-foreground">
               {t("Start from a recipe")}
@@ -335,14 +335,14 @@ export default function RecipeGallery({
           <button
             type="button"
             aria-label={t("Close")}
-            className="rounded-lg border border-border bg-card p-[6px] hover:bg-muted"
+            className="shrink-0 rounded-lg border border-border bg-card p-[6px] hover:bg-muted max-md:rounded-full max-md:border-0 max-md:bg-muted max-md:p-2"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="grid min-h-0 grid-cols-1 content-start gap-4 overflow-auto px-7 pb-7 pt-[22px] sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid min-h-0 auto-rows-max grid-cols-1 content-start gap-4 overflow-auto overscroll-contain px-7 pb-7 pt-[22px] max-md:gap-3 max-md:px-4 max-md:pb-[calc(20px+env(safe-area-inset-bottom))] max-md:pt-4 sm:grid-cols-2 lg:grid-cols-3">
           {order
             .flatMap((kind) => all.filter((recipe) => recipe.kind === kind))
             .map((recipe) => {
@@ -352,13 +352,15 @@ export default function RecipeGallery({
                 <button
                   key={recipe.id}
                   type="button"
-                  className="flex flex-col overflow-hidden rounded-[13px] border border-border bg-card text-start transition-all hover:-translate-y-px hover:border-primary hover:shadow-md"
+                  // A phone gets a row instead of a tile: six tiles with a
+                  // 104px art header each is a long scroll to see six names.
+                  className="flex flex-col overflow-hidden rounded-[13px] border border-border bg-card text-start transition-all hover:-translate-y-px hover:border-primary hover:shadow-md max-md:flex-row max-md:active:bg-muted"
                   onClick={() => onPick(recipe)}
                 >
-                  <div className="flex h-[104px] shrink-0 items-center justify-center border-b border-border bg-muted">
+                  <div className="flex h-[104px] shrink-0 items-center justify-center border-b border-border bg-muted max-md:h-auto max-md:w-[72px] max-md:border-b-0 max-md:border-e">
                     <RecipeArt art={recipe.art} />
                   </div>
-                  <div className="px-[15px] pb-4 pt-[14px]">
+                  <div className="min-w-0 px-[15px] pb-4 pt-[14px] max-md:px-[14px] max-md:py-3">
                     <div className="mb-2 flex items-center gap-[6px] text-[11px] uppercase tracking-[0.05em] text-muted-foreground">
                       <Icon className="h-3 w-3" />
                       {t(KIND_LABELS[recipe.kind])}
@@ -366,7 +368,7 @@ export default function RecipeGallery({
                     <div className="text-[14.5px] font-semibold text-card-foreground">
                       {t(recipe.title)}
                     </div>
-                    <div className="mt-[5px] text-[12.5px] leading-relaxed text-muted-foreground">
+                    <div className="mt-[5px] text-[12.5px] leading-relaxed text-muted-foreground max-md:line-clamp-3 max-md:text-[13px]">
                       {t(recipe.description)}
                     </div>
                   </div>

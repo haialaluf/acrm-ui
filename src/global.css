@@ -797,6 +797,35 @@ select.mapping:focus {
   animation: import-slidein 0.25s ease both;
 }
 
+@keyframes sheet-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes sheet-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@utility sheet-slide-up {
+  animation: sheet-slide-up 0.26s cubic-bezier(0.32, 0.72, 0, 1) both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+@utility sheet-backdrop-in {
+  animation: sheet-fade-in 0.2s ease both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 /* Message video: hide Chrome's native central overlay play button. It dims on
    hover and its internal hover state cannot be restyled, so VideoMessage hides
    it and renders its own static central play button instead. */

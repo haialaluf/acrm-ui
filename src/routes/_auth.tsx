@@ -196,8 +196,15 @@ function AppLayout() {
         className={"app-grid" + (isResizing ? "" : " animate-columns")}
         style={gridStyle}
       >
-        {/* Menu - Fixed width */}
-        <div className={showCenterPanel ? "hidden md:flex" : "flex"}>
+        {/* On a phone the automation editor is a full-screen canvas with its
+            own back button; the rail would only take 48px from it. */}
+        <div
+          className={
+            showCenterPanel || isAutomationEditorRoute
+              ? "hidden md:flex"
+              : "flex"
+          }
+        >
           <Menu />
         </div>
         {/* Left Panel - Router Outlet */}

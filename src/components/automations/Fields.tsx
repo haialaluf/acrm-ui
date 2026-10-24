@@ -45,8 +45,10 @@ export function Field({
  * `flex-1` name field and a `w-16` number field next to each other end up the
  * wrong way round.
  */
+// 16px below `md`: iOS Safari zooms the page into any field smaller than that
+// on focus, and does not zoom back out.
 export const inputBase =
-  "rounded-[9px] border border-transparent bg-muted px-[10px] py-2 text-[13.5px] text-foreground outline-none hover:border-border focus:border-primary focus:bg-card focus:ring-3 focus:ring-primary/15";
+  "rounded-[9px] border border-transparent bg-muted px-[10px] py-2 text-[13.5px] max-md:text-base text-foreground outline-none hover:border-border focus:border-primary focus:bg-card focus:ring-3 focus:ring-primary/15";
 
 /** The common case: a field that fills its row. */
 export const inputClass = "w-full " + inputBase;
@@ -72,7 +74,7 @@ export function Segmented<T extends string>({
           type="button"
           onClick={() => onChange(option.value)}
           className={
-            "flex-1 whitespace-nowrap rounded-[7px] px-2 py-[6px] text-[12.5px] " +
+            "flex-1 whitespace-nowrap rounded-[7px] px-2 py-[6px] text-[12.5px] max-md:py-2 max-md:text-[13.5px] " +
             (value === option.value
               ? "bg-card font-semibold text-card-foreground shadow-sm"
               : "text-muted-foreground")

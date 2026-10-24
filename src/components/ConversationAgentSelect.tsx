@@ -121,7 +121,7 @@ export default function ConversationAgentSelect({
       <span className="flex items-center gap-[8px]">
         <span className="truncate">{a.name}</span>
         {a.id === orgDefault?.id && (
-          <span className="ml-auto shrink-0 text-[10px] uppercase tracking-wide text-muted-foreground">
+          <span className="ms-auto shrink-0 text-[10px] uppercase tracking-wide text-muted-foreground">
             {t("Org default")}
           </span>
         )}

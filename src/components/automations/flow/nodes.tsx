@@ -118,7 +118,9 @@ function NodeCard({
           type="button"
           aria-label={t("Step options")}
           className={
-            "absolute end-2 top-2 rounded-md p-1 text-muted-foreground transition-opacity hover:bg-muted " +
+            // Touch has no hover to reveal it, and tapping the card already
+            // opens a drawer that carries the same actions.
+            "absolute end-2 top-2 rounded-md p-1 text-muted-foreground transition-opacity hover:bg-muted pointer-coarse:hidden " +
             (selected ? "opacity-100" : "opacity-0 group-hover:opacity-100")
           }
           onClick={(e) => {

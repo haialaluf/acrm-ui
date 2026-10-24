@@ -82,7 +82,7 @@ export default function ManageTemplatesOverlay({
         <div className="text-[16px]">{title}</div>
         {view.mode === "edit" && (
           <button
-            className="p-[8px] rounded-full hover:bg-muted ml-auto disabled:opacity-30 disabled:hover:bg-transparent"
+            className="p-[8px] rounded-full hover:bg-muted ms-auto disabled:opacity-30 disabled:hover:bg-transparent"
             title={t("Delete")}
             onClick={() =>
               deleteTemplate.mutate(
