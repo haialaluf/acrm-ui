@@ -1729,5 +1729,15 @@
   "Based on {{1}} sessions, {{2}} notes and {{3}} reports": "על סמך {{1}} פגישות, {{2}} הערות ו-{{3}} סיכומי פגישות",
   "Reading file · {{1}} of {{2}} pages": "קורא את הקובץ · {{1}} מתוך {{2}} עמודים",
   "Reading file…": "קורא את הקובץ…",
-  "So Patient AI can search it.": "כדי ש-Patient AI יוכל לחפש בו."
+  "So Patient AI can search it.": "כדי ש-Patient AI יוכל לחפש בו.",
+  ", plus this session's transcript": ", ותמליל הפגישה הזו",
+  "This session and {{1}}'s record": "הפגישה הזו והתיק של {{1}}",
+  "Ask about this session…": "שאלו על הפגישה הזו…",
+  "Summarize this session in three lines": "סיכום הפגישה הזו בשלוש שורות",
+  "What should I check before approving?": "מה לבדוק לפני האישור?",
+  "What homework did we agree on today?": "על אילו משימות בית סיכמנו היום?",
+  "Draft a letter to the referring doctor about this session": "ניסוח מכתב לרופא המפנה על הפגישה הזו",
+  "A session's transcript, when you ask from that session's report": "תמליל של פגישה, כששואלים מתוך סיכום הפגישה שלה",
+  "Session": "פגישה",
+  "Draft report": "טיוטת סיכום פגישה"
 }

@@ -1,18 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
-import {
-  ArrowUp,
-  Check,
-  Copy,
-  Eye,
-  Plus,
-  Sparkles,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Check, Copy, Eye, Sparkles, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { ContactWithAddressesRow } from "@/supabase/client";
-import { SUGGESTED_DIAGNOSIS } from "./templates";
 import type { SessionReport } from "./therapyStore";
 import {
   useDeleteSessionReport,
@@ -24,14 +14,6 @@ const HEBREW = /[\u0590-\u05FF]/;
 
 const AUTOSAVE_DELAY_MS = 1000;
 
-type AiTurn = {
-  question: string;
-  text: string;
-  quote?: string;
-  addDiagnosis?: boolean;
-  copyable?: string;
-};
-
 function reportText(report: SessionReport) {
   return report.sections
     .map((s) => {
@@ -41,220 +23,23 @@ function reportText(report: SessionReport) {
     .join("\n\n");
 }
 
-function ReportAi({
-  report,
-  contact,
-  onAddDiagnosis,
-  onClose,
-}: {
-  report: SessionReport;
-  contact: ContactWithAddressesRow;
-  onAddDiagnosis: () => void;
-  onClose: () => void;
-}) {
-  const { translate: t } = useTranslation();
-  const [turns, setTurns] = useState<AiTurn[]>([]);
-  const [draft, setDraft] = useState("");
-  const [thinking, setThinking] = useState(false);
-  const value = (title: string) =>
-    report.sections.find((s) => s.title === title)?.value ?? "";
-
-  function respond(question: string): AiTurn {
-    const q = question.toLowerCase();
-    const empty = report.sections.filter(
-      (s) => !s.value.trim() && !s.checked?.length,
-    );
-    const diagnosisEmpty = !value("Diagnoses").trim();
-
-    if (q.includes("missing")) {
-      return {
-        question,
-        text: empty.length
-          ? `${empty.length} section${empty.length > 1 ? "s are" : " is"} empty: ${empty.map((s) => s.title).join(", ")}.${diagnosisEmpty && report.sections.some((s) => s.title === "Diagnoses") ? "\n\nA diagnosis did come up in the recording:" : ""}`
-          : "Every section is filled in.",
-        quote:
-          diagnosisEmpty && report.sections.some((s) => s.title === "Diagnoses")
-            ? "“It sounds like panic disorder, and we'll work on that first.” · 31:20"
-            : undefined,
-        addDiagnosis:
-          diagnosisEmpty &&
-          report.sections.some((s) => s.title === "Diagnoses"),
-      };
-    }
-    if (
-      q.includes("shorten") ||
-      q.includes("letter") ||
-      q.includes("referral")
-    ) {
-      const letter =
-        `${contact.name} attended a ${report.templateName.toLowerCase()} on ${dayjs(report.createdAt).format("D MMMM YYYY")}. ${value("Reason for visit") || value("Since last session")} ${value("Assessment")} Plan: ${value("Treatment plan") || value("Plan for next session")}`
-          .replace(/\s+/g, " ")
-          .trim();
-      return { question, text: letter, copyable: letter };
-    }
-    if (q.includes("summar")) {
-      return {
-        question,
-        text: [
-          `• ${value("Reason for visit") || value("Since last session")}`,
-          `• ${value("Assessment") || value("What we worked on")}`,
-          `• ${value("Homework") || value("Plan for next session")}`,
-        ].join("\n"),
-      };
-    }
-    const words = q.split(/\W+/).filter((w) => w.length > 3);
-    const line = report.transcript.find((l) =>
-      words.some((w) => l.text.toLowerCase().includes(w)),
-    );
-    return line
-      ? {
-          question,
-          text: "This is where it came up in the session:",
-          quote: `“${line.text}” · ${line.at}`,
-        }
-      : {
-          question,
-          text: "I couldn't find that in this session's recording.",
-        };
-  }
-
-  function ask(question: string) {
-    if (!question.trim() || thinking) return;
-    setDraft("");
-    setThinking(true);
-    window.setTimeout(() => {
-      setTurns((prev) => [...prev, respond(question)]);
-      setThinking(false);
-    }, 900);
-  }
-
-  return (
-    <>
-      <div
-        className="absolute inset-0 bg-[rgba(20,30,25,.22)] z-20"
-        onClick={onClose}
-      />
-      <div className="absolute inset-x-0 bottom-0 h-[72%] bg-popover rounded-t-[20px] shadow-[0_-8px_30px_rgba(0,0,0,.14)] z-30 flex flex-col">
-        <div className="w-[40px] h-[4px] rounded-full bg-border self-center mt-[10px] mb-[4px]" />
-        <div className="flex items-center gap-[8px] px-[16px] pb-[10px] border-b border-border text-[15px] font-semibold text-card-foreground">
-          <span className="w-[24px] h-[24px] rounded-[8px] bg-accent text-primary flex items-center justify-center">
-            <Sparkles className="w-[14px] h-[14px]" />
-          </span>
-          {t("Ask about this report")}
-          <button
-            type="button"
-            className="ms-auto w-[30px] h-[30px] rounded-full flex items-center justify-center hover:bg-accent"
-            onClick={onClose}
-          >
-            <X className="w-[16px] h-[16px]" />
-          </button>
-        </div>
-        <div className="flex gap-[6px] flex-wrap px-[16px] pt-[10px]">
-          {[
-            t("What's missing?"),
-            t("Shorten for a referral letter"),
-            t("Summarize in 3 lines"),
-          ].map((s) => (
-            <button
-              key={s}
-              type="button"
-              className="h-[30px] px-[12px] rounded-full border border-border text-[13px] hover:bg-accent"
-              onClick={() => ask(s)}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-        <div className="grow overflow-y-auto px-[16px] py-[12px] flex flex-col gap-[12px]">
-          {turns.map((turn, i) => (
-            <div key={i} className="flex flex-col gap-[8px]">
-              <div className="self-end max-w-[85%] bg-[var(--chat-out)] text-[14px] px-[13px] py-[8px] rounded-[16px] rounded-ee-[4px]">
-                {turn.question}
-              </div>
-              <p className="text-[14px] leading-[1.55] text-card-foreground whitespace-pre-line">
-                {turn.text}
-              </p>
-              {turn.quote && (
-                <div className="border-s-[3px] border-input ps-[10px] text-[13px] text-muted-foreground italic">
-                  {turn.quote}
-                </div>
-              )}
-              {turn.addDiagnosis && (
-                <div className="flex gap-[8px]">
-                  <button
-                    type="button"
-                    className="h-[30px] px-[12px] rounded-full bg-primary text-primary-foreground text-[13px] flex items-center gap-[6px]"
-                    onClick={() => {
-                      onAddDiagnosis();
-                      setTurns((prev) => [
-                        ...prev,
-                        {
-                          question: t("Add to Diagnoses"),
-                          text: t(
-                            "Added to Diagnoses. It's marked for you to confirm.",
-                          ),
-                        },
-                      ]);
-                    }}
-                  >
-                    <Plus className="w-[14px] h-[14px]" />
-                    {t("Add to Diagnoses")}
-                  </button>
-                </div>
-              )}
-              {turn.copyable && (
-                <button
-                  type="button"
-                  className="self-start h-[30px] px-[12px] rounded-full border border-border text-[13px] flex items-center gap-[6px]"
-                  onClick={() =>
-                    void navigator.clipboard.writeText(turn.copyable!)
-                  }
-                >
-                  <Copy className="w-[14px] h-[14px]" />
-                  {t("Copy")}
-                </button>
-              )}
-            </div>
-          ))}
-          {thinking && (
-            <div className="flex items-center gap-[8px] text-[13px] text-muted-foreground">
-              <Sparkles className="w-[14px] h-[14px] text-primary animate-pulse" />
-              {t("Reading the report…")}
-            </div>
-          )}
-        </div>
-        <div className="mx-[12px] mb-[12px] border border-border rounded-[18px] px-[12px] py-[8px] flex items-center gap-[8px]">
-          <input
-            className="grow bg-transparent outline-none text-[14px]"
-            placeholder={t("Ask about this report…")}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && ask(draft)}
-          />
-          <button
-            type="button"
-            disabled={!draft.trim()}
-            className="w-[32px] h-[32px] rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:bg-muted disabled:text-muted-foreground"
-            onClick={() => ask(draft)}
-          >
-            <ArrowUp className="w-[16px] h-[16px]" />
-          </button>
-        </div>
-      </div>
-    </>
-  );
-}
-
 export default function SessionReportView({
   report: saved,
   contact,
   onApproved,
   onDeleted,
+  aiOpen,
+  onToggleAi,
+  focusLine,
 }: {
   report: SessionReport;
   contact: ContactWithAddressesRow;
   onApproved: () => void;
   onDeleted: () => void;
+  aiOpen: boolean;
+  onToggleAi: () => void;
+  /** A transcript line (1-based) to open, e.g. from a Patient AI citation. */
+  focusLine?: number;
 }) {
   const { translate: t } = useTranslation();
   const save = useSaveSessionReport();
@@ -270,7 +55,12 @@ export default function SessionReportView({
       .getElementById(`transcript-line-${highlight[0]}`)
       ?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [view, highlight]);
-  const [asking, setAsking] = useState(false);
+
+  useEffect(() => {
+    if (!focusLine) return;
+    setHighlight([focusLine]);
+    setView("transcript");
+  }, [focusLine]);
   const [copied, setCopied] = useState(false);
 
   // Each pause in typing writes one new version of the document to S3,
@@ -342,8 +132,13 @@ export default function SessionReportView({
         </span>
         <button
           type="button"
-          className="h-[32px] px-[12px] rounded-full bg-accent text-accent-foreground text-[13px] flex items-center gap-[6px]"
-          onClick={() => setAsking(true)}
+          className={
+            "h-[32px] px-[12px] rounded-full text-[13px] flex items-center gap-[6px] " +
+            (aiOpen
+              ? "bg-primary text-primary-foreground"
+              : "bg-accent text-accent-foreground")
+          }
+          onClick={onToggleAi}
         >
           <Sparkles className="w-[15px] h-[15px]" />
           {t("Patient AI")}
@@ -568,24 +363,6 @@ export default function SessionReportView({
               : t("Approve & save")}
         </button>
       </div>
-
-      {asking && (
-        <ReportAi
-          report={report}
-          contact={contact}
-          onClose={() => setAsking(false)}
-          onAddDiagnosis={() =>
-            edit({
-              ...report,
-              sections: report.sections.map((s) =>
-                s.title === "Diagnoses"
-                  ? { ...s, value: SUGGESTED_DIAGNOSIS, flagged: true }
-                  : s,
-              ),
-            })
-          }
-        />
-      )}
     </div>
   );
 }

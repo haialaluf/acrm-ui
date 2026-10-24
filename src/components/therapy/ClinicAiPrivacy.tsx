@@ -23,6 +23,7 @@ const PATIENT_SEES = [
   "This patient's details, including phone, email and emergency contact",
   "Their sessions and payments",
   "Their notes and session reports",
+  "A session's transcript, when you ask from that session's report",
   "Their files, including what is written inside them",
   "Their messages with the clinic",
 ];

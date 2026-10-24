@@ -37,6 +37,11 @@ export type Citation = {
   reportId?: string;
   date?: string;
   page?: number;
+  /** The cited report isn't approved yet. */
+  draft?: boolean;
+  /** A transcript line (1-based) of the cited report, and its time. */
+  line?: number;
+  at?: string;
 };
 
 export type ChatMessage = {
@@ -56,6 +61,7 @@ export type ChatMessage = {
     summary?: boolean;
     searched?: boolean;
     older?: boolean;
+    transcript?: boolean;
   };
   attachments?: string[];
   failed?: boolean;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { Sparkles, X } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -23,7 +23,9 @@ import { patientChatScope } from "./therapyStore";
 function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const { answer, name } = usePatientAnswers(contact);
+  const { pathname } = useLocation();
+  const reportId = /\/reports\/([^/]+)$/.exec(pathname)?.[1];
+  const { answer, name } = usePatientAnswers(contact, reportId);
   const chats = usePatientChats(contact.id);
   const inSweden = useAskAiInSweden();
   const [speed, setSpeed] = useState<AskAiSpeed>("fast");
@@ -69,19 +71,36 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
         </button>
       </div>
       <AiChat
-        key={contact.id}
+        key={`${contact.id}:${reportId ?? ""}`}
         scope={patientChatScope(contact.id)}
         store={chats}
         layout="split"
-        contextLabel={t("{{1}}'s record").replace("{{1}}", name)}
-        emptyTitle={`${t("Ask anything about")} ${name}…`}
+        contextLabel={
+          reportId
+            ? t("This session and {{1}}'s record").replace("{{1}}", name)
+            : t("{{1}}'s record").replace("{{1}}", name)
+        }
+        emptyTitle={
+          reportId
+            ? t("Ask about this session…")
+            : `${t("Ask anything about")} ${name}…`
+        }
         emptyNote={<ClinicAiPrivacySummary scope="patient" />}
-        suggestions={[
-          t("Prepare me for the next session"),
-          t("Summarize all sessions so far"),
-          t("What homework did we agree on?"),
-          t("Draft a letter to the referring doctor"),
-        ]}
+        suggestions={
+          reportId
+            ? [
+                t("Summarize this session in three lines"),
+                t("What should I check before approving?"),
+                t("What homework did we agree on today?"),
+                t("Draft a letter to the referring doctor about this session"),
+              ]
+            : [
+                t("Prepare me for the next session"),
+                t("Summarize all sessions so far"),
+                t("What homework did we agree on?"),
+                t("Draft a letter to the referring doctor"),
+              ]
+        }
         canAttach={false}
         answer={(_question, _attachments, thread) => answer(thread, speed)}
         composerExtra={
@@ -99,7 +118,9 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
             void navigate({
               to: "/contacts/$contactId/reports/$reportId",
               params: { contactId: contact.id, reportId: citation.reportId },
-              search: { ai: true },
+              search: citation.line
+                ? { ai: true, line: citation.line }
+                : { ai: true },
             });
           } else if (citation.kind === "note") openTab("notes");
           else if (citation.kind === "session") openTab("sessions");

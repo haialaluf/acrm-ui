@@ -9,7 +9,12 @@ function firstName(contact: ContactWithAddressesRow) {
   return contact.firstname || contact.name?.split(" ")[0] || "the patient";
 }
 
-export function usePatientAnswers(contact: ContactWithAddressesRow) {
+/** With `reportId`, the answer also draws on that report and its transcript
+ *  (the panel is open beside it). */
+export function usePatientAnswers(
+  contact: ContactWithAddressesRow,
+  reportId?: string,
+) {
   async function answer(
     thread: ChatThread,
     speed: AskAiSpeed,
@@ -19,6 +24,7 @@ export function usePatientAnswers(contact: ContactWithAddressesRow) {
       {
         body: {
           contact_id: contact.id,
+          report_id: reportId,
           speed,
           messages: thread.messages
             .filter((m) => !m.failed)

@@ -121,5 +121,3 @@ export function emptySections(template: ReportTemplate): ReportSection[] {
     flagged: !!s.confirm,
   }));
 }
-
-export const SUGGESTED_DIAGNOSIS = "Panic disorder (F41.0), to be confirmed";

@@ -87,15 +87,17 @@ export function CitationChip({
   const day = (iso: string) =>
     dayjs(iso).locale(currentLanguage).format("D MMM");
   const label =
-    citation.date && citation.kind === "report"
-      ? `${t("Report")} ${day(citation.date)}`
-      : citation.date && citation.kind === "note"
-        ? `${t("Note")} ${day(citation.date)}`
-        : citation.kind === "file" && citation.page
-          ? `${citation.label}, ${t("p.")} ${citation.page}`
-          : citation.kind === "session"
-            ? t(citation.label)
-            : citation.label;
+    citation.line && citation.at
+      ? `${t("Session")} ${citation.at}`
+      : citation.date && citation.kind === "report"
+        ? `${t(citation.draft ? "Draft report" : "Report")} ${day(citation.date)}`
+        : citation.date && citation.kind === "note"
+          ? `${t("Note")} ${day(citation.date)}`
+          : citation.kind === "file" && citation.page
+            ? `${citation.label}, ${t("p.")} ${citation.page}`
+            : citation.kind === "session"
+              ? t(citation.label)
+              : citation.label;
   return (
     <button
       type="button"
@@ -235,6 +237,7 @@ function basisText(
       c.sessions,
     );
   }
+  const plus = c.transcript ? t(", plus this session's transcript") : "";
   const notes = c.notes ?? 0;
   const reports = c.reports ?? 0;
   if (c.summary) {
@@ -244,22 +247,26 @@ function basisText(
         c.sessions,
         notes,
         reports,
-      ) + (c.searched ? t(", plus a search of the record") : "")
+      ) +
+      (c.searched ? t(", plus a search of the record") : "") +
+      plus
     );
   }
-  return c.older
-    ? fill(
-        "Based on {{1}} sessions and the latest {{2}} notes and {{3}} reports (older ones not included)",
-        c.sessions,
-        notes,
-        reports,
-      )
-    : fill(
-        "Based on {{1}} sessions, {{2}} notes and {{3}} reports",
-        c.sessions,
-        notes,
-        reports,
-      );
+  return (
+    (c.older
+      ? fill(
+          "Based on {{1}} sessions and the latest {{2}} notes and {{3}} reports (older ones not included)",
+          c.sessions,
+          notes,
+          reports,
+        )
+      : fill(
+          "Based on {{1}} sessions, {{2}} notes and {{3}} reports",
+          c.sessions,
+          notes,
+          reports,
+        )) + plus
+  );
 }
 
 function AssistantMessage({
