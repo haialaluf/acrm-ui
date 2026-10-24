@@ -63,14 +63,19 @@ export default function ConversationAgentSelect({
     pinned ??
     selectable.find((a) => a.id === lastPinned) ??
     orgDefault ??
-    selectable.find((a) => a.kind !== "personal_assistant");
+    selectable.find((a) => a.kind !== "personal_assistant") ??
+    selectable[0];
 
   const windowMs = pauseWindowMs(shown?.extra);
 
   // On only when agent-client would actually reply. Every reason it wouldn't -
   // "None" pinned here, automatic replies off org-wide, or the pause a human
   // reply starts - reads as off.
-  const state = assistantState(conversation, org?.extra, windowMs);
+  // With no organization default, an unpinned thread has nobody to answer it.
+  const state =
+    !assigned && !orgDefault
+      ? "off"
+      : assistantState(conversation, org?.extra, windowMs);
   const on = state === "active";
 
   useEffect(() => {

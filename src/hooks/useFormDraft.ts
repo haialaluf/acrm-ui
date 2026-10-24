@@ -37,7 +37,10 @@ export function useFormDraft<T extends FieldValues>(
 
     const draft = readDraft<T>(key);
     // keepDefaultValues so the restored form reads as dirty and can be submitted.
-    if (draft) reset(draft, { keepDefaultValues: true });
+    // keepFieldsRef so reset writes into the mounted inputs: without it RHF drops
+    // its refs and only re-syncs an input when its ref callback re-runs, which a
+    // React-Compiler-memoized child (e.g. BodyField's textarea) never does.
+    if (draft) reset(draft, { keepDefaultValues: true, keepFieldsRef: true });
 
     const subscription = watch((values) => {
       try {
