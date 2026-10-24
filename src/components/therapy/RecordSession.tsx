@@ -101,7 +101,7 @@ export default function RecordSession({
   const [marks, setMarks] = useState(0);
 
   const template = templates.find((tpl) => tpl.id === templateId);
-  const busy = step === "recording" || step === "saving" || step === "writing";
+  const busy = step === "recording" || step === "saving";
   const saved = useRef(false);
   const leaveBlocker = useBlocker({
     shouldBlockFn: () => busy && !saved.current,
@@ -109,7 +109,14 @@ export default function RecordSession({
     withResolver: true,
   });
 
-  useEffect(() => () => recorderRef.current?.release(), []);
+  const mounted = useRef(true);
+  useEffect(
+    () => () => {
+      mounted.current = false;
+      recorderRef.current?.release();
+    },
+    [],
+  );
 
   const linkedAppointment = () =>
     (appointments ?? [])
@@ -130,6 +137,7 @@ export default function RecordSession({
         appointmentId: linkedAppointment()?.id ?? null,
         mode,
         language,
+        templateId: template!.id,
       });
       recorderRef.current = started;
       setRecorder(started);
@@ -172,7 +180,7 @@ export default function RecordSession({
   }
 
   async function followReport(recordingId: string) {
-    for (;;) {
+    while (mounted.current) {
       const progress = await reportProgress(recordingId).catch(() => null);
       if (progress?.status === "done") {
         saved.current = true;
@@ -212,20 +220,10 @@ export default function RecordSession({
   const leaveModal = (
     <ConfirmModal
       open={leaveBlocker.status === "blocked"}
-      title={
-        step === "writing"
-          ? t("Leave before the report is ready?")
-          : t("Stop recording and leave?")
-      }
-      body={
-        step === "writing"
-          ? t(
-              "The recording is saved, but the report is still being written. If you leave now, it won't be finished.",
-            )
-          : t(
-              "The recording is still running. If you leave now it will not be turned into a report.",
-            )
-      }
+      title={t("Stop recording and leave?")}
+      body={t(
+        "The recording is still running. If you leave now, what was saved stays on the patient's Sessions tab, where you can still make the report.",
+      )}
       confirmLabel={t("Leave")}
       onConfirm={() => {
         recorderRef.current?.release();
@@ -256,11 +254,9 @@ export default function RecordSession({
             ? t(
                 "The recording is saved. You can write the report yourself from the template.",
               )
-            : phase === "transcribing"
-              ? t(
-                  "This usually takes a minute or two. Please keep this page open.",
-                )
-              : t("Filling in the template from what was said in the session…")}
+            : t(
+                "This usually takes a minute or two. You can leave this page: the report will appear on the patient's Sessions tab.",
+              )}
         </div>
         {writeError && (
           <button
@@ -427,7 +423,7 @@ export default function RecordSession({
         </div>
         <div className="flex items-center gap-[6px] text-[12px] text-muted-foreground">
           <Lock className="w-[13px] h-[13px]" />
-          {t("Audio is deleted once the report is approved")}
+          {t("Audio is deleted when the report is approved, or after 7 days")}
         </div>
       </div>
     );

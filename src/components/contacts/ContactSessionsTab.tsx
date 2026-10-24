@@ -11,6 +11,7 @@ import {
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import { sessionStats } from "@/utils/sessions";
 import { useSessionReportRows } from "@/queries/useSessionReports";
+import WaitingRecordings from "./WaitingRecordings";
 
 type ReportLabel = {
   id: string;
@@ -176,6 +177,8 @@ export default function ContactSessionsTab({
         <Mic className="w-[18px] h-[18px]" />
         {t("Record session")}
       </button>
+
+      <WaitingRecordings contactId={contact.id} />
 
       {unlinked.length > 0 && (
         <div className="flex flex-col">

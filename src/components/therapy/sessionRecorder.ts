@@ -78,6 +78,7 @@ export class SessionRecorder {
     appointmentId: string | null;
     mode: RecordingMode;
     language: string;
+    templateId: string;
   }): Promise<SessionRecorder> {
     let tab: MediaStream | null = null;
     if (options.mode === "online") {
@@ -124,6 +125,7 @@ export class SessionRecorder {
         language: options.language === "auto" ? null : options.language,
         mimeType: (mimeType || "audio/webm").replace(/\s/g, ""),
         channels,
+        templateId: options.templateId,
       });
     } catch (err) {
       [mic, tab].forEach((s) => s?.getTracks().forEach((t) => t.stop()));
@@ -348,6 +350,16 @@ export type ReportProgress =
 
 export function reportProgress(recordingId: string) {
   return invoke<ReportProgress>(`recordings/${recordingId}/report`, {});
+}
+
+/** For a recording whose browser stopped early: joins the pieces that
+ *  arrived and starts its report, like Stop would have. */
+export async function finishFromSaved(recordingId: string) {
+  const finished = await invoke<{ transcript_status?: string | null }>(
+    `recordings/${recordingId}/finish`,
+    { chunkCount: 1, durationSeconds: 0, upToAvailable: true },
+  );
+  return { transcribing: finished.transcript_status === "transcribing" };
 }
 
 async function missingChunks(err: unknown): Promise<number[] | null> {
