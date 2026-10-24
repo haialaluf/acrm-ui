@@ -19,6 +19,9 @@ import {
   useSaveSessionReport,
 } from "@/queries/useSessionReports";
 
+/** A Hebrew line reads right to left whole: time, speaker and words. */
+const HEBREW = /[\u0590-\u05FF]/;
+
 const AUTOSAVE_DELAY_MS = 1000;
 
 type AiTurn = {
@@ -376,6 +379,7 @@ export default function SessionReportView({
               <div
                 key={i}
                 id={`transcript-line-${i + 1}`}
+                dir={HEBREW.test(line.text) ? "rtl" : undefined}
                 className={
                   "flex gap-[10px] text-[14px] rounded-[10px] " +
                   (highlight.includes(i + 1)
@@ -383,7 +387,10 @@ export default function SessionReportView({
                     : "")
                 }
               >
-                <span className="text-[12px] text-muted-foreground tabular-nums w-[40px] shrink-0 pt-[2px]">
+                <span
+                  className="text-[12px] text-muted-foreground tabular-nums w-[40px] shrink-0 pt-[2px]"
+                  dir="ltr"
+                >
                   {line.at}
                 </span>
                 <div>
