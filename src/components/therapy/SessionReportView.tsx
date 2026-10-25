@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
+import "dayjs/locale/he";
 import { Check, Copy, Eye, Trash2 } from "lucide-react";
 import SessionAiIcon from "./SessionAiIcon";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -42,7 +43,7 @@ export default function SessionReportView({
   /** A transcript line (1-based) to open, e.g. from a Patient AI citation. */
   focusLine?: number;
 }) {
-  const { translate: t } = useTranslation();
+  const { translate: t, currentLanguage } = useTranslation();
   const save = useSaveSessionReport();
   const remove = useDeleteSessionReport();
   const [report, setReport] = useState(saved);
@@ -117,8 +118,10 @@ export default function SessionReportView({
             {contact.name} · {report.templateName}
           </div>
           <div className="text-[12px] text-muted-foreground">
-            {dayjs(report.createdAt).format("ddd D MMM, HH:mm")} · {minutes}{" "}
-            {t("min recorded")}
+            {dayjs(report.createdAt)
+              .locale(currentLanguage)
+              .format("ddd D MMM, HH:mm")}{" "}
+            · {minutes} {t("min recorded")}
           </div>
         </div>
         <span
