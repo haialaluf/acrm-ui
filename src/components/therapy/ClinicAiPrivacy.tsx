@@ -23,14 +23,21 @@ const PATIENT_SEES = [
   "This patient's details, including phone, email and emergency contact",
   "Their sessions and payments",
   "Their notes and session reports",
-  "A session's transcript, when you ask from that session's report",
   "Their files, including what is written inside them",
   "Their messages with the clinic",
 ];
 
+const SESSION_SEES = [
+  "This session's report and its full transcript",
+  ...PATIENT_SEES,
+];
+
 const PATIENT_NEVER_SEES = ["Other patients"];
 
-export type AskAiScope = "clinic" | "patient";
+const SESSION_NEVER_SEES = ["Other patients", "Other sessions' transcripts"];
+
+/** "session" is Session AI: Patient AI asked from one session's report. */
+export type AskAiScope = "clinic" | "patient" | "session";
 
 export type AskAiSpeed = "fast" | "thorough";
 
@@ -60,16 +67,27 @@ const PANEL =
 export function ClinicAiPrivacyNote({ scope }: { scope: AskAiScope }) {
   const { translate: t } = useTranslation();
   const inSweden = useAskAiInSweden();
-  const sees = scope === "patient" ? PATIENT_SEES : CLINIC_SEES;
+  const sees =
+    scope === "session"
+      ? SESSION_SEES
+      : scope === "patient"
+        ? PATIENT_SEES
+        : CLINIC_SEES;
   const neverSees =
-    scope === "patient" ? PATIENT_NEVER_SEES : CLINIC_NEVER_SEES;
+    scope === "session"
+      ? SESSION_NEVER_SEES
+      : scope === "patient"
+        ? PATIENT_NEVER_SEES
+        : CLINIC_NEVER_SEES;
   return (
     <div className="flex flex-col gap-[12px] text-start text-[13px] leading-[1.5]">
       <div className="flex items-center gap-[8px] font-semibold text-card-foreground">
         <ShieldCheck className="w-[16px] h-[16px] text-primary shrink-0" />
-        {scope === "patient"
-          ? t("What Patient AI can see here")
-          : t("What Clinic AI can see here")}
+        {scope === "session"
+          ? t("What Session AI can see here")
+          : scope === "patient"
+            ? t("What Patient AI can see here")
+            : t("What Clinic AI can see here")}
       </div>
       <ul className="flex flex-col gap-[4px]">
         {sees.map((item) => (
@@ -91,7 +109,7 @@ export function ClinicAiPrivacyNote({ scope }: { scope: AskAiScope }) {
         ))}
       </ul>
       <p className="text-[12px] text-muted-foreground">
-        {scope === "patient"
+        {scope !== "clinic"
           ? inSweden
             ? t(
                 "Only members of your clinic can ask. Answers are worked out by Claude on Amazon's servers in Stockholm, Sweden; nothing leaves Sweden and nothing is used to train AI. Each question is recorded in this patient's access log.",
@@ -121,7 +139,16 @@ export function ClinicAiPrivacySummary({ scope }: { scope: AskAiScope }) {
   return (
     <div className="flex gap-[10px] text-start text-[12px] leading-[1.5] text-muted-foreground">
       <ShieldCheck className="w-[16px] h-[16px] mt-[1px] text-primary shrink-0" />
-      {scope === "patient" ? (
+      {scope === "session" ? (
+        <div>
+          <span className="text-card-foreground">
+            {t(
+              "Sees this session's report and full transcript, plus this patient's whole record.",
+            )}
+          </span>{" "}
+          {t("Never other patients. Each question is logged.")}
+        </div>
+      ) : scope === "patient" ? (
         <div>
           <span className="text-card-foreground">
             {t(

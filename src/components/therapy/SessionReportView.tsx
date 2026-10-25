@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
-import { Check, Copy, Eye, Sparkles, Trash2 } from "lucide-react";
+import { Check, Copy, Eye, Trash2 } from "lucide-react";
+import SessionAiIcon from "./SessionAiIcon";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import type { SessionReport } from "./therapyStore";
@@ -140,8 +141,8 @@ export default function SessionReportView({
           }
           onClick={onToggleAi}
         >
-          <Sparkles className="w-[15px] h-[15px]" />
-          {t("Patient AI")}
+          <SessionAiIcon className="w-[15px] h-[15px]" />
+          {t("Session AI")}
         </button>
       </div>
 

@@ -56,8 +56,14 @@ export const queryKeys = {
       [orgId, "contacts", contactId, "files"] as const,
     caseSummary: (orgId: NullableId, contactId: NullableId) =>
       [orgId, "contacts", contactId, "case-summary"] as const,
-    askChats: (orgId: NullableId, contactId: NullableId) =>
-      [orgId, "contacts", contactId, "ask-chats"] as const,
+    askChats: (orgId: NullableId, contactId: NullableId, reportId?: string) =>
+      [
+        orgId,
+        "contacts",
+        contactId,
+        "ask-chats",
+        reportId ?? "patient",
+      ] as const,
     chatFiles: (
       orgId: NullableId,
       contactId: NullableId,

@@ -107,7 +107,10 @@ function PracticeAsk() {
         <AiChat
           scope="practice"
           layout="split"
-          contextLabel={t("All patients")}
+          contextLabel={t("Names · appointments · payments · report status")}
+          thinkingLabel={t(
+            "Checking names and prices, appointments and payments, and report status…",
+          )}
           canAttach={false}
           emptyNote={<ClinicAiPrivacySummary scope="clinic" />}
           icon={ClinicAiIcon}

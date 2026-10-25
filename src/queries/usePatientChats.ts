@@ -5,6 +5,7 @@ import type { ChatStore } from "@/components/therapy/AiChat";
 import {
   type ChatThread,
   patientChatScope,
+  sessionChatScope,
 } from "@/components/therapy/therapyStore";
 import { queryKeys } from "./queryKeys";
 import { throwFunctionError } from "./throwFunctionError";
@@ -21,21 +22,30 @@ type StoredChat = {
 const byNewest = (a: ChatThread, b: ChatThread) =>
   b.updatedAt.localeCompare(a.updatedAt);
 
-/** The signed-in therapist's patient Ask AI chats about one patient, kept in
- *  the clinic's patient-data bucket so they follow the therapist to any
- *  computer. Saves show at once and are sent in the background. */
-export function usePatientChats(contactId: string): ChatStore {
+/** The signed-in therapist's chats about one patient, kept in the clinic's
+ *  patient-data bucket so they follow the therapist to any computer: Patient
+ *  AI's, or with `reportId` Session AI's about that one session. Saves show
+ *  at once and are sent in the background. */
+export function usePatientChats(
+  contactId: string,
+  reportId?: string,
+): ChatStore {
   const orgId = useBoundStore((state) => state.ui.activeOrgId);
   const queryClient = useQueryClient();
-  const key = queryKeys.contacts.askChats(orgId, contactId);
-  const scope = patientChatScope(contactId);
+  const key = queryKeys.contacts.askChats(orgId, contactId, reportId);
+  const scope = reportId
+    ? sessionChatScope(reportId)
+    : patientChatScope(contactId);
 
   const { data, isSuccess, isError, refetch } = useQuery({
     queryKey: key,
     queryFn: async () => {
       const result = await supabase.functions.invoke<{
         chats: StoredChat[];
-      }>(`patient-data/chats/${contactId}`, { method: "GET" });
+      }>(
+        `patient-data/chats/${contactId}${reportId ? `?report=${reportId}` : ""}`,
+        { method: "GET" },
+      );
       if (result.error) await throwFunctionError(result.error);
       return (result.data?.chats ?? [])
         .map(
@@ -71,6 +81,7 @@ export function usePatientChats(contactId: string): ChatStore {
           method: "PUT",
           body: {
             contactId,
+            reportId,
             title: chat.title,
             messages: chat.messages,
             attachments: chat.attachments,

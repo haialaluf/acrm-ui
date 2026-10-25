@@ -2009,6 +2009,7 @@ export type Database = {
           data_region: string
           id: string
           organization_id: string
+          report_id: string | null
           storage_key: string
           updated_at: string
           user_id: string
@@ -2019,6 +2020,7 @@ export type Database = {
           data_region: string
           id: string
           organization_id: string
+          report_id?: string | null
           storage_key: string
           updated_at?: string
           user_id: string
@@ -2029,11 +2031,19 @@ export type Database = {
           data_region?: string
           id?: string
           organization_id?: string
+          report_id?: string | null
           storage_key?: string
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "patient_ask_chats_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "session_reports"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "patient_ask_chats_contact_id_fkey"
             columns: ["organization_id", "contact_id"]

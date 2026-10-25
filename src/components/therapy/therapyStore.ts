@@ -128,6 +128,11 @@ export function patientChatScope(contactId: string) {
   return `contact:${contactId}`;
 }
 
+/** Session AI chats: about one session, listed only on its report. */
+export function sessionChatScope(reportId: string) {
+  return `report:${reportId}`;
+}
+
 export function forgetAllChats() {
   cache.clear();
   try {

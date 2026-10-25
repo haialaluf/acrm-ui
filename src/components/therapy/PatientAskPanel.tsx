@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
+import dayjs from "dayjs";
 import { Sparkles, X } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -18,15 +19,20 @@ import {
 } from "./ClinicAiPrivacy";
 import { usePatientAnswers } from "./patientAnswers";
 import { usePatientChats } from "@/queries/usePatientChats";
-import { patientChatScope } from "./therapyStore";
+import { useSessionReport } from "@/queries/useSessionReports";
+import SessionAiIcon from "./SessionAiIcon";
+import { patientChatScope, sessionChatScope } from "./therapyStore";
 
 function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
-  const { translate: t } = useTranslation();
+  const { translate: t, currentLanguage } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const reportId = /\/reports\/([^/]+)$/.exec(pathname)?.[1];
   const { answer, name } = usePatientAnswers(contact, reportId);
-  const chats = usePatientChats(contact.id);
+  const chats = usePatientChats(contact.id, reportId);
+  const { data: report } = useSessionReport(reportId ?? "");
+  const scope = reportId ? "session" : "patient";
+
   const inSweden = useAskAiInSweden();
   const [speed, setSpeed] = useState<AskAiSpeed>("fast");
 
@@ -41,10 +47,14 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
     <>
       <div className="h-[60px] shrink-0 px-[20px] flex items-center gap-[10px] border-b border-border bg-background">
         <span className="w-[30px] h-[30px] rounded-[10px] bg-accent text-primary flex items-center justify-center">
-          <Sparkles className="w-[16px] h-[16px]" />
+          {reportId ? (
+            <SessionAiIcon className="w-[16px] h-[16px]" />
+          ) : (
+            <Sparkles className="w-[16px] h-[16px]" />
+          )}
         </span>
         <div className="text-[16px] font-semibold text-card-foreground">
-          {t("Patient AI")}
+          {reportId ? t("Session AI") : t("Patient AI")}
         </div>
         <span className="flex items-center gap-[6px] text-[13px] text-muted-foreground min-w-0">
           <Avatar
@@ -52,9 +62,15 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
             size={22}
             className="bg-accent text-accent-foreground text-[10px] shrink-0"
           />
-          <span className="truncate">{contact.name}</span>
+          <span className="truncate">
+            {contact.name}
+            {report &&
+              ` · ${report.templateName}, ${dayjs(report.createdAt)
+                .locale(currentLanguage)
+                .format("D MMM")}`}
+          </span>
         </span>
-        <ClinicAiPrivacyButton scope="patient" />
+        <ClinicAiPrivacyButton scope={scope} />
         <button
           type="button"
           title={t("Close")}
@@ -72,9 +88,20 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
       </div>
       <AiChat
         key={`${contact.id}:${reportId ?? ""}`}
-        scope={patientChatScope(contact.id)}
+        scope={
+          reportId ? sessionChatScope(reportId) : patientChatScope(contact.id)
+        }
         store={chats}
         layout="split"
+        icon={reportId ? SessionAiIcon : undefined}
+        thinkingLabel={
+          reportId
+            ? t("Reading this session and {{1}}'s record…").replace(
+                "{{1}}",
+                name,
+              )
+            : undefined
+        }
         contextLabel={
           reportId
             ? t("This session and {{1}}'s record").replace("{{1}}", name)
@@ -85,7 +112,7 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
             ? t("Ask about this session…")
             : `${t("Ask anything about")} ${name}…`
         }
-        emptyNote={<ClinicAiPrivacySummary scope="patient" />}
+        emptyNote={<ClinicAiPrivacySummary scope={scope} />}
         suggestions={
           reportId
             ? [
@@ -105,7 +132,7 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
         answer={(_question, _attachments, thread) => answer(thread, speed)}
         composerExtra={
           <>
-            <ClinicAiLocationChip scope="patient" />
+            <ClinicAiLocationChip scope={scope} />
             {inSweden ? (
               <AskAiSwedenModel />
             ) : (

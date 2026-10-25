@@ -51,6 +51,7 @@ type Props = {
   emptyTitle: string;
   emptyNote?: ReactNode;
   icon?: LucideIcon;
+  thinkingLabel?: string;
   suggestions: string[];
   recordFiles?: string[];
   canAttach?: boolean;
@@ -231,11 +232,13 @@ function basisText(
       t(key),
     );
   if (c.patients !== undefined) {
-    return fill(
-      "Based on {{1}} patients and {{2}} sessions",
-      c.patients,
-      c.sessions,
-    );
+    const patients =
+      c.patients === 1 ? t("1 patient") : fill("{{1}} patients", c.patients);
+    const appointments =
+      c.sessions === 1
+        ? t("1 appointment")
+        : fill("{{1}} appointments", c.sessions);
+    return `${t("Based on names, appointments, payments and report status")} · ${patients}, ${appointments}`;
   }
   const plus = c.transcript ? t(", plus this session's transcript") : "";
   const notes = c.notes ?? 0;
@@ -415,6 +418,7 @@ export default function AiChat({
   emptyTitle,
   emptyNote,
   icon: Icon = Sparkles,
+  thinkingLabel,
   suggestions,
   recordFiles = [],
   canAttach = true,
@@ -767,7 +771,7 @@ export default function AiChat({
               <span className="w-[24px] h-[24px] rounded-[8px] bg-accent text-primary flex items-center justify-center">
                 <Icon className="w-[14px] h-[14px] animate-pulse" />
               </span>
-              {t("Reading the record…")}
+              {thinkingLabel ?? t("Reading the record…")}
             </div>
           )}
           <div ref={bottomRef} />
