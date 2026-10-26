@@ -35,10 +35,10 @@ function toReport(
 
 async function fetchReport(id: string): Promise<SessionReport> {
   const { data, error } = await supabase.functions.invoke<
-    SessionReportRow & { content: ReportContent }
+    SessionReportRow & { content: ReportContent; has_audio?: boolean }
   >(`patient-data/reports/${id}`, { method: "GET" });
   if (error) await throwFunctionError(error);
-  return toReport(data!, data!.content);
+  return { ...toReport(data!, data!.content), hasAudio: !!data!.has_audio };
 }
 
 /** Labels only (no content), for lists and practice-wide questions. */

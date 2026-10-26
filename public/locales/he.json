@@ -1814,5 +1814,7 @@
   "Open the call in this browser first. After you press Start, pick the call's tab and turn on \"Also share tab audio\". Headphones give the clearest recording.": "קודם יש לפתוח את השיחה בדפדפן הזה. אחרי הלחיצה על התחלה, יש לבחור את הלשונית של השיחה ולהפעיל את שיתוף האודיו של הלשונית. עם אוזניות ההקלטה הכי ברורה.",
   "The call's sound was not shared. Start again and turn on \"Also share tab audio\".": "הקול של השיחה לא שותף. יש להתחיל שוב ולהפעיל את שיתוף האודיו של הלשונית.",
   "Delete this report?": "למחוק את סיכום הפגישה?",
-  "The report, its recording and its Session AI chats are deleted for good. This can't be undone.": "סיכום הפגישה, ההקלטה והשיחות עם Session AI יימחקו לצמיתות. אי אפשר לבטל את זה."
+  "The report, its recording and its Session AI chats are deleted for good. This can't be undone.": "סיכום הפגישה, ההקלטה והשיחות עם Session AI יימחקו לצמיתות. אי אפשר לבטל את זה.",
+  "The recording was deleted. Only the transcript can be read.": "ההקלטה נמחקה, אפשר רק לקרוא את התמלול.",
+  "The recording couldn't be played. Please try again.": "לא ניתן היה להשמיע את ההקלטה. נסו שוב."
 }

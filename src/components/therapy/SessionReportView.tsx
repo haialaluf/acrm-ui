@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/he";
-import { Check, Copy, Eye, Trash2 } from "lucide-react";
+import { Check, Copy, Eye, Pause, Play, Trash2, VolumeX } from "lucide-react";
 import SessionAiIcon from "./SessionAiIcon";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useMomentPlayer } from "./useMomentPlayer";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import type { SessionReport } from "./therapyStore";
@@ -48,6 +49,8 @@ export default function SessionReportView({
   const save = useSaveSessionReport();
   const remove = useDeleteSessionReport();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const player = useMomentPlayer(saved.id);
+  const canListen = !!saved.hasAudio;
   const [report, setReport] = useState(saved);
   const [dirty, setDirty] = useState(false);
   const [view, setView] = useState<"report" | "transcript">("report");
@@ -175,6 +178,17 @@ export default function SessionReportView({
       </div>
 
       <div className="grow overflow-y-auto px-[20px] py-[14px] flex flex-col gap-[12px]">
+        {!canListen && report.transcript.length > 0 && (
+          <div className="flex items-center gap-[6px] text-[12px] text-muted-foreground">
+            <VolumeX className="w-[13px] h-[13px] shrink-0" />
+            {t("The recording was deleted. Only the transcript can be read.")}
+          </div>
+        )}
+        {player.failed && (
+          <div className="text-[12px] text-destructive">
+            {t("The recording couldn't be played. Please try again.")}
+          </div>
+        )}
         {view === "transcript"
           ? report.transcript.map((line, i) => (
               <div
@@ -183,11 +197,19 @@ export default function SessionReportView({
                 dir={HEBREW.test(line.text) ? "rtl" : undefined}
                 className={
                   "flex gap-[10px] text-[14px] rounded-[10px] " +
-                  (highlight.includes(i + 1)
-                    ? "bg-primary/8 -mx-[8px] px-[8px] py-[6px]"
-                    : "")
+                  (player.playing?.key === `line-${i}`
+                    ? "bg-warning/15 -mx-[8px] px-[8px] py-[6px]"
+                    : highlight.includes(i + 1)
+                      ? "bg-primary/8 -mx-[8px] px-[8px] py-[6px]"
+                      : "")
                 }
               >
+                {canListen && (
+                  <PlayButton
+                    playing={player.playing?.key === `line-${i}`}
+                    onClick={() => void player.play(`line-${i}`, line.at)}
+                  />
+                )}
                 <span
                   className="text-[12px] text-muted-foreground tabular-nums w-[40px] shrink-0 pt-[2px]"
                   dir="ltr"
@@ -298,17 +320,18 @@ export default function SessionReportView({
                   />
                 )}
                 {!!s.sources?.length && report.transcript.length > 0 && (
-                  <button
-                    type="button"
-                    className="self-start text-[12px] text-primary"
-                    onClick={() => {
+                  <SourceMoments
+                    id={`section-${i}`}
+                    sources={s.sources}
+                    transcript={report.transcript}
+                    canListen={canListen}
+                    player={player}
+                    t={t}
+                    onOpen={() => {
                       setHighlight(s.sources ?? []);
                       setView("transcript");
                     }}
-                  >
-                    {t("From the session")} ·{" "}
-                    {report.transcript[s.sources[0] - 1]?.at}
-                  </button>
+                  />
                 )}
               </div>
             ))}
@@ -386,5 +409,132 @@ export default function SessionReportView({
         onCancel={() => setConfirmDelete(false)}
       />
     </div>
+  );
+}
+
+type Moment = { line: number; at: string };
+
+function PlayButton({
+  playing,
+  onClick,
+}: {
+  playing: boolean;
+  onClick: () => void;
+}) {
+  const Icon = playing ? Pause : Play;
+  return (
+    <button
+      type="button"
+      className={
+        "w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0 " +
+        (playing
+          ? "bg-primary text-primary-foreground"
+          : "bg-accent text-primary")
+      }
+      onClick={onClick}
+    >
+      <Icon className="w-[11px] h-[11px] fill-current" />
+    </button>
+  );
+}
+
+const MAX_MOMENTS = 3;
+
+function SourceMoments({
+  id,
+  sources,
+  transcript,
+  canListen,
+  player,
+  t,
+  onOpen,
+}: {
+  id: string;
+  sources: number[];
+  transcript: SessionReport["transcript"];
+  canListen: boolean;
+  player: ReturnType<typeof useMomentPlayer>;
+  t: (key: string) => string;
+  onOpen: () => void;
+}) {
+  const moments: Moment[] = [...sources]
+    .sort((a, b) => a - b)
+    .flatMap((line) =>
+      transcript[line - 1] ? [{ line, at: transcript[line - 1].at }] : [],
+    );
+  if (!moments.length) return null;
+  const keyOf = (m: Moment) => `${id}-${m.line}`;
+  const playingHere = moments.find((m) => keyOf(m) === player.playing?.key);
+
+  if (!canListen || moments.length === 1) {
+    const [only] = moments;
+    return (
+      <div className="self-start flex items-center gap-[6px]">
+        {canListen && (
+          <PlayButton
+            playing={!!playingHere}
+            onClick={() => void player.play(keyOf(only), only.at)}
+          />
+        )}
+        <button
+          type="button"
+          className="text-[12px] text-primary"
+          onClick={onOpen}
+        >
+          {t("From the session")} · {only.at}
+        </button>
+        {playingHere && <ClipProgress value={player.playing!.progress} />}
+      </div>
+    );
+  }
+
+  const shown = moments.slice(0, MAX_MOMENTS);
+  const more = moments.length - shown.length;
+  return (
+    <div className="self-start flex flex-wrap items-center gap-[6px]">
+      <button
+        type="button"
+        className="text-[12px] text-primary"
+        onClick={onOpen}
+      >
+        {t("From the session")}:
+      </button>
+      {shown.map((m) => (
+        <span
+          key={m.line}
+          className="inline-flex items-center gap-[5px] ps-[3px] pe-[8px] py-[2px] rounded-full border border-border"
+        >
+          <PlayButton
+            playing={player.playing?.key === keyOf(m)}
+            onClick={() => void player.play(keyOf(m), m.at)}
+          />
+          <span className="text-[12px] text-primary tabular-nums" dir="ltr">
+            {m.at}
+          </span>
+        </span>
+      ))}
+      {more > 0 && (
+        <button
+          type="button"
+          className="text-[12px] text-primary px-[8px] py-[2px] rounded-full border border-dashed border-border"
+          dir="ltr"
+          onClick={onOpen}
+        >
+          +{more}
+        </button>
+      )}
+      {playingHere && <ClipProgress value={player.playing!.progress} />}
+    </div>
+  );
+}
+
+function ClipProgress({ value }: { value: number }) {
+  return (
+    <span className="w-[60px] h-[4px] rounded-full bg-border overflow-hidden">
+      <span
+        className="block h-full bg-primary"
+        style={{ width: `${Math.round(value * 100)}%` }}
+      />
+    </span>
   );
 }

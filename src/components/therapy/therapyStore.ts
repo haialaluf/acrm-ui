@@ -28,6 +28,8 @@ export type SessionReport = {
   status: "draft" | "approved";
   sections: ReportSection[];
   transcript: { at: string; speaker: "therapist" | "patient"; text: string }[];
+  /** The recording can still be played (until approval, at most 7 days). */
+  hasAudio?: boolean;
 };
 
 export type Citation = {
