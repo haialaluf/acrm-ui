@@ -110,13 +110,13 @@ export default function RecordSession({
   });
 
   const mounted = useRef(true);
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
       mounted.current = false;
       recorderRef.current?.release();
-    },
-    [],
-  );
+    };
+  }, []);
 
   const linkedAppointment = () =>
     (appointments ?? [])
