@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/he";
 import { Check, Copy, Eye, Trash2 } from "lucide-react";
 import SessionAiIcon from "./SessionAiIcon";
+import ConfirmModal from "@/components/ConfirmModal";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { ContactWithAddressesRow } from "@/supabase/client";
 import type { SessionReport } from "./therapyStore";
@@ -46,6 +47,7 @@ export default function SessionReportView({
   const { translate: t, currentLanguage } = useTranslation();
   const save = useSaveSessionReport();
   const remove = useDeleteSessionReport();
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [report, setReport] = useState(saved);
   const [dirty, setDirty] = useState(false);
   const [view, setView] = useState<"report" | "transcript">("report");
@@ -318,7 +320,7 @@ export default function SessionReportView({
           title={t("Delete")}
           className="w-[38px] h-[38px] rounded-full border border-border flex items-center justify-center text-muted-foreground"
           disabled={remove.isPending}
-          onClick={() => remove.mutate(report.id, { onSuccess: onDeleted })}
+          onClick={() => setConfirmDelete(true)}
         >
           <Trash2 className="w-[16px] h-[16px]" />
         </button>
@@ -367,6 +369,22 @@ export default function SessionReportView({
               : t("Approve & save")}
         </button>
       </div>
+      <ConfirmModal
+        open={confirmDelete}
+        title={t("Delete this report?")}
+        body={t(
+          "The report, its recording and its Session AI chats are deleted for good. This can't be undone.",
+        )}
+        confirmLabel={t("Delete")}
+        loading={remove.isPending}
+        onConfirm={() =>
+          remove.mutate(report.id, {
+            onSuccess: onDeleted,
+            onSettled: () => setConfirmDelete(false),
+          })
+        }
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   );
 }

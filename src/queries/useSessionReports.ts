@@ -145,10 +145,16 @@ export function useDeleteSessionReport() {
       );
       if (error) await throwFunctionError(error);
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({
+    // Not awaited: refetching the open report, now gone, retried its 404 for
+    // seconds before the page could leave.
+    onSuccess: (_data, reportId) => {
+      queryClient.removeQueries({
+        queryKey: queryKeys.sessionReports.detail(orgId, reportId),
+      });
+      void queryClient.invalidateQueries({
         queryKey: queryKeys.sessionReports.org(orgId),
-      }),
+      });
+    },
   });
 }
 
