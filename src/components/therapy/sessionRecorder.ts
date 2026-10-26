@@ -80,26 +80,6 @@ export class SessionRecorder {
     language: string;
     templateId: string;
   }): Promise<SessionRecorder> {
-    let tab: MediaStream | null = null;
-    if (options.mode === "online") {
-      try {
-        tab = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-          audio: { suppressLocalAudioPlayback: false },
-          preferCurrentTab: false,
-          selfBrowserSurface: "exclude",
-          systemAudio: "exclude",
-          surfaceSwitching: "include",
-        } as DisplayMediaStreamOptions);
-      } catch {
-        throw new RecorderStartError("cancelled");
-      }
-      if (!tab.getAudioTracks().length) {
-        tab.getTracks().forEach((t) => t.stop());
-        throw new RecorderStartError("no-tab-audio");
-      }
-    }
-
     let mic: MediaStream;
     try {
       mic = await navigator.mediaDevices.getUserMedia({
@@ -110,8 +90,42 @@ export class SessionRecorder {
         },
       });
     } catch {
-      tab?.getTracks().forEach((t) => t.stop());
       throw new RecorderStartError("microphone");
+    }
+
+    let tab: MediaStream | null = null;
+    if (options.mode === "online") {
+      const controller =
+        "CaptureController" in window
+          ? new (
+              window as unknown as {
+                CaptureController: new () => {
+                  setFocusBehavior(behavior: "no-focus-change"): void;
+                };
+              }
+            ).CaptureController()
+          : undefined;
+      try {
+        tab = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+          audio: { suppressLocalAudioPlayback: false },
+          preferCurrentTab: false,
+          selfBrowserSurface: "exclude",
+          systemAudio: "exclude",
+          surfaceSwitching: "include",
+          controller,
+        } as DisplayMediaStreamOptions);
+        // Keeps the therapist on this page to see it recording; Chrome
+        // only accepts this right after the share is picked.
+        controller?.setFocusBehavior("no-focus-change");
+      } catch {
+        mic.getTracks().forEach((t) => t.stop());
+        throw new RecorderStartError("cancelled");
+      }
+      if (!tab.getAudioTracks().length) {
+        [mic, tab].forEach((s) => s.getTracks().forEach((t) => t.stop()));
+        throw new RecorderStartError("no-tab-audio");
+      }
     }
 
     const mimeType = pickMimeType();
