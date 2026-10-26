@@ -1810,5 +1810,7 @@
   "Check the flagged sections first": "יש לבדוק קודם את החלקים המסומנים",
   "Approve & save": "אישור ושמירה",
   "Approved": "אושר",
-  "This report is no longer available.": "סיכום הפגישה הזה כבר לא זמין."
+  "This report is no longer available.": "סיכום הפגישה הזה כבר לא זמין.",
+  "Open the call in this browser first. After you press Start, pick the call's tab and turn on \"Also share tab audio\". Headphones give the clearest recording.": "קודם יש לפתוח את השיחה בדפדפן הזה. אחרי הלחיצה על התחלה, יש לבחור את הלשונית של השיחה ולהפעיל את שיתוף האודיו של הלשונית. עם אוזניות ההקלטה הכי ברורה.",
+  "The call's sound was not shared. Start again and turn on \"Also share tab audio\".": "הקול של השיחה לא שותף. יש להתחיל שוב ולהפעיל את שיתוף האודיו של הלשונית."
 }
