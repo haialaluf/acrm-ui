@@ -247,4 +247,12 @@ export const queryKeys = {
     planProducts: (orgId: NullableId) =>
       [orgId, "billing", "plan_products"] as const,
   },
+  clinicUsage: {
+    /** ai_usage_summary for the month starting at `month` (YYYY-MM-01). */
+    month: (orgId: NullableId, month: string) =>
+      [orgId, "clinic_usage", month] as const,
+    /** Status of the reports drafted from that month's recordings. */
+    reports: (orgId: NullableId, month: string) =>
+      [orgId, "clinic_usage", "reports", month] as const,
+  },
 };

@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import StatsQuotas from "./StatsQuotas";
 import StatsUsage from "./StatsUsage";
+import ClinicUsage from "./ClinicUsage";
 import AccountHealth from "./health/AccountHealth";
 import EmailHealth from "./health/email/EmailHealth";
 
@@ -14,6 +15,7 @@ export default function StatsCenter() {
   const isUsage = pathname === "/stats/usage";
   const isHealth = pathname === "/stats/health";
   const isEmailHealth = pathname === "/stats/email";
+  const isClinicUsage = pathname === "/stats/clinic-usage";
 
   return (
     <>
@@ -29,17 +31,21 @@ export default function StatsCenter() {
           <ArrowLeft className="w-[24px] h-[24px] text-foreground" />
         </button>
         <div className="flex items-center text-[16px] text-foreground">
-          {isEmailHealth
-            ? t("Email health")
-            : isHealth
-              ? t("WhatsApp account health")
-              : isUsage
-                ? t("Usage")
-                : t("Quotas")}
+          {isClinicUsage
+            ? t("Clinic usage and cost")
+            : isEmailHealth
+              ? t("Email health")
+              : isHealth
+                ? t("WhatsApp account health")
+                : isUsage
+                  ? t("Usage")
+                  : t("Quotas")}
         </div>
       </div>
 
-      {isEmailHealth ? (
+      {isClinicUsage ? (
+        <ClinicUsage />
+      ) : isEmailHealth ? (
         <EmailHealth />
       ) : isHealth ? (
         <AccountHealth />

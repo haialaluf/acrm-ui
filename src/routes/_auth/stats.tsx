@@ -9,7 +9,9 @@ import SectionBody from "@/components/SectionBody";
 import SectionItem from "@/components/SectionItem";
 import { useTranslation } from "@/hooks/useTranslation";
 import HideIfNotPermitted from "@/components/HideIfNotPermitted";
-import { Activity, BarChart3, Gauge, MailWarning } from "lucide-react";
+import { Activity, BarChart3, Gauge, MailWarning, Wallet } from "lucide-react";
+import { useWorkspace } from "@/hooks/useWorkspace";
+import { useCurrentAgent } from "@/queries/useAgents";
 
 export const Route = createFileRoute("/_auth/stats")({
   component: StatsLayout,
@@ -20,6 +22,10 @@ function StatsLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const pathname = location.pathname;
+  const { isTherapy } = useWorkspace();
+  const { data: agent } = useCurrentAgent();
+  const role = agent?.extra?.role;
+  const showClinicUsage = isTherapy && (role === "owner" || role === "admin");
 
   // Bare `/stats` defaults to Quotas (matching StatsCenter), so treat it as the
   // active Quotas tab for highlighting — there is no redirect to `/stats/quotas`.
@@ -30,7 +36,9 @@ function StatsLayout() {
         ? "health"
         : pathname === "/stats/email"
           ? "email"
-          : "quotas";
+          : pathname === "/stats/clinic-usage"
+            ? "clinic-usage"
+            : "quotas";
 
   return (
     <>
@@ -109,6 +117,24 @@ function StatsLayout() {
             className={activeTab === "email" ? "bg-accent" : ""}
           />
         </HideIfNotPermitted>
+        {showClinicUsage && (
+          <SectionItem
+            title={t("Clinic usage and cost")}
+            aside={
+              <div
+                className={`p-[8px] rounded-full ${activeTab === "clinic-usage" ? "bg-primary/10" : ""}`}
+              >
+                <Wallet
+                  className={`w-[24px] h-[24px] ${activeTab === "clinic-usage" ? "text-primary" : "text-muted-foreground"}`}
+                />
+              </div>
+            }
+            onClick={() =>
+              navigate({ to: "/stats/clinic-usage", hash: (prev) => prev! })
+            }
+            className={activeTab === "clinic-usage" ? "bg-accent" : ""}
+          />
+        )}
       </SectionBody>
       <Outlet />
     </>

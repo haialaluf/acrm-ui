@@ -634,6 +634,65 @@ export type Database = {
           },
         ]
       }
+      ai_usage: {
+        Row: {
+          audio_seconds: number | null
+          cached_tokens: number
+          contact_id: string | null
+          cost_usd: number
+          created_at: string
+          feature: string
+          id: string
+          input_tokens: number
+          model: string | null
+          organization_id: string
+          output_tokens: number
+          pages: number | null
+          run_id: string
+          user_id: string | null
+        }
+        Insert: {
+          audio_seconds?: number | null
+          cached_tokens?: number
+          contact_id?: string | null
+          cost_usd: number
+          created_at?: string
+          feature: string
+          id?: string
+          input_tokens?: number
+          model?: string | null
+          organization_id: string
+          output_tokens?: number
+          pages?: number | null
+          run_id?: string
+          user_id?: string | null
+        }
+        Update: {
+          audio_seconds?: number | null
+          cached_tokens?: number
+          contact_id?: string | null
+          cost_usd?: number
+          created_at?: string
+          feature?: string
+          id?: string
+          input_tokens?: number
+          model?: string | null
+          organization_id?: string
+          output_tokens?: number
+          pages?: number | null
+          run_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_keys: {
         Row: {
           created_at: string
@@ -2572,6 +2631,17 @@ export type Database = {
           p_user_id: string
         }
         Returns: boolean
+      }
+      ai_usage_summary: {
+        Args: { p_from: string; p_organization_id: string; p_to: string }
+        Returns: {
+          audio_seconds: number
+          cost_usd: number
+          feature: string
+          pages: number
+          runs: number
+          user_id: string
+        }[]
       }
       apply_contact_tags: {
         Args: { p_add?: string[]; p_contact_id: string; p_remove?: string[] }

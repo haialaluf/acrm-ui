@@ -39,6 +39,7 @@ import { Route as AuthStatsUsageRouteImport } from './routes/_auth/stats/usage'
 import { Route as AuthStatsQuotasRouteImport } from './routes/_auth/stats/quotas'
 import { Route as AuthStatsHealthRouteImport } from './routes/_auth/stats/health'
 import { Route as AuthStatsEmailRouteImport } from './routes/_auth/stats/email'
+import { Route as AuthStatsClinicUsageRouteImport } from './routes/_auth/stats/clinic-usage'
 import { Route as AuthSettingsReportTemplatesRouteImport } from './routes/_auth/settings/report-templates'
 import { Route as AuthSettingsConnectClaudeRouteImport } from './routes/_auth/settings/connect-claude'
 import { Route as AuthSettingsConnectChatgptRouteImport } from './routes/_auth/settings/connect-chatgpt'
@@ -242,6 +243,11 @@ const AuthStatsHealthRoute = AuthStatsHealthRouteImport.update({
 const AuthStatsEmailRoute = AuthStatsEmailRouteImport.update({
   id: '/email',
   path: '/email',
+  getParentRoute: () => AuthStatsRoute,
+} as any)
+const AuthStatsClinicUsageRoute = AuthStatsClinicUsageRouteImport.update({
+  id: '/clinic-usage',
+  path: '/clinic-usage',
   getParentRoute: () => AuthStatsRoute,
 } as any)
 const AuthSettingsReportTemplatesRoute =
@@ -579,6 +585,7 @@ export interface FileRoutesByFullPath {
   '/settings/connect-chatgpt': typeof AuthSettingsConnectChatgptRoute
   '/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
   '/settings/report-templates': typeof AuthSettingsReportTemplatesRoute
+  '/stats/clinic-usage': typeof AuthStatsClinicUsageRoute
   '/stats/email': typeof AuthStatsEmailRoute
   '/stats/health': typeof AuthStatsHealthRoute
   '/stats/quotas': typeof AuthStatsQuotasRoute
@@ -663,6 +670,7 @@ export interface FileRoutesByTo {
   '/settings/connect-chatgpt': typeof AuthSettingsConnectChatgptRoute
   '/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
   '/settings/report-templates': typeof AuthSettingsReportTemplatesRoute
+  '/stats/clinic-usage': typeof AuthStatsClinicUsageRoute
   '/stats/email': typeof AuthStatsEmailRoute
   '/stats/health': typeof AuthStatsHealthRoute
   '/stats/quotas': typeof AuthStatsQuotasRoute
@@ -750,6 +758,7 @@ export interface FileRoutesById {
   '/_auth/settings/connect-chatgpt': typeof AuthSettingsConnectChatgptRoute
   '/_auth/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
   '/_auth/settings/report-templates': typeof AuthSettingsReportTemplatesRoute
+  '/_auth/stats/clinic-usage': typeof AuthStatsClinicUsageRoute
   '/_auth/stats/email': typeof AuthStatsEmailRoute
   '/_auth/stats/health': typeof AuthStatsHealthRoute
   '/_auth/stats/quotas': typeof AuthStatsQuotasRoute
@@ -837,6 +846,7 @@ export interface FileRouteTypes {
     | '/settings/connect-chatgpt'
     | '/settings/connect-claude'
     | '/settings/report-templates'
+    | '/stats/clinic-usage'
     | '/stats/email'
     | '/stats/health'
     | '/stats/quotas'
@@ -921,6 +931,7 @@ export interface FileRouteTypes {
     | '/settings/connect-chatgpt'
     | '/settings/connect-claude'
     | '/settings/report-templates'
+    | '/stats/clinic-usage'
     | '/stats/email'
     | '/stats/health'
     | '/stats/quotas'
@@ -1007,6 +1018,7 @@ export interface FileRouteTypes {
     | '/_auth/settings/connect-chatgpt'
     | '/_auth/settings/connect-claude'
     | '/_auth/settings/report-templates'
+    | '/_auth/stats/clinic-usage'
     | '/_auth/stats/email'
     | '/_auth/stats/health'
     | '/_auth/stats/quotas'
@@ -1295,6 +1307,13 @@ declare module '@tanstack/react-router' {
       path: '/email'
       fullPath: '/stats/email'
       preLoaderRoute: typeof AuthStatsEmailRouteImport
+      parentRoute: typeof AuthStatsRoute
+    }
+    '/_auth/stats/clinic-usage': {
+      id: '/_auth/stats/clinic-usage'
+      path: '/clinic-usage'
+      fullPath: '/stats/clinic-usage'
+      preLoaderRoute: typeof AuthStatsClinicUsageRouteImport
       parentRoute: typeof AuthStatsRoute
     }
     '/_auth/settings/report-templates': {
@@ -1679,6 +1698,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthStatsRouteChildren {
+  AuthStatsClinicUsageRoute: typeof AuthStatsClinicUsageRoute
   AuthStatsEmailRoute: typeof AuthStatsEmailRoute
   AuthStatsHealthRoute: typeof AuthStatsHealthRoute
   AuthStatsQuotasRoute: typeof AuthStatsQuotasRoute
@@ -1687,6 +1707,7 @@ interface AuthStatsRouteChildren {
 }
 
 const AuthStatsRouteChildren: AuthStatsRouteChildren = {
+  AuthStatsClinicUsageRoute: AuthStatsClinicUsageRoute,
   AuthStatsEmailRoute: AuthStatsEmailRoute,
   AuthStatsHealthRoute: AuthStatsHealthRoute,
   AuthStatsQuotasRoute: AuthStatsQuotasRoute,
