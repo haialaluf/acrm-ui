@@ -1719,6 +1719,7 @@
   "Risks": "סיכונים",
   "To follow up next time": "לבדוק בפגישה הבאה",
   "Summary": "סיכום",
+  "Patient summary": "סיכום מטופל",
   "Not available in a therapy clinic: patients' voice messages are never sent to an AI, and their files are read only by Patient AI.": "לא זמין בקליניקה טיפולית: הודעות קוליות של מטופלים לעולם לא נשלחות ל-AI, והקבצים שלהם נקראים רק על ידי Patient AI.",
   "{{1}}'s record": "התיק של {{1}}",
   "Report": "סיכום פגישה",

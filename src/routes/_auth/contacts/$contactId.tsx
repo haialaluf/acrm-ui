@@ -96,7 +96,7 @@ const THERAPY_TABS: Tab[] = [
 
 const TAB_LABELS: Record<Tab, string> = {
   details: "Details",
-  summary: "Summary",
+  summary: "Patient summary",
   sessions: "Sessions",
   notes: "Notes",
   files: "Files",
