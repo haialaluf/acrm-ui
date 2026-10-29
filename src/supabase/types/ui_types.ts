@@ -50,4 +50,4 @@ export type AppointmentStatus =
 
 // public.appointments.extra - free-form JSON for future scheduling metadata
 // (e.g. notes, video-call links). Kept opaque and stable for the agent.
-export type AppointmentExtra = { notes?: string };
+export type AppointmentExtra = { notes?: string; paid?: boolean };

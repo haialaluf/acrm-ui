@@ -79,8 +79,20 @@ export type OrganizationExtra = {
   transcription?: TranscriptionConfig;
   error_messages_direction?: "internal" | "outgoing";
   business_profile?: BusinessProfile;
+  workspace_type?: WorkspaceType;
+  people_term?: PeopleTerm;
+  currency?: Currency;
+  data_region?: DataRegion;
+  // Where Ask AI answers are worked out; chosen by the owner. Absent = "eu".
+  ask_ai_location?: AskAiLocation;
   lead_flow?: LeadFlow;
 };
+
+export type DataRegion = "il" | "se";
+export type AskAiLocation = "stockholm" | "eu";
+export type WorkspaceType = "company" | "therapy";
+export type PeopleTerm = "patients" | "clients";
+export type Currency = "ILS" | "SEK" | "EUR" | "USD";
 
 export type WhatsAppOrganizationAddressExtra = {
   waba_id?: string;
@@ -270,7 +282,11 @@ export type ConversationExtra = {
 };
 
 // Form answers moved to leads.pipeline.answers (see LeadPipeline).
-export type ContactExtra = Record<string, unknown>;
+export type ContactExtra = {
+  date_of_birth?: string;
+  emergency_contact?: string;
+  session_price?: number | null;
+};
 
 export type WhatsAppContactAddressExtra = {
   name?: string;

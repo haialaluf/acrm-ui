@@ -634,6 +634,65 @@ export type Database = {
           },
         ]
       }
+      ai_usage: {
+        Row: {
+          audio_seconds: number | null
+          cached_tokens: number
+          contact_id: string | null
+          cost_usd: number
+          created_at: string
+          feature: string
+          id: string
+          input_tokens: number
+          model: string | null
+          organization_id: string
+          output_tokens: number
+          pages: number | null
+          run_id: string
+          user_id: string | null
+        }
+        Insert: {
+          audio_seconds?: number | null
+          cached_tokens?: number
+          contact_id?: string | null
+          cost_usd: number
+          created_at?: string
+          feature: string
+          id?: string
+          input_tokens?: number
+          model?: string | null
+          organization_id: string
+          output_tokens?: number
+          pages?: number | null
+          run_id?: string
+          user_id?: string | null
+        }
+        Update: {
+          audio_seconds?: number | null
+          cached_tokens?: number
+          contact_id?: string | null
+          cost_usd?: number
+          created_at?: string
+          feature?: string
+          id?: string
+          input_tokens?: number
+          model?: string | null
+          organization_id?: string
+          output_tokens?: number
+          pages?: number | null
+          run_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_keys: {
         Row: {
           created_at: string
@@ -1116,35 +1175,117 @@ export type Database = {
           },
         ]
       }
+      contact_files: {
+        Row: {
+          appointment_id: string | null
+          contact_id: string
+          created_at: string
+          data_region: string | null
+          id: string
+          mime_type: string | null
+          name: string
+          organization_id: string
+          size_bytes: number | null
+          storage: string
+          storage_path: string
+          text_pages: number | null
+          text_pages_read: number | null
+          text_status: string | null
+          text_reading_since: string | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          contact_id: string
+          created_at?: string
+          data_region?: string | null
+          id?: string
+          mime_type?: string | null
+          name: string
+          organization_id: string
+          size_bytes?: number | null
+          storage?: string
+          storage_path: string
+          text_pages?: number | null
+          text_pages_read?: number | null
+          text_status?: string | null
+          text_reading_since?: string | null
+        }
+        Update: {
+          appointment_id?: string | null
+          contact_id?: string
+          created_at?: string
+          data_region?: string | null
+          id?: string
+          mime_type?: string | null
+          name?: string
+          organization_id?: string
+          size_bytes?: number | null
+          storage?: string
+          storage_path?: string
+          text_pages?: number | null
+          text_pages_read?: number | null
+          text_status?: string | null
+          text_reading_since?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_files_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_files_contact_id_fkey"
+            columns: ["organization_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "contact_files_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_notes: {
         Row: {
           agent_id: string | null
           author_type: string
-          body: string
+          body: string | null
           contact_id: string
           created_at: string
+          data_region: string | null
           id: string
           organization_id: string
+          storage_key: string | null
           updated_at: string
         }
         Insert: {
           agent_id?: string | null
           author_type: string
-          body: string
+          body?: string | null
           contact_id: string
           created_at?: string
+          data_region?: string | null
           id?: string
           organization_id: string
+          storage_key?: string | null
           updated_at?: string
         }
         Update: {
           agent_id?: string | null
           author_type?: string
-          body?: string
+          body?: string | null
           contact_id?: string
           created_at?: string
+          data_region?: string | null
           id?: string
           organization_id?: string
+          storage_key?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1173,6 +1314,7 @@ export type Database = {
       }
       contacts: {
         Row: {
+          archived_at: string | null
           created_at: string
           extra: Json | null
           firstname: string | null
@@ -1186,6 +1328,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archived_at?: string | null
           created_at?: string
           extra?: Json | null
           firstname?: string | null
@@ -1199,6 +1342,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archived_at?: string | null
           created_at?: string
           extra?: Json | null
           firstname?: string | null
@@ -1933,6 +2077,98 @@ export type Database = {
           },
         ]
       }
+      patient_ask_chats: {
+        Row: {
+          contact_id: string
+          created_at: string
+          data_region: string
+          id: string
+          organization_id: string
+          report_id: string | null
+          storage_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          data_region: string
+          id: string
+          organization_id: string
+          report_id?: string | null
+          storage_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          data_region?: string
+          id?: string
+          organization_id?: string
+          report_id?: string | null
+          storage_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_ask_chats_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "session_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_ask_chats_contact_id_fkey"
+            columns: ["organization_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      patient_data_access_log: {
+        Row: {
+          action: string
+          contact_id: string | null
+          created_at: string
+          id: number
+          object_id: string
+          object_type: string
+          organization_id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          contact_id?: string | null
+          created_at?: string
+          id?: never
+          object_id: string
+          object_type: string
+          organization_id: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          contact_id?: string | null
+          created_at?: string
+          id?: never
+          object_id?: string
+          object_type?: string
+          organization_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_data_access_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quick_replies: {
         Row: {
           content: string
@@ -1961,6 +2197,229 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "quick_replies_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_templates: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          name: string
+          organization_id: string
+          sections: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          organization_id: string
+          sections?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          sections?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_recordings: {
+        Row: {
+          appointment_id: string | null
+          audio_bytes: number | null
+          audio_deleted_at: string | null
+          channels: number
+          chunk_count: number
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          data_region: string
+          duration_seconds: number | null
+          finished_at: string | null
+          id: string
+          language: string | null
+          marks: Json
+          mime_type: string
+          mode: string
+          organization_id: string
+          report_id: string | null
+          status: string
+          storage_key: string
+          template_id: string | null
+          transcript_error: string | null
+          transcript_job: string | null
+          transcript_started_at: string | null
+          transcript_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          audio_bytes?: number | null
+          audio_deleted_at?: string | null
+          channels?: number
+          chunk_count?: number
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          data_region: string
+          duration_seconds?: number | null
+          finished_at?: string | null
+          id: string
+          language?: string | null
+          marks?: Json
+          mime_type: string
+          mode: string
+          organization_id: string
+          report_id?: string | null
+          status?: string
+          storage_key: string
+          template_id?: string | null
+          transcript_error?: string | null
+          transcript_job?: string | null
+          transcript_started_at?: string | null
+          transcript_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          audio_bytes?: number | null
+          audio_deleted_at?: string | null
+          channels?: number
+          chunk_count?: number
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          data_region?: string
+          duration_seconds?: number | null
+          finished_at?: string | null
+          id?: string
+          language?: string | null
+          marks?: Json
+          mime_type?: string
+          mode?: string
+          organization_id?: string
+          report_id?: string | null
+          status?: string
+          storage_key?: string
+          template_id?: string | null
+          transcript_error?: string | null
+          transcript_job?: string | null
+          transcript_started_at?: string | null
+          transcript_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_recordings_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_recordings_contact_id_fkey"
+            columns: ["organization_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "session_recordings_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "session_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_reports: {
+        Row: {
+          appointment_id: string | null
+          approved_at: string | null
+          approved_by: string | null
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          data_region: string
+          duration_seconds: number | null
+          id: string
+          organization_id: string
+          status: string
+          storage_key: string
+          template_id: string | null
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          data_region: string
+          duration_seconds?: number | null
+          id?: string
+          organization_id: string
+          status?: string
+          storage_key: string
+          template_id?: string | null
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          data_region?: string
+          duration_seconds?: number | null
+          id?: string
+          organization_id?: string
+          status?: string
+          storage_key?: string
+          template_id?: string | null
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_reports_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_reports_contact_id_fkey"
+            columns: ["organization_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "session_reports_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -2188,6 +2647,17 @@ export type Database = {
           p_user_id: string
         }
         Returns: boolean
+      }
+      ai_usage_summary: {
+        Args: { p_from: string; p_organization_id: string; p_to: string }
+        Returns: {
+          audio_seconds: number
+          cost_usd: number
+          feature: string
+          pages: number
+          runs: number
+          user_id: string
+        }[]
       }
       apply_contact_tags: {
         Args: { p_add?: string[]; p_contact_id: string; p_remove?: string[] }
@@ -2529,6 +2999,10 @@ export type Database = {
         }[]
       }
       normalize_email: { Args: { p_email: string }; Returns: string }
+      organization_holds_patient_data: {
+        Args: { org_id: string }
+        Returns: boolean
+      }
       org_update_by_admin_rules: {
         Args: { p_id: string; p_name: string }
         Returns: boolean

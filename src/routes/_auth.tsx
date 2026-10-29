@@ -28,6 +28,7 @@ import CalendarCenter from "@/components/calendar/CalendarCenter";
 import BroadcastCenter from "@/components/broadcasts/BroadcastCenter";
 import LiveMessagePreview from "@/components/messagePreview/LiveMessagePreview";
 import PlanLimitBanner from "@/components/PlanLimitBanner";
+import PatientAskPanel from "@/components/therapy/PatientAskPanel";
 import OnboardingHint from "@/components/OnboardingHint";
 import { NEW_ORGANIZATION_PATH, useOnboarding } from "@/hooks/useOnboarding";
 
@@ -98,7 +99,10 @@ function AppLayout() {
   // Full-width routes get identical layout treatment; kept as one flag so the
   // four places below cannot drift apart.
   const isFullWidthRoute =
-    isEmailBuilderRoute || isAutomationEditorRoute || isLeadsRoute;
+    isEmailBuilderRoute ||
+    isAutomationEditorRoute ||
+    isLeadsRoute ||
+    pathname === "/ask";
 
   /**
    * Redirect out of a section this organization cannot use yet.
@@ -165,8 +169,19 @@ function AppLayout() {
     setActiveThread(location.hash || null);
   }, [location.hash]);
 
+  const patientAskMatch = /^\/contacts\/([^/]+)(?:\/reports\/[^/]+)?$/.exec(
+    pathname,
+  );
+  const patientAskId =
+    patientAskMatch &&
+    !activeThreadKey &&
+    (location.search as { ai?: unknown }).ai
+      ? patientAskMatch[1]
+      : null;
+
   const showCenterPanel =
     (activeThreadKey ||
+      patientAskId ||
       isStatsDetail ||
       isCalendarBoardRoute ||
       isBroadcastDetailRoute) &&
@@ -262,7 +277,7 @@ function AppLayout() {
                     : " hidden md:flex bg-muted"
                   : isCalendarBoardRoute
                     ? " flex bg-background"
-                    : isBroadcastDetailRoute
+                    : isBroadcastDetailRoute || patientAskId
                       ? " flex bg-background"
                       : activeThreadKey
                         ? " flex bg-chat"
@@ -283,6 +298,8 @@ function AppLayout() {
             <CalendarCenter />
           ) : isBroadcastDetailRoute ? (
             <BroadcastCenter />
+          ) : patientAskId ? (
+            <PatientAskPanel contactId={patientAskId} />
           ) : activeThreadKey ? (
             <>
               {isHoveringFiles && (

@@ -17,6 +17,7 @@ import { Route as OauthFacebookRouteImport } from './routes/oauth/facebook'
 import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
 import { Route as OauthCallbackRouteImport } from './routes/oauth/callback'
 import { Route as AuthStatsRouteImport } from './routes/_auth/stats'
+import { Route as AuthAskRouteImport } from './routes/_auth/ask'
 import { Route as AuthTemplatesIndexRouteImport } from './routes/_auth/templates/index'
 import { Route as AuthStatsIndexRouteImport } from './routes/_auth/stats/index'
 import { Route as AuthSettingsIndexRouteImport } from './routes/_auth/settings/index'
@@ -39,6 +40,8 @@ import { Route as AuthStatsUsageRouteImport } from './routes/_auth/stats/usage'
 import { Route as AuthStatsQuotasRouteImport } from './routes/_auth/stats/quotas'
 import { Route as AuthStatsHealthRouteImport } from './routes/_auth/stats/health'
 import { Route as AuthStatsEmailRouteImport } from './routes/_auth/stats/email'
+import { Route as AuthStatsClinicUsageRouteImport } from './routes/_auth/stats/clinic-usage'
+import { Route as AuthSettingsReportTemplatesRouteImport } from './routes/_auth/settings/report-templates'
 import { Route as AuthSettingsConnectClaudeRouteImport } from './routes/_auth/settings/connect-claude'
 import { Route as AuthSettingsConnectChatgptRouteImport } from './routes/_auth/settings/connect-chatgpt'
 import { Route as AuthLeadsSetupRouteImport } from './routes/_auth/leads/setup'
@@ -74,6 +77,7 @@ import { Route as AuthIntegrationsWhatsappNewRouteImport } from './routes/_auth/
 import { Route as AuthIntegrationsInstagramNewRouteImport } from './routes/_auth/integrations/instagram/new'
 import { Route as AuthIntegrationsFacebookNewRouteImport } from './routes/_auth/integrations/facebook/new'
 import { Route as AuthIntegrationsEmailNewRouteImport } from './routes/_auth/integrations/email/new'
+import { Route as AuthContactsContactIdRecordRouteImport } from './routes/_auth/contacts/$contactId_.record'
 import { Route as AuthCalendarsEditCalendarIdRouteImport } from './routes/_auth/calendars/edit/$calendarId'
 import { Route as AuthIntegrationsWhatsappOnboardingIndexRouteImport } from './routes/_auth/integrations/whatsapp/onboarding/index'
 import { Route as AuthIntegrationsWhatsappOrgAddressIdIndexRouteImport } from './routes/_auth/integrations/whatsapp/$orgAddressId/index'
@@ -88,6 +92,7 @@ import { Route as AuthIntegrationsInstagramOnboardingNewRouteImport } from './ro
 import { Route as AuthIntegrationsInstagramOnboardingTokenIdRouteImport } from './routes/_auth/integrations/instagram/onboarding/$tokenId'
 import { Route as AuthIntegrationsFacebookOnboardingNewRouteImport } from './routes/_auth/integrations/facebook/onboarding/new'
 import { Route as AuthIntegrationsFacebookOnboardingTokenIdRouteImport } from './routes/_auth/integrations/facebook/onboarding/$tokenId'
+import { Route as AuthContactsContactIdReportsReportIdRouteImport } from './routes/_auth/contacts/$contactId_.reports.$reportId'
 import { Route as AuthIntegrationsWhatsappOrgAddressIdTemplatesIndexRouteImport } from './routes/_auth/integrations/whatsapp/$orgAddressId/templates/index'
 import { Route as AuthIntegrationsWhatsappOrgAddressIdTemplatesNewRouteImport } from './routes/_auth/integrations/whatsapp/$orgAddressId/templates/new'
 import { Route as AuthIntegrationsWhatsappOrgAddressIdTemplatesTemplateIdRouteImport } from './routes/_auth/integrations/whatsapp/$orgAddressId/templates/$templateId'
@@ -129,6 +134,11 @@ const OauthCallbackRoute = OauthCallbackRouteImport.update({
 const AuthStatsRoute = AuthStatsRouteImport.update({
   id: '/stats',
   path: '/stats',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAskRoute = AuthAskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthTemplatesIndexRoute = AuthTemplatesIndexRouteImport.update({
@@ -242,6 +252,17 @@ const AuthStatsEmailRoute = AuthStatsEmailRouteImport.update({
   path: '/email',
   getParentRoute: () => AuthStatsRoute,
 } as any)
+const AuthStatsClinicUsageRoute = AuthStatsClinicUsageRouteImport.update({
+  id: '/clinic-usage',
+  path: '/clinic-usage',
+  getParentRoute: () => AuthStatsRoute,
+} as any)
+const AuthSettingsReportTemplatesRoute =
+  AuthSettingsReportTemplatesRouteImport.update({
+    id: '/settings/report-templates',
+    path: '/settings/report-templates',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthSettingsConnectClaudeRoute =
   AuthSettingsConnectClaudeRouteImport.update({
     id: '/settings/connect-claude',
@@ -439,6 +460,12 @@ const AuthIntegrationsEmailNewRoute =
     path: '/integrations/email/new',
     getParentRoute: () => AuthRoute,
   } as any)
+const AuthContactsContactIdRecordRoute =
+  AuthContactsContactIdRecordRouteImport.update({
+    id: '/contacts/$contactId_/record',
+    path: '/contacts/$contactId/record',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthCalendarsEditCalendarIdRoute =
   AuthCalendarsEditCalendarIdRouteImport.update({
     id: '/calendars/edit/$calendarId',
@@ -523,6 +550,12 @@ const AuthIntegrationsFacebookOnboardingTokenIdRoute =
     path: '/integrations/facebook/onboarding/$tokenId',
     getParentRoute: () => AuthRoute,
   } as any)
+const AuthContactsContactIdReportsReportIdRoute =
+  AuthContactsContactIdReportsReportIdRouteImport.update({
+    id: '/contacts/$contactId_/reports/$reportId',
+    path: '/contacts/$contactId/reports/$reportId',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthIntegrationsWhatsappOrgAddressIdTemplatesIndexRoute =
   AuthIntegrationsWhatsappOrgAddressIdTemplatesIndexRouteImport.update({
     id: '/integrations/whatsapp/$orgAddressId/templates/',
@@ -544,6 +577,7 @@ const AuthIntegrationsWhatsappOrgAddressIdTemplatesTemplateIdRoute =
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
+  '/ask': typeof AuthAskRoute
   '/stats': typeof AuthStatsRouteWithChildren
   '/oauth/callback': typeof OauthCallbackRoute
   '/oauth/consent': typeof OauthConsentRoute
@@ -563,6 +597,8 @@ export interface FileRoutesByFullPath {
   '/leads/setup': typeof AuthLeadsSetupRoute
   '/settings/connect-chatgpt': typeof AuthSettingsConnectChatgptRoute
   '/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
+  '/settings/report-templates': typeof AuthSettingsReportTemplatesRoute
+  '/stats/clinic-usage': typeof AuthStatsClinicUsageRoute
   '/stats/email': typeof AuthStatsEmailRoute
   '/stats/health': typeof AuthStatsHealthRoute
   '/stats/quotas': typeof AuthStatsQuotasRoute
@@ -586,6 +622,7 @@ export interface FileRoutesByFullPath {
   '/stats/': typeof AuthStatsIndexRoute
   '/templates': typeof AuthTemplatesIndexRoute
   '/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
+  '/contacts/$contactId/record': typeof AuthContactsContactIdRecordRoute
   '/integrations/email/new': typeof AuthIntegrationsEmailNewRoute
   '/integrations/facebook/new': typeof AuthIntegrationsFacebookNewRoute
   '/integrations/instagram/new': typeof AuthIntegrationsInstagramNewRoute
@@ -608,6 +645,7 @@ export interface FileRoutesByFullPath {
   '/settings/members': typeof AuthSettingsMembersIndexRoute
   '/settings/organization': typeof AuthSettingsOrganizationIndexRoute
   '/settings/webhooks': typeof AuthSettingsWebhooksIndexRoute
+  '/contacts/$contactId/reports/$reportId': typeof AuthContactsContactIdReportsReportIdRoute
   '/integrations/facebook/onboarding/$tokenId': typeof AuthIntegrationsFacebookOnboardingTokenIdRoute
   '/integrations/facebook/onboarding/new': typeof AuthIntegrationsFacebookOnboardingNewRoute
   '/integrations/instagram/onboarding/$tokenId': typeof AuthIntegrationsInstagramOnboardingTokenIdRoute
@@ -627,6 +665,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/ask': typeof AuthAskRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/oauth/facebook': typeof OauthFacebookRoute
@@ -645,6 +684,8 @@ export interface FileRoutesByTo {
   '/leads/setup': typeof AuthLeadsSetupRoute
   '/settings/connect-chatgpt': typeof AuthSettingsConnectChatgptRoute
   '/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
+  '/settings/report-templates': typeof AuthSettingsReportTemplatesRoute
+  '/stats/clinic-usage': typeof AuthStatsClinicUsageRoute
   '/stats/email': typeof AuthStatsEmailRoute
   '/stats/health': typeof AuthStatsHealthRoute
   '/stats/quotas': typeof AuthStatsQuotasRoute
@@ -668,6 +709,7 @@ export interface FileRoutesByTo {
   '/stats': typeof AuthStatsIndexRoute
   '/templates': typeof AuthTemplatesIndexRoute
   '/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
+  '/contacts/$contactId/record': typeof AuthContactsContactIdRecordRoute
   '/integrations/email/new': typeof AuthIntegrationsEmailNewRoute
   '/integrations/facebook/new': typeof AuthIntegrationsFacebookNewRoute
   '/integrations/instagram/new': typeof AuthIntegrationsInstagramNewRoute
@@ -690,6 +732,7 @@ export interface FileRoutesByTo {
   '/settings/members': typeof AuthSettingsMembersIndexRoute
   '/settings/organization': typeof AuthSettingsOrganizationIndexRoute
   '/settings/webhooks': typeof AuthSettingsWebhooksIndexRoute
+  '/contacts/$contactId/reports/$reportId': typeof AuthContactsContactIdReportsReportIdRoute
   '/integrations/facebook/onboarding/$tokenId': typeof AuthIntegrationsFacebookOnboardingTokenIdRoute
   '/integrations/facebook/onboarding/new': typeof AuthIntegrationsFacebookOnboardingNewRoute
   '/integrations/instagram/onboarding/$tokenId': typeof AuthIntegrationsInstagramOnboardingTokenIdRoute
@@ -711,6 +754,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
+  '/_auth/ask': typeof AuthAskRoute
   '/_auth/stats': typeof AuthStatsRouteWithChildren
   '/oauth/callback': typeof OauthCallbackRoute
   '/oauth/consent': typeof OauthConsentRoute
@@ -730,6 +774,8 @@ export interface FileRoutesById {
   '/_auth/leads/setup': typeof AuthLeadsSetupRoute
   '/_auth/settings/connect-chatgpt': typeof AuthSettingsConnectChatgptRoute
   '/_auth/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
+  '/_auth/settings/report-templates': typeof AuthSettingsReportTemplatesRoute
+  '/_auth/stats/clinic-usage': typeof AuthStatsClinicUsageRoute
   '/_auth/stats/email': typeof AuthStatsEmailRoute
   '/_auth/stats/health': typeof AuthStatsHealthRoute
   '/_auth/stats/quotas': typeof AuthStatsQuotasRoute
@@ -753,6 +799,7 @@ export interface FileRoutesById {
   '/_auth/stats/': typeof AuthStatsIndexRoute
   '/_auth/templates/': typeof AuthTemplatesIndexRoute
   '/_auth/calendars/edit/$calendarId': typeof AuthCalendarsEditCalendarIdRoute
+  '/_auth/contacts/$contactId_/record': typeof AuthContactsContactIdRecordRoute
   '/_auth/integrations/email/new': typeof AuthIntegrationsEmailNewRoute
   '/_auth/integrations/facebook/new': typeof AuthIntegrationsFacebookNewRoute
   '/_auth/integrations/instagram/new': typeof AuthIntegrationsInstagramNewRoute
@@ -775,6 +822,7 @@ export interface FileRoutesById {
   '/_auth/settings/members/': typeof AuthSettingsMembersIndexRoute
   '/_auth/settings/organization/': typeof AuthSettingsOrganizationIndexRoute
   '/_auth/settings/webhooks/': typeof AuthSettingsWebhooksIndexRoute
+  '/_auth/contacts/$contactId_/reports/$reportId': typeof AuthContactsContactIdReportsReportIdRoute
   '/_auth/integrations/facebook/onboarding/$tokenId': typeof AuthIntegrationsFacebookOnboardingTokenIdRoute
   '/_auth/integrations/facebook/onboarding/new': typeof AuthIntegrationsFacebookOnboardingNewRoute
   '/_auth/integrations/instagram/onboarding/$tokenId': typeof AuthIntegrationsInstagramOnboardingTokenIdRoute
@@ -796,6 +844,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/login'
+    | '/ask'
     | '/stats'
     | '/oauth/callback'
     | '/oauth/consent'
@@ -815,6 +864,8 @@ export interface FileRouteTypes {
     | '/leads/setup'
     | '/settings/connect-chatgpt'
     | '/settings/connect-claude'
+    | '/settings/report-templates'
+    | '/stats/clinic-usage'
     | '/stats/email'
     | '/stats/health'
     | '/stats/quotas'
@@ -838,6 +889,7 @@ export interface FileRouteTypes {
     | '/stats/'
     | '/templates'
     | '/calendars/edit/$calendarId'
+    | '/contacts/$contactId/record'
     | '/integrations/email/new'
     | '/integrations/facebook/new'
     | '/integrations/instagram/new'
@@ -860,6 +912,7 @@ export interface FileRouteTypes {
     | '/settings/members'
     | '/settings/organization'
     | '/settings/webhooks'
+    | '/contacts/$contactId/reports/$reportId'
     | '/integrations/facebook/onboarding/$tokenId'
     | '/integrations/facebook/onboarding/new'
     | '/integrations/instagram/onboarding/$tokenId'
@@ -879,6 +932,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/ask'
     | '/oauth/callback'
     | '/oauth/consent'
     | '/oauth/facebook'
@@ -897,6 +951,8 @@ export interface FileRouteTypes {
     | '/leads/setup'
     | '/settings/connect-chatgpt'
     | '/settings/connect-claude'
+    | '/settings/report-templates'
+    | '/stats/clinic-usage'
     | '/stats/email'
     | '/stats/health'
     | '/stats/quotas'
@@ -920,6 +976,7 @@ export interface FileRouteTypes {
     | '/stats'
     | '/templates'
     | '/calendars/edit/$calendarId'
+    | '/contacts/$contactId/record'
     | '/integrations/email/new'
     | '/integrations/facebook/new'
     | '/integrations/instagram/new'
@@ -942,6 +999,7 @@ export interface FileRouteTypes {
     | '/settings/members'
     | '/settings/organization'
     | '/settings/webhooks'
+    | '/contacts/$contactId/reports/$reportId'
     | '/integrations/facebook/onboarding/$tokenId'
     | '/integrations/facebook/onboarding/new'
     | '/integrations/instagram/onboarding/$tokenId'
@@ -962,6 +1020,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_auth'
     | '/login'
+    | '/_auth/ask'
     | '/_auth/stats'
     | '/oauth/callback'
     | '/oauth/consent'
@@ -981,6 +1040,8 @@ export interface FileRouteTypes {
     | '/_auth/leads/setup'
     | '/_auth/settings/connect-chatgpt'
     | '/_auth/settings/connect-claude'
+    | '/_auth/settings/report-templates'
+    | '/_auth/stats/clinic-usage'
     | '/_auth/stats/email'
     | '/_auth/stats/health'
     | '/_auth/stats/quotas'
@@ -1004,6 +1065,7 @@ export interface FileRouteTypes {
     | '/_auth/stats/'
     | '/_auth/templates/'
     | '/_auth/calendars/edit/$calendarId'
+    | '/_auth/contacts/$contactId_/record'
     | '/_auth/integrations/email/new'
     | '/_auth/integrations/facebook/new'
     | '/_auth/integrations/instagram/new'
@@ -1026,6 +1088,7 @@ export interface FileRouteTypes {
     | '/_auth/settings/members/'
     | '/_auth/settings/organization/'
     | '/_auth/settings/webhooks/'
+    | '/_auth/contacts/$contactId_/reports/$reportId'
     | '/_auth/integrations/facebook/onboarding/$tokenId'
     | '/_auth/integrations/facebook/onboarding/new'
     | '/_auth/integrations/instagram/onboarding/$tokenId'
@@ -1114,6 +1177,13 @@ declare module '@tanstack/react-router' {
       path: '/stats'
       fullPath: '/stats'
       preLoaderRoute: typeof AuthStatsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/ask': {
+      id: '/_auth/ask'
+      path: '/ask'
+      fullPath: '/ask'
+      preLoaderRoute: typeof AuthAskRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/templates/': {
@@ -1269,6 +1339,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/stats/email'
       preLoaderRoute: typeof AuthStatsEmailRouteImport
       parentRoute: typeof AuthStatsRoute
+    }
+    '/_auth/stats/clinic-usage': {
+      id: '/_auth/stats/clinic-usage'
+      path: '/clinic-usage'
+      fullPath: '/stats/clinic-usage'
+      preLoaderRoute: typeof AuthStatsClinicUsageRouteImport
+      parentRoute: typeof AuthStatsRoute
+    }
+    '/_auth/settings/report-templates': {
+      id: '/_auth/settings/report-templates'
+      path: '/settings/report-templates'
+      fullPath: '/settings/report-templates'
+      preLoaderRoute: typeof AuthSettingsReportTemplatesRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth/settings/connect-claude': {
       id: '/_auth/settings/connect-claude'
@@ -1515,6 +1599,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIntegrationsEmailNewRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/contacts/$contactId_/record': {
+      id: '/_auth/contacts/$contactId_/record'
+      path: '/contacts/$contactId/record'
+      fullPath: '/contacts/$contactId/record'
+      preLoaderRoute: typeof AuthContactsContactIdRecordRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/calendars/edit/$calendarId': {
       id: '/_auth/calendars/edit/$calendarId'
       path: '/calendars/edit/$calendarId'
@@ -1613,6 +1704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIntegrationsFacebookOnboardingTokenIdRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/contacts/$contactId_/reports/$reportId': {
+      id: '/_auth/contacts/$contactId_/reports/$reportId'
+      path: '/contacts/$contactId/reports/$reportId'
+      fullPath: '/contacts/$contactId/reports/$reportId'
+      preLoaderRoute: typeof AuthContactsContactIdReportsReportIdRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/integrations/whatsapp/$orgAddressId/templates/': {
       id: '/_auth/integrations/whatsapp/$orgAddressId/templates/'
       path: '/integrations/whatsapp/$orgAddressId/templates'
@@ -1638,6 +1736,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthStatsRouteChildren {
+  AuthStatsClinicUsageRoute: typeof AuthStatsClinicUsageRoute
   AuthStatsEmailRoute: typeof AuthStatsEmailRoute
   AuthStatsHealthRoute: typeof AuthStatsHealthRoute
   AuthStatsQuotasRoute: typeof AuthStatsQuotasRoute
@@ -1646,6 +1745,7 @@ interface AuthStatsRouteChildren {
 }
 
 const AuthStatsRouteChildren: AuthStatsRouteChildren = {
+  AuthStatsClinicUsageRoute: AuthStatsClinicUsageRoute,
   AuthStatsEmailRoute: AuthStatsEmailRoute,
   AuthStatsHealthRoute: AuthStatsHealthRoute,
   AuthStatsQuotasRoute: AuthStatsQuotasRoute,
@@ -1658,6 +1758,7 @@ const AuthStatsRouteWithChildren = AuthStatsRoute._addFileChildren(
 )
 
 interface AuthRouteChildren {
+  AuthAskRoute: typeof AuthAskRoute
   AuthStatsRoute: typeof AuthStatsRouteWithChildren
   AuthIndexRoute: typeof AuthIndexRoute
   AuthAgentsAgentIdRoute: typeof AuthAgentsAgentIdRoute
@@ -1673,6 +1774,7 @@ interface AuthRouteChildren {
   AuthLeadsSetupRoute: typeof AuthLeadsSetupRoute
   AuthSettingsConnectChatgptRoute: typeof AuthSettingsConnectChatgptRoute
   AuthSettingsConnectClaudeRoute: typeof AuthSettingsConnectClaudeRoute
+  AuthSettingsReportTemplatesRoute: typeof AuthSettingsReportTemplatesRoute
   AuthTemplatesTemplateIdRoute: typeof AuthTemplatesTemplateIdRoute
   AuthTemplatesNewRoute: typeof AuthTemplatesNewRoute
   AuthAgentsIndexRoute: typeof AuthAgentsIndexRoute
@@ -1686,6 +1788,7 @@ interface AuthRouteChildren {
   AuthSettingsIndexRoute: typeof AuthSettingsIndexRoute
   AuthTemplatesIndexRoute: typeof AuthTemplatesIndexRoute
   AuthCalendarsEditCalendarIdRoute: typeof AuthCalendarsEditCalendarIdRoute
+  AuthContactsContactIdRecordRoute: typeof AuthContactsContactIdRecordRoute
   AuthIntegrationsEmailNewRoute: typeof AuthIntegrationsEmailNewRoute
   AuthIntegrationsFacebookNewRoute: typeof AuthIntegrationsFacebookNewRoute
   AuthIntegrationsInstagramNewRoute: typeof AuthIntegrationsInstagramNewRoute
@@ -1708,6 +1811,7 @@ interface AuthRouteChildren {
   AuthSettingsMembersIndexRoute: typeof AuthSettingsMembersIndexRoute
   AuthSettingsOrganizationIndexRoute: typeof AuthSettingsOrganizationIndexRoute
   AuthSettingsWebhooksIndexRoute: typeof AuthSettingsWebhooksIndexRoute
+  AuthContactsContactIdReportsReportIdRoute: typeof AuthContactsContactIdReportsReportIdRoute
   AuthIntegrationsFacebookOnboardingTokenIdRoute: typeof AuthIntegrationsFacebookOnboardingTokenIdRoute
   AuthIntegrationsFacebookOnboardingNewRoute: typeof AuthIntegrationsFacebookOnboardingNewRoute
   AuthIntegrationsInstagramOnboardingTokenIdRoute: typeof AuthIntegrationsInstagramOnboardingTokenIdRoute
@@ -1727,6 +1831,7 @@ interface AuthRouteChildren {
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthAskRoute: AuthAskRoute,
   AuthStatsRoute: AuthStatsRouteWithChildren,
   AuthIndexRoute: AuthIndexRoute,
   AuthAgentsAgentIdRoute: AuthAgentsAgentIdRoute,
@@ -1742,6 +1847,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthLeadsSetupRoute: AuthLeadsSetupRoute,
   AuthSettingsConnectChatgptRoute: AuthSettingsConnectChatgptRoute,
   AuthSettingsConnectClaudeRoute: AuthSettingsConnectClaudeRoute,
+  AuthSettingsReportTemplatesRoute: AuthSettingsReportTemplatesRoute,
   AuthTemplatesTemplateIdRoute: AuthTemplatesTemplateIdRoute,
   AuthTemplatesNewRoute: AuthTemplatesNewRoute,
   AuthAgentsIndexRoute: AuthAgentsIndexRoute,
@@ -1755,6 +1861,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthSettingsIndexRoute: AuthSettingsIndexRoute,
   AuthTemplatesIndexRoute: AuthTemplatesIndexRoute,
   AuthCalendarsEditCalendarIdRoute: AuthCalendarsEditCalendarIdRoute,
+  AuthContactsContactIdRecordRoute: AuthContactsContactIdRecordRoute,
   AuthIntegrationsEmailNewRoute: AuthIntegrationsEmailNewRoute,
   AuthIntegrationsFacebookNewRoute: AuthIntegrationsFacebookNewRoute,
   AuthIntegrationsInstagramNewRoute: AuthIntegrationsInstagramNewRoute,
@@ -1778,6 +1885,8 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthSettingsMembersIndexRoute: AuthSettingsMembersIndexRoute,
   AuthSettingsOrganizationIndexRoute: AuthSettingsOrganizationIndexRoute,
   AuthSettingsWebhooksIndexRoute: AuthSettingsWebhooksIndexRoute,
+  AuthContactsContactIdReportsReportIdRoute:
+    AuthContactsContactIdReportsReportIdRoute,
   AuthIntegrationsFacebookOnboardingTokenIdRoute:
     AuthIntegrationsFacebookOnboardingTokenIdRoute,
   AuthIntegrationsFacebookOnboardingNewRoute:

@@ -24,6 +24,8 @@ import { useCurrentAgent } from "@/queries/useAgents";
 import { Dropdown } from "antd";
 import { useOrganizations } from "@/queries/useOrganizations";
 import HideIfNotPermitted from "@/components/HideIfNotPermitted";
+import ClinicAiIcon from "@/components/therapy/ClinicAiIcon";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { useOnboarding } from "@/hooks/useOnboarding";
 
 // Sections reached from the Settings page rather than their own menu button,
@@ -51,6 +53,7 @@ export default function Menu() {
     currentLanguage,
     setCurrentLanguage,
   } = useTranslation();
+  const { terms, isTherapy } = useWorkspace();
 
   // Simpler approach - call useLocation without select first
   const location = useLocation();
@@ -86,13 +89,24 @@ export default function Menu() {
             <HideIfNotPermitted surface="/contacts">
               <LinkButton
                 to="/contacts"
-                title={t("Contacts")}
+                title={terms.people}
                 isActive={pathname.startsWith("/contacts")}
                 className="mt-[10px]"
               >
                 <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
               </LinkButton>
             </HideIfNotPermitted>
+
+            {isTherapy && (
+              <LinkButton
+                to="/ask"
+                title={t("Clinic AI")}
+                isActive={pathname.startsWith("/ask")}
+                className="mt-[10px]"
+              >
+                <ClinicAiIcon className="w-[24px] h-[24px] stroke-[2]" />
+              </LinkButton>
+            )}
 
             <HideIfNotPermitted surface="/leads">
               <LinkButton

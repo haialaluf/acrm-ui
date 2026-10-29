@@ -15,6 +15,8 @@ export const queryKeys = {
   },
   contacts: {
     all: (orgId: NullableId) => [orgId, "contacts"] as const,
+    archived: (orgId: NullableId) =>
+      [orgId, "contacts", "archived-list"] as const,
     detail: (orgId: NullableId, id: NullableId) =>
       [orgId, "contacts", id] as const,
     byAddress: (orgId: NullableId, address: NullableId) =>
@@ -50,6 +52,23 @@ export const queryKeys = {
       ] as const,
     notes: (orgId: NullableId, contactId: NullableId) =>
       [orgId, "contacts", contactId, "notes"] as const,
+    files: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "contacts", contactId, "files"] as const,
+    caseSummary: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "contacts", contactId, "case-summary"] as const,
+    askChats: (orgId: NullableId, contactId: NullableId, reportId?: string) =>
+      [
+        orgId,
+        "contacts",
+        contactId,
+        "ask-chats",
+        reportId ?? "patient",
+      ] as const,
+    chatFiles: (
+      orgId: NullableId,
+      contactId: NullableId,
+      conversationIds: string[],
+    ) => [orgId, "contacts", contactId, "chat-files", conversationIds] as const,
     /** The `leads` row a contact came from, when a form produced it. */
     lead: (orgId: NullableId, contactId: NullableId) =>
       [orgId, "contacts", contactId, "lead"] as const,
@@ -144,9 +163,28 @@ export const queryKeys = {
         "messages",
       ] as const,
   },
+  sessionReports: {
+    org: (orgId: NullableId) => [orgId, "session-reports"] as const,
+    contact: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "session-reports", "contact", contactId] as const,
+    contents: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "session-reports", "contents", contactId] as const,
+    detail: (orgId: NullableId, reportId: NullableId) =>
+      [orgId, "session-reports", "detail", reportId] as const,
+  },
+  sessionRecordings: {
+    contact: (orgId: NullableId, contactId: NullableId) =>
+      [orgId, "session-recordings", "contact", contactId] as const,
+  },
+  reportTemplates: {
+    all: (orgId: NullableId) => [orgId, "report-templates"] as const,
+  },
   appointments: {
+    org: (orgId: NullableId) => [orgId, "appointments"] as const,
     all: (orgId: NullableId, calendarId: NullableId) =>
       [orgId, "appointments", calendarId] as const,
+    upcoming: (orgId: NullableId) =>
+      [orgId, "appointments", "upcoming"] as const,
   },
   messageTemplates: {
     /** Every approved WhatsApp template in the org, from the local mirror -
@@ -215,5 +253,13 @@ export const queryKeys = {
       [orgId, "billing", "tier_limits"] as const,
     planProducts: (orgId: NullableId) =>
       [orgId, "billing", "plan_products"] as const,
+  },
+  clinicUsage: {
+    /** ai_usage_summary for the month starting at `month` (YYYY-MM-01). */
+    month: (orgId: NullableId, month: string) =>
+      [orgId, "clinic_usage", month] as const,
+    /** Status of the reports drafted from that month's recordings. */
+    reports: (orgId: NullableId, month: string) =>
+      [orgId, "clinic_usage", "reports", month] as const,
   },
 };

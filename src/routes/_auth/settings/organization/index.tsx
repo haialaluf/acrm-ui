@@ -26,7 +26,14 @@ import {
   hasWorkingHoursIssues,
   resolveTimezone,
 } from "@/utils/calendar";
-import { NO_DEFAULT_AGENT, type OrganizationUpdate } from "@/supabase/client";
+import {
+  NO_DEFAULT_AGENT,
+  type OrganizationUpdate,
+  supabase,
+} from "@/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { STATIC_STALE_TIME } from "@/queries/cacheConfig";
+import { CURRENCIES, CURRENCY_SYMBOLS } from "@/hooks/useWorkspace";
 import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/organization/")({
@@ -75,6 +82,11 @@ function EditOrganization() {
         ...org.extra,
         error_messages_direction:
           org.extra?.error_messages_direction || "internal",
+        workspace_type: org.extra?.workspace_type || "company",
+        people_term: org.extra?.people_term || "patients",
+        currency: org.extra?.currency || "ILS",
+        data_region: org.extra?.data_region,
+        ask_ai_location: org.extra?.ask_ai_location || "eu",
         transcription: {
           mode: "inactive" as const,
           ...org.extra?.transcription,
@@ -98,6 +110,37 @@ function EditOrganization() {
   } = useForm<OrganizationUpdate>({ values: normalizedOrg });
 
   const defaultAgentId = useWatch({ control, name: "extra.default_agent_id" });
+  const workspaceType = useWatch({ control, name: "extra.workspace_type" });
+  const askAiLocation = useWatch({ control, name: "extra.ask_ai_location" });
+  const { data: readyRegions } = useQuery({
+    queryKey: ["patient-data-regions"],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke<{
+        regions: string[];
+      }>("patient-data/regions", { method: "GET" });
+      if (error) throw error;
+      return data!.regions;
+    },
+    enabled: workspaceType === "therapy",
+    staleTime: STATIC_STALE_TIME,
+  });
+
+  const savedTherapy = org?.extra?.workspace_type === "therapy";
+  const { data: holdsPatientData } = useQuery({
+    queryKey: ["organization-holds-patient-data", org?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc(
+        "organization_holds_patient_data",
+        { org_id: org!.id },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!org?.id && savedTherapy,
+  });
+  // Both the type and the country are fixed once records exist: switching
+  // either would leave them where the new setting no longer looks.
+  const recordsLocked = savedTherapy && !!holdsPatientData;
 
   const transcriptionMode = useWatch({
     control,
@@ -123,32 +166,49 @@ function EditOrganization() {
           onSubmit={handleSubmit((data) => {
             const profile = data.extra?.business_profile;
             const hours = profile?.working_hours;
-            updateOrg.mutate({
-              ...data,
-              address: data.address?.trim(),
-              ...((hours || profile?.region) && {
-                extra: {
-                  ...data.extra,
-                  business_profile: {
-                    ...profile,
-                    // A day switched off leaves the object entirely, and
-                    // `organizations.extra` is deep-merged by the
-                    // `merge_update` trigger - which never removes a key.
-                    // Without this, closing a day would save nothing and the
-                    // agent would keep quoting the old hours.
-                    // `expandClosedDays` sends `[]` instead.
-                    ...(hours && { working_hours: expandClosedDays(hours) }),
-                    // The picker stores a country; everything downstream reads
-                    // an IANA id. Derived here rather than kept in the form so
-                    // the two can never drift out of step, exactly as
-                    // CalendarForm derives `calendars.timezone`.
-                    ...(profile?.region && {
-                      timezone: resolveTimezone(profile.region, detected),
-                    }),
+            // A workspace that just became a clinic, or just picked its
+            // country, moves any notes still in the database to its bucket.
+            const moveNotes =
+              data.extra?.workspace_type === "therapy" &&
+              !!data.extra?.data_region;
+            updateOrg.mutate(
+              {
+                ...data,
+                address: data.address?.trim(),
+                ...((hours || profile?.region) && {
+                  extra: {
+                    ...data.extra,
+                    business_profile: {
+                      ...profile,
+                      // A day switched off leaves the object entirely, and
+                      // `organizations.extra` is deep-merged by the
+                      // `merge_update` trigger - which never removes a key.
+                      // Without this, closing a day would save nothing and the
+                      // agent would keep quoting the old hours.
+                      // `expandClosedDays` sends `[]` instead.
+                      ...(hours && { working_hours: expandClosedDays(hours) }),
+                      // The picker stores a country; everything downstream reads
+                      // an IANA id. Derived here rather than kept in the form so
+                      // the two can never drift out of step, exactly as
+                      // CalendarForm derives `calendars.timezone`.
+                      ...(profile?.region && {
+                        timezone: resolveTimezone(profile.region, detected),
+                      }),
+                    },
                   },
+                }),
+              },
+              {
+                onSuccess: () => {
+                  if (moveNotes && org) {
+                    void supabase.functions.invoke(
+                      "patient-data/notes/move-to-storage",
+                      { method: "POST", body: { organizationId: org.id } },
+                    );
+                  }
                 },
-              }),
-            });
+              },
+            );
           })}
         >
           <label>
@@ -173,6 +233,113 @@ function EditOrganization() {
               })}
             />
           </label>
+
+          <div className="flex flex-col gap-[8px]">
+            <SelectField
+              control={control}
+              name="extra.workspace_type"
+              label={t("Workspace type")}
+              options={[
+                { value: "company", label: t("Company") },
+                { value: "therapy", label: t("Therapy clinic") },
+              ]}
+              disabled={!isOwner || recordsLocked}
+            />
+            <p className="text-[12px] text-muted-foreground">
+              {recordsLocked
+                ? t(
+                    "This clinic holds patient records, so it can't be changed back to a company workspace.",
+                  )
+                : workspaceType === "therapy"
+                  ? t(
+                      "Contacts become patients, with sessions, payments and files on each one.",
+                    )
+                  : t("Contacts, leads and conversations for any business.")}
+            </p>
+          </div>
+
+          {workspaceType === "therapy" && (
+            <SelectField
+              control={control}
+              name="extra.people_term"
+              label={t("Call the people you work with")}
+              options={[
+                { value: "patients", label: t("Patients") },
+                { value: "clients", label: t("Clients") },
+              ]}
+              disabled={!isOwner}
+            />
+          )}
+
+          {workspaceType === "therapy" && (
+            <div className="flex flex-col gap-[8px]">
+              <SelectField
+                control={control}
+                name="extra.data_region"
+                label={t("Where patient data is stored")}
+                placeholder={t("Choose a country")}
+                options={[
+                  { value: "il", label: t("Israel (Tel Aviv)") },
+                  { value: "se", label: t("Sweden (Stockholm)") },
+                ].filter(
+                  (option) =>
+                    readyRegions?.includes(option.value) ||
+                    option.value === org?.extra?.data_region,
+                )}
+                disabled={!isOwner || recordsLocked}
+              />
+              <p className="text-[12px] text-muted-foreground">
+                {recordsLocked
+                  ? t(
+                      "Patient records are already stored in this country. To move them to another country, contact support.",
+                    )
+                  : t(
+                      "Patient files, notes, session reports and chat files are kept encrypted in this country.",
+                    )}
+              </p>
+            </div>
+          )}
+
+          {workspaceType === "therapy" && (
+            <div className="flex flex-col gap-[8px]">
+              <SelectField
+                control={control}
+                name="extra.ask_ai_location"
+                label={t("Where Clinic AI and Patient AI work out answers")}
+                options={[
+                  {
+                    value: "eu",
+                    label: t("Anywhere in the EU (Haiku 5.5 or Sonnet 5.5)"),
+                  },
+                  {
+                    value: "stockholm",
+                    label: t("Sweden only, Stockholm (Haiku 4.5)"),
+                  },
+                ]}
+                disabled={!isOwner}
+              />
+              <p className="text-[12px] text-muted-foreground">
+                {askAiLocation === "stockholm"
+                  ? t(
+                      "Answers are worked out only in Stockholm, with a smaller model. Nothing leaves Sweden.",
+                    )
+                  : t(
+                      "Answers may be worked out on Amazon's servers in any EU country, with more capable models. Nothing leaves the EU.",
+                    )}
+              </p>
+            </div>
+          )}
+
+          <SelectField
+            control={control}
+            name="extra.currency"
+            label={t("Currency")}
+            options={CURRENCIES.map((code) => ({
+              value: code,
+              label: `${CURRENCY_SYMBOLS[code]} ${code}`,
+            }))}
+            disabled={!isOwner}
+          />
 
           <label>
             <div className="label">{t("Response delay (seconds)")}</div>
@@ -327,60 +494,70 @@ function EditOrganization() {
             description={t("Reads voice messages, images and documents")}
             disabled={!isOwner}
           >
-            <Controller
-              control={control}
-              name="extra.transcription.mode"
-              render={({ field }) => (
-                <label className="flex items-center gap-[12px] cursor-pointer justify-between">
-                  <div className="flex flex-col gap-[2px]">
-                    <div className="text-foreground">{t("Status")}</div>
-                    <div className="text-muted-foreground text-[14px]">
-                      {t(
-                        "Voice messages are transcribed, and images and documents described, before the agent replies.",
-                      )}
-                    </div>
-                  </div>
-                  <Switch
-                    checked={field.value === "active"}
-                    onCheckedChange={(checked) =>
-                      field.onChange(checked ? "active" : "inactive")
-                    }
-                    disabled={!isOwner}
-                    className="mt-[4px]"
-                  />
-                </label>
-              )}
-            />
-
-            {/* Only offered while transcription is on - the hint is dead
-                config otherwise, and a set-but-inert field reads as a bug. */}
-            {transcriptionMode === "active" && (
-              <div className="flex flex-col gap-[8px]">
-                <SelectField
+            {workspaceType === "therapy" ? (
+              <p className="text-muted-foreground text-[14px]">
+                {t(
+                  "Not available in a therapy clinic: patients' voice messages are never sent to an AI, and their files are read only by Patient AI.",
+                )}
+              </p>
+            ) : (
+              <>
+                <Controller
                   control={control}
-                  name="extra.transcription.language"
-                  label={t("Primary language")}
-                  placeholder={t("Detect automatically")}
-                  options={[
-                    // An explicit way back to auto-detect. Empty string rather
-                    // than a sentinel: the API treats any falsy `language` as
-                    // "no hint", and `organizations.extra` is deep-merged by
-                    // the `merge_update` trigger, so clearing the field has to
-                    // write something rather than drop the key.
-                    { value: "", label: t("Detect automatically") },
-                    ...SUPPORTED_LANGUAGES.map((lang) => ({
-                      value: lang,
-                      label: LANGUAGE_LABELS[lang],
-                    })),
-                  ]}
-                  disabled={!isOwner}
-                />
-                <p className="text-[12px] text-muted-foreground">
-                  {t(
-                    "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.",
+                  name="extra.transcription.mode"
+                  render={({ field }) => (
+                    <label className="flex items-center gap-[12px] cursor-pointer justify-between">
+                      <div className="flex flex-col gap-[2px]">
+                        <div className="text-foreground">{t("Status")}</div>
+                        <div className="text-muted-foreground text-[14px]">
+                          {t(
+                            "Voice messages are transcribed, and images and documents described, before the agent replies.",
+                          )}
+                        </div>
+                      </div>
+                      <Switch
+                        checked={field.value === "active"}
+                        onCheckedChange={(checked) =>
+                          field.onChange(checked ? "active" : "inactive")
+                        }
+                        disabled={!isOwner}
+                        className="mt-[4px]"
+                      />
+                    </label>
                   )}
-                </p>
-              </div>
+                />
+
+                {/* Only offered while transcription is on - the hint is dead
+                config otherwise, and a set-but-inert field reads as a bug. */}
+                {transcriptionMode === "active" && (
+                  <div className="flex flex-col gap-[8px]">
+                    <SelectField
+                      control={control}
+                      name="extra.transcription.language"
+                      label={t("Primary language")}
+                      placeholder={t("Detect automatically")}
+                      options={[
+                        // An explicit way back to auto-detect. Empty string rather
+                        // than a sentinel: the API treats any falsy `language` as
+                        // "no hint", and `organizations.extra` is deep-merged by
+                        // the `merge_update` trigger, so clearing the field has to
+                        // write something rather than drop the key.
+                        { value: "", label: t("Detect automatically") },
+                        ...SUPPORTED_LANGUAGES.map((lang) => ({
+                          value: lang,
+                          label: LANGUAGE_LABELS[lang],
+                        })),
+                      ]}
+                      disabled={!isOwner}
+                    />
+                    <p className="text-[12px] text-muted-foreground">
+                      {t(
+                        "The language your clients speak. English is always understood too, so a voice message in either is transcribed correctly. Leave unset to detect the language every time.",
+                      )}
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </SectionField>
         </form>

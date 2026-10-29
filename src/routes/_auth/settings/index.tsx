@@ -11,9 +11,11 @@ import {
   Bot,
   Unplug,
   Workflow,
+  FileText,
 } from "lucide-react";
 import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { useWorkspace } from "@/hooks/useWorkspace";
 
 export const Route = createFileRoute("/_auth/settings/")({
   component: SettingsIndex,
@@ -21,6 +23,7 @@ export const Route = createFileRoute("/_auth/settings/")({
 
 function SettingsIndex() {
   const { translate: t } = useTranslation();
+  const { isTherapy } = useWorkspace();
   const navigate = useNavigate();
   const { showsEverything } = useOnboarding();
 
@@ -44,6 +47,22 @@ function SettingsIndex() {
               })
             }
           />
+          {isTherapy && (
+            <SectionItem
+              title={t("Report templates")}
+              aside={
+                <div className="p-[8px]">
+                  <FileText className="w-[24px] h-[24px] text-muted-foreground" />
+                </div>
+              }
+              onClick={() =>
+                navigate({
+                  to: "/settings/report-templates",
+                  hash: (prevHash) => prevHash!,
+                })
+              }
+            />
+          )}
           <SectionItem
             title={t("Members")}
             aside={

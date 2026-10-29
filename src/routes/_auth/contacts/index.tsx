@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ListChecks, Plus, Trash2, Upload } from "lucide-react";
+import { Archive, ListChecks, Plus, Trash2, Upload } from "lucide-react";
 
 import SectionHeader from "@/components/SectionHeader";
 import Button from "@/components/Button";
@@ -14,8 +14,16 @@ import ContactFilter, {
   emptyContactFilter,
   type ContactFilterValue,
 } from "@/components/ContactFilter";
+import dayjs from "dayjs";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useContacts, useDeleteContacts } from "@/queries/useContacts";
+import { useWorkspace } from "@/hooks/useWorkspace";
+import {
+  useArchiveContacts,
+  useArchivedContacts,
+  useContacts,
+  useDeleteContacts,
+} from "@/queries/useContacts";
+import { useNextAppointmentByContact } from "@/queries/useAppointments";
 import { useContactActivityMatch } from "@/queries/useContactActivity";
 import { contactDisplayAddress } from "@/utils/ContactAddressUtils";
 
@@ -36,10 +44,19 @@ export const Route = createFileRoute("/_auth/contacts/")({
 });
 
 function ListContacts() {
-  const { translate: t } = useTranslation();
+  const { translate: t, currentLanguage } = useTranslation();
+  const { isTherapy, terms } = useWorkspace();
   const navigate = useNavigate();
-  const { data: contacts } = useContacts();
+  const [showArchived, setShowArchived] = useState(false);
+  const { data: activeContacts } = useContacts();
+  const { data: archivedContacts } = useArchivedContacts(
+    isTherapy && showArchived,
+  );
+  const contacts = showArchived ? archivedContacts : activeContacts;
+  const { data: nextSessions } = useNextAppointmentByContact(isTherapy);
   const deleteContacts = useDeleteContacts();
+  const archiveContacts = useArchiveContacts();
+  const removeContacts = isTherapy ? archiveContacts : deleteContacts;
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
   const { match: activityMatch } = useContactActivityMatch(filter);
 
@@ -79,11 +96,24 @@ function ListContacts() {
         kind: "contact",
         key: contact.id,
         contact,
-        subtitle: contactDisplayAddress(contact) ?? t("No address"),
+        subtitle: isTherapy
+          ? nextSessionLabel(nextSessions?.get(contact.id))
+          : (contactDisplayAddress(contact) ?? t("No address")),
       });
     }
     return out;
-  }, [filtered, t]);
+
+    function nextSessionLabel(startsAt: string | undefined) {
+      if (!startsAt) return t("No upcoming session");
+      const start = dayjs(startsAt).locale(currentLanguage);
+      const day = start.isSame(dayjs(), "day")
+        ? t("today")
+        : start.isSame(dayjs().add(1, "day"), "day")
+          ? t("tomorrow")
+          : start.format("ddd D MMM");
+      return `${t("Next:")} ${day} ${start.format("HH:mm")}`;
+    }
+  }, [filtered, t, isTherapy, nextSessions, currentLanguage]);
 
   const hasAnyFilter =
     filter.search.length > 0 || activeFilterCount(filter) > 0;
@@ -108,11 +138,22 @@ function ListContacts() {
   return (
     <>
       <SectionHeader
-        title={t("Contacts")}
+        title={showArchived ? t("Archived") : terms.people}
         action={
           !selectionMode ? (
             <div className="flex items-center gap-[8px]">
-              {allContacts.length > 0 && (
+              {isTherapy && (
+                <button
+                  className={`w-[36px] h-[36px] rounded-[10px] flex items-center justify-center border border-border text-tonal-foreground hover:bg-accent${
+                    showArchived ? " bg-accent" : ""
+                  }`}
+                  title={showArchived ? terms.people : t("Archived")}
+                  onClick={() => setShowArchived((on) => !on)}
+                >
+                  <Archive className="w-[17px] h-[17px]" />
+                </button>
+              )}
+              {allContacts.length > 0 && !showArchived && (
                 <button
                   className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center border border-border text-tonal-foreground hover:bg-accent"
                   title={t("Select")}
@@ -135,7 +176,7 @@ function ListContacts() {
               </button>
               <button
                 className="btn-gradient h-[36px] ps-[12px] pe-[15px] rounded-full flex items-center gap-[7px] text-[14px] font-semibold"
-                title={t("Add contact")}
+                title={terms.newPerson}
                 onClick={() =>
                   navigate({
                     to: "/contacts/new",
@@ -159,7 +200,7 @@ function ListContacts() {
 
       <ContactListToolbar
         count={filtered.length}
-        label={t("contacts")}
+        label={terms.people.toLocaleLowerCase()}
         selectedCount={selectionMode ? selected.size : undefined}
         onSelectAll={
           selectionMode && !allSelected
@@ -172,11 +213,15 @@ function ListContacts() {
           <>
             <button
               className="flex items-center gap-[6px] text-[13px] text-destructive disabled:text-muted-foreground disabled:opacity-50"
-              disabled={selected.size === 0 || deleteContacts.isPending}
+              disabled={selected.size === 0 || removeContacts.isPending}
               onClick={() => setConfirming(true)}
             >
-              <Trash2 className="w-[14px] h-[14px]" />
-              {t("Delete")}
+              {isTherapy ? (
+                <Archive className="w-[14px] h-[14px]" />
+              ) : (
+                <Trash2 className="w-[14px] h-[14px]" />
+              )}
+              {isTherapy ? t("Archive") : t("Delete")}
             </button>
             <button className="text-[13px]" onClick={exitSelection}>
               {t("Cancel")}
@@ -194,21 +239,30 @@ function ListContacts() {
           }}
         >
           <div className="text-[14px] leading-[1.5]">
-            {t("Delete the selected contacts?")} ({selected.size}){" "}
-            {t("Their leads will be deleted too.")}{" "}
-            {t("This action cannot be undone.")}
+            {isTherapy ? (
+              <>
+                {t("Archive the selected?")} ({selected.size}){" "}
+                {t("Their records are kept and can be restored.")}
+              </>
+            ) : (
+              <>
+                {t("Delete the selected contacts?")} ({selected.size}){" "}
+                {t("Their leads will be deleted too.")}{" "}
+                {t("This action cannot be undone.")}
+              </>
+            )}
           </div>
           <div className="flex items-center gap-[10px] mt-[12px]">
             <Button
               className="bg-destructive text-white hover:bg-destructive/90 rounded-full font-semibold text-[14px] px-[22px] py-[9px]"
-              loading={deleteContacts.isPending}
+              loading={removeContacts.isPending}
               onClick={() =>
-                deleteContacts.mutate(Array.from(selected), {
+                removeContacts.mutate(Array.from(selected), {
                   onSuccess: exitSelection,
                 })
               }
             >
-              {t("Delete")}
+              {isTherapy ? t("Archive") : t("Delete")}
             </Button>
             <button
               className="text-[14px] text-muted-foreground px-[6px] py-[9px]"
