@@ -3,7 +3,7 @@
  *  A bare `<video>` is a poor thumbnail: it paints whatever frame decodes
  *  first, and a video that opens on a fade gives a flat white or black
  *  rectangle that reads as "nothing loaded". Seeking a little way in once the
- *  duration is known is enough to land on actual picture — the same reason
+ *  duration is known is enough to land on actual picture - the same reason
  *  Finder's thumbnails are not frame 0 either. */
 export default function VideoThumb({
   url,

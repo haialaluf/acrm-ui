@@ -64,7 +64,7 @@ export default function EmailAccountFacts({
         )}
         {state.tenantName && (
           <Fact label={t("Sender ID")}>
-            {/* An AWS identifier — must not be bidi-reordered in RTL. */}
+            {/* An AWS identifier - must not be bidi-reordered in RTL. */}
             <Ltr className="text-[11px] font-mono text-muted-foreground">
               {state.tenantName}
             </Ltr>

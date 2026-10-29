@@ -29,9 +29,10 @@ function FacebookOAuthCallback() {
   const { mutate: connect, isPending: connecting } = useFacebookSignup();
   const [pages, setPages] = useState<FacebookPagesResult | null>(null);
   const [failed, setFailed] = useState(false);
+  const [failureReason, setFailureReason] = useState<string>();
   const ran = useRef(false);
 
-  // Leg 1 — the connect page redirected this same tab to Facebook and back, so
+  // Leg 1 - the connect page redirected this same tab to Facebook and back, so
   // the token exchange runs here, scoped to the (persisted) active org.
   useEffect(() => {
     if (ran.current) return;
@@ -56,12 +57,15 @@ function FacebookOAuthCallback() {
       { code, redirect_uri },
       {
         onSuccess: (result) => setPages(result),
-        onError: () => setFailed(true),
+        onError: (error) => {
+          setFailureReason(error.message);
+          setFailed(true);
+        },
       },
     );
   }, [code, state, error, listPages, navigate]);
 
-  // Leg 2 — connect the chosen Page. Instagram connects a single account and so
+  // Leg 2 - connect the chosen Page. Instagram connects a single account and so
   // needs no picker; a Facebook user commonly administers several Pages.
   const handleSelect = (page_id: string) => {
     if (!pages) return;
@@ -88,7 +92,10 @@ function FacebookOAuthCallback() {
             // Drop the `#_=_` artifact Facebook appends to the redirect.
             hash: "",
           }),
-        onError: () => setFailed(true),
+        onError: (error) => {
+          setFailureReason(error.message);
+          setFailed(true);
+        },
       },
     );
   };
@@ -105,6 +112,11 @@ function FacebookOAuthCallback() {
             <p className="text-destructive font-medium">
               {t("The Facebook Page could not be connected.")}
             </p>
+            {failureReason && (
+              <p className="text-muted-foreground text-[14px]">
+                {t(failureReason)}
+              </p>
+            )}
             <button
               type="button"
               className="text-primary font-medium cursor-pointer"

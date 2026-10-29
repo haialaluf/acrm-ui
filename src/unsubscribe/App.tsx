@@ -20,7 +20,7 @@ import {
 /**
  * The public opt-out page: unsubscribe.delacrm.com/<token>.
  *
- * The token in the path is the whole credential and the whole route — there is
+ * The token in the path is the whole credential and the whole route - there is
  * no router, no session and no account behind this page.
  *
  * THE PAGE NEVER UNSUBSCRIBES ON LOAD. Corporate mail scanners (Outlook Safe
@@ -67,7 +67,7 @@ export default function App({ initialLang }: { initialLang: Language }) {
         setState(ctx.valid ? { kind: "ready", ctx } : { kind: "invalid" });
       })
       .catch(() => {
-        // A transport failure is not an invalid link — saying so would tell
+        // A transport failure is not an invalid link - saying so would tell
         // someone their opt-out is impossible when it is merely offline.
         if (!cancelled) setState({ kind: "error" });
       });
@@ -214,7 +214,7 @@ function Panel({
           className="mt-[20px] inline-flex items-center gap-[7px] rounded-[10px] border border-border px-[14px] py-[9px] text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-60"
         >
           <Undo2 className="h-[14px] w-[14px]" />
-          {submitting ? t("Working…") : t("Undo — I clicked by mistake")}
+          {submitting ? t("Working…") : t("Undo - I clicked by mistake")}
         </button>
       )}
 

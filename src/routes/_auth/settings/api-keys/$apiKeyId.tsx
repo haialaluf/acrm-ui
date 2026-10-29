@@ -15,6 +15,7 @@ import { Copy, Check } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import useBoundStore from "@/stores/useBoundStore";
 import { queryKeys } from "@/queries/queryKeys";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/api-keys/$apiKeyId")({
   component: ApiKeyDetail,
@@ -26,7 +27,7 @@ function ApiKeyDetail() {
   const { apiKeyId } = Route.useParams();
   const { data: apiKey } = useApiKey(apiKeyId);
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
   const deleteApiKey = useDeleteApiKey();
   const queryClient = useQueryClient();
   const orgId = useBoundStore((state) => state.ui.activeOrgId);

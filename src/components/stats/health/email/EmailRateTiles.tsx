@@ -71,7 +71,7 @@ export default function EmailRateTiles({
       invert: false,
       // Tracking pixels are blocked by plenty of clients, so a low open rate is
       // not evidence of anything. Said out loud so it is not read as one.
-      note: t("Under-reported — many clients block tracking"),
+      note: t("Under-reported - many clients block tracking"),
     },
     {
       key: "bounced",
@@ -114,7 +114,7 @@ export default function EmailRateTiles({
         note={
           enoughVolume
             ? undefined
-            : `${t("Too few sends to judge")} — ${formatNumber(current.sent)}/${MIN_VOLUME_FOR_RATES}`
+            : `${t("Too few sends to judge")} - ${formatNumber(current.sent)}/${MIN_VOLUME_FOR_RATES}`
         }
       />
       <div className="grid grid-cols-2 @2xl:grid-cols-4 gap-[12px]">

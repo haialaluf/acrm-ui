@@ -100,7 +100,7 @@ export function EmailBubbleFooter({
 
 /**
  * The sender's HTML exactly as received. Always inside a `sandbox=""` iframe
- * (no scripts, opaque origin) and never injected into the app's document —
+ * (no scripts, opaque origin) and never injected into the app's document -
  * this is untrusted markup from anyone on the internet.
  */
 function EmailOriginalModal({

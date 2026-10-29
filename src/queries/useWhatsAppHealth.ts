@@ -59,7 +59,7 @@ export function useHealthSnapshots(address: string | null | undefined) {
  *
  * Callers pass twice the window they display, so the previous-equal-length
  * window needed for deltas comes out of the same request instead of a second
- * round trip. Rows are *not* zero-filled by the RPC — days with no WhatsApp
+ * round trip. Rows are *not* zero-filled by the RPC - days with no WhatsApp
  * messages are simply absent. Use `fillDays` before charting.
  */
 export function useWhatsAppDailyMetrics(days: number) {
@@ -83,7 +83,7 @@ export function useWhatsAppDailyMetrics(days: number) {
  * The `message_templates` mirror kept in sync by the health poller.
  *
  * Not the same source as `useTemplates`, which fetches the Graph API live and
- * returns no `quality_score`, `disable_date` or `rejected_reason` — the three
+ * returns no `quality_score`, `disable_date` or `rejected_reason` - the three
  * fields this page exists to surface.
  */
 export function useMessageTemplatesMirror(address: string | null | undefined) {
@@ -172,7 +172,7 @@ export type LiveHealthCheck =
   | { address: string; status: "unavailable" };
 
 /**
- * What Meta says about this number right now. Never stored — the 4-hourly
+ * What Meta says about this number right now. Never stored - the 4-hourly
  * poll keeps the history in `whatsapp_health_snapshots`, and `withLiveReading`
  * lays this on top of it.
  */

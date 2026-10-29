@@ -41,7 +41,7 @@ export type MeetingDraft = {
 };
 
 // An HH:mm picker is a multi-column ("complex") picker, so antd deliberately
-// keeps its popup open after a cell click — `needConfirm={false}` only hides
+// keeps its popup open after a cell click - `needConfirm={false}` only hides
 // the confirm button, it doesn't auto-close. So we control `open` ourselves and
 // close once the user clicks a minute (the last column, which completes the
 // time). We listen for the click on the minute cell itself rather than reacting

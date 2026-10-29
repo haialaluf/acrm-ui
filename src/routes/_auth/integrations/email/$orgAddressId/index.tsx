@@ -19,6 +19,7 @@ import type {
   EmailDnsRecord,
   EmailOrganizationAddressExtra,
 } from "@/supabase/client";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute(
   "/_auth/integrations/email/$orgAddressId/",
@@ -109,7 +110,7 @@ function EmailDomainDetail() {
   const { orgAddressId } = Route.useParams();
 
   // While the domain is waiting on DNS its status changes because of something
-  // outside the app — SES noticing the customer's records — with no event to
+  // outside the app - SES noticing the customer's records - with no event to
   // subscribe to. Poll until it settles, then stop.
   const { data: integration } = useOrganizationAddress(orgAddressId, {
     pollWhilePending: true,
@@ -124,7 +125,7 @@ function EmailDomainDetail() {
 
   if (!integration) return;
 
-  const isOwner = agent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(agent?.extra?.role);
   const extra = integration.extra as EmailOrganizationAddressExtra | undefined;
   const domain = integration.address;
   const records = withInboundRecord(extra?.dns_records ?? [], domain, extra);
@@ -135,7 +136,7 @@ function EmailDomainDetail() {
 
   // What our resolver saw for each record on the last check. Without this the
   // page can only ever say "still pending", which reads as the button having
-  // done nothing — the whole point is telling a missing record apart from a
+  // done nothing - the whole point is telling a missing record apart from a
   // mistyped one.
   const checks = new Map(
     (extra?.dns_check ?? []).map((check) => [checkKey(check), check]),
@@ -178,7 +179,7 @@ function EmailDomainDetail() {
           };
     }
 
-    // `translate` takes a literal string — no interpolation — so the counts sit
+    // `translate` takes a literal string - no interpolation - so the counts sit
     // outside the translated fragments, and the clauses join on a comma rather
     // than a translated conjunction (a bare "and" has no reliable translation
     // out of context).
@@ -255,7 +256,7 @@ function EmailDomainDetail() {
   const senderValue = fromAddress ?? extra?.default_from_address ?? "";
   const sender = senderValue.trim();
 
-  // Only a mailbox on the verified domain can be used as the From address —
+  // Only a mailbox on the verified domain can be used as the From address -
   // anything else is rejected at send time, long after this page said "Saved".
   const [senderLocal, senderDomain, ...senderRest] = sender.split("@");
   const senderValid =
@@ -282,7 +283,7 @@ function EmailDomainDetail() {
             <div className="instructions">
               <p>
                 {t(
-                  "Add the records below at your DNS provider. We check automatically every few minutes — propagation can take up to 72 hours.",
+                  "Add the records below at your DNS provider. We check automatically every few minutes - propagation can take up to 72 hours.",
                 )}
               </p>
             </div>
@@ -332,7 +333,7 @@ function EmailDomainDetail() {
               {!extra?.default_from_address && (
                 <p className="text-warning text-[14px] font-medium">
                   {t(
-                    "Set a default sender below — replies from the CRM are sent from it.",
+                    "Set a default sender below - replies from the CRM are sent from it.",
                   )}
                 </p>
               )}
@@ -367,7 +368,7 @@ function EmailDomainDetail() {
                         )}
                       {group.key === "dmarc" &&
                         t(
-                          "Tells receivers what to do with messages that fail authentication. If your domain already has a _dmarc record, keep it — do not replace it with this one.",
+                          "Tells receivers what to do with messages that fail authentication. If your domain already has a _dmarc record, keep it - do not replace it with this one.",
                         )}
                     </p>
 
@@ -375,7 +376,7 @@ function EmailDomainDetail() {
                         app's narrow resizable panel, and a DKIM name is ~55
                         characters. Four columns of that either shred the values
                         one letter per line or push the status off-screen behind
-                        a horizontal scroll — so each record gets the full width
+                        a horizontal scroll - so each record gets the full width
                         and its status sits on the header line. */}
                     <div className="flex flex-col">
                       {groupRecords.map(renderRecord)}
@@ -396,7 +397,7 @@ function EmailDomainDetail() {
                   </p>
 
                   <div className="font-medium text-[14px] mt-[8px]">
-                    {t("Option 1 — this domain has no mailbox")}
+                    {t("Option 1 - this domain has no mailbox")}
                   </div>
                   <p className="text-muted-foreground text-[14px]">
                     {t(
@@ -408,7 +409,7 @@ function EmailDomainDetail() {
                       "mismatch" && (
                       <p className="text-warning text-[14px] font-medium">
                         {t(
-                          "This domain already receives mail elsewhere — use option 2 so that mailbox keeps working.",
+                          "This domain already receives mail elsewhere - use option 2 so that mailbox keeps working.",
                         )}
                       </p>
                     )}
@@ -420,7 +421,7 @@ function EmailDomainDetail() {
 
                   <div className="font-medium text-[14px] mt-[8px]">
                     {t(
-                      "Option 2 — you already have a mailbox (Google, Outlook…)",
+                      "Option 2 - you already have a mailbox (Google, Outlook…)",
                     )}
                   </div>
                   <p className="text-muted-foreground text-[14px]">

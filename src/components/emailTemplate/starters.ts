@@ -3,13 +3,13 @@ import type { EmailProjectData } from "@/supabase/client";
 
 /* Starter layouts for the "Start a new email" gallery.
  *
- * Each is a Tiptap document in Maily's node vocabulary — the same shape the
+ * Each is a Tiptap document in Maily's node vocabulary - the same shape the
  * editor saves, so a starter is just a template someone already wrote, and
  * there is no second authoring format to keep in step with the editor.
  *
  * No compliance footer here, deliberately. CAN-SPAM requires a physical address
  * and a working opt-out on commercial mail, and SES checks for both before
- * raising a tenant's sending quota — a footer seeded into an editable document
+ * raising a tenant's sending quota - a footer seeded into an editable document
  * is one deleted block away from getting a domain throttled. The send path
  * appends a fixed one instead (`complianceFooter` in email_render.ts), so a
  * starter carries the design and nothing legal. */
@@ -19,7 +19,7 @@ import type { EmailProjectData } from "@/supabase/client";
  *
  * Deliberately not a hosted placeholder service: those go down (via.placeholder
  * .com already has), and a starter that hotlinks one hands every new template a
- * broken image plus a live dependency on someone else's server — which then goes
+ * broken image plus a live dependency on someone else's server - which then goes
  * out to real recipients if nobody swaps the image.
  */
 function placeholder(width: number, height: number): string {
@@ -59,7 +59,7 @@ function image(width: number, height: number): JSONContent {
   };
 }
 
-/** `urlSlot` puts a `{{n}}` in the href rather than the label — Maily keeps the
+/** `urlSlot` puts a `{{n}}` in the href rather than the label - Maily keeps the
  *  slot number in `url` and flags it, and the renderer formats it back out. */
 function button(label: string, urlSlot: number): JSONContent {
   return {
@@ -114,7 +114,7 @@ const NEWSLETTER = doc(
   paragraph(
     text("Hi "),
     slot(1),
-    text(" — three things worth your time this month."),
+    text(" - three things worth your time this month."),
   ),
   heading(2, text("One")),
   paragraph(text("A sentence or two, then a link.")),
@@ -128,7 +128,7 @@ const NEWSLETTER = doc(
 
 const RECEIPT = doc(
   heading(1, text("Order "), slot(1), text(" is on its way")),
-  paragraph(text("Thanks "), slot(2), text(" — here is what you ordered.")),
+  paragraph(text("Thanks "), slot(2), text(" - here is what you ordered.")),
   columns([paragraph(text("Item"))], [paragraph(slot(3))]),
   divider,
   button("Track your order", 4),
@@ -136,7 +136,7 @@ const RECEIPT = doc(
 
 const INVITE = doc(
   heading(1, slot(1), text(", you're invited")),
-  paragraph(slot(2), text(" — save the date.")),
+  paragraph(slot(2), text(" - save the date.")),
   columns([image(560, 560)], [image(560, 560)]),
   button("RSVP", 3),
 );
@@ -145,7 +145,7 @@ const LETTER = doc(
   paragraph(text("Hi "), slot(1), text(",")),
   paragraph(
     text(
-      "No images, no buttons, no columns — just a letter. Plain text-shaped mail clears spam filters more reliably than anything else you can send.",
+      "No images, no buttons, no columns - just a letter. Plain text-shaped mail clears spam filters more reliably than anything else you can send.",
     ),
   ),
   paragraph(text("Best,")),
@@ -206,7 +206,7 @@ export const STARTERS: Starter[] = [
   },
 ];
 
-/** The stored project *is* the document — there is no wrapper to build, unlike
+/** The stored project *is* the document - there is no wrapper to build, unlike
  *  the previous builder's `{ pages: [...] }`. Kept as a named function anyway so
  *  the two call sites read the same as before. */
 export function projectFor(content: JSONContent): EmailProjectData {

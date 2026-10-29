@@ -49,7 +49,7 @@ export default function ShareBookingLinkModal({
 
   const contactRef = useRef<RefSelectProps>(null);
 
-  // Every open starts clean — a link left on screen from the previous contact
+  // Every open starts clean - a link left on screen from the previous contact
   // is the one mistake worth designing out.
   useEffect(() => {
     if (!open) return;
@@ -177,7 +177,7 @@ export default function ShareBookingLinkModal({
                 placeholder={t("Search for a contact")}
                 notFoundContent={t("No results")}
                 options={options}
-                // Match on phone as well as name — two contacts often share one.
+                // Match on phone as well as name - two contacts often share one.
                 filterOption={(input, option) =>
                   !!option?.search.includes(input.toLowerCase())
                 }

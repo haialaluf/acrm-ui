@@ -77,7 +77,7 @@ export default function TemplatePicker() {
         className="px-[40px] pt-[12px] pb-[8px] flex"
       />
 
-      {/* List — ChatList style */}
+      {/* List - ChatList style */}
       <div className="overflow-y-auto px-[40px] pb-[8px] mb-[16px]">
         <div className="flex flex-col gap-[4px]">
           {isLoading ? (

@@ -10,7 +10,7 @@ export type EmailDailyMetricRow =
 export type SuppressedAddressRow = Tables<"contacts_addresses">;
 
 /**
- * `logs.category` values written by the email deliverability path — the SNS
+ * `logs.category` values written by the email deliverability path - the SNS
  * webhook's bounce and complaint branches plus the 4-hourly poller. Filtering
  * on these keeps the timeline about *sending health* rather than every log line
  * the org ever wrote (email-dispatcher also writes `category: 'message'` rows
@@ -54,7 +54,7 @@ export function useEmailHealthSnapshots(address: string | null | undefined) {
  *
  * Callers pass twice the window they display so the previous-equal-length
  * window needed for deltas comes out of the same request. Rows are not
- * zero-filled by the RPC — days with no email are simply absent, so run them
+ * zero-filled by the RPC - days with no email are simply absent, so run them
  * through `fillEmailDays` before charting.
  */
 export function useEmailDailyMetrics(days: number) {
@@ -106,13 +106,13 @@ export function useEmailHealthEvents(address: string | null | undefined) {
  * Addresses this organization may no longer email, newest first.
  *
  * `status = 'inactive'` on a contacts_addresses row is written by two SES
- * feedback paths — `apply_email_suppression` (a hard bounce or a spam
+ * feedback paths - `apply_email_suppression` (a hard bounce or a spam
  * complaint) and `record_soft_bounce` (a soft-bounce pattern). Which one it
  * was is in `extra.opt_out.source` (or `extra.soft_bounce`).
  *
  * An email unsubscribe-link click is NOT in this list: like WhatsApp's `הסר`,
- * it sets `contacts.status = 'removed'` on the contact — the org-wide "remove
- * me" flag, not a mark on this address row — since unsubscribing is the same
+ * it sets `contacts.status = 'removed'` on the contact - the org-wide "remove
+ * me" flag, not a mark on this address row - since unsubscribing is the same
  * explicit removal request regardless of channel. This query only ever shows
  * a deliverability problem SES itself reported.
  */
@@ -181,7 +181,7 @@ export function useUnsuppressAddress() {
     // Every page size shares the `suppressed` prefix, so this invalidates the
     // list however it was requested. The address row's `status` also feeds the
     // composer's "unreachable" banner via `useContactAddress`, which is cached
-    // for minutes — clear it too.
+    // for minutes - clear it too.
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [orgId, "email_health", "suppressed"],

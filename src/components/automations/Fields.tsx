@@ -38,15 +38,17 @@ export function Field({
 /**
  * The field styling without a width.
  *
- * Use this wherever the caller sets its own width — `flex-1`, `w-16`, a fixed
+ * Use this wherever the caller sets its own width - `flex-1`, `w-16`, a fixed
  * pixel width. Appending those to `inputClass` below does NOT work: two
  * utilities for the same property collide, and which one wins depends on their
  * order in the generated stylesheet rather than in the class string, so a
  * `flex-1` name field and a `w-16` number field next to each other end up the
  * wrong way round.
  */
+// 16px below `md`: iOS Safari zooms the page into any field smaller than that
+// on focus, and does not zoom back out.
 export const inputBase =
-  "rounded-[9px] border border-transparent bg-muted px-[10px] py-2 text-[13.5px] text-foreground outline-none hover:border-border focus:border-primary focus:bg-card focus:ring-3 focus:ring-primary/15";
+  "rounded-[9px] border border-transparent bg-muted px-[10px] py-2 text-[13.5px] max-md:text-base text-foreground outline-none hover:border-border focus:border-primary focus:bg-card focus:ring-3 focus:ring-primary/15";
 
 /** The common case: a field that fills its row. */
 export const inputClass = "w-full " + inputBase;
@@ -72,7 +74,7 @@ export function Segmented<T extends string>({
           type="button"
           onClick={() => onChange(option.value)}
           className={
-            "flex-1 whitespace-nowrap rounded-[7px] px-2 py-[6px] text-[12.5px] " +
+            "flex-1 whitespace-nowrap rounded-[7px] px-2 py-[6px] text-[12.5px] max-md:py-2 max-md:text-[13.5px] " +
             (value === option.value
               ? "bg-card font-semibold text-card-foreground shadow-sm"
               : "text-muted-foreground")
@@ -85,7 +87,7 @@ export function Segmented<T extends string>({
   );
 }
 
-/** Multi-select over a fixed vocabulary. Values are whatever `id` is — a uuid
+/** Multi-select over a fixed vocabulary. Values are whatever `id` is - a uuid
  *  for agents and calendars, the tag string itself for tags and sources. */
 export function CheckList<T extends { id: string; name: string }>({
   items,

@@ -1,7 +1,7 @@
 import { cacheTranslations, getTranslation } from "@/i18n/translations";
 
 /**
- * Translation for the booking site — deliberately a tiny local shim, not
+ * Translation for the booking site - deliberately a tiny local shim, not
  * `hooks/useTranslation`, which pulls in `useBoundStore` (and with it the whole
  * app's state, supabase client and router).
  *
@@ -58,7 +58,7 @@ export function visitorIsInIsrael(): boolean {
  * Whether to offer the language switch at all.
  *
  * Only visitors in Israel plausibly want either language. Everyone else gets
- * English and no control — a toggle offering Hebrew to someone who can't read
+ * English and no control - a toggle offering Hebrew to someone who can't read
  * it is a way to get stranded, not a feature.
  */
 export function canChooseLanguage(): boolean {
@@ -90,7 +90,7 @@ export function rememberLanguage(lang: Language): void {
   }
 }
 
-/** Both dictionaries up front — switching language must not await a fetch. */
+/** Both dictionaries up front - switching language must not await a fetch. */
 export function initI18n(): void {
   for (const lang of LANGUAGES) {
     const entry = dictionaries[`../../public/locales/${lang}.json`];
@@ -98,7 +98,7 @@ export function initI18n(): void {
   }
 }
 
-/** `t("English source string")` — same convention as the rest of the app. */
+/** `t("English source string")` - same convention as the rest of the app. */
 export function makeT(lang: Language) {
   return (key: string) => getTranslation(key, lang);
 }

@@ -9,13 +9,13 @@
  *
  * The SYNTAX regex, MAX_LENGTH, DISPOSABLE and TYPOS below MUST stay identical
  * to the server's, or the form accepts something the lead pipeline rejects (or
- * worse, the reverse — the form rejects an address the server would have been
+ * worse, the reverse - the form rejects an address the server would have been
  * happy to mail). Nothing enforces this automatically; keep them in step by
  * hand, as `check-type-sync.sh` only diffs `types/`.
  *
  * What is NOT mirrored here is the MX lookup. A form cannot usefully wait on
  * DNS per keystroke, and the domain check runs anyway at the two points that
- * matter — lead ingestion and send time. So this catches typos and rubbish; the
+ * matter - lead ingestion and send time. So this catches typos and rubbish; the
  * server catches domains that cannot receive mail.
  */
 
@@ -44,7 +44,7 @@ const DISPOSABLE = new Set([
 /**
  * Common typos of high-volume mail domains.
  *
- * A suggestion, never an auto-correction — see the server twin for why this
+ * A suggestion, never an auto-correction - see the server twin for why this
  * list is load-bearing (`gmial.com` is a live typosquatter with working MX
  * records, so no automated check can reject it; only the person who typed it
  * can).
@@ -114,13 +114,13 @@ export function checkEmail(raw: string | null | undefined): EmailCheck {
 /**
  * react-hook-form `validate` for an optional email field.
  *
- * Returns `true` when acceptable, or an **untranslated** message — the same
+ * Returns `true` when acceptable, or an **untranslated** message - the same
  * contract the phone field beside it uses (`|| "Invalid number"`), because
  * `FieldError` runs the result through `t` itself and translating here would
  * translate twice.
  *
  * An empty value passes: the field is optional, and "required" is a separate
- * concern from "valid". A typo'd domain also passes — it is only ever a hint,
+ * concern from "valid". A typo'd domain also passes - it is only ever a hint,
  * so it must never block a save when the person really does mean that address.
  */
 export function validateEmailField(

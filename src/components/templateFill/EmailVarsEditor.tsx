@@ -16,7 +16,7 @@ import { auditVariables } from "@/components/emailTemplate/renderTemplate";
  */
 export type EmailVarOverrides = Record<number, string>;
 
-/** The template's bindings with this send's fallbacks applied — the array that
+/** The template's bindings with this send's fallbacks applied - the array that
  *  gets snapshotted onto the message. */
 export function applyEmailOverrides(
   variables: EmailTemplateVariable[],
@@ -31,7 +31,7 @@ export function applyEmailOverrides(
  * Slots that would render as an empty string for every recipient.
  *
  * A `custom` slot has no contact field by definition, so an empty fallback is
- * not a graceful degradation — it is a hole in every copy of the email. Those
+ * not a graceful degradation - it is a hole in every copy of the email. Those
  * block the send. A field-backed slot with an empty fallback only affects the
  * contacts missing that field, which the preview already flags in amber, so it
  * is left as a warning rather than a gate.
@@ -50,8 +50,8 @@ export function unfilledEmailVars(
  *
  * The WhatsApp editor ASKS what each `{{n}}` should draw from, because a
  * Meta-approved template is a fixed string with numbered holes and nothing
- * records an intent for them. An email template already stores that intent — the
- * builder is where you say "{{2}} is the first name" — so asking again here
+ * records an intent for them. An email template already stores that intent - the
+ * builder is where you say "{{2}} is the first name" - so asking again here
  * would be a second, competing answer.
  *
  * What is genuinely per-send is the fallback: "Hi {{1}}" wants "there" on a
@@ -68,7 +68,7 @@ export default function EmailVarsEditor({
 }: {
   variables: EmailTemplateVariable[];
   /** The compiled design, audited for slots placed with no binding. Pass
-   *  `undefined` where the caller has not loaded it — the audit is then
+   *  `undefined` where the caller has not loaded it - the audit is then
    *  skipped rather than reporting every slot as missing. */
   html?: string;
   overrides: EmailVarOverrides;
@@ -166,7 +166,7 @@ export default function EmailVarsEditor({
 
               <div className="mt-[6px] text-[11px] text-muted-foreground">
                 {isCustom
-                  ? t("This slot has no contact field — everyone gets this.")
+                  ? t("This slot has no contact field - everyone gets this.")
                   : t("Shown only when the contact's field is empty.")}
               </div>
             </div>

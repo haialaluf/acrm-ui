@@ -57,7 +57,7 @@ const md = new Remarkable({
 // own link_open instead of replacing it: the built-in escapes `href` and
 // `title`, and the replacement this used to be did not. A contact could close
 // the `title` attribute from inside an ordinary inbound message and inject
-// event handlers that ran in this origin — `html: false` does not cover
+// event handlers that ran in this origin - `html: false` does not cover
 // attributes the renderer itself builds.
 const renderLinkOpen = md.renderer.rules.link_open;
 
@@ -240,7 +240,7 @@ export function TextMessage({
             </div>
           ) : (
             /* Nothing but a link card. The timestamp is positioned against the
-               bubble's bottom edge, so reserve just its own height — a full
+               bubble's bottom edge, so reserve just its own height - a full
                text line (the bubble's 19px leading) would leave it floating
                well clear of the card. */
             <div className="h-[15px]" />
@@ -269,7 +269,7 @@ export function TextMessage({
           )}
         </div>
 
-        {/* Timestamp — positioned at the text's logical end so it sits in the
+        {/* Timestamp - positioned at the text's logical end so it sits in the
             trailing-space gap in both LTR and RTL layouts. */}
         <div className="text-[11px] text-muted-foreground absolute bottom-[0px] end-[7px] flex items-center">
           {dayjs(timestamp).format("HH:mm")}
@@ -277,7 +277,7 @@ export function TextMessage({
         </div>
       </div>
 
-      {/* Actions — CTA buttons stacked inside the bubble, divided by hairlines */}
+      {/* Actions - CTA buttons stacked inside the bubble, divided by hairlines */}
       {buttons?.map((button, idx) => (
         <div
           key={idx}
@@ -302,11 +302,14 @@ function Avatar({
 }) {
   const { data: agent } = useAgent(agentId);
 
+  // RLS hides super-admin agents, so their messages resolve to no agent row.
+  if (!agent) return null;
+
   if (display === "picture-left" || display === "picture-right") {
     return (
       <AvatarComponent
-        src={agent?.picture}
-        fallback={agent?.name.charAt(0) || "A"}
+        src={agent.picture}
+        fallback={agent.name.charAt(0) || "A"}
         size={28}
         className={
           `${(color && AVATAR_BG_COLORS[color]) || ""} absolute text-foreground border border-border -top-[0.25px]` +
@@ -321,7 +324,7 @@ function Avatar({
       <div
         className={`text-[12.8px] p-[6px] pb-0 ${(color && AVATAR_TEXT_COLORS[color]) || ""}`}
       >
-        {agent?.name || "?"}
+        {agent.name}
       </div>
     );
   }
@@ -333,7 +336,7 @@ const avatarMsgRowClasses = "lg:px-[calc(63px+38px)] px-[calc(24px+33px)] flex";
 
 /* `wrap-anywhere` rather than `break-words`: the break opportunities the latter
    introduces are ignored when a box's min-content width is computed, so one long
-   unbreakable token — a booking URL is the usual one — pushed the bubble past
+   unbreakable token - a booking URL is the usual one - pushed the bubble past
    its max-width and, with it, the whole list sideways on a phone. */
 const msgBubbleClasses =
   "relative rounded-lg shadow wrap-anywhere text-[14.2px] leading-[19px] p-[3px]";
@@ -355,7 +358,7 @@ const highlightClasses = " ring-2 ring-primary transition-shadow duration-300";
  * off its bottom edge, and the picker floating above it.
  *
  * The max-width used to sit on the bubble; it moved here so the chips line up
- * with the bubble's edge. It is equivalent — the bubble is this column's only
+ * with the bubble's edge. It is equivalent - the bubble is this column's only
  * wide child.
  */
 function BubbleColumn({
@@ -379,7 +382,7 @@ function BubbleColumn({
   bubbleColor: string;
 }>) {
   // A long press brings out the same two buttons hover does on a pointer
-  // device — the reaction smiley and the actions chevron — and neither opens
+  // device - the reaction smiley and the actions chevron - and neither opens
   // until it is tapped, the way WhatsApp does it.
   const [revealed, setRevealed] = useState(false);
   const longPress = useLongPress(() => setRevealed(true));
@@ -614,7 +617,7 @@ type UIMessage = {
   convName?: string;
   avatar?: { agentId: string; color: string };
   internal?: boolean;
-  /** Live reactions on this message — at most one per party. */
+  /** Live reactions on this message - at most one per party. */
   reactions?: Reaction[];
   /** Adds, replaces or removes the organization's reaction. Absent = read-only. */
   onReact?: (emoji: string) => void;
@@ -624,7 +627,7 @@ type UIMessage = {
   onReply?: () => void;
   /** Why replying is unavailable; shows the item greyed with this tooltip. */
   replyDisabledReason?: string;
-  /** This message is a reply — draw the quoted block. */
+  /** This message is a reply - draw the quoted block. */
   hasQuote?: boolean;
   /** The message it quotes, when that one is in the loaded window. */
   quoted?: MessageRow;
@@ -637,7 +640,7 @@ type UIMessage = {
 /* ─── Content render strategies ───────────────────────────────────────────
    A message's inner content is rendered by the first strategy whose `matches`
    predicate accepts its content. Adding a new content kind means adding a leaf
-   component and one entry below — no growing if/else chain. */
+   component and one entry below - no growing if/else chain. */
 
 type MessageContentProps = {
   message: MessageRow;
@@ -650,7 +653,7 @@ type MessageContentProps = {
 function TextContent({ message, header, fixedWidth }: MessageContentProps) {
   if (message.content.type !== "text") return null;
   // A booking link is sent with `preview_url: true`, so WhatsApp shows a card
-  // for it — draw the same card here rather than leaving a bare URL. When the
+  // for it - draw the same card here rather than leaving a bare URL. When the
   // message is nothing but the link, WhatsApp drops the URL text too: the card
   // already carries it, so all that is left is the raw token.
   const text = message.content.text;
@@ -706,7 +709,7 @@ function ButtonReplyContent({
   fixedWidth,
 }: MessageContentProps) {
   // Incoming reply produced when the contact taps a template quick-reply
-  // button — WhatsApp surfaces it as a plain text message.
+  // button - WhatsApp surfaces it as a plain text message.
   if (message.content.type !== "data" || message.content.kind !== "button") {
     return null;
   }
@@ -779,8 +782,8 @@ function DataJsonContent({ message, header, fixedWidth }: MessageContentProps) {
 function FileContent({ message, orgName, convName }: MessageContentProps) {
   if (message.content.type !== "file") return null;
   // Resolve the renderer by kind first, falling back to MIME (see
-  // mediaCategory). This keeps the Instagram "native" kinds — a shared reel
-  // (ig_reel/reel) is a video, a post/story is decided by MIME — rendering
+  // mediaCategory). This keeps the Instagram "native" kinds - a shared reel
+  // (ig_reel/reel) is a video, a post/story is decided by MIME - rendering
   // correctly even when the stored MIME is wrong.
   const category = mediaCategory(
     message.content.kind,

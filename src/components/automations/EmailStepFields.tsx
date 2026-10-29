@@ -18,7 +18,7 @@ import { Field, selectClass } from "./Fields";
  *
  * Same split as the bulk-send wizard, and the same components: an email
  * template already records which field each `{{n}}` draws from, so there is
- * nothing to bind here — only the fallback each slot uses for a contact with
+ * nothing to bind here - only the fallback each slot uses for a contact with
  * nothing of its own, which genuinely belongs to the step.
  */
 export default function EmailStepFields({
@@ -85,7 +85,7 @@ export default function EmailStepFields({
           />
           {unfilled.length > 0 && (
             <div className="mt-[8px] text-[12px] text-destructive-strong">
-              {t("Fill in")} {unfilled.map((n) => `{{${n}}}`).join(", ")} —{" "}
+              {t("Fill in")} {unfilled.map((n) => `{{${n}}}`).join(", ")} -{" "}
               {t("a custom slot left empty is a gap in every copy.")}
             </div>
           )}

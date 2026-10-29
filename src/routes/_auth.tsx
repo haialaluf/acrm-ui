@@ -21,13 +21,16 @@ import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 import { GATED_SECTIONS, useAccess } from "@/hooks/useAccess";
 import { useResizable } from "@/hooks/useResizable";
 import { isRtl, type Language } from "@/stores/uiSlice";
-import { useCurrentAgents } from "@/queries/useAgents";
+import { useCurrentAgent, useCurrentAgents } from "@/queries/useAgents";
+import { isGhost } from "@/utils/roles";
 import StatsCenter from "@/components/stats/StatsCenter";
 import CalendarCenter from "@/components/calendar/CalendarCenter";
 import BroadcastCenter from "@/components/broadcasts/BroadcastCenter";
 import LiveMessagePreview from "@/components/messagePreview/LiveMessagePreview";
 import PlanLimitBanner from "@/components/PlanLimitBanner";
 import PatientAskPanel from "@/components/therapy/PatientAskPanel";
+import OnboardingHint from "@/components/OnboardingHint";
+import { NEW_ORGANIZATION_PATH, useOnboarding } from "@/hooks/useOnboarding";
 
 export const Route = createFileRoute("/_auth")({
   component: AppLayout,
@@ -49,13 +52,10 @@ function AppLayout() {
   const { translate: t, currentLanguage } = useTranslation();
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
   const { data: agents } = useCurrentAgents();
+  const { data: currentAgent } = useCurrentAgent();
+  const isGhostViewer = isGhost(currentAgent?.extra?.role);
   const hasAiAgents = agents?.some((a) => a.ai);
   const { allows, isResolved } = useAccess();
-  // The one surface read inverted: this card exists *because* nothing is
-  // connected. Gated on `isResolved` too, so an organization that turns out to
-  // have everything connected is not shown it for a frame on every load.
-  const needsIntegrations =
-    isResolved && !allows("app.connected") && !!activeOrgId;
   const activeThreadKey = useBoundStore((state) => state.ui.activeThreadKey);
   const panelExpanded = useBoundStore((state) => state.ui.panelExpanded);
   const setActiveThread = useBoundStore((state) => state.ui.setActiveThread);
@@ -81,7 +81,7 @@ function AppLayout() {
   // stacks inside the form panel.
   //
   // The email builder's paths carry an extra segment (/templates/email/<id>),
-  // which is what keeps them out of this regex — do not loosen it to `.*`, or
+  // which is what keeps them out of this regex - do not loosen it to `.*`, or
   // an email builder gets a WhatsApp phone preview bolted to its side.
   const isTemplateEditorRoute = /\/templates\/(?!email\/)[^/]+$/.test(pathname);
   // The email builder is a three-column app of its own (our panel, canvas, the
@@ -89,14 +89,20 @@ function AppLayout() {
   // width to the right of the menu instead of living in the left panel.
   const isEmailBuilderRoute = /^\/templates\/email\/[^/]+$/.test(pathname);
   // An open automation (`/automations/<id>`) is a canvas plus its own config
-  // drawer — the same two-column app shape the email builder has, and with the
+  // drawer - the same two-column app shape the email builder has, and with the
   // same lack of anything to put in a center panel. The list at
   // `/automations` stays an ordinary left-panel page.
   const isAutomationEditorRoute = /^\/automations\/[^/]+$/.test(pathname);
-  // Both full-width routes get identical layout treatment; kept as one flag so
-  // the four places below cannot drift apart.
+  // The Leads page lays out its own list, panel and board, and the setup
+  // wizard is a full page of its own.
+  const isLeadsRoute = pathname === "/leads" || pathname.startsWith("/leads/");
+  // Full-width routes get identical layout treatment; kept as one flag so the
+  // four places below cannot drift apart.
   const isFullWidthRoute =
-    isEmailBuilderRoute || isAutomationEditorRoute || pathname === "/ask";
+    isEmailBuilderRoute ||
+    isAutomationEditorRoute ||
+    isLeadsRoute ||
+    pathname === "/ask";
 
   /**
    * Redirect out of a section this organization cannot use yet.
@@ -106,8 +112,8 @@ function AppLayout() {
    * is unmet. Enforced around the one `<Outlet />` rather than route by route,
    * so a new route cannot forget to guard itself.
    *
-   * The no-organization case is never gated: there is nothing to connect yet,
-   * and the center panel below already answers it with "Create organization".
+   * The no-organization case is never gated here: there is nothing to connect
+   * yet, and `redirectForOnboarding` sends it to its own onboarding pages.
    */
   const gatedSection = GATED_SECTIONS.find((prefix) =>
     pathname.startsWith(prefix),
@@ -118,6 +124,10 @@ function AppLayout() {
   // later is exactly the flash the gates elsewhere exist to prevent. Only the
   // gated sections wait; everything else renders immediately.
   const holdingForIntegrations = !!activeOrgId && !isResolved && !!gatedSection;
+
+  const onboarding = useOnboarding();
+  const redirectForOnboarding =
+    onboarding.isResolved && !onboarding.isAllowedPath(pathname);
 
   const [isHoveringFiles, setIsHoveringFiles] = useState(false);
 
@@ -136,7 +146,7 @@ function AppLayout() {
   // The template editor is a wide form next to a narrow phone preview, so it
   // snaps the panel to the widest the drag handle allows; leaving restores
   // whatever width was in effect before. Two ways in: the standalone editor
-  // route, or `panelExpanded` — set by editors rendered *inside* the panel
+  // route, or `panelExpanded` - set by editors rendered *inside* the panel
   // (ManageTemplatesOverlay), which change no route at all.
   const shouldExpandPanel = isTemplateEditorRoute || panelExpanded;
   const wasExpandedRef = useRef(false);
@@ -180,7 +190,7 @@ function AppLayout() {
 
   // The grid owns the viewport on its own (height:100dvh/width:100vw in CSS);
   // the plan-limit banner sits above it, so hand the grid the remaining space
-  // instead — inline height/width win over the stylesheet.
+  // instead - inline height/width win over the stylesheet.
   const gridStyle = {
     height: "100%",
     width: "100%",
@@ -201,8 +211,15 @@ function AppLayout() {
         className={"app-grid" + (isResizing ? "" : " animate-columns")}
         style={gridStyle}
       >
-        {/* Menu - Fixed width */}
-        <div className={showCenterPanel ? "hidden md:flex" : "flex"}>
+        {/* On a phone the automation editor is a full-screen canvas with its
+            own back button; the rail would only take 48px from it. */}
+        <div
+          className={
+            showCenterPanel || isAutomationEditorRoute
+              ? "hidden md:flex"
+              : "flex"
+          }
+        >
           <Menu />
         </div>
         {/* Left Panel - Router Outlet */}
@@ -215,7 +232,13 @@ function AppLayout() {
             (showCenterPanel ? "hidden md:flex" : "flex")
           }
         >
-          {blockedForNoIntegrations ? (
+          {redirectForOnboarding ? (
+            <Navigate
+              to={onboarding.homePath}
+              hash={(prevHash) => prevHash!}
+              replace
+            />
+          ) : blockedForNoIntegrations ? (
             <Navigate
               to="/integrations"
               hash={(prevHash) => prevHash!}
@@ -228,7 +251,7 @@ function AppLayout() {
           ) : (
             <Outlet />
           )}
-          {/* Resize Handle — a full-width route (email builder, automation
+          {/* Resize Handle - a full-width route (email builder, automation
             editor) owns its whole column, so there is no boundary to drag. */}
           {!isFullWidthRoute && (
             <div
@@ -260,7 +283,7 @@ function AppLayout() {
                         ? " flex bg-chat"
                         : " hidden md:flex bg-muted")
           }
-          onDragEnter={() => setIsHoveringFiles(true)}
+          onDragEnter={() => !isGhostViewer && setIsHoveringFiles(true)}
           onDrop={() => setIsHoveringFiles(false)}
         >
           {isTemplateEditorRoute ? (
@@ -290,24 +313,27 @@ function AppLayout() {
           ) : (
             <div className="flex gap-[32px] items-center justify-center h-full">
               {!activeOrgId && (
-                <ActionCard
+                <OnboardingHint
                   icon={<Building2 className="w-[24px] h-[24px]" />}
-                  title={t("Create organization")}
-                  to="/settings/organization/new"
+                  title={t("Create your organization")}
+                  description={t(
+                    "Give it a name and an address, and you can start connecting channels and inviting your team.",
+                  )}
+                  to={NEW_ORGANIZATION_PATH}
                 />
               )}
               {activeOrgId && (
                 <>
                   {/* An agent with no channel to answer on has nothing to do, so
                     connecting comes first. */}
-                  {!hasAiAgents && (
+                  {!onboarding.step && !hasAiAgents && (
                     <ActionCard
                       icon={<Bot className="w-[24px] h-[24px]" />}
                       title={t("Create agent")}
                       to="/agents/new"
                     />
                   )}
-                  {hasAiAgents && (
+                  {!onboarding.step && hasAiAgents && (
                     <HideIfNotPermitted surface="home.startConversation">
                       <ActionCard
                         icon={
@@ -318,19 +344,19 @@ function AppLayout() {
                       />
                     </HideIfNotPermitted>
                   )}
-                  {/* Names no particular integration — a card that said
+                  {/* Names no particular integration - a card that said
                     "Configure WhatsApp" would be advertising a channel to
-                    someone who may want any of the other five. Suppressed on
-                    /integrations itself, where the list beside it is already the
-                    answer and the card would only point at the current page. */}
-                  {needsIntegrations &&
-                    !pathname.startsWith("/integrations") && (
-                      <ActionCard
-                        icon={<Unplug className="w-[24px] h-[24px]" />}
-                        title={t("Integrations")}
-                        to="/integrations"
-                      />
-                    )}
+                    someone who may want any of the other five. */}
+                  {onboarding.step === "integration" && (
+                    <OnboardingHint
+                      icon={<Unplug className="w-[24px] h-[24px]" />}
+                      title={t("Connect your first integration")}
+                      description={t(
+                        "Connect a channel or a lead source to start receiving messages and leads.",
+                      )}
+                      to="/integrations"
+                    />
+                  )}
                 </>
               )}
             </div>

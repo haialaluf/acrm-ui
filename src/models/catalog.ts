@@ -1,6 +1,6 @@
 // Static mirror of the API model registry
 // (acrm-api/supabase/functions/_shared/models.ts). The UI only needs the id and
-// the display label to render the pickers — the provider mapping is applied
+// the display label to render the pickers - the provider mapping is applied
 // server-side at request time, so nothing here writes `extra.api_url`.
 // Keep the ids and labels in sync with the API.
 //

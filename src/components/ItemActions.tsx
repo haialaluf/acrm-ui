@@ -11,6 +11,7 @@ import { useThreadConversation } from "@/hooks/useThread";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useDeleteConversation } from "@/queries/useConversations";
 import ConfirmModal from "./ConfirmModal";
+import { isAdminRole } from "@/utils/roles";
 
 export default function ItemActions({
   children,
@@ -40,7 +41,7 @@ export default function ItemActions({
 
   const activeThreadKey = useBoundStore((state) => state.ui.activeThreadKey);
   const { data: agent } = useCurrentAgent();
-  const isAdmin = ["admin", "owner"].includes(agent?.extra?.role || "");
+  const isAdmin = isAdminRole(agent?.extra?.role);
 
   const deleteConversation = useDeleteConversation();
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -101,7 +102,7 @@ export default function ItemActions({
       disabled: true,
     },*/
     // Deleting wipes the thread's whole history for the entire organization,
-    // so only admins and owners are offered it — the restrictive RLS policy on
+    // so only admins and owners are offered it - the restrictive RLS policy on
     // `conversations` enforces the same rule server-side.
     ...(isAdmin
       ? [

@@ -11,7 +11,7 @@ import type { OAuthAuthorizationDetails } from "@supabase/supabase-js";
 // job is to show what app wants access and submit Allow or Deny.
 //
 // Dynamic client registration is on, so ANY app can register and reach this
-// screen — the app name is attacker-controllable. The redirect host is the
+// screen - the app name is attacker-controllable. The redirect host is the
 // real identity signal: warn when it is not a known AI client.
 const TRUSTED_HOSTS = [
   "claude.ai",
@@ -73,7 +73,7 @@ function OAuthConsent() {
       setSubmitting(false);
       setMessage(
         t(
-          "Something went wrong. The authorization may have expired — start the connection again from your AI client.",
+          "Something went wrong. The authorization may have expired - start the connection again from your AI client.",
         ),
       );
       return;
@@ -98,7 +98,7 @@ function OAuthConsent() {
         {invalid && (
           <div className="text-center">
             {t(
-              "This authorization link is invalid or expired — start the connection again from your AI client.",
+              "This authorization link is invalid or expired - start the connection again from your AI client.",
             )}
           </div>
         )}

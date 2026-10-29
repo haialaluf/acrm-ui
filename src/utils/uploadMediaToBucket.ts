@@ -1,7 +1,7 @@
 import { supabase } from "@/supabase/client";
 
 /** Internal storage reference prefix, matching the API's BASE_URI
- *  (`_shared/media.ts`). Nothing signs a URL at upload time any more — the
+ *  (`_shared/media.ts`). Nothing signs a URL at upload time any more - the
  *  dispatcher that actually sends the message resolves this to a fresh,
  *  short-lived signed URL at send time, cached per shared asset so a
  *  broadcast signs it once rather than once per recipient. */
@@ -21,7 +21,7 @@ function extensionFor(mimeType: string, fallbackName?: string): string {
 }
 
 /** Store a blob in the private `media` bucket and return an unsigned internal
- *  reference to it — not a signed URL. Whatever eventually sends this asset
+ *  reference to it - not a signed URL. Whatever eventually sends this asset
  *  (whatsapp-dispatcher, email-dispatcher, instagram-dispatcher) resolves it
  *  to a real signed URL at send time.
  *

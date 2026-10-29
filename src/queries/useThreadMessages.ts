@@ -14,7 +14,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * Resolves a thread key to its conversation rows when the store does not know
- * it yet — i.e. on a deep link (`/conversations#<threadKey>`) to a thread that
+ * it yet - i.e. on a deep link (`/conversations#<threadKey>`) to a thread that
  * no loaded page contains. Idle otherwise.
  */
 export function useThreadConversations(threadKey: string | null) {
@@ -32,8 +32,8 @@ export function useThreadConversations(threadKey: string | null) {
     queryFn: async () => {
       const { organizationAddress, counterpart } = parseThreadKey(threadKey!);
 
-      // The counterpart is a contact address, a group address, or — for the
-      // `local` agent chats, which have neither — the conversation id itself.
+      // The counterpart is a contact address, a group address, or - for the
+      // `local` agent chats, which have neither - the conversation id itself.
       const matches = [
         `contact_address.eq."${counterpart}"`,
         `group_address.eq."${counterpart}"`,

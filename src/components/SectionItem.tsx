@@ -53,13 +53,11 @@ export default function SectionItem({
       }
       onClick={isDisabled ? undefined : onClick}
     >
-      {/* Left Pane: Avatar/Icon */}
-      <div className="pl-[10px] pr-[15px] flex items-center">{aside}</div>
+      <div className="ps-[10px] pe-[15px] flex items-center">{aside}</div>
 
-      {/* Right Pane: Content */}
       <div
         className={`flex flex-col justify-center grow min-w-0 ${
-          actions ? "pr-[6px]" : "pr-[15px]"
+          actions ? "pe-[6px]" : "pe-[15px]"
         }`}
       >
         {/* Upper Row: Title */}
@@ -70,7 +68,7 @@ export default function SectionItem({
         {/* Lower Row: Description.
             Flat rather than a flex wrapper around the text: inside a flex
             container the text becomes an anonymous flex item, and
-            `text-overflow: ellipsis` has nothing to apply to — the sentence
+            `text-overflow: ellipsis` has nothing to apply to - the sentence
             got clipped mid-word with no "…" to say so. */}
         {description && (
           <div

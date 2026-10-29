@@ -29,7 +29,7 @@ function unitFor(minutes: number | null | undefined): TimeUnit {
 
 /**
  * A duration held as a plain number of minutes, entered as an amount and a
- * unit — so "20 minutes" is typed as 20, not as a fraction of an hour.
+ * unit - so "20 minutes" is typed as 20, not as a fraction of an hour.
  */
 export default function DurationField<T extends FieldValues>({
   name,

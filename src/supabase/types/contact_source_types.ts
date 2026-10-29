@@ -4,7 +4,7 @@ import type { Database } from "../db_types";
 type Service = Database["public"]["Enums"]["service"];
 
 /**
- * `contacts.source` — how a contact first reached the CRM.
+ * `contacts.source` - how a contact first reached the CRM.
  *
  * The column is free text with a `'manual'` default, and until now its
  * vocabulary was scattered across four writers as bare string literals. That
@@ -20,7 +20,7 @@ type Service = Database["public"]["Enums"]["service"];
  * Deliberately NOT a Postgres enum. Converting the column would mean a recast
  * that fails while an RLS policy references it (see the enum caveat in
  * acrm-api/CLAUDE.md), and it would make an unrecognised value a hard write
- * failure on an ingestion path — losing the lead — rather than a contact that
+ * failure on an ingestion path - losing the lead - rather than a contact that
  * simply does not match a filter. Free text that one module owns keeps the
  * writes safe and the reads honest.
  */
@@ -28,7 +28,7 @@ type Service = Database["public"]["Enums"]["service"];
 /**
  * Contacts created by their own inbound message, as `<service>_message`.
  *
- * Only the channels that actually reach linkMissingContacts() — the WhatsApp,
+ * Only the channels that actually reach linkMissingContacts() - the WhatsApp,
  * Instagram, Messenger and email (inbound mail) webhooks.
  */
 export const MESSAGE_SOURCE_SERVICES = [
@@ -76,7 +76,7 @@ export const CONTACT_SOURCES = {
   FACEBOOK_LEAD: "facebook_lead",
   INSTAGRAM_LEAD: "instagram_lead",
 
-  /** The public POST /lead-intake endpoint — website forms, Zapier, partners. */
+  /** The public POST /lead-intake endpoint - website forms, Zapier, partners. */
   API_LEAD: "api_lead",
 } as const;
 
@@ -88,8 +88,8 @@ export type ContactSource =
  * first, then how someone arrived by messaging, then how they arrived as a
  * lead.
  *
- * A trigger may still legitimately match a value absent from this list — an
- * older row, or a channel added since — so consumers should treat it as the
+ * A trigger may still legitimately match a value absent from this list - an
+ * older row, or a channel added since - so consumers should treat it as the
  * known set rather than the possible set. The automations source picker unions
  * it with whatever the organization has actually used.
  */

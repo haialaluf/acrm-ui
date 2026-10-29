@@ -9,7 +9,7 @@ import type { EmailTemplateRow } from "@/supabase/client";
 import { type EmailVarOverrides, unfilledEmailVars } from "./types";
 
 /**
- * Step 3, email — confirm the template's variable bindings and set this send's
+ * Step 3, email - confirm the template's variable bindings and set this send's
  * fallbacks.
  *
  * A sibling of `VariablesStep` rather than a branch inside it, for the reason
@@ -41,14 +41,14 @@ export default function EmailVariablesStep({
           html={template.html ?? ""}
           overrides={overrides}
           setOverrides={setOverrides}
-          emptyLabel={t("This template has no variables — nothing to fill in.")}
+          emptyLabel={t("This template has no variables - nothing to fill in.")}
         />
       </div>
 
       <SectionFooter>
         {unfilled.length > 0 && (
           <div className="mb-[8px] text-[12px] text-destructive-strong">
-            {t("Fill in")} {unfilled.map((n) => `{{${n}}}`).join(", ")} —{" "}
+            {t("Fill in")} {unfilled.map((n) => `{{${n}}}`).join(", ")} -{" "}
             {t("a custom slot left empty is a gap in every copy.")}
           </div>
         )}

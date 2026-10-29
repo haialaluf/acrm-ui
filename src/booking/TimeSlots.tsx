@@ -8,7 +8,7 @@ import {
 
 /**
  * The free starts of the selected day. Picking one reveals the confirm button
- * beside it — the design's two-step commit, which keeps a mis-tap from booking
+ * beside it - the design's two-step commit, which keeps a mis-tap from booking
  * an appointment outright.
  */
 export default function TimeSlots({

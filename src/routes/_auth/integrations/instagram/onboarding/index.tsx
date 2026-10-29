@@ -7,6 +7,7 @@ import { useOnboardingTokens } from "@/queries/useOnboardingTokens";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { Link, Plus } from "lucide-react";
 import type { JSX } from "react";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute(
   "/_auth/integrations/instagram/onboarding/",
@@ -19,7 +20,7 @@ function OnboardingIndex() {
   const navigate = useNavigate();
   const { data: tokens } = useOnboardingTokens("instagram");
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
 
   function getStatus(token: {
     status: string;

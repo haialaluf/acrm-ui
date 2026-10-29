@@ -31,6 +31,7 @@ import {
   contactPicture,
 } from "@/utils/ContactAddressUtils";
 import { mediaPreview, messagePreviewText } from "@/utils/messagePreview";
+import { isAdminRole } from "@/utils/roles";
 
 function statusIcon(status: OutgoingStatus, t: (text: string) => string) {
   const { icon, color, title } = getStatusPresentation(status);
@@ -77,7 +78,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
 
   const { data: agent } = useCurrentAgent();
   const { data: agents } = useCurrentAgents();
-  const isAdmin = ["admin", "owner"].includes(agent?.extra?.role || "");
+  const isAdmin = isAdminRole(agent?.extra?.role);
 
   // The sidebar only ever holds the thread's most recent message (or whatever
   // the open conversation loaded), so this list is a preview source, never a
@@ -88,7 +89,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
   );
 
   // Counted server-side by `conversations_page` over the whole history and kept
-  // live by realtime — the loaded window is far too small to derive it here.
+  // live by realtime - the loaded window is far too small to derive it here.
   const unreadCount = useBoundStore(
     (state) => state.chat.threads.get(itemId)?.unread ?? 0,
   );
@@ -153,7 +154,7 @@ export default function ChatListItem({ itemId }: { itemId: string }) {
     conversation?.service === "email" ? conversation.extra?.subject : undefined;
 
   // Set when the agent handed this conversation off to a person and cleared
-  // the moment one of them actually replies here — so its presence means
+  // the moment one of them actually replies here - so its presence means
   // still waiting.
   const handoff = conversation?.extra?.handoff;
 

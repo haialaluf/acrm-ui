@@ -13,10 +13,11 @@ import {
 import { Minus, Plus } from "lucide-react";
 import type { AutomationStep, AutomationTrigger } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { getTranslation } from "@/i18n/translations";
 import { FlowContext, type FlowContextValue } from "./context";
 import FlowEdge from "./FlowEdge";
-import { buildFlow, type FlowEdgeType, type FlowNode } from "./layout";
+import { buildFlow, NODE_W, type FlowEdgeType, type FlowNode } from "./layout";
 import { AnchorNode, CapNode, StepNode, TriggerNode } from "./nodes";
 import "@xyflow/react/dist/style.css";
 import "./flow.css";
@@ -25,7 +26,7 @@ import "./flow.css";
  * The canvas: a React Flow viewport over a graph derived from the definition.
  *
  * Cards size themselves to their content, and the layout needs those heights to
- * know where the next node goes — so this runs two passes. The first uses
+ * know where the next node goes - so this runs two passes. The first uses
  * estimates, React Flow measures what it rendered, and the measured heights
  * feed a second layout. It converges because the second pass only moves nodes;
  * it never changes their width, which is what their height depends on.
@@ -68,7 +69,7 @@ function Canvas({
 
   // Translated from the language rather than from `useTranslation`'s
   // `translate`, which is a fresh closure on every render: depending on that
-  // would rebuild the graph — and re-measure every node — forever.
+  // would rebuild the graph - and re-measure every node - forever.
   const built = useMemo(
     () =>
       buildFlow(trigger, steps, sizes, (text) =>
@@ -103,7 +104,7 @@ function Canvas({
     if (changed) setSizes(next);
   }, [nodes, sizes]);
 
-  // The estimated first pass is real DOM — it just has the wrong gaps in it.
+  // The estimated first pass is real DOM - it just has the wrong gaps in it.
   // Held back until React Flow reports its measurements so the flow appears
   // once, laid out, instead of visibly settling. One-shot: an inserted step is
   // unmeasured for a frame too, and blinking the whole canvas for it is worse
@@ -135,7 +136,7 @@ function Canvas({
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
-          // Selection is the editor's, not React Flow's — but a node with
+          // Selection is the editor's, not React Flow's - but a node with
           // every interaction turned off is given `pointer-events: none`, so
           // this handler is also what keeps the cards clickable at all.
           onNodeClick={(_, node) => {
@@ -183,18 +184,24 @@ function Canvas({
  *
  * A single fit on open is not enough, because the two things it depends on both
  * settle after the nodes first exist: the layout takes a second pass once React
- * Flow has measured the cards, and the pane itself can still be mid-layout — a
+ * Flow has measured the cards, and the pane itself can still be mid-layout - a
  * fit against a pane that is briefly narrow leaves the flow stranded small and
  * off to one side, with nothing afterwards to correct it. So it re-fits on both
  * (node changes and pane resizes) instead, right up until the user pans or
  * zooms; from then on the viewport is theirs.
+ *
+ * A phone gets a different frame. Fitting a whole flow into ~375px shrinks the
+ * cards past reading, so instead the trunk fills the width and the trigger
+ * sits at the top - the flow reads like a list you scroll down, and the fit
+ * button is still there for the overview.
  */
 function useAutoFit(
   pane: RefObject<HTMLDivElement | null>,
   nodes: FlowNode[],
   userMoved: RefObject<boolean>,
 ) {
-  const { fitView } = useReactFlow();
+  const { fitView, setViewport } = useReactFlow();
+  const isMobile = useIsMobile();
 
   const laidOut =
     nodes.length > 0 && nodes.every((node) => node.measured?.height != null);
@@ -207,11 +214,16 @@ function useAutoFit(
     const refit = () => {
       cancelAnimationFrame(frame);
       // Next frame, so React Flow's own resize observer has stored the pane's
-      // new size — fitView reads that, not the DOM.
+      // new size - fitView reads that, not the DOM.
       frame = requestAnimationFrame(() => {
         if (userMoved.current) return;
         const { width, height } = element.getBoundingClientRect();
         if (width < 1 || height < 1) return;
+        if (isMobile) {
+          const zoom = Math.min(1, Math.max(0.5, (width - 32) / NODE_W));
+          void setViewport({ x: width / 2, y: 20, zoom }, { duration: 0 });
+          return;
+        }
         void fitView({ padding: 0.2, maxZoom: 1, duration: 0 });
       });
     };
@@ -224,7 +236,7 @@ function useAutoFit(
       cancelAnimationFrame(frame);
       observer.disconnect();
     };
-  }, [pane, nodes, laidOut, userMoved, fitView]);
+  }, [pane, nodes, laidOut, userMoved, fitView, setViewport, isMobile]);
 }
 
 /** The zoom control. */
@@ -234,11 +246,11 @@ function ZoomBar() {
   const { zoom } = useViewport();
 
   return (
-    <div className="absolute bottom-[18px] left-1/2 z-[8] flex -translate-x-1/2 items-center gap-[3px] rounded-[10px] border border-border bg-card p-1 shadow-md">
+    <div className="absolute bottom-[calc(18px+env(safe-area-inset-bottom))] left-1/2 z-[8] flex -translate-x-1/2 items-center gap-[3px] rounded-[10px] border border-border bg-card p-1 shadow-md">
       <button
         type="button"
         aria-label={t("Zoom out")}
-        className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+        className="rounded-md p-1 text-muted-foreground hover:bg-muted pointer-coarse:p-2"
         onClick={() => void zoomOut({ duration: 120 })}
       >
         <Minus className="h-[15px] w-[15px]" />
@@ -249,14 +261,14 @@ function ZoomBar() {
       <button
         type="button"
         aria-label={t("Zoom in")}
-        className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+        className="rounded-md p-1 text-muted-foreground hover:bg-muted pointer-coarse:p-2"
         onClick={() => void zoomIn({ duration: 120 })}
       >
         <Plus className="h-[15px] w-[15px]" />
       </button>
       <button
         type="button"
-        className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+        className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted pointer-coarse:py-2"
         onClick={() =>
           void fitView({ padding: 0.2, maxZoom: 1, duration: 160 })
         }

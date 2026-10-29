@@ -28,8 +28,8 @@ function useIsDesktop() {
 }
 
 /**
- * Emoji picker in a popover. Uses the Apple emoji set — the closest match to
- * WhatsApp's own emoji — and inserts the real Unicode character.
+ * Emoji picker in a popover. Uses the Apple emoji set - the closest match to
+ * WhatsApp's own emoji - and inserts the real Unicode character.
  *
  * On a phone it is a bottom sheet instead, the way WhatsApp opens one. A 320px
  * panel anchored to a button has nowhere to sit on a narrow screen: whichever
@@ -37,9 +37,9 @@ function useIsDesktop() {
  * `overflow: hidden` renders that overflow as a grid with its columns sliced
  * off rather than a narrower grid. The sheet spans the full width, so there is
  * no anchor to overflow from. It is portaled to `document.body` so no scroll
- * container can clip it and — since a `transform` makes an ancestor the
+ * container can clip it and - since a `transform` makes an ancestor the
  * containing block for `position: fixed`, and the chat list transforms every
- * row — so that `fixed` means the viewport here.
+ * row - so that `fixed` means the viewport here.
  */
 export default function EmojiPickerPopover({
   onPick,

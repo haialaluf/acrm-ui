@@ -7,7 +7,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { mediaPreview, messagePreviewText } from "@/utils/messagePreview";
 
 /* Each name resolves in its own component so every one of them makes exactly
-   one hook call — the same reason MessageReactions splits them out. */
+   one hook call - the same reason MessageReactions splits them out. */
 
 function AgentName({ agentId }: { agentId: string }) {
   const { data: agent } = useAgent(agentId);
@@ -17,7 +17,7 @@ function AgentName({ agentId }: { agentId: string }) {
   // Your own message reads as "You", the way WhatsApp labels it.
   if (agentId === currentAgent?.id) return <>{t("You")}</>;
 
-  return <>{agent?.name || "?"}</>;
+  return agent ? <>{agent.name}</> : <OrganizationName />;
 }
 
 function ContactName({ address }: { address: string }) {
@@ -52,14 +52,14 @@ function Sender({ message }: { message: MessageRow }) {
 }
 
 /**
- * The quoted block of a reply — WhatsApp's grey card with an accent bar, the
+ * The quoted block of a reply - WhatsApp's grey card with an accent bar, the
  * original sender's name and a one-line preview.
  *
  * Drawn in three places off the same component so they cannot drift: inside the
  * bubble of a reply, above the composer while a reply is pending, and above the
  * file previewer's caption input.
  *
- * `message` is undefined when the original is not in the loaded window — the
+ * `message` is undefined when the original is not in the loaded window - the
  * card still appears (the reply *is* a reply), it just cannot name what it
  * points at or scroll to it.
  */
@@ -89,8 +89,8 @@ export default function QuotedMessage({
   return (
     <div
       className={
-        /* `wrap-anywhere` so an unbreakable token — a booking URL in the
-           preview, an address for a name — can never set this card's
+        /* `wrap-anywhere` so an unbreakable token - a booking URL in the
+           preview, an address for a name - can never set this card's
            min-content width. Inside a bubble that width is the bubble's own,
            and the bubble is sized by its content, so a nowrap line here used to
            push the whole message off the side of a phone screen. */

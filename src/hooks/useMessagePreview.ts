@@ -4,7 +4,7 @@ import type { MessagePreviewData } from "@/components/messagePreview/types";
 
 // The live message preview is shared through the React Query cache: the editor
 // writes with setQueryData, the preview reads with useQuery. Same cache, no
-// common parent — so the form (Left Panel) and the preview (Center Panel on
+// common parent - so the form (Left Panel) and the preview (Center Panel on
 // desktop) stay decoupled. The query never fetches; it's pure client state.
 const MESSAGE_PREVIEW_KEY = ["messagePreview"] as const;
 

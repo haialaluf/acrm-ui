@@ -6,7 +6,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 /**
  * The chevron in a bubble's top corner and the menu it opens.
  *
- * Only "Reply" for now — the affordance is WhatsApp's, the menu is deliberately
+ * Only "Reply" for now - the affordance is WhatsApp's, the menu is deliberately
  * a single item rather than their full Star/Pin/Forward set.
  *
  * Revealed by hover on pointer devices and pinned open by the long press
@@ -28,7 +28,7 @@ export default function MessageActions({
   onReply: () => void;
   /** When set, the item is inert and explains itself instead. */
   disabledReason?: string;
-  /** Chevron shown without hover — a long press pins it that way on touch. */
+  /** Chevron shown without hover - a long press pins it that way on touch. */
   revealed?: boolean;
 }) {
   const { translate: t } = useTranslation();
@@ -72,7 +72,7 @@ export default function MessageActions({
           type="button"
           title={t("Message actions")}
           // The gradient fades the bubble's own colour in under the chevron, so
-          // it never sits on top of the message text — what WhatsApp Web does.
+          // it never sits on top of the message text - what WhatsApp Web does.
           //
           // Kept to the bubble's top ~19px on purpose: a one-line bubble puts
           // its timestamp in the bottom trailing corner, directly below this,

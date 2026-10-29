@@ -22,7 +22,7 @@ import type { AutomationStep, AutomationTrigger } from "@/supabase/client";
  * The step catalog: what the insert menu offers, and how each type is drawn.
  *
  * Grouped exactly as the design's menu groups them. The one deliberate
- * omission is the design's "Create task" step — there is no tasks table and no
+ * omission is the design's "Create task" step - there is no tasks table and no
  * task feature in the product, so the step had nowhere to write. See the note
  * in the engine's steps/index.ts.
  */
@@ -32,7 +32,7 @@ export type StepType = AutomationStep["type"];
 export type StepGroup = "Messaging" | "Timing" | "Logic" | "CRM";
 
 export type StepMeta = {
-  /** English source string — the i18n key (see src/i18n/translations.ts). */
+  /** English source string - the i18n key (see src/i18n/translations.ts). */
   label: string;
   icon: LucideIcon;
   /** A --step-* token; the four categories share one lightness/chroma. */
@@ -41,7 +41,7 @@ export type StepMeta = {
 };
 
 /**
- * Every step type, always — this map is never filtered by what the organization
+ * Every step type, always - this map is never filtered by what the organization
  * has connected. A flow saved while email was connected must still draw its
  * `email` node, open its editor and summarise it after the domain is
  * disconnected; without the label, icon and tint here it could not.
@@ -87,7 +87,7 @@ export const STEP_TYPES: Record<StepType, StepMeta> = {
     group: "Logic",
   },
   filter: {
-    label: "Filter — exit if not matching",
+    label: "Filter - exit if not matching",
     icon: Filter,
     tint: "var(--step-logic)",
     group: "Logic",

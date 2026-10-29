@@ -125,7 +125,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
   );
 
   // Grey out the gap between two working-hour windows on an otherwise-open
-  // day (e.g. a lunch break) — dayPropGetter only handles fully-closed days.
+  // day (e.g. a lunch break) - dayPropGetter only handles fully-closed days.
   function slotPropGetter(slot: Date) {
     const windows = calendar?.working_hours?.[WEEKDAYS[slot.getDay()].key];
     if (!windows?.length) return {};
@@ -270,7 +270,7 @@ export default function CalendarBoard({ calendarId }: { calendarId: string }) {
         </button>
         <button
           className="text-[14px] rounded-full px-4 py-[6px] border border-border bg-card text-foreground hover:bg-accent flex items-center gap-1"
-          title={t("Sync with iPhone calendar")}
+          title={t("Sync with iPhone or Google Calendar")}
           onClick={() => setSyncing(true)}
         >
           <Smartphone className="w-[16px] h-[16px]" />

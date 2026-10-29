@@ -10,7 +10,7 @@ import { useAccess, type OutboundChannel } from "@/hooks/useAccess";
 /**
  * "Start from a recipe": prebuilt flows, opened as real editable definitions.
  *
- * Every recipe is an ordinary trigger + steps pair — nothing is locked, and
+ * Every recipe is an ordinary trigger + steps pair - nothing is locked, and
  * picking one creates a normal draft. They exist because a blank canvas with
  * eleven step types and three trigger kinds is a bad first screen, not because
  * the shapes are special.
@@ -18,7 +18,7 @@ import { useAccess, type OutboundChannel } from "@/hooks/useAccess";
 
 export type Recipe = {
   id: string;
-  /** English source strings — the i18n keys. */
+  /** English source strings - the i18n keys. */
   title: string;
   description: string;
   kind: "lead" | "date" | "schedule" | "blank";
@@ -98,7 +98,7 @@ export function recipes(): Recipe[] {
       id: "reminder",
       title: "Remind before a meeting",
       description:
-        "One day before a scheduled meeting, send a WhatsApp reminder — or fall back to email for anyone not reachable on WhatsApp.",
+        "One day before a scheduled meeting, send a WhatsApp reminder - or fall back to email for anyone not reachable on WhatsApp.",
       kind: "date",
       art: "branch",
       trigger: {
@@ -156,7 +156,7 @@ export function recipes(): Recipe[] {
       steps: [
         // The sweep reaches every open conversation, so the flow says who it
         // is for in a step. Outside the 24-hour window an agent can only send
-        // approved templates, which makes a free-form follow-up a no-op — this
+        // approved templates, which makes a free-form follow-up a no-op - this
         // is where that used to live as a trigger checkbox.
         {
           id: id(),
@@ -191,7 +191,7 @@ export function recipes(): Recipe[] {
     },
     {
       id: "quote",
-      title: "Quote sent — 3 day nudge",
+      title: "Quote sent - 3 day nudge",
       description:
         "When a contact is tagged as quoted, wait three days and write again if they have not replied.",
       kind: "lead",
@@ -236,7 +236,7 @@ const KIND_ICONS = {
   blank: Plus,
 };
 
-/** A miniature of the flow's shape — enough to tell a split from a branch. */
+/** A miniature of the flow's shape - enough to tell a split from a branch. */
 function RecipeArt({ art }: { art: Recipe["art"] }) {
   const box = (filled?: boolean) => (
     <div
@@ -301,7 +301,7 @@ export default function RecipeGallery({
 }) {
   const { translate: t } = useTranslation();
   const { allows } = useAccess();
-  // A recipe is offered only when *every* channel it sends on is connected —
+  // A recipe is offered only when *every* channel it sends on is connected -
   // the one allOf rule in the app, composed here rather than complicating the
   // table, which is anyOf throughout. The sweep and blank recipes send on none,
   // so the gallery is never empty.
@@ -314,35 +314,35 @@ export default function RecipeGallery({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 p-8"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 p-8 max-md:items-end max-md:p-0 max-md:pt-6"
       onClick={onClose}
     >
       <div
-        className="flex max-h-full w-full max-w-[980px] flex-col overflow-hidden rounded-[18px] bg-background shadow-lg"
+        className="flex max-h-full w-full max-w-[980px] flex-col overflow-hidden rounded-[18px] bg-background shadow-lg max-md:sheet-slide-up max-md:h-full max-md:rounded-b-none max-md:rounded-t-[20px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-border px-7 pb-4 pt-6">
+        <div className="flex items-start justify-between gap-4 border-b border-border px-7 pb-4 pt-6 max-md:px-4 max-md:pt-5">
           <div>
             <h2 className="m-0 text-xl font-semibold text-card-foreground">
               {t("Start from a recipe")}
             </h2>
             <p className="mt-[5px] text-[13.5px] text-muted-foreground">
               {t(
-                "Each one opens as a real, editable flow — nothing is locked.",
+                "Each one opens as a real, editable flow - nothing is locked.",
               )}
             </p>
           </div>
           <button
             type="button"
             aria-label={t("Close")}
-            className="rounded-lg border border-border bg-card p-[6px] hover:bg-muted"
+            className="shrink-0 rounded-lg border border-border bg-card p-[6px] hover:bg-muted max-md:rounded-full max-md:border-0 max-md:bg-muted max-md:p-2"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="grid min-h-0 grid-cols-1 content-start gap-4 overflow-auto px-7 pb-7 pt-[22px] sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid min-h-0 auto-rows-max grid-cols-1 content-start gap-4 overflow-auto overscroll-contain px-7 pb-7 pt-[22px] max-md:gap-3 max-md:px-4 max-md:pb-[calc(20px+env(safe-area-inset-bottom))] max-md:pt-4 sm:grid-cols-2 lg:grid-cols-3">
           {order
             .flatMap((kind) => all.filter((recipe) => recipe.kind === kind))
             .map((recipe) => {
@@ -352,13 +352,15 @@ export default function RecipeGallery({
                 <button
                   key={recipe.id}
                   type="button"
-                  className="flex flex-col overflow-hidden rounded-[13px] border border-border bg-card text-start transition-all hover:-translate-y-px hover:border-primary hover:shadow-md"
+                  // A phone gets a row instead of a tile: six tiles with a
+                  // 104px art header each is a long scroll to see six names.
+                  className="flex flex-col overflow-hidden rounded-[13px] border border-border bg-card text-start transition-all hover:-translate-y-px hover:border-primary hover:shadow-md max-md:flex-row max-md:active:bg-muted"
                   onClick={() => onPick(recipe)}
                 >
-                  <div className="flex h-[104px] shrink-0 items-center justify-center border-b border-border bg-muted">
+                  <div className="flex h-[104px] shrink-0 items-center justify-center border-b border-border bg-muted max-md:h-auto max-md:w-[72px] max-md:border-b-0 max-md:border-e">
                     <RecipeArt art={recipe.art} />
                   </div>
-                  <div className="px-[15px] pb-4 pt-[14px]">
+                  <div className="min-w-0 px-[15px] pb-4 pt-[14px] max-md:px-[14px] max-md:py-3">
                     <div className="mb-2 flex items-center gap-[6px] text-[11px] uppercase tracking-[0.05em] text-muted-foreground">
                       <Icon className="h-3 w-3" />
                       {t(KIND_LABELS[recipe.kind])}
@@ -366,7 +368,7 @@ export default function RecipeGallery({
                     <div className="text-[14.5px] font-semibold text-card-foreground">
                       {t(recipe.title)}
                     </div>
-                    <div className="mt-[5px] text-[12.5px] leading-relaxed text-muted-foreground">
+                    <div className="mt-[5px] text-[12.5px] leading-relaxed text-muted-foreground max-md:line-clamp-3 max-md:text-[13px]">
                       {t(recipe.description)}
                     </div>
                   </div>

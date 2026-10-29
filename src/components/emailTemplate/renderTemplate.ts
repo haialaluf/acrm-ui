@@ -14,7 +14,7 @@ import {
  * The real substitution happens on the server when the email goes out; this
  * mirrors it so someone can see, before sending, exactly which slots resolve
  * from a contact's record and which fall back. Keeping the two in step matters
- * more than sharing code — a preview that lies is worse than no preview.
+ * more than sharing code - a preview that lies is worse than no preview.
  *
  * TWIN FILE: ../acrm-api/supabase/functions/_shared/email_render.ts. `VAR_RE`,
  * `contactValues`, `escapeHtml` and `complianceFooter` below must stay identical
@@ -36,7 +36,7 @@ export type Resolution = {
  * What a contact record offers each variable field.
  *
  * The phone lives on a related `contacts_addresses` row rather than the
- * contact itself — hence the reach into `addresses` for it.
+ * contact itself - hence the reach into `addresses` for it.
  */
 export function contactValues(
   contact?: ContactWithAddressesRow,
@@ -63,7 +63,7 @@ function resolve(
 ): Resolution | null {
   if (!variable) return null;
 
-  // `custom` has no contact field by definition — it is always the fallback.
+  // `custom` has no contact field by definition - it is always the fallback.
   const fromContact =
     variable.field === "custom" ? "" : values[variable.field] || "";
 
@@ -137,14 +137,14 @@ export function renderHtml(
  * The compliance footer the send path appends to every email.
  *
  * Drawn here so the preview shows what the recipient actually gets. It is not
- * part of the canvas and nothing in the builder can restyle or delete it — the
+ * part of the canvas and nothing in the builder can restyle or delete it - the
  * business name, the postal address CAN-SPAM requires and the opt-out link are
  * added at send time, from the organization record.
  *
  * `dir="ltr"` on the cell because this text is English and always will be,
  * while the document around it inherits the template's direction. Appended into
  * a `dir="rtl"` email without it, the bidi algorithm moves the trailing colon
- * and the separator to the wrong end — ":This message is sent to you by".
+ * and the separator to the wrong end - ":This message is sent to you by".
  *
  * TWIN: `complianceFooter` in
  * ../acrm-api/supabase/functions/_shared/email_render.ts. The markup must stay
@@ -182,7 +182,7 @@ export function complianceFooter(ctx: {
   );
 }
 
-/** Insert before `</body>` when there is one, else append — exactly how the send
+/** Insert before `</body>` when there is one, else append - exactly how the send
  *  path attaches the footer. TWIN: `appendToBody` in email_render.ts. */
 export function appendToBody(html: string, block: string): string {
   const idx = html.toLowerCase().lastIndexOf("</body>");
@@ -192,7 +192,7 @@ export function appendToBody(html: string, block: string): string {
 }
 
 /** Which slots are placed in the design but have no variable defined, and which
- *  variables are defined but never placed — both are silent bugs at send time,
+ *  variables are defined but never placed - both are silent bugs at send time,
  *  so the Variables panel surfaces them. */
 export function auditVariables(
   html: string,

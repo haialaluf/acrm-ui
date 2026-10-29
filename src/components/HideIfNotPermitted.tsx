@@ -5,7 +5,7 @@ import { useAccess, type Surface } from "@/hooks/useAccess";
  * Renders its children only where the organization has connected what the
  * surface needs, per the table in `useAccess`.
  *
- * For UI that offers something — a nav button, a create button, a tab. The
+ * For UI that offers something - a nav button, a create button, a tab. The
  * requirement itself is not written here: the call site names the surface, the
  * table says what that surface costs, so a rule can never drift between the
  * button and the route it points at.

@@ -5,7 +5,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import useBoundStore from "@/stores/useBoundStore";
 import { usePlanLimits, type PlanLimitReading } from "@/queries/usePlanLimits";
 
-/** Full-width strip the app shows when the org has hit — or is about to hit —
+/** Full-width strip the app shows when the org has hit - or is about to hit -
  *  a plan limit. Reached limits are alert-toned and can't be dismissed; a
  *  still-approaching warning is warning-toned and dismissible for the month.
  *  With more than one limit active it collapses to a count and expands to a
@@ -63,7 +63,7 @@ export default function PlanLimitBanner() {
     try {
       localStorage.setItem("planLimitBannerDismissed", signature);
     } catch {
-      /* private mode — the banner just reappears next load */
+      /* private mode - the banner just reappears next load */
     }
     setDismissedSig(signature);
   };
@@ -86,7 +86,7 @@ export default function PlanLimitBanner() {
         </span>
 
         <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold">
-          {lead} — {t("contact support to upgrade")}
+          {lead} - {t("contact support to upgrade")}
         </span>
 
         {multi && (

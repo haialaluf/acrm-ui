@@ -19,14 +19,14 @@ const API_BASE = `${(import.meta.env.VITE_UNSUBSCRIBE_API_URL || "").replace(
 export type UnsubscribeContext = {
   valid: true;
   organization_name: string;
-  /** Masked (`d•••@example.com`) — enough to recognise, not enough to harvest. */
+  /** Masked (`d•••@example.com`) - enough to recognise, not enough to harvest. */
   masked_address: string;
   status: "subscribed" | "unsubscribed";
   /** Whether the undo window is still open. Re-checked server-side. */
   can_undo: boolean;
 };
 
-/** An unknown, revoked or expired token — deliberately indistinguishable. */
+/** An unknown, revoked or expired token - deliberately indistinguishable. */
 export type InvalidLink = { valid: false };
 
 export class UnsubscribeError extends Error {
@@ -73,7 +73,7 @@ export async function getContext(
   }
 }
 
-/** Opt out. Idempotent — unsubscribing twice is a success. */
+/** Opt out. Idempotent - unsubscribing twice is a success. */
 export function unsubscribe(token: string): Promise<UnsubscribeContext> {
   return request<UnsubscribeContext>(`/${token}`, "POST");
 }

@@ -145,7 +145,7 @@ export default function HealthHero({
  * Three states, best first: Meta's own cost; our estimate priced from the send
  * log when Meta withholds cost from a BSP-billed number; and the bare message
  * count when there is no rate card to price that log against. Each says which
- * one it is — an estimate presented as a billed figure would be worse than no
+ * one it is - an estimate presented as a billed figure would be worse than no
  * figure at all.
  */
 function spendTileContent(
@@ -160,7 +160,7 @@ function spendTileContent(
       label: t("Amount spent"),
       value:
         spend?.amount == null
-          ? "—"
+          ? "-"
           : formatCurrency(spend.amount, spend.currency),
       note: `${t("Meta-billed cost")} ${window}`,
     };
@@ -169,7 +169,7 @@ function spendTileContent(
   if (spend.estimate && spend.estimate.amount > 0) {
     const { amount, unpriced_messages } = spend.estimate;
     // Messages the rate card cannot price are left out of the total, so say
-    // so — an estimate that quietly omits traffic reads as a real figure.
+    // so - an estimate that quietly omits traffic reads as a real figure.
     const gap =
       unpriced_messages > 0
         ? ` · ${formatNumber(unpriced_messages)} ${t("messages have no rate yet")}`
@@ -184,11 +184,11 @@ function spendTileContent(
     };
   }
 
-  // No rate card for this traffic — the message count is all we can stand
+  // No rate card for this traffic - the message count is all we can stand
   // behind, and a $0.00 would read as "free" rather than "unpriced".
   return {
     label: t("Messages sent"),
-    value: spend.volume == null ? "—" : formatNumber(spend.volume),
+    value: spend.volume == null ? "-" : formatNumber(spend.volume),
     note: `${t("Add a WhatsApp rate card to estimate cost")} ${window}`,
   };
 }

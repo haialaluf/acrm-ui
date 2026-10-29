@@ -10,7 +10,7 @@ import {
 
 /** Re-host a template's example header media (a Meta `header_handle` URL on
  *  `scontent.whatsapp.net`) into our own storage and return an internal
- *  storage reference — not a signed URL. Whichever dispatcher eventually
+ *  storage reference - not a signed URL. Whichever dispatcher eventually
  *  sends this asset resolves it to a real signed URL at send time.
  *
  *  The raw handle cannot be used as a send-time header `link`: Meta's delivery
@@ -21,7 +21,7 @@ import {
  *  IMAGE/VIDEO handles are served with permissive CORS, so the browser can
  *  download them directly. DOCUMENT handles are served *without* an
  *  `Access-Control-Allow-Origin` header (200 OK, but the bytes are unreadable to
- *  page JS), so that one download must happen server-side — the edge function
+ *  page JS), so that one download must happen server-side - the edge function
  *  fetches and re-hosts it, sidestepping CORS. */
 export async function rehostTemplateExample(
   exampleUrl: string,

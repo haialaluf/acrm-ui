@@ -1,7 +1,7 @@
 import { Link2 } from "lucide-react";
 import { BOOKING_ORIGIN } from "@/components/templateButtons";
 
-/* The Open Graph tags a booking page serves — see `booking/index.html`, which
+/* The Open Graph tags a booking page serves - see `booking/index.html`, which
    is where these strings and the image come from. They are static and
    deliberately identical for every token (a booking URL is a bearer credential,
    so the card must not leak the organization, calendar or contact), which is
@@ -35,7 +35,7 @@ export default function BookingLinkPreview({ url }: { url: string }) {
       /* `w-full max-w-[320px]`, not `w-[320px] max-w-full`: the bubble is sized
          by its content, so a percentage max-width on a child is ignored while
          that size is computed and the fixed 320px forced the bubble wider than
-         the row it lives in — off the side of a phone screen. This way the card
+         the row it lives in - off the side of a phone screen. This way the card
          asks for the bubble's width and caps itself at the 320px it wants. */
       className="mb-[1px] flex w-full max-w-[320px] gap-[10px] rounded-md px-[10px] pt-[10px] pb-[3px] bg-black/5 dark:bg-white/5 text-foreground"
     >

@@ -18,9 +18,9 @@ const DEFAULT_WINDOWS: WorkingHoursDay[] = [{ from: "09:00", to: "17:00" }];
 
 /**
  * The weekday grid, shared by the calendar editor and the organization's
- * business profile. The two mean different things — a calendar's hours decide
+ * business profile. The two mean different things - a calendar's hours decide
  * when appointments may be booked, an organization's only say when the business
- * is open — so `label` and `description` are overridable while the grid,
+ * is open - so `label` and `description` are overridable while the grid,
  * its validation and its copy-to-all button stay one implementation.
  */
 export default function WorkingHoursField({

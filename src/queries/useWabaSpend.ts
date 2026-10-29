@@ -11,7 +11,7 @@ export type WabaSpend = {
   amount: number | null;
   /** WABA's configured currency (e.g. "USD"), null if Meta returned none. */
   currency: string | null;
-  /** Messages sent across the window — the fallback when cost is hidden. */
+  /** Messages sent across the window - the fallback when cost is hidden. */
   volume: number | null;
   /**
    * Why `amount` is null. Meta hides cost from every WABA that bills through a
@@ -25,7 +25,7 @@ export type WabaSpend = {
    */
   estimate: {
     amount: number;
-    /** Billable messages with no rate — `amount` undercounts by these. */
+    /** Billable messages with no rate - `amount` undercounts by these. */
     unpriced_messages: number;
     breakdown: SpendBreakdown[];
   } | null;

@@ -7,6 +7,7 @@ import Button from "@/components/Button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { getInstagramAuthorizeUrl } from "@/queries/useInstagramSignup";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/integrations/instagram/new")({
   component: InstagramNew,
@@ -21,13 +22,13 @@ export const IG_INAPP_REDIRECT_PATH = "/oauth/instagram";
 function InstagramNew() {
   const { translate: t } = useTranslation();
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
   // Instagram Business Login is a plain redirect OAuth (no SDK/popup like
   // WhatsApp). We redirect the whole tab so the token exchange happens back in
-  // this same tab — scoped to the active org — with no fragile cross-tab
+  // this same tab - scoped to the active org - with no fragile cross-tab
   // handoff (which COOP + background-tab throttling make unreliable).
   const connect = () => {
     setError(false);

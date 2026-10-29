@@ -14,6 +14,7 @@ import {
   useEnableApiLeads,
   useRecentApiLeads,
 } from "@/queries/useApiLeads";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/integrations/api/")({
   component: ApiLeadsIntegration,
@@ -35,7 +36,7 @@ function ApiLeadsIntegration() {
   const enable = useEnableApiLeads();
   const disable = useDisableApiLeads();
 
-  const isOwner = agent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(agent?.extra?.role);
   const connection = addresses?.find(
     (address) => address.address === API_LEADS_ADDRESS,
   );
@@ -103,7 +104,7 @@ function ApiLeadsIntegration() {
         <div className="instructions">
           <p>
             {t(
-              "Send a POST request to this URL to create a contact. Any system that can make an HTTP request can use it — a website form, a landing page, Zapier, or your own app.",
+              "Send a POST request to this URL to create a contact. Any system that can make an HTTP request can use it - a website form, a landing page, Zapier, or your own app.",
             )}
           </p>
         </div>

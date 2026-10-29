@@ -7,7 +7,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 
 import ActionRow from "./ActionRow";
 
-/** Step 6 — result screen: success, or the failure that actually happened. */
+/** Step 6 - result screen: success, or the failure that actually happened. */
 export default function DoneStep({
   progress,
   total,
@@ -25,7 +25,7 @@ export default function DoneStep({
    *  nothing was written and nothing was sent. */
   error?: string | null;
   onReset: () => void;
-  /** Back to review so the user can send again — safe because a failed send is
+  /** Back to review so the user can send again - safe because a failed send is
    *  all-or-nothing, so there is never a partial broadcast to duplicate. */
   onRetry?: () => void;
   onClose: () => void;
@@ -33,7 +33,7 @@ export default function DoneStep({
   const { translate: t } = useTranslation();
 
   // A failed broadcast used to render the green success screen reading
-  // "0 mensajes enviados", with the real error only in the console — the user
+  // "0 mensajes enviados", with the real error only in the console - the user
   // was told it failed but not why, and could not tell it apart from a send
   // that genuinely reached nobody.
   if (error) {

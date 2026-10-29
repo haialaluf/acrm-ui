@@ -9,7 +9,7 @@ import { QUICK_REACTIONS } from "@/utils/reactions";
  * The reaction affordance on a bubble: a smiley button beside it, and the bar of
  * quick reactions (plus a "+" opening the full picker) that button opens.
  *
- * Hover only reveals the button — the bar itself is a click away, the way
+ * Hover only reveals the button - the bar itself is a click away, the way
  * WhatsApp Web does it. Revealing both at once put the bar on top of the reply
  * chevron in the bubble's corner.
  *
@@ -28,9 +28,9 @@ export default function ReactionPicker({
   /** The organization's current emoji, highlighted so a re-pick reads as toggle-off. */
   current?: string;
   onPick: (emoji: string) => void;
-  /** When set, only the button shows — inert, explaining itself instead. */
+  /** When set, only the button shows - inert, explaining itself instead. */
   disabledReason?: string;
-  /** Button shown without hover — a long press pins it that way on touch. */
+  /** Button shown without hover - a long press pins it that way on touch. */
   revealed?: boolean;
 }) {
   const { translate: t } = useTranslation();

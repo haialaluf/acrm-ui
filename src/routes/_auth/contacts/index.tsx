@@ -29,7 +29,7 @@ import { contactDisplayAddress } from "@/utils/ContactAddressUtils";
 
 /**
  * The A-Z index letter a contact files under. Anything that does not start
- * with a letter — unnamed contacts, names starting with a digit or a symbol —
+ * with a letter - unnamed contacts, names starting with a digit or a symbol -
  * collects under "#", which the sort keeps at the end so an unnamed contact
  * never opens the list.
  */
@@ -247,6 +247,7 @@ function ListContacts() {
             ) : (
               <>
                 {t("Delete the selected contacts?")} ({selected.size}){" "}
+                {t("Their leads will be deleted too.")}{" "}
                 {t("This action cannot be undone.")}
               </>
             )}

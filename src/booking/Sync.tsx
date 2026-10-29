@@ -7,17 +7,21 @@ import {
   Smartphone,
 } from "lucide-react";
 import Spinner from "@/components/Spinner";
-import { getSyncContext, type SyncContext } from "./api";
+import {
+  getSyncContext,
+  googleCalendarSubscribeUrl,
+  type SyncContext,
+} from "./api";
 import type { Translate } from "./i18n";
 
 /**
- * calendar.delacrm.com/sync/<token> — the page a phone lands on after scanning
+ * calendar.delacrm.com/sync/<token> - the page a phone lands on after scanning
  * the QR from the calendar board.
  *
  * Its job is a decision, not a form: confirm which calendar is about to be
  * added to this device, then hand iOS a configuration profile. iOS has no URL
  * scheme for adding a CalDAV account, so the profile is the only route that
- * does not make the user type a server address by hand — and every other
+ * does not make the user type a server address by hand - and every other
  * platform gets those settings from the "set up manually" panel below.
  */
 
@@ -44,7 +48,7 @@ export default function Sync({ token, t }: { token: string; t: Translate }) {
         setState(sync.valid ? { kind: "ready", sync } : { kind: "invalid" });
       })
       .catch(() => {
-        // A transport failure is not an invalid link — saying so would send
+        // A transport failure is not an invalid link - saying so would send
         // someone with a perfectly good link away for good.
         if (!cancelled) setState({ kind: "error" });
       });
@@ -98,7 +102,7 @@ export default function Sync({ token, t }: { token: string; t: Translate }) {
 
       {/* The colour lives on the inner span, not the anchor: global.css has an
           unlayered `a { color: inherit }`, and unlayered CSS beats Tailwind's
-          layered utilities whatever their specificity — so
+          layered utilities whatever their specificity - so
           `text-primary-foreground` on the <a> itself silently does nothing. */}
       <a
         href={sync.profile_url}
@@ -115,7 +119,7 @@ export default function Sync({ token, t }: { token: string; t: Translate }) {
         <Step
           n="2"
           text={t(
-            "Open Settings — you'll see “Profile Downloaded” near the top.",
+            "Open Settings - you'll see “Profile Downloaded” near the top.",
           )}
         />
         <Step
@@ -124,7 +128,7 @@ export default function Sync({ token, t }: { token: string; t: Translate }) {
         />
       </ol>
 
-      {/* Only where the profile really is unsigned — a deployment with no
+      {/* Only where the profile really is unsigned - a deployment with no
           signing certificate. Said plainly and up front there, because iOS
           shows it in red and a user who was not expecting it reads it as "this
           is unsafe" and stops. Where the profile IS signed the sheet says
@@ -138,7 +142,36 @@ export default function Sync({ token, t }: { token: string; t: Translate }) {
         </p>
       )}
 
+      {sync.feed_url && <GoogleCalendar feedUrl={sync.feed_url} t={t} />}
+
       <ManualSetup sync={sync} t={t} />
+    </div>
+  );
+}
+
+/** One-way, read-only: Google Calendar cannot add a CalDAV account, only
+ *  subscribe to a feed, and it refreshes subscriptions every few hours. */
+function GoogleCalendar({ feedUrl, t }: { feedUrl: string; t: Translate }) {
+  return (
+    <div className="mt-[20px] flex flex-col gap-[10px] border-t border-border pt-[14px]">
+      <span className="text-[13px] font-semibold">{t("Google Calendar")}</span>
+      <p className="text-[12px] text-muted-foreground">
+        {t(
+          "View only. Appointments appear in Google Calendar and update every few hours. Add it from a computer - the Google Calendar app cannot add calendars by link.",
+        )}
+      </p>
+      <a
+        href={googleCalendarSubscribeUrl(feedUrl)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex w-full items-center justify-center rounded-full border border-border px-[18px] py-[9px] hover:bg-muted"
+      >
+        <span className="flex items-center gap-2 text-[14px] font-semibold text-foreground">
+          <CalendarDays className="h-[16px] w-[16px]" />
+          {t("Add to Google Calendar")}
+        </span>
+      </a>
+      <Field label={t("Calendar address (iCal)")} value={feedUrl} t={t} />
     </div>
   );
 }

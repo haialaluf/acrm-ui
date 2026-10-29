@@ -45,7 +45,7 @@ export default function VideoMessage(message: MessageRow) {
     if (load.type === "upload" && load.status === "pending") {
       startLoad();
     }
-    // Unlike images, videos are not auto-downloaded — they can be heavy, so the
+    // Unlike images, videos are not auto-downloaded - they can be heavy, so the
     // user opts in by clicking the load button.
   }, [load.blob]);
 
@@ -85,7 +85,7 @@ export default function VideoMessage(message: MessageRow) {
 
   // When the video is loaded and there is no caption/description below it, the
   // timestamp overlays the video itself (as in ImageMessage). The native player
-  // puts its controls along the bottom, so — unlike an image — the overlay goes
+  // puts its controls along the bottom, so - unlike an image - the overlay goes
   // at the top to stay clear of them.
   const overlayTimestamp =
     !!src &&
@@ -120,7 +120,7 @@ export default function VideoMessage(message: MessageRow) {
               }
         }
       >
-        {/* Video — fills the frame, which is itself sized to the video's aspect
+        {/* Video - fills the frame, which is itself sized to the video's aspect
             ratio (see videoDimensions) so it adapts like an image does. */}
         {src && (
           <video
@@ -156,7 +156,7 @@ export default function VideoMessage(message: MessageRow) {
           </button>
         )}
 
-        {/* Top shadow — keeps the overlaid timestamp legible (mirrors the
+        {/* Top shadow - keeps the overlaid timestamp legible (mirrors the
             bottom shadow in ImageMessage, flipped to the top to clear the
             native controls). pointer-events-none so it never blocks the player. */}
         {overlayTimestamp && (

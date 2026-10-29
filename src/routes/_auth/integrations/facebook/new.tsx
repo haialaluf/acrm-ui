@@ -7,6 +7,7 @@ import Button from "@/components/Button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { getFacebookAuthorizeUrl } from "@/queries/useFacebookSignup";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/integrations/facebook/new")({
   component: FacebookNew,
@@ -21,13 +22,13 @@ export const FB_INAPP_REDIRECT_PATH = "/oauth/facebook";
 function FacebookNew() {
   const { translate: t } = useTranslation();
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
   // Plain redirect OAuth, same shape as Instagram: we redirect the whole tab so
-  // the token exchange happens back in this same tab — scoped to the active org
-  // — with no fragile cross-tab handoff.
+  // the token exchange happens back in this same tab - scoped to the active org
+  // - with no fragile cross-tab handoff.
   const connect = () => {
     setError(false);
     setLoading(true);
@@ -64,7 +65,7 @@ function FacebookNew() {
             </li>
             <li>
               {t(
-                "Leads from ads shown on Instagram are included — they belong to the same Facebook Page.",
+                "Leads from ads shown on Instagram are included - they belong to the same Facebook Page.",
               )}
             </li>
             <li>

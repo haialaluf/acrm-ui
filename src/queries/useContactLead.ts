@@ -1,9 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { type Database, supabase } from "@/supabase/client";
+import { supabase } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 import { queryKeys } from "./queryKeys";
-
-export type LeadRow = Database["public"]["Tables"]["leads"]["Row"];
 
 /** One answer from a Meta Instant Form or a lead-intake POST. */
 export interface LeadFieldAnswer {
@@ -12,14 +10,9 @@ export interface LeadFieldAnswer {
 }
 
 /**
- * The `leads` row behind a contact, or null when they arrived by messaging
- * rather than through a form.
- *
- * A contact can in principle have several (a merge repoints every loser's
- * leads at the survivor), so this takes the newest — the submission that
- * describes how this record looks today. `extra.lead_fields` on the contact
- * already carries the flattened answers; this is for everything the flattening
- * drops: which form, which campaign, which ad, and the raw `field_data`.
+ * The contact's current lead: the newest one that is not folded into another
+ * (see `leads.merged_into`), with its pipeline. Null for a contact who has
+ * never been a lead.
  */
 export function useContactLead(contactId: string) {
   const userId = useBoundStore((state) => state.ui.user?.id);
@@ -33,7 +26,8 @@ export function useContactLead(contactId: string) {
         .select()
         .eq("organization_id", orgId!)
         .eq("contact_id", contactId)
-        .order("created_at", { ascending: false })
+        .is("merged_into", null)
+        .order("created_time", { ascending: false })
         .limit(1)
         .maybeSingle()
         .throwOnError();

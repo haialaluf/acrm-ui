@@ -1,18 +1,18 @@
 /* The editing surface.
  *
  * Everything Maily-specific about *editing* lives here so the rest of the
- * feature talks in our own terms (a Tiptap document in, callbacks out) —
+ * feature talks in our own terms (a Tiptap document in, callbacks out) -
  * the same containment `EmailStudio` gave the previous builder, and the reason
  * swapping it out touched two files rather than the whole feature.
  *
  * Maily is Tiptap/ProseMirror: a document editor, not a drag-and-drop canvas.
- * There is no vendor block palette and no vendor style manager — blocks come
+ * There is no vendor block palette and no vendor style manager - blocks come
  * from `/`, variables from `@`, formatting from a bubble toolbar on selection.
  * It renders into our DOM with no iframe, so every surface below is ours to
  * style.
  *
  * `use no memo` because the editor is an imperative instance held across
- * renders — the same reason TemplateEditor opts out. */
+ * renders - the same reason TemplateEditor opts out. */
 "use no memo";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -43,8 +43,8 @@ import { complianceFooter } from "./renderTemplate";
 
 /** How long the document has to sit still before it is written.
  *
- * The previous builder had `storage.autosaveChanges: 20` — save every twentieth
- * change — which is the wrong unit for a keyboard-driven editor, where twenty
+ * The previous builder had `storage.autosaveChanges: 20` - save every twentieth
+ * change - which is the wrong unit for a keyboard-driven editor, where twenty
  * changes is four words. Quiet time is what actually correlates with "the user
  * stopped and is thinking", and it bounds the loss from a closed tab to a
  * couple of seconds of typing. */
@@ -63,7 +63,7 @@ export default function MailyCanvas({
    *  mount: the editor owns the document from then on, and feeding a later prop
    *  back in would fight the user's cursor. */
   content: JSONContent | null;
-  /** Direction of the email being composed — independent of the app's UI. */
+  /** Direction of the email being composed - independent of the app's UI. */
   dir: "ltr" | "rtl";
   /** Content colour and width, so the editor shows the same paper the render
    *  produces rather than a generic white sheet. */
@@ -72,7 +72,7 @@ export default function MailyCanvas({
   variables: EmailTemplateVariable[];
   /** Handed the editor instance once created, so our panels can drive it. */
   onEditor: (editor: Editor) => void;
-  /** Every keystroke. Cheap on purpose — the caller is expected to stash this
+  /** Every keystroke. Cheap on purpose - the caller is expected to stash this
    *  without re-rendering. */
   onChange: (content: JSONContent) => void;
   /** Once the document has been quiet for a moment. */
@@ -88,7 +88,7 @@ export default function MailyCanvas({
   // Read through a ref rather than closed over: the extensions below are built
   // once, when the editor is constructed, but the `@` menu has to offer the
   // variable somebody added thirty seconds ago. Maily accepts a *function* for
-  // `variables`, which it calls per query — so the ref is what makes the list
+  // `variables`, which it calls per query - so the ref is what makes the list
   // live without rebuilding the editor.
   const variablesRef = useRef(variables);
   variablesRef.current = variables;
@@ -128,12 +128,12 @@ export default function MailyCanvas({
       // A function, not an array: the `@` menu is built per query, so this is
       // what makes a variable added thirty seconds ago show up without
       // rebuilding the editor. The pills get their liveness from context
-      // instead — see mailyVariables.tsx.
+      // instead - see mailyVariables.tsx.
       variables: () => toMailyVariables(variablesRef.current),
       renderVariable,
     }),
     ImageUploadExtension.configure({
-      // Read straight to a data URI rather than uploading — the document
+      // Read straight to a data URI rather than uploading - the document
       // should never hold a URL that can expire (see embedImages.ts). The
       // file only reaches the org's private `media` bucket at save time,
       // once, when the compiled html is produced.
@@ -189,7 +189,7 @@ export default function MailyCanvas({
 
           {/* Drawn, not editable. The footer is appended at send time from the
               organization record, so this is the only place someone sees it
-              while designing — and seeing it is the point: it explains why
+              while designing - and seeing it is the point: it explains why
               there is no unsubscribe block to place.
 
               The markup comes from `complianceFooter`, the same function the
@@ -200,7 +200,7 @@ export default function MailyCanvas({
               construction and is not translated here for the same reason.
 
               `pointer-events-none` because the real opt-out link is minted per
-              recipient — there is nothing to click while designing, and the
+              recipient - there is nothing to click while designing, and the
               strip keeps no bottom padding of its own because that markup
               brings the spacing the recipient will see. */}
           <div

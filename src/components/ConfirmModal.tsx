@@ -15,7 +15,7 @@ import { useTranslation } from "@/hooks/useTranslation";
  * which on some mobile browsers left the dialog mounted-but-invisible (the
  * dimmed backdrop showed, the card never painted). A native <dialog> shown
  * via `showModal()` renders in the browser's top layer, so it always paints
- * above the rest of the page — no z-index or portal-container to get wrong —
+ * above the rest of the page - no z-index or portal-container to get wrong -
  * and needs no JS animation state machine to appear.
  *
  * It is portalled to <body>. On mobile the left panel that hosts the chat
@@ -33,6 +33,7 @@ export default function ConfirmModal({
   confirmLabel,
   danger = true,
   loading = false,
+  confirmDisabled = false,
   onConfirm,
   onCancel,
 }: {
@@ -42,6 +43,7 @@ export default function ConfirmModal({
   confirmLabel: string;
   danger?: boolean;
   loading?: boolean;
+  confirmDisabled?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -64,7 +66,7 @@ export default function ConfirmModal({
   }, [open]);
 
   // showModal() blocks interaction with the rest of the page, but iOS Safari
-  // still lets a touch drag scroll the body behind it — lock it explicitly.
+  // still lets a touch drag scroll the body behind it - lock it explicitly.
   useEffect(() => {
     if (!open) return;
 
@@ -123,6 +125,7 @@ export default function ConfirmModal({
         <Button
           type="button"
           loading={loading}
+          invalid={confirmDisabled}
           onClick={onConfirm}
           className={(danger ? "destructive" : "primary") + " px-[20px]"}
         >

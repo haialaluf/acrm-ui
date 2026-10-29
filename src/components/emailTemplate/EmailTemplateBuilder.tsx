@@ -1,12 +1,12 @@
 /* The email template builder: our chrome around the editing surface.
  *
- * Layout mirrors the design's "split" shell — our own panel in its own column
+ * Layout mirrors the design's "split" shell - our own panel in its own column
  * on the left, the document filling the rest. Maily has no sidebar of its own to
  * inject into and no palette to compete with: blocks come from `/` and variables
  * from `@`, so this column is the only panel on screen and all of it is ours.
  *
  * `use no memo` because the editor is an imperative instance held in a ref
- * across renders — the same reason TemplateEditor opts out. */
+ * across renders - the same reason TemplateEditor opts out. */
 "use no memo";
 
 import { useCallback, useRef, useState } from "react";
@@ -83,7 +83,7 @@ export default function EmailTemplateBuilder({
   saveError: string | null;
   /** Persist. `project` is undefined for a metadata-only save (renaming, a
    *  changed subject) so we do not re-serialise the canvas for no reason.
-   *  `status` is only set when the user actually publishes or unpublishes —
+   *  `status` is only set when the user actually publishes or unpublishes -
    *  an ordinary save must never move a live template back to draft.
    *
    *  Rejects when the write failed. The message itself arrives through
@@ -95,12 +95,12 @@ export default function EmailTemplateBuilder({
     status?: EmailTemplateStatus;
   }) => Promise<void>;
   /** Remove the template. Absent on the create screen, where there is no row
-   *  to remove yet — same as the WhatsApp create screen, whose header carries
+   *  to remove yet - same as the WhatsApp create screen, whose header carries
    *  no delete either. */
   onDelete?: () => void;
   deleteLoading?: boolean;
   /** True on the create screen, where the starter layout on the canvas exists
-   *  only on screen — so the topbar opens on "Save", not "All changes saved".
+   *  only on screen - so the topbar opens on "Save", not "All changes saved".
    *  Read once, at mount. */
   unsavedOnMount?: boolean;
   domain?: string;
@@ -117,7 +117,7 @@ export default function EmailTemplateBuilder({
   // Why the last publish attempt was refused. Separate from `saveError`: the
   // save itself succeeded, it is only the go-live that did not happen.
   const [publishError, setPublishError] = useState<string | null>(null);
-  // Set when a write was refused for want of a name. Only the flag is kept —
+  // Set when a write was refused for want of a name. Only the flag is kept -
   // whether the field is still empty is read live, so the moment a name is
   // typed the field stops shouting without anything having to clear this.
   const [nameRefused, setNameRefused] = useState(false);
@@ -127,7 +127,7 @@ export default function EmailTemplateBuilder({
 
   // The live document, in a ref rather than state: it changes on every
   // keystroke and nothing in this shell renders from it, so putting it in state
-  // would re-render the whole builder — panels, canvas and all — per character.
+  // would re-render the whole builder - panels, canvas and all - per character.
   const contentRef = useRef<JSONContent | null>(project);
 
   const dir =
@@ -136,7 +136,7 @@ export default function EmailTemplateBuilder({
   const audit = auditVariables(placedHtml, draft.variables);
 
   // Whether the screen holds edits the database has not seen. The counter is a
-  // ref for the same reason `contentRef` is one — the canvas reports every
+  // ref for the same reason `contentRef` is one - the canvas reports every
   // keystroke, and only the boolean is ever rendered, which flips once per
   // burst of typing rather than once per character.
   const editSeq = useRef(0);
@@ -183,7 +183,7 @@ export default function EmailTemplateBuilder({
   }, [dir, draft.preheader, draft.extra]);
 
   // The callbacks below are handed to MailyCanvas, which builds the editor once
-  // and holds them for its lifetime — so they have to stay referentially stable
+  // and holds them for its lifetime - so they have to stay referentially stable
   // while still reaching whatever `compile`/`save` is current. A ref is the seam.
   const compileRef = useRef(compile);
   compileRef.current = compile;
@@ -196,11 +196,11 @@ export default function EmailTemplateBuilder({
     setPublishError(null);
 
     // Where the edit counter stood when this write left, so that anything typed
-    // while it was in flight — which by definition is not in it — keeps the
+    // while it was in flight - which by definition is not in it - keeps the
     // draft dirty. Read at the call, since that is when the payload is taken.
     const sentAt = editSeq.current;
     try {
-      // `project` keeps its `data:` images forever (see embedImages.ts) — only
+      // `project` keeps its `data:` images forever (see embedImages.ts) - only
       // the compiled html that actually gets sent needs storage references, so
       // this is the one point where a save touches the network for images.
       const sendableHtml = orgId
@@ -226,7 +226,7 @@ export default function EmailTemplateBuilder({
    * Publishing is the last gate before this design can reach a real inbox, so
    * the two faults that survive a save but not a send are checked here: a
    * missing subject, and a `{{n}}` sitting in the design with no variable
-   * bound to it — that one renders the literal braces to a customer.
+   * bound to it - that one renders the literal braces to a customer.
    */
   const setStatus = useCallback(
     async (status: EmailTemplateStatus) => {
@@ -297,7 +297,7 @@ export default function EmailTemplateBuilder({
   nameRef.current = draft.name;
 
   const handleAutosave = useCallback(() => {
-    // Nothing is written before the template is named — the Setup tab asks for
+    // Nothing is written before the template is named - the Setup tab asks for
     // one, and an autosave has no way to. The edit stays in the document and
     // rides along with the first save after it is named.
     if (!nameRef.current.trim()) return;
@@ -306,8 +306,8 @@ export default function EmailTemplateBuilder({
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-background">
-      {/* Topbar. Built from the same parts as SectionHeader — the `.header`
-          box, a round back button, a plain title, a trailing delete — so this
+      {/* Topbar. Built from the same parts as SectionHeader - the `.header`
+          box, a round back button, a plain title, a trailing delete - so this
           screen reads like the WhatsApp template editor rather than a second
           kind of header. The action cluster is what SectionHeader has no room
           for, which is why this is its own markup and not that component. */}

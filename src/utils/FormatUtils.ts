@@ -83,7 +83,7 @@ export function formatPhoneNumber(phoneNumber: string): string {
 
 /**
  * Wrap text in Unicode left-to-right isolates (U+2066 … U+2069) so it renders
- * LTR even inside an RTL layout — e.g. phone numbers, whose "+" and digit
+ * LTR even inside an RTL layout - e.g. phone numbers, whose "+" and digit
  * groups otherwise get reordered. Safe in text nodes and title attributes, and
  * keeps the value a plain string (unlike a dir="ltr" element).
  */
@@ -144,7 +144,7 @@ export function isValidPhoneNumber(phoneNumber: string): boolean {
 }
 
 /**
- * Normalize a phone number to E.164 format without the plus sign — the form
+ * Normalize a phone number to E.164 format without the plus sign - the form
  * stored in the DB and consumed across the app (dedup matching, display).
  * For Argentina (+54), ensures the mobile "9" follows the country code.
  * Returns a digits-only fallback if parsing fails.

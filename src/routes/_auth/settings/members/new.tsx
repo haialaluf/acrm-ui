@@ -9,6 +9,7 @@ import SectionFooter from "@/components/SectionFooter";
 import Button from "@/components/Button";
 import { useCurrentOrganization } from "@/queries/useOrganizations";
 import SelectField from "@/components/SelectField";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/members/new")({
   component: AddMember,
@@ -20,7 +21,7 @@ function AddMember() {
   const createAgent = useCreateAgent();
   const { data: agent } = useCurrentAgent();
   const { data: organization } = useCurrentOrganization();
-  const isOwner = agent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(agent?.extra?.role);
 
   const {
     register,

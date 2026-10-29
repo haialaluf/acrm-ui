@@ -111,7 +111,7 @@ export default function FaqSection<T extends FieldValues>({
               className="text"
               rows={3}
               placeholder={t(
-                "It depends on the scope — tell me what you need.",
+                "It depends on the scope - tell me what you need.",
               )}
               disabled={disabled}
               {...register(`extra.faq.${i}.answer` as Path<T>)}
@@ -123,7 +123,7 @@ export default function FaqSection<T extends FieldValues>({
             control={control}
             label={t("Send this wording exactly")}
             description={t(
-              "For answers where the phrasing matters — disclaimers, anything you don't want reworded.",
+              "For answers where the phrasing matters - disclaimers, anything you don't want reworded.",
             )}
             disabled={disabled}
           />

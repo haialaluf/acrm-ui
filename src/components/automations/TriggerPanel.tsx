@@ -10,6 +10,7 @@ import type {
 } from "@/supabase/client";
 import { WEEK_DAYS } from "@/supabase/types/automation_types";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useHoverCapable } from "@/hooks/useHoverCapable";
 import { useContactTags } from "@/queries/useContactTags";
 import { useContactSourceOptions } from "@/queries/useContactSources";
 import { useCalendars } from "@/queries/useCalendars";
@@ -24,16 +25,17 @@ import {
   selectClass,
 } from "./Fields";
 
-// antd has no separate "TimePicker" theme key — it reuses DatePicker's.
+// antd has no separate "TimePicker" theme key - it reuses DatePicker's.
 const timePickerTheme = { components: { DatePicker: timePickerTokens } };
 
 // A HH:mm picker is a multi-column ("complex") picker, so antd deliberately
-// keeps its popup open after a cell click — `needConfirm={false}` only hides
+// keeps its popup open after a cell click - `needConfirm={false}` only hides
 // the confirm button, it doesn't auto-close. So we control `open` ourselves
 // and close (committing the time) once the user clicks a minute cell, the
 // last column, which completes the pick.
 function AddTimeInput({ onAdd }: { onAdd: (time: string) => void }) {
   const [open, setOpen] = useState(false);
+  const hoverCapable = useHoverCapable();
 
   useEffect(() => {
     if (!open) return;
@@ -62,6 +64,9 @@ function AddTimeInput({ onAdd }: { onAdd: (time: string) => void }) {
           minuteStep={5}
           needConfirm={false}
           allowClear={false}
+          // On touch the columns are the picker; a focused text field would
+          // only pop the keyboard over them.
+          inputReadOnly={!hoverCapable}
           className="w-[100px]"
           classNames={{ popup: { root: "trigger-time-popup" } }}
           onChange={(d: Dayjs | null) => d && onAdd(d.format("HH:mm"))}
@@ -112,7 +117,7 @@ export default function TriggerPanel({
       <Field
         label={t("Trigger type")}
         hint={t(
-          "Decides when contacts enter this flow. Changing it clears the trigger's own settings — your steps stay.",
+          "Decides when contacts enter this flow. Changing it clears the trigger's own settings - your steps stay.",
         )}
       >
         <Segmented
@@ -229,10 +234,10 @@ export default function TriggerPanel({
               }
             >
               <option value="appointment_start">
-                {t("Scheduled meeting — start time")}
+                {t("Scheduled meeting - start time")}
               </option>
               <option value="appointment_end">
-                {t("Scheduled meeting — end time")}
+                {t("Scheduled meeting - end time")}
               </option>
               <option value="contact_field">
                 {t("A date field on the contact")}
@@ -410,7 +415,7 @@ export default function TriggerPanel({
           <Callout>
             <span>
               {t(
-                "The sweep picks up every open conversation. To narrow it, make the first step a Filter — it can match on tags, the 24-hour window, or anything else, and it shows on the canvas.",
+                "The sweep picks up every open conversation. To narrow it, make the first step a Filter - it can match on tags, the 24-hour window, or anything else, and it shows on the canvas.",
               )}
             </span>
           </Callout>

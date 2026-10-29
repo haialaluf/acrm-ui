@@ -54,7 +54,7 @@ import {
 
 const datePickerTheme = { components: { DatePicker: datePickerTokens } };
 
-/** Step 4 — per-contact preview (`<WhatsAppPreview>` or `<EmailPreviewFrame>`,
+/** Step 4 - per-contact preview (`<WhatsAppPreview>` or `<EmailPreviewFrame>`,
  *  by channel), recipient chips with remove, and schedule (now / later)
  *  selector. Everything except the preview itself is shared between channels. */
 export default function ReviewStep({
@@ -85,7 +85,7 @@ export default function ReviewStep({
   /** Set when `channel === "whatsapp"`. */
   template?: TemplateData;
   /** Set when `channel === "email"`. `from` is null until the domain has a
-   *  default sender, which is what blocks the send below — there is no
+   *  default sender, which is what blocks the send below - there is no
    *  legitimate address to put in the From header before then. */
   email?: {
     template: EmailTemplateRow;
@@ -96,7 +96,7 @@ export default function ReviewStep({
   headerMedia: string;
   headerMediaName: string;
   headerMediaSize?: number;
-  /** One entry per address being sent to — a contact picked on two of their
+  /** One entry per address being sent to - a contact picked on two of their
    *  numbers appears twice, and each copy is previewed and removable on its
    *  own. */
   recipients: Recipient[];
@@ -115,7 +115,7 @@ export default function ReviewStep({
   scheduleMode: ScheduleMode;
   setScheduleMode: (m: ScheduleMode) => void;
   /** Set only when this template carries a booking-link button. Every recipient
-   *  gets their own token, minted against one calendar for one duration — both
+   *  gets their own token, minted against one calendar for one duration - both
    *  are properties of the link, so they are asked for here rather than baked
    *  into the template. */
   booking?: {
@@ -146,7 +146,7 @@ export default function ReviewStep({
   const remaining = recipients.length - todayCount;
   const safeIdx = Math.min(idx, Math.max(0, recipients.length - 1));
   const current = recipients[safeIdx];
-  /** The contact behind the previewed address — what template variables and the
+  /** The contact behind the previewed address - what template variables and the
    *  email preview resolve against. */
   const currentContact = current?.contact;
 
@@ -254,9 +254,9 @@ export default function ReviewStep({
               />
               <div className="min-w-0 flex-1">
                 <div className="text-[13px] truncate">
-                  {currentContact?.name || "—"}
+                  {currentContact?.name || "-"}
                 </div>
-                {/* The address this copy actually goes to — the one thing on
+                {/* The address this copy actually goes to - the one thing on
                     this screen that differs per recipient and is worth
                     double-checking before a few hundred of them go out. */}
                 {current && (
@@ -328,7 +328,7 @@ export default function ReviewStep({
                 key={r.address}
                 className="inline-flex items-center gap-[5px] rounded-full px-[8px] py-[3px] text-[12px]"
                 style={{ background: "var(--muted)" }}
-                /* Two chips for the same contact are two different addresses —
+                /* Two chips for the same contact are two different addresses -
                    the hover is what tells them apart. */
                 title={recipientAddressLabel(r.address, channel)}
               >
@@ -368,7 +368,7 @@ export default function ReviewStep({
           {overLimit ? (
             <>
               <div className="text-[12px] text-muted-foreground mb-[8px]">
-                {t("You selected more than the daily limit — how to send")}
+                {t("You selected more than the daily limit - how to send")}
               </div>
               <div
                 className="rounded-[12px] overflow-hidden"
@@ -405,7 +405,7 @@ export default function ReviewStep({
                       </span>
                     </div>
                     <div className="text-[12px] text-muted-foreground">
-                      {t("To")} {dailyLimit} {t("per day")} —{" "}
+                      {t("To")} {dailyLimit} {t("per day")} -{" "}
                       {batches[0]?.list.length ?? 0} {t("today")},{" "}
                       {t("the rest on the following days")}
                     </div>
@@ -452,7 +452,7 @@ export default function ReviewStep({
                         color: "oklch(from var(--warning) calc(l - 0.15) c h)",
                       }}
                     >
-                      {t("Exceeds the limit — messages above")} {dailyLimit}{" "}
+                      {t("Exceeds the limit - messages above")} {dailyLimit}{" "}
                       {t("could be blocked")}
                     </div>
                   </div>

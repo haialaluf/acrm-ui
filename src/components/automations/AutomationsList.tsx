@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { MoreHorizontal, Plus, Search } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, Plus, Search } from "lucide-react";
 import { Dropdown, Switch } from "antd";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgents } from "@/queries/useAgents";
@@ -105,16 +105,28 @@ export default function AutomationsList() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* Header. Title block, then search and the new-automation button on
-          their own row — side by side they would fight over a panel that is
+          their own row - side by side they would fight over a panel that is
           often only ~350px wide, which is what squeezed the search field down
           to its icon. */}
       <div className="shrink-0 px-[18px] pt-[18px]">
-        <h1 className="m-0 text-[21px] font-semibold text-card-foreground">
-          {t("Automations")}
-        </h1>
+        <div className="flex items-center">
+          <button
+            type="button"
+            className="p-[8px] rounded-full hover:bg-muted me-[8px] ms-[-8px]"
+            title={t("Back")}
+            onClick={() =>
+              void navigate({ to: "/settings", hash: (prevHash) => prevHash! })
+            }
+          >
+            <ArrowLeft className="w-[24px] h-[24px]" />
+          </button>
+          <h1 className="m-0 text-[21px] font-semibold text-card-foreground">
+            {t("Automations")}
+          </h1>
+        </div>
         <p className="mt-[5px] text-[13px] text-muted-foreground">
           {t(
-            "Flows that run on their own — when something happens, before a date, or on a schedule.",
+            "Flows that run on their own - when something happens, before a date, or on a schedule.",
           )}
         </p>
 
@@ -130,7 +142,7 @@ export default function AutomationsList() {
           </div>
           <button
             type="button"
-            className="inline-flex shrink-0 items-center gap-[7px] whitespace-nowrap rounded-[9px] border border-primary bg-primary px-[13px] py-[7px] text-[13.5px] text-white hover:opacity-90"
+            className="inline-flex shrink-0 items-center gap-[7px] whitespace-nowrap rounded-[9px] border border-primary bg-primary px-[13px] py-[7px] text-[13.5px] text-white hover:opacity-90 max-md:text-[14px]"
             onClick={() => setGalleryOpen(true)}
           >
             <Plus className="h-[15px] w-[15px]" />
@@ -193,14 +205,14 @@ export default function AutomationsList() {
                     params: { automationId: automation.id },
                   });
                 }}
-                className="cursor-pointer border-b border-border px-1 py-[13px] hover:bg-primary/5"
+                className="cursor-pointer border-b border-border px-1 py-[13px] hover:bg-primary/5 active:bg-primary/5"
               >
                 {/* Name and the controls share the first line; everything else
                     stacks under it.
 
                     The design lays this out as a four-column table, which it
                     can afford at full page width. Here the list lives in the
-                    resizable left panel — often ~350px — so fixed column
+                    resizable left panel - often ~350px - so fixed column
                     tracks do not fit, and viewport breakpoints cannot tell:
                     `md:` is true on a wide screen even when this panel is
                     narrow. Stacking is the only shape that holds at every
@@ -253,7 +265,7 @@ export default function AutomationsList() {
                       <button
                         type="button"
                         aria-label={t("More options")}
-                        className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+                        className="rounded-md p-1 text-muted-foreground hover:bg-muted pointer-coarse:p-2"
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </button>

@@ -4,7 +4,7 @@ import { emailSuggestion } from "@/utils/emailValidation";
 /**
  * "Did you mean @gmail.com?" under an email field.
  *
- * Advice, not validation — deliberately outside `FieldError` and outside the
+ * Advice, not validation - deliberately outside `FieldError` and outside the
  * form's validity, because we are guessing. `gmial.com` is a registered domain
  * with working MX records, so no automated check can prove it wrong; only the
  * person who typed it knows. Blocking the save, or silently rewriting the

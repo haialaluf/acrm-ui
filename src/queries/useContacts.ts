@@ -34,8 +34,8 @@ type InstagramAddressCacheRow = ContactAddressRow & {
 /**
  * The row a write produced, read back on its own.
  *
- * The mutations below return `upsert_contact`'s report — ids and an action,
- * never the contact — and the server is the only place that knows what was
+ * The mutations below return `upsert_contact`'s report - ids and an action,
+ * never the contact - and the server is the only place that knows what was
  * actually stored: it folds names, picks a merge survivor and runs triggers.
  * One row is still far cheaper than the alternative it replaces (see
  * `putContactInCaches`).
@@ -76,7 +76,7 @@ function setInstagramAddressOwners(
 
 /** Addresses this contact no longer holds. The row behind one may not even
  *  exist any more (`cleanup_unlinked_address_if_empty` deletes an unlinked
- *  address with no conversations), so there is nothing to write in its place —
+ *  address with no conversations), so there is nothing to write in its place -
  *  drop the entry and let whoever needs it next read it back. */
 function forgetAddresses(
   queryClient: QueryClient,
@@ -97,7 +97,7 @@ function forgetAddresses(
  *
  * `useContacts` is a full paginated read of every contact in the org (1000 a
  * page, addresses embedded), so invalidating it made a one-field save cost a
- * re-download of the whole book — and the sidebar's per-address queries went
+ * re-download of the whole book - and the sidebar's per-address queries went
  * with it. Nothing here refetches: `row` is the stored truth, and every cache
  * keyed off it is rewritten from that one value.
  *
@@ -181,7 +181,7 @@ async function putWrittenContactInCaches(
     const row = await fetchContactRow(orgId, result.contact_id);
     putContactInCaches(queryClient, orgId, row, result.merged_contact_ids);
   } catch {
-    // Only the read-back can fail here — the write itself already landed, and
+    // Only the read-back can fail here - the write itself already landed, and
     // the mutation has already reported success. Fall back to the blunt
     // refresh rather than leaving the caches on the pre-write contact.
     void queryClient.invalidateQueries({ queryKey: [orgId, "contacts"] });
@@ -193,11 +193,27 @@ async function putWrittenContactInCaches(
 
 /** The mirror image: contacts that no longer exist leave every cache they were
  *  in, and the addresses they held stop resolving to them. */
+// The leads FK only nulls contact_id, so a person's leads must go first or
+// they linger in the pipeline with no one attached.
+async function deleteContactsWithLeads(orgId: string, ids: string[]) {
+  await supabase
+    .from("leads")
+    .delete()
+    .eq("organization_id", orgId)
+    .in("contact_id", ids)
+    .throwOnError();
+  await supabase.from("contacts").delete().in("id", ids).throwOnError();
+}
+
 function dropContactsFromCaches(
   queryClient: QueryClient,
   orgId: OrgId,
   ids: string[],
 ) {
+  void queryClient.invalidateQueries({ queryKey: queryKeys.leads.all(orgId) });
+  for (const id of ids) {
+    queryClient.removeQueries({ queryKey: queryKeys.contacts.lead(orgId, id) });
+  }
   const gone = new Set(ids);
   const listKey = queryKeys.contacts.all(orgId);
   const list = queryClient.getQueryData<{ data: ContactWithAddressesRow[] }>(
@@ -230,7 +246,7 @@ function dropContactsFromCaches(
   setInstagramAddressOwners(queryClient, orgId, [...addresses], null);
 }
 
-/** One contact-write path for every source — see `public.upsert_contact`. */
+/** One contact-write path for every source - see `public.upsert_contact`. */
 export type UpsertContactResult = {
   action: "created" | "updated" | "merged" | "skipped";
   contact_id: string | null;
@@ -386,7 +402,7 @@ export function useCreateContact() {
           : []),
       ];
 
-      // Only phone-based (whatsapp) addresses get normalized — instagram ids
+      // Only phone-based (whatsapp) addresses get normalized - instagram ids
       // are igsids and email addresses are addresses, neither are phone
       // numbers; normalizing them would corrupt the routing key.
       const p_addresses = allAddresses
@@ -464,7 +480,7 @@ export function useUpdateContact() {
       // phone/instagram useFieldArray rows go through, service-tagged so it
       // is never run through normalizePhoneNumber below. Clearing the field
       // (empty string) falls naturally into the toUnlink diff below, same as
-      // removing a phone row — no special-casing needed.
+      // removing a phone row - no special-casing needed.
       const rawAllAddresses = [
         ...rawNewAddresses,
         ...(email?.trim()
@@ -474,7 +490,7 @@ export function useUpdateContact() {
 
       // Only phone-based (whatsapp) addresses get normalized. Instagram
       // addresses are igsids and email addresses are addresses, neither are
-      // phone numbers — normalizing them would corrupt the routing key, so
+      // phone numbers - normalizing them would corrupt the routing key, so
       // pass them through untouched.
       const newAddresses = rawAllAddresses
         .filter((a) => Boolean(a.address))
@@ -491,7 +507,7 @@ export function useUpdateContact() {
       ];
 
       // Addresses the user removed from the form: unlinked directly.
-      // upsert_contact only ever links, never unlinks — this stays a raw
+      // upsert_contact only ever links, never unlinks - this stays a raw
       // client write. A plain UPDATE (not upsert) never triggers the INSERT
       // policy, so it's safe regardless of a synced address's own state; the
       // DB trigger deletes the row afterwards if no conversations reference it.
@@ -540,7 +556,7 @@ export function useUpdateContact() {
       const upserted = result as unknown as UpsertContactResult;
 
       // A merge folds names with `better_name`, which keeps whatever the
-      // survivor already had — and the survivor is the OLDER record, so
+      // survivor already had - and the survivor is the OLDER record, so
       // adding an address that arrived on a months-old stub keeps the stub's
       // pushname and drops the name this form is showing. The form's own
       // fields are what the user just pressed Update on, so restate them.
@@ -570,7 +586,7 @@ export function useUpdateContact() {
  * Attach one conversation address to an existing contact.
  *
  * The inbox shows a thread with no contact behind it whenever an address was
- * never linked — an Instagram DM from someone new, a WhatsApp number that
+ * never linked - an Instagram DM from someone new, a WhatsApp number that
  * arrived before the contact existed. This is the "that's actually Nir" move:
  * the address joins the contact instead of the user retyping the person.
  *
@@ -598,7 +614,7 @@ export function useLinkAddressToContact() {
        * records. `upsert_contact` keeps the OLDER contact as the survivor and
        * `better_name` keeps the survivor's own name, so merging a long-lived
        * "@handle" stub into a person added yesterday would otherwise leave the
-       * handle as the merged contact's name — the opposite of what "merge into
+       * handle as the merged contact's name - the opposite of what "merge into
        * this contact" means to whoever picked it.
        */
       keepName?: { name: string | null; surname: string | null };
@@ -608,7 +624,7 @@ export function useLinkAddressToContact() {
       const { data, error } = await supabase.rpc("upsert_contact", {
         p_organization_id: orgId,
         p_strategy: "merge",
-        // Nothing about the contact itself changes — this call exists to link
+        // Nothing about the contact itself changes - this call exists to link
         // the address, and an empty payload leaves every field as it is
         // (`fold_contact_fields` fills blanks, it never blanks a value).
         p_contact: {},
@@ -645,7 +661,7 @@ export function useDeleteContact() {
     mutationFn: async (id: string) => {
       if (!orgId) throw new Error("No active organization");
 
-      await supabase.from("contacts").delete().eq("id", id).throwOnError();
+      await deleteContactsWithLeads(orgId, [id]);
     },
     onSuccess: (_data, id) => {
       dropContactsFromCaches(queryClient, orgId, [id]);
@@ -666,8 +682,7 @@ export function useDeleteContacts() {
       // limits when removing large selections.
       const CHUNK_SIZE = 200;
       for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
-        const chunk = ids.slice(i, i + CHUNK_SIZE);
-        await supabase.from("contacts").delete().in("id", chunk).throwOnError();
+        await deleteContactsWithLeads(orgId, ids.slice(i, i + CHUNK_SIZE));
       }
     },
     onSuccess: (_data, ids) => {

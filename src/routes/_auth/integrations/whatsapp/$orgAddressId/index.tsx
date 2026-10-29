@@ -12,6 +12,7 @@ import { useState } from "react";
 import Button from "@/components/Button";
 import SectionItem from "@/components/SectionItem";
 import { LayoutTemplate } from "lucide-react";
+import { isOwnerRole, isAdminRole } from "@/utils/roles";
 
 export const Route = createFileRoute(
   "/_auth/integrations/whatsapp/$orgAddressId/",
@@ -30,12 +31,12 @@ function WhatsAppDetails() {
   const role = agent?.extra?.role;
   const { data: credentials } = useWhatsAppCredentials(
     integration?.address,
-    role === "owner" || role === "admin",
+    isAdminRole(role),
   );
 
   if (!integration) return;
 
-  const isOwner = agent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(agent?.extra?.role);
 
   const extra = integration.extra as
     | WhatsAppOrganizationAddressExtra

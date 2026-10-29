@@ -56,14 +56,14 @@
   --step-timing: oklch(0.62 0.16 75);
   --step-logic: oklch(0.62 0.16 292);
   --step-crm: oklch(0.62 0.16 248);
-  /* Connector strokes on the flow canvas — lighter than --border, which is
+  /* Connector strokes on the flow canvas - lighter than --border, which is
      doing edge work rather than drawing lines across open background. */
   --flow-line: oklch(0.86 0.01 150);
 
   /* Tonal green surface for icon tiles and the contacts Select chip.
      Deliberately NOT --secondary: that token inverts to near-white in `.dark`,
      so a tile built on it turns into a white block in dark mode. Same rule as
-     `.avatar-tint` instead — hue and chroma are fixed, only lightness moves
+     `.avatar-tint` instead - hue and chroma are fixed, only lightness moves
      between themes. */
   --tonal: oklch(0.92 0.035 152);
   --tonal-foreground: oklch(0.45 0.13 152);
@@ -337,7 +337,7 @@ button:disabled {
   }
 
   /* Avatar fallback tinted by `--avatar-hue` (see `avatarHue` in Avatar.tsx).
-     Only the lightness moves between themes — hue and chroma are fixed, so a
+     Only the lightness moves between themes - hue and chroma are fixed, so a
      column of these reads as one family in both. */
   .avatar-tint {
     background: oklch(0.92 0.035 var(--avatar-hue));
@@ -347,6 +347,22 @@ button:disabled {
   .dark .avatar-tint {
     background: oklch(0.34 0.045 var(--avatar-hue));
     color: oklch(0.84 0.08 var(--avatar-hue));
+  }
+
+  /* Lead stages: an org picks a hue per stage (--stage-hue); --stage-c is 1,
+     or near 0 for the neutral, uncoloured stage. */
+  .stage-tone {
+    --stage-dot: oklch(0.74 calc(0.13 * var(--stage-c)) var(--stage-hue));
+    --stage-bg: oklch(0.95 calc(0.04 * var(--stage-c)) var(--stage-hue));
+    --stage-fg: oklch(0.42 calc(0.1 * var(--stage-c)) var(--stage-hue));
+    --stage-line: oklch(0.84 calc(0.08 * var(--stage-c)) var(--stage-hue));
+  }
+
+  .dark .stage-tone {
+    --stage-dot: oklch(0.7 calc(0.12 * var(--stage-c)) var(--stage-hue));
+    --stage-bg: oklch(0.33 calc(0.05 * var(--stage-c)) var(--stage-hue));
+    --stage-fg: oklch(0.86 calc(0.08 * var(--stage-c)) var(--stage-hue));
+    --stage-line: oklch(0.46 calc(0.07 * var(--stage-c)) var(--stage-hue));
   }
 
   .spin {
@@ -518,7 +534,7 @@ input[type="range"]::-moz-range-track {
 /*
  Appointment TimePicker (MeetingModal). The minute column has only 4 steps
  (00/15/30/45), but antd still renders its scroll region + a bottom spacer so
- the last option can scroll to the top — which makes selecting a value jump.
+ the last option can scroll to the top - which makes selecting a value jump.
  Drop the spacer and the scroll on the minute column so it just shows the 4
  options. Unlayered so it wins over Ant Design's runtime styles.
 */
@@ -631,7 +647,7 @@ input[type="range"]::-moz-range-track {
 
 /* The send arrow points toward the outgoing direction, so mirror it in RTL.
    Tailwind's -scale-x-100 (the "send as contact" toggle) sets the `scale`
-   property, which composes with this `transform` — the two flips cancel, so
+   property, which composes with this `transform` - the two flips cancel, so
    the combined RTL + send-as-contact state lands the right way (XOR). */
 [dir="rtl"] .send-icon {
   transform: rotate(180deg);
@@ -779,6 +795,35 @@ select.mapping:focus {
 }
 .import-animate-in {
   animation: import-slidein 0.25s ease both;
+}
+
+@keyframes sheet-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes sheet-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@utility sheet-slide-up {
+  animation: sheet-slide-up 0.26s cubic-bezier(0.32, 0.72, 0, 1) both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+@utility sheet-backdrop-in {
+  animation: sheet-fade-in 0.2s ease both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 /* Message video: hide Chrome's native central overlay play button. It dims on
@@ -990,7 +1035,7 @@ select.mapping:focus {
   margin-inline-start: 8px;
 }
 /* Scope RTL to the chat surface's own dir (set from message content), not the
-   outer app — otherwise a Hebrew UI flips an English-content preview. */
+   outer app - otherwise a Hebrew UI flips an English-content preview. */
 .wa-chat[dir="rtl"] .wa-bubble {
   border-radius: 8px 0 8px 8px;
 }

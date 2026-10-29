@@ -12,7 +12,7 @@ import {
 } from "@/components/media/headerMediaLimits";
 
 /** `note` spells out that media, unlike every other field in this step, cannot
- *  vary per recipient — the neighbouring `VarCard`s all offer a per-recipient
+ *  vary per recipient - the neighbouring `VarCard`s all offer a per-recipient
  *  option, so the contrast is worth stating. */
 const FORMAT_META: Record<
   HeaderMediaFormat,
@@ -37,7 +37,7 @@ const FORMAT_META: Record<
 
 /** Best-effort display name for a file we did not pick ourselves: the basename
  *  of the example URL's path. Meta handles do not always carry a meaningful
- *  filename, so an empty result is fine — `MediaDropzone` falls back to the
+ *  filename, so an empty result is fine - `MediaDropzone` falls back to the
  *  format tag. */
 function basenameOf(url: string): string {
   try {
@@ -63,7 +63,7 @@ export default function HeaderMediaCard({
   value: string;
   name: string;
   example?: string;
-  /** Overrides the "same file to all recipients" line — an automation sends one
+  /** Overrides the "same file to all recipients" line - an automation sends one
    *  contact at a time, so the broadcast wording would be wrong there. */
   note?: string;
   onChange: (url: string, name: string, size?: number) => void;

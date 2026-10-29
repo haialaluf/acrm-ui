@@ -1,4 +1,12 @@
-import { Calendar, Clock, Mail, Users, XCircle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Mail,
+  Pause,
+  Play,
+  Users,
+  XCircle,
+} from "lucide-react";
 import { WhatsAppOutlined } from "@ant-design/icons";
 import StatusBadge from "@/components/StatusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -12,7 +20,7 @@ import {
 import { formatBatchDay, formatBatchTime } from "./formatScheduledDate";
 
 /**
- * One broadcast batch as a card in the left panel — the design's campaign
+ * One broadcast batch as a card in the left panel - the design's campaign
  * card, mapped onto this app's per-batch list model (a 5-day split send is 5
  * cards, each carrying its own "Batch i/n" pill). Replaces the plain
  * SectionItem row so the sidebar reads as a schedule rather than a chat list.
@@ -22,16 +30,23 @@ export default function BroadcastCard({
   selected,
   onOpen,
   onCancel,
+  onPause,
+  onResume,
+  toggling,
 }: {
   batch: BroadcastBatchRow;
   selected?: boolean;
   onOpen: () => void;
   onCancel: () => void;
+  onPause: () => void;
+  onResume: () => void;
+  toggling?: boolean;
 }) {
   const { translate: t, currentLanguage } = useTranslation();
 
   const recipients = batch.recipient_count ?? 0;
   const pending = batch.pending_count ?? 0;
+  const paused = batch.paused_count ?? 0;
   const sent = batch.sent_count ?? 0;
   const delivered = batch.delivered_count ?? 0;
   const failed = batch.failed_count ?? 0;
@@ -41,16 +56,19 @@ export default function BroadcastCard({
     scheduled_at: batch.scheduled_at,
     recipient_count: recipients,
     pending_count: pending,
+    paused_count: paused,
     failed_count: failed,
     cancelled_count: batch.cancelled_count ?? 0,
   });
   const upcoming = isUpcomingBatch(status);
   // The RPC's counters are cumulative (a read message also carries sent and
   // delivered), so delivered/sent is the share of what left the door that
-  // actually arrived — same ratio the design's card shows.
+  // actually arrived - same ratio the design's card shows.
   const deliveredPct = sent ? Math.round((delivered / sent) * 100) : 0;
   const batchesTotal = batch.batches_total ?? 1;
   const sendTime = formatBatchTime(batch);
+  const showProgress =
+    (status === "sending" || status === "paused") && recipients > 0;
 
   return (
     <div
@@ -66,7 +84,7 @@ export default function BroadcastCard({
       <div className="flex items-start justify-between gap-[8px]">
         <div className="flex items-center gap-[6px] min-w-0">
           {/* Both channels write content->>'kind' = 'template', which is what
-              lets one set of queries cover them — so `service` is the only
+              lets one set of queries cover them - so `service` is the only
               thing distinguishing an email campaign from a WhatsApp one here. */}
           {batch.service === "email" ? (
             <Mail
@@ -96,7 +114,7 @@ export default function BroadcastCard({
         <span className="text-foreground truncate">
           {formatBatchDay(batch, t, currentLanguage)}
         </span>
-        {/* The hour the batch actually goes out — the wizard asks for it per
+        {/* The hour the batch actually goes out - the wizard asks for it per
             batch, so a card without it reads as a whole free day. */}
         {sendTime && (
           <span className="flex items-center gap-[4px] shrink-0">
@@ -136,6 +154,34 @@ export default function BroadcastCard({
         </span>
       </div>
 
+      {showProgress && (
+        <div
+          className="flex rounded-full overflow-hidden mt-[9px] h-[4px] bg-muted"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={recipients}
+          aria-valuenow={sent + failed}
+        >
+          <div
+            className={
+              status === "paused"
+                ? "bg-muted-foreground/60"
+                : "bg-warning transition-[width] duration-500"
+            }
+            style={{ width: `${((sent + failed) / recipients) * 100}%` }}
+          />
+        </div>
+      )}
+
+      {status === "paused" && (
+        <div className="flex items-center gap-[6px] mt-[9px] text-[12px] text-muted-foreground">
+          <Pause className="w-[12px] h-[12px] shrink-0" />
+          <span>
+            {t("Paused")} · {paused} {t("waiting to send")}
+          </span>
+        </div>
+      )}
+
       {/* Delivery outcome, once the batch is resolved */}
       {!upcoming && recipients > 0 && (
         <div className="flex rounded-full overflow-hidden mt-[9px] h-[4px] bg-muted">
@@ -150,10 +196,36 @@ export default function BroadcastCard({
         </div>
       )}
 
-      {/* Only still-pending messages can be pulled back — cancel_broadcast_batch
-          no-ops on anything the dispatcher already picked up. */}
       {pending > 0 && (
         <div className="flex gap-[6px] mt-[11px] pt-[10px] border-t border-border">
+          {status === "paused" ? (
+            <button
+              className="flex items-center gap-[5px] text-[12px] rounded-full px-[11px] py-[5px] bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              disabled={toggling}
+              onClick={(e) => {
+                e.stopPropagation();
+                onResume();
+              }}
+            >
+              <Play className="w-[12px] h-[12px]" />
+              {t("Resume")}
+            </button>
+          ) : (
+            <button
+              className="flex items-center gap-[5px] text-[12px] rounded-full px-[11px] py-[5px] border border-border text-foreground hover:bg-accent disabled:opacity-50"
+              disabled={toggling}
+              title={t(
+                "Stops the messages that have not gone out yet. You can resume at any time.",
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                onPause();
+              }}
+            >
+              <Pause className="w-[12px] h-[12px]" />
+              {t("Pause")}
+            </button>
+          )}
           <button
             className="flex items-center gap-[5px] text-[12px] rounded-full px-[11px] py-[5px] border border-destructive/35 text-destructive hover:bg-destructive/10"
             onClick={(e) => {

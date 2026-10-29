@@ -5,8 +5,8 @@ import {
   type PreviewButton,
 } from "@/components/templateButtons";
 
-// BOOKING never reaches a preview — it is a URL button to everything past the
-// editor — but the map stays exhaustive over the kind union.
+// BOOKING never reaches a preview - it is a URL button to everything past the
+// editor - but the map stays exhaustive over the kind union.
 const DEFAULT_LABEL: Record<PreviewButton["kind"], string> = {
   QR: "Quick reply",
   URL: "Visit website",

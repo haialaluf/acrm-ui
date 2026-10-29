@@ -45,7 +45,7 @@ function TypeIcon({ type, size = 22 }: { type: MediaType; size?: number }) {
 
 /** Media picker for a WhatsApp media header, shared by the template editor and
     the bulk-send wizard. The chosen file is uploaded to our private `media`
-    bucket and the caller receives an unsigned internal reference to it —
+    bucket and the caller receives an unsigned internal reference to it -
     whatsapp-dispatcher resolves it to a real signed URL at send time, so this
     component re-signs the same reference itself, short-lived, purely to show
     a thumbnail.
@@ -141,7 +141,7 @@ export default function MediaDropzone({
               ),
             )
             .finally(() => setUploading(false));
-          return false; // we upload ourselves — never let antd POST it
+          return false; // we upload ourselves - never let antd POST it
         }}
       >
         <div className="media-drop-ic">

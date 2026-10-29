@@ -19,7 +19,7 @@ export const QUICK_REACTIONS = ["👍", "❤️", "😂", "😮", "😢", "🙏"
  * `side` is the reacting party as the *channel* sees it: the organization
  * shares a single WhatsApp number, so every agent reacts as one participant and
  * a second agent's reaction replaces the first upstream. `agentId` and
- * `contactAddress` name the reactor behind that side — whichever one applies —
+ * `contactAddress` name the reactor behind that side - whichever one applies -
  * and are used to label the chip.
  */
 export type Reaction = {
@@ -46,12 +46,12 @@ function reactorKey(m: MessageRow): string {
 
 /**
  * Current reactions of a thread, keyed by `channelKey` of the message they
- * point at — `re_message_id` holds the channel's id (a WhatsApp WAMID or an
+ * point at - `re_message_id` holds the channel's id (a WhatsApp WAMID or an
  * Instagram `mid`), never our uuid.
  *
  * `messages` must be newest-first, the order `chatSlice` maintains: the first
  * row seen for a (target, reactor) pair is the live one and every older row for
- * that pair is superseded. A row with empty text is a *removal* — it still
+ * that pair is superseded. A row with empty text is a *removal* - it still
  * claims the pair, so the older reaction stays buried, but adds no chip.
  */
 export function indexReactions(
@@ -99,7 +99,7 @@ export function indexReactions(
  *
  * Picking the emoji that is already there removes it, the way tapping your own
  * reaction does in WhatsApp. Removal is an ordinary reaction message with an
- * empty emoji — the convention both dispatchers already implement — so nothing
+ * empty emoji - the convention both dispatchers already implement - so nothing
  * here needs to update or delete a row (`messages` allows neither).
  */
 export async function toggleReaction({

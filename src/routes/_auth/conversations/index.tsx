@@ -11,6 +11,11 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useInvitations, useUpdateAgent } from "@/queries/useAgents";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/queries/queryKeys";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import NoOrganizationNotice from "@/components/NoOrganizationNotice";
+import NoIntegrationNotice from "@/components/NoIntegrationNotice";
+import useBoundStore from "@/stores/useBoundStore";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/conversations/")({
   component: Conversations,
@@ -21,20 +26,24 @@ function Conversations() {
   const { data: invitations } = useInvitations();
   const queryClient = useQueryClient();
   const updateAgent = useUpdateAgent();
+  const { step: onboardingStep, hasInvitations } = useOnboarding();
+  const setActiveOrg = useBoundStore((state) => state.ui.setActiveOrg);
+  const navigate = useNavigate();
 
   const roles: Record<string, string> = {
+    super_admin: t("Super admin"),
     owner: t("Owner"),
     admin: t("Administrator"),
     member: t("Member"),
   };
 
   const handleInvitationAction = (
-    agentId: string,
+    invitation: { id: string; organization_id: string },
     status: "accepted" | "rejected",
   ) => {
     updateAgent.mutate(
       {
-        id: agentId,
+        id: invitation.id,
         extra: {
           invitation: {
             status,
@@ -49,6 +58,12 @@ function Conversations() {
           queryClient.invalidateQueries({
             queryKey: queryKeys.organizations.all(),
           });
+          // Otherwise a user still onboarding the current organization stays
+          // locked out of the one they just joined.
+          if (status === "accepted" && onboardingStep) {
+            setActiveOrg(invitation.organization_id);
+            void navigate({ to: "/conversations" });
+          }
         },
       },
     );
@@ -57,11 +72,23 @@ function Conversations() {
   return (
     <>
       <Header /> {/* height: 59 px */}
-      <ChatSearch /> {/* height: 49 px */}
-      <ChatFilter /> {/* height: 43 px */}
-      <ChatTagFilter /> {/* hidden when no contact tags exist */}
+      {onboardingStep ? (
+        <div className="pt-[10px] px-[10px]">
+          {onboardingStep === "organization" ? (
+            <NoOrganizationNotice hasInvitations={hasInvitations} />
+          ) : (
+            <NoIntegrationNotice integrationsLink />
+          )}
+        </div>
+      ) : (
+        <>
+          <ChatSearch /> {/* height: 49 px */}
+          <ChatFilter /> {/* height: 43 px */}
+          <ChatTagFilter /> {/* hidden when no contact tags exist */}
+        </>
+      )}
       {invitations && invitations.length > 0 && (
-        <div className="pt-[10px] pb-[5px] pl-[10px] pr-[20px] flex flex-col gap-[4px]">
+        <div className="pt-[10px] pb-[5px] ps-[10px] pe-[20px] flex flex-col gap-[4px]">
           {invitations.map((invitation) => (
             <div key={invitation.id} className="bg-primary/10 rounded-lg">
               <SectionItem
@@ -80,7 +107,7 @@ function Conversations() {
                         <>
                           <button
                             onClick={() =>
-                              handleInvitationAction(invitation.id, "accepted")
+                              handleInvitationAction(invitation, "accepted")
                             }
                             className="font-bold text-primary/90 hover:text-primary cursor-pointer"
                           >
@@ -88,7 +115,7 @@ function Conversations() {
                           </button>
                           <button
                             onClick={() =>
-                              handleInvitationAction(invitation.id, "rejected")
+                              handleInvitationAction(invitation, "rejected")
                             }
                             className="font-bold text-muted-foreground/90 hover:text-muted-foreground cursor-pointer"
                           >
@@ -109,7 +136,7 @@ function Conversations() {
           ))}
         </div>
       )}
-      <ChatList />
+      {!onboardingStep && <ChatList />}
     </>
   );
 }

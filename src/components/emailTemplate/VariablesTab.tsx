@@ -67,9 +67,9 @@ export default function VariablesTab({
 }: {
   variables: EmailTemplateVariable[];
   onVariables: (variables: EmailTemplateVariable[]) => void;
-  /** Defined but not placed in the design — harmless, but usually a mistake. */
+  /** Defined but not placed in the design - harmless, but usually a mistake. */
   unplaced: number[];
-  /** Placed in the design with no variable behind them — renders literal
+  /** Placed in the design with no variable behind them - renders literal
    *  braces into a real inbox, so it is called out loudly. */
   undefinedSlots: number[];
   onInsert: (n: number) => void;
@@ -97,7 +97,7 @@ export default function VariablesTab({
         <Braces size={15} className="text-primary shrink-0 mt-[1px]" />
         <div>
           {t(
-            "Numbered like your WhatsApp templates. A number is a stable slot — reordering blocks never renumbers it, so a live template can't silently start pulling the wrong field.",
+            "Numbered like your WhatsApp templates. A number is a stable slot - reordering blocks never renumbers it, so a live template can't silently start pulling the wrong field.",
           )}
         </div>
       </div>
@@ -163,7 +163,7 @@ export default function VariablesTab({
                     type="button"
                     className="shrink-0 p-[6px] rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     title={t(
-                      "Remove — occurrences in the design become plain text",
+                      "Remove - occurrences in the design become plain text",
                     )}
                     onClick={() =>
                       onVariables(variables.filter((v) => v.n !== variable.n))

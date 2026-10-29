@@ -49,7 +49,7 @@ export function useContactAddresses(contactId: string | null | undefined) {
  * Every Instagram address the organization has ever seen, with whoever owns it
  * today.
  *
- * An Instagram address is an igsid — an account id scoped to our own IG
+ * An Instagram address is an igsid - an account id scoped to our own IG
  * account, which Meta only ever hands us on an inbound event. There is no
  * username lookup and no way to reach someone who has not written to us, so
  * "add an Instagram account" can only mean "pick one of these", never a typed

@@ -35,7 +35,7 @@ function OnboardFacebookCallback() {
   const [result, setResult] = useState<State>({ status: "working" });
   const ran = useRef(false);
 
-  // Leg 1 — exchange the code for the Page list. The onboarding token is not
+  // Leg 1 - exchange the code for the Page list. The onboarding token is not
   // consumed yet; only a successful connect marks the link used, so a customer
   // who abandons the picker can start over with the same link.
   useEffect(() => {
@@ -70,7 +70,7 @@ function OnboardFacebookCallback() {
       );
   }, [code, state]);
 
-  // Leg 2 — connect the chosen Page.
+  // Leg 2 - connect the chosen Page.
   const handleSelect = async (page_id: string) => {
     if (result.status !== "choosing") return;
 
@@ -173,7 +173,7 @@ function OnboardFacebookCallback() {
             </p>
             {result.message && (
               <p className="text-muted-foreground text-[14px]">
-                {result.message}
+                {t(result.message)}
               </p>
             )}
           </div>

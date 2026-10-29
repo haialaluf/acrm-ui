@@ -5,9 +5,9 @@ import type { Tables } from "../db_types";
 //
 // Templates authored in the visual builder (Maily, on Tiptap) and stored in
 // public.email_templates. Unlike the WhatsApp templates, nothing external owns
-// these — the row is the source of truth.
+// these - the row is the source of truth.
 
-/** Contact fields a `{{n}}` slot can pull from. `custom` means "no field —
+/** Contact fields a `{{n}}` slot can pull from. `custom` means "no field -
  *  always use the fallback", which is how a per-send constant is expressed. */
 export type EmailVariableField =
   | "custom"
@@ -44,12 +44,12 @@ export type EmailTemplateVariable = {
 
 /** Document-level settings the builder does not own, stored in `extra`. */
 export type EmailTemplateExtra = {
-  /** Direction of the email body — independent of the sender's UI language. */
+  /** Direction of the email body - independent of the sender's UI language. */
   dir?: "ltr" | "rtl";
   /** Content width in px. 600 is the safe default across clients. */
   width?: number;
   font?: string;
-  /** Background of the whole email — container and the surround behind it, one
+  /** Background of the whole email - container and the surround behind it, one
    *  flat colour. Templates saved before that carry a `pageBg` alongside it;
    *  nothing reads it, and their stored HTML keeps its frame until re-saved. */
   bodyBg?: string;
@@ -66,7 +66,7 @@ export type EmailTemplateCategory =
   | "Newsletter"
   | "Lifecycle";
 
-// @ui-divergence: the API types this as `Record<string, unknown>` — it stores
+// @ui-divergence: the API types this as `Record<string, unknown>` - it stores
 // and returns the column without ever looking inside it. The UI *is* the
 // builder, so it names the real shape: the editor's Tiptap document. The send
 // path reads `html`, never this.
@@ -91,14 +91,14 @@ export type EmailTemplateSummary = Omit<EmailTemplateRow, "project" | "html">;
 /**
  * What one queued email carries in `messages.content.data`.
  *
- * A REFERENCE to the template plus a snapshot of the variable bindings — never
+ * A REFERENCE to the template plus a snapshot of the variable bindings - never
  * the compiled HTML. A design runs to hundreds of KB, so a 1000-recipient
  * campaign that inlined it would write ~200 MB into `public.messages`;
  * email-dispatcher re-renders per recipient instead, which is also the only way
  * each person can get their own opt-out link.
  *
  * `variables` IS snapshotted, unlike the HTML. It is a few hundred bytes, and
- * it is the half a sender can change with a single click in the builder —
+ * it is the half a sender can change with a single click in the builder -
  * re-binding `{{2}}` from `first_name` to `city` between queueing and dispatch
  * must not silently rewrite a send that was already reviewed and approved.
  * (The design itself is read live at dispatch. See DEPLOYING_EMAIL.md.)
@@ -114,7 +114,7 @@ export type EmailSendData = {
    *  campaigns on `content->'data'->>'name'` for both channels. */
   name: string;
   email_template_id: string;
-  /** Raw, with `{{n}}` slots intact — substituted at dispatch like the body. */
+  /** Raw, with `{{n}}` slots intact - substituted at dispatch like the body. */
   subject: string;
   variables: EmailTemplateVariable[];
   /** Resolved at queue time from the domain's `default_from_*` and the

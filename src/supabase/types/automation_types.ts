@@ -9,7 +9,7 @@ import type { Json } from "../db_types";
  * automation-engine function. Nothing validates them at the database boundary
  * (both columns are plain jsonb), so the engine treats every field as
  * untrusted and falls back rather than throwing on a shape it does not
- * recognise — a flow saved by an older UI must keep running.
+ * recognise - a flow saved by an older UI must keep running.
  */
 
 //===================================
@@ -42,7 +42,7 @@ export type EventTrigger = {
   event: AutomationEventName;
   /** contacts.source values; empty or absent means every source. */
   sources?: string[];
-  /** tag_added only. Bare tag names — contacts.tags is a text[], there are no
+  /** tag_added only. Bare tag names - contacts.tags is a text[], there are no
    *  tag ids to reference. Empty or absent means any tag. */
   tags?: string[];
   reentry?: boolean;
@@ -64,8 +64,8 @@ export type DateTrigger = {
 /**
  * A recurring sweep over every open conversation.
  *
- * Deliberately has no audience of its own. The design gave it one — tags in,
- * tags out, a 24-hour-window checkbox — but that is the `filter` step said a
+ * Deliberately has no audience of its own. The design gave it one - tags in,
+ * tags out, a 24-hour-window checkbox - but that is the `filter` step said a
  * second time, in a weaker form: the step can express those three conditions
  * and everything else besides. Two ways to narrow the same flow is one concept
  * too many, and the one that loses is the one you cannot see on the canvas.
@@ -123,7 +123,7 @@ export type Predicate =
 /** How one `{{n}}` placeholder in an approved WhatsApp template is filled. */
 export type TemplateVariable = {
   n: number;
-  /** Which component the placeholder sits in — the two are numbered
+  /** Which component the placeholder sits in - the two are numbered
    *  independently in Meta's payload. */
   scope: "head" | "body";
   /** A dotted path resolved against the contact (see predicate.ts), e.g.
@@ -150,15 +150,15 @@ export type WaitTimeStep = StepBase & {
 
 export type TemplateStep = StepBase & {
   type: "template";
-  /** public.message_templates.id — Meta's own template id. */
+  /** public.message_templates.id - Meta's own template id. */
   templateId: string;
   variables?: TemplateVariable[];
-  /** A template whose header is IMAGE/VIDEO/DOCUMENT points here — either an
+  /** A template whose header is IMAGE/VIDEO/DOCUMENT points here - either an
    *  `internal://media/...` storage reference (resolved to a fresh signed URL
    *  by whatsapp-dispatcher at send time) or an external `https://` URL,
    *  passed through unresolved. */
   headerMedia?: string;
-  /** The picked file's own name, kept for the editor's file card and preview —
+  /** The picked file's own name, kept for the editor's file card and preview -
    *  a storage URL ends in a uuid, which tells the next person nothing. The
    *  send itself needs only the link. */
   headerMediaName?: string;
@@ -167,7 +167,7 @@ export type TemplateStep = StepBase & {
 export type EmailStep = StepBase & {
   type: "email";
   emailTemplateId: string;
-  /** Per-step fallback overrides, keyed by slot number — the value a `{{n}}`
+  /** Per-step fallback overrides, keyed by slot number - the value a `{{n}}`
    *  renders as when the contact has none of its own, replacing the fallback
    *  stored on the template. Only the fallback is overridable: which field a
    *  slot draws from is settled in the email builder, and an override map (as
@@ -195,7 +195,7 @@ export type SplitStep = StepBase & {
 export type ConditionBranch = {
   id: string;
   name: string;
-  /** Absent means "everyone else" — the fallback path, which always matches.
+  /** Absent means "everyone else" - the fallback path, which always matches.
    *  Branches are evaluated top to bottom and the first match wins, so a
    *  fallback is only reachable as the last one. */
   rule?: Predicate;
@@ -225,15 +225,15 @@ export type AssignStep = StepBase & {
 /**
  * Run a back-office (kind: 'back_office') agent against the contact once. Not
  * `assign` with a different agent kind: `assign` also makes the picked agent
- * this conversation's default responder, which a back-office agent — one that
- * must never answer a contact — can never become. This step only ever runs
+ * this conversation's default responder, which a back-office agent - one that
+ * must never answer a contact - can never become. This step only ever runs
  * the one-off instruction.
  */
 export type AnalyzeStep = StepBase & {
   type: "analyze";
   /** Must resolve to an agent with kind: 'back_office'. */
   agentId: string;
-  /** What this run should look for / record. Required — with no prompt there
+  /** What this run should look for / record. Required - with no prompt there
    *  is nothing for the agent to analyze. */
   prompt: string;
 };

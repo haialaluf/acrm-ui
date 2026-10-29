@@ -8,6 +8,23 @@ import useBoundStore from "@/stores/useBoundStore";
 import { CONFIG_STALE_TIME } from "./cacheConfig";
 import { queryKeys } from "./queryKeys";
 
+// The function answers `{ message }`; supabase-js hides it behind a generic
+// "non-2xx status code" error whose `context` is the raw Response.
+async function toError(error: unknown): Promise<Error> {
+  const context = (error as { context?: unknown }).context;
+
+  if (context instanceof Response) {
+    const body = (await context
+      .clone()
+      .json()
+      .catch(() => null)) as { message?: string } | null;
+
+    if (body?.message) return new Error(body.message);
+  }
+
+  return error instanceof Error ? error : new Error(String(error));
+}
+
 export function useOrganizations() {
   const userId = useBoundStore((state) => state.ui.user?.id);
 
@@ -124,11 +141,12 @@ export function useDeleteCurrentOrganization() {
     mutationFn: async () => {
       if (!orgId) throw new Error("No active organization");
 
-      await supabase
-        .from("organizations")
-        .delete()
-        .eq("id", orgId)
-        .throwOnError();
+      const { error } = await supabase.functions.invoke(
+        "organization-management/organization",
+        { method: "DELETE", body: { organization_id: orgId } },
+      );
+
+      if (error) throw await toError(error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

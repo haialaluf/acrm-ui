@@ -16,7 +16,7 @@ interface TextAreaFieldProps<T extends FieldValues> {
   placeholder?: string;
   disabled?: boolean;
   // Nested inside another absolute panel (e.g. the skill editor), the default
-  // `bottom-[80px]` insets twice and leaves a gap — pass "bottom-0" there.
+  // `bottom-[80px]` insets twice and leaves a gap - pass "bottom-0" there.
   modalClassName?: string;
 }
 

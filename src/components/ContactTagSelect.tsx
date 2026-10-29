@@ -38,7 +38,7 @@ interface ContactTagSelectProps {
 /**
  * Tag picker for contact forms: a free-entry (tags mode) Ant Design Select that
  * suggests every tag already used across the org's contacts (via useContactTags)
- * and is themed to match the underlined `.text` inputs. Controlled — wire it up
+ * and is themed to match the underlined `.text` inputs. Controlled - wire it up
  * with react-hook-form's <Controller>.
  */
 export default function ContactTagSelect({

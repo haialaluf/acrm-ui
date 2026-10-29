@@ -33,14 +33,14 @@ import { Field, selectClass } from "./Fields";
  * The editor and the preview are the bulk-send wizard's own
  * (`components/templateFill`), minus the wizard: the same template asks for the
  * same things in the same cards whether you are sending it once to a list or
- * wiring it into a flow. Only the vocabulary differs — see `AUTOMATION_FIELDS`.
+ * wiring it into a flow. Only the vocabulary differs - see `AUTOMATION_FIELDS`.
  */
 
 /**
  * Contact fields a placeholder can draw from.
  *
  * Dotted paths, resolved by the engine through the same field resolver the
- * predicates use — unlike a broadcast, which resolves against a contact row the
+ * predicates use - unlike a broadcast, which resolves against a contact row the
  * browser already holds. The labels are the wizard's, so "Phone" means the same
  * thing on both screens even though the paths behind them differ.
  */
@@ -127,7 +127,7 @@ export default function TemplateStepFields({
           value={step.templateId}
           onChange={(e) =>
             // Bindings are positional, so they mean nothing against a different
-            // template. Cleared rather than carried over — and so is the header
+            // template. Cleared rather than carried over - and so is the header
             // file, which the new template may not even accept.
             onChange({
               ...step,
@@ -184,7 +184,7 @@ export default function TemplateStepFields({
 
           <Field label={t("Preview")}>
             {/* The same bubble the broadcast wizard shows, with each binding
-                highlighted where its {{n}} sits — an automation has no contact
+                highlighted where its {{n}} sits - an automation has no contact
                 to resolve against until it runs. */}
             <div className="overflow-hidden rounded-[10px]">
               <WhatsAppPreview

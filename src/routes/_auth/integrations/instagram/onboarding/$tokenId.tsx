@@ -8,6 +8,7 @@ import {
 } from "@/queries/useOnboardingTokens";
 import { useCurrentAgent } from "@/queries/useAgents";
 import CopyButton from "@/components/CopyButton";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute(
   "/_auth/integrations/instagram/onboarding/$tokenId",
@@ -22,7 +23,7 @@ function OnboardingTokenDetail() {
   const { data: tokens } = useOnboardingTokens("instagram");
   const { data: currentAgent } = useCurrentAgent();
   const deleteToken = useDeleteOnboardingToken("instagram");
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
 
   const token = tokens?.find((tk) => tk.id === tokenId);
   const isActive =

@@ -34,7 +34,7 @@ const RANGES = [7, 30, 90] as const;
  * The counterpart of AccountHealth, answering the two questions that had no
  * answer anywhere in this product: is anyone reporting our email as spam, and
  * are we mailing addresses that do not exist. Both signals were already being
- * captured — by email-webhook, from SNS — and then read by nothing.
+ * captured - by email-webhook, from SNS - and then read by nothing.
  */
 export default function EmailHealth() {
   const { translate: t } = useTranslation();
@@ -94,7 +94,7 @@ export default function EmailHealth() {
   const isLoading = snapshotsLoading || metricsLoading;
   // Only the hero and the SES facts need a snapshot. Everything else is
   // computed from `messages`, so it is just as useful before the poller has
-  // ever run — blocking the whole page on a snapshot would hide the data most
+  // ever run - blocking the whole page on a snapshot would hide the data most
   // likely to explain why sending is going wrong.
   const hasNeverBeenChecked = !snapshotsLoading && !snapshots?.length;
 

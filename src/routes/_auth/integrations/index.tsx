@@ -4,6 +4,8 @@ import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Mail, Webhook } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import NoIntegrationNotice from "@/components/NoIntegrationNotice";
 import {
   FacebookFilled,
   InstagramOutlined,
@@ -23,7 +25,7 @@ export const Route = createFileRoute("/_auth/integrations/")({
  *  - Lead sources only create contacts. They fill Contacts and can fire an
  *    automation, but there is nothing to send on.
  *
- * Facebook is both — Messenger plus Lead Ads on one Page connection — and is
+ * Facebook is both - Messenger plus Lead Ads on one Page connection - and is
  * listed as a channel.
  *
  * Same styling as the automation insert menu's group labels.
@@ -39,11 +41,20 @@ function GroupLabel({ children }: { children: React.ReactNode }) {
 function IntegrationsIndex() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
+  const { step: onboardingStep, hasInvitations } = useOnboarding();
 
   return (
     <>
-      <SectionHeader title={t("Integrations")} />
+      <SectionHeader
+        title={t("Integrations")}
+        onBack={() =>
+          navigate({ to: "/settings", hash: (prevHash) => prevHash! })
+        }
+      />
       <SectionBody className="gap-4">
+        {onboardingStep === "integration" && (
+          <NoIntegrationNotice invitationLink={hasInvitations} />
+        )}
         <div className="flex flex-col">
           <GroupLabel>{t("Channels")}</GroupLabel>
           <SectionItem

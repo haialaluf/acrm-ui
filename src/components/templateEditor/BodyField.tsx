@@ -16,15 +16,15 @@ function useLengthState() {
   return (len: number): { cls: string; text: string } | null => {
     if (len === 0) return null;
     if (len <= 250)
-      return { cls: "good", text: t("Good length — fits on one screen") };
+      return { cls: "good", text: t("Good length - fits on one screen") };
     if (len <= 600)
       return {
         cls: "warn",
-        text: t("Getting long — WhatsApp may add “Read more”"),
+        text: t("Getting long - WhatsApp may add “Read more”"),
       };
     return {
       cls: "over",
-      text: t("Very long — most people won't read it all"),
+      text: t("Very long - most people won't read it all"),
     };
   };
 }

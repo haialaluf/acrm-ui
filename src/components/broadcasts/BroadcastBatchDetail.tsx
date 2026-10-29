@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Pause, Play } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import Button from "@/components/Button";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -8,9 +8,12 @@ import StatTile from "@/components/StatTile";
 import StatusBadge from "@/components/StatusBadge";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
+  isDispatching,
   useBroadcastBatches,
   useBroadcastBatchMessages,
   useCancelBroadcastBatch,
+  usePauseBroadcastBatch,
+  useResumeBroadcastBatch,
 } from "@/queries/useBroadcasts";
 import { failureReason } from "@/utils/failureReason";
 import { batchStatus, batchStatusLabel, batchStatusTone } from "./batchStatus";
@@ -36,7 +39,7 @@ type StatTileSpec = {
   color: string;
 };
 
-// One batch's stats + recipient list + cancel action. Fills the center panel
+// One batch's stats + recipient list + pause/resume/cancel actions. Fills the center panel
 // (see BroadcastCenter, wired from _auth.tsx like CalendarCenter/StatsCenter).
 export default function BroadcastBatchDetail({
   createdAt,
@@ -55,14 +58,25 @@ export default function BroadcastBatchDetail({
   );
 
   // Batch-level stats already come aggregated from the same list query the
-  // left panel uses — no separate stats fetch needed.
+  // left panel uses - no separate stats fetch needed.
   const { data: batches } = useBroadcastBatches();
   const batch = batches?.find(
     (b) => b.created_at === createdAt && b.scheduled_date === scheduledDate,
   );
   const { data: messages, isLoading: messagesLoading } =
-    useBroadcastBatchMessages(createdAt, scheduledDate);
+    useBroadcastBatchMessages(
+      createdAt,
+      scheduledDate,
+      !!batch &&
+        isDispatching({
+          pending_count: batch.pending_count ?? 0,
+          paused_count: batch.paused_count ?? 0,
+          scheduled_at: batch.scheduled_at,
+        }),
+    );
   const cancelBatch = useCancelBroadcastBatch();
+  const pauseBatch = usePauseBroadcastBatch();
+  const resumeBatch = useResumeBroadcastBatch();
 
   if (!batch) return null;
 
@@ -71,10 +85,13 @@ export default function BroadcastBatchDetail({
     scheduled_at: batch.scheduled_at,
     recipient_count: batch.recipient_count ?? 0,
     pending_count: batch.pending_count ?? 0,
+    paused_count: batch.paused_count ?? 0,
     failed_count: batch.failed_count ?? 0,
     cancelled_count: batch.cancelled_count ?? 0,
   });
   const canCancel = (batch.pending_count ?? 0) > 0;
+  const paused = status === "paused";
+  const pausedCount = batch.paused_count ?? 0;
   const schedule = {
     scheduled_date: batch.scheduled_date ?? scheduledDate,
     scheduled_at: batch.scheduled_at,
@@ -105,7 +122,7 @@ export default function BroadcastBatchDetail({
     });
   }
 
-  // The six buckets every channel has. Always rendered, however empty — a tile
+  // The six buckets every channel has. Always rendered, however empty - a tile
   // disappearing when its count is zero would read as a broken page.
   const coreTiles: StatTileSpec[] = [
     {
@@ -114,6 +131,16 @@ export default function BroadcastBatchDetail({
       value: batch.pending_count ?? 0,
       color: "var(--foreground)",
     },
+    ...(pausedCount > 0
+      ? [
+          {
+            kind: "paused" as const,
+            label: t("Paused"),
+            value: pausedCount,
+            color: "var(--muted-foreground)",
+          },
+        ]
+      : []),
     {
       kind: "sent",
       label: t("Sent"),
@@ -128,7 +155,7 @@ export default function BroadcastBatchDetail({
     },
     {
       kind: "read",
-      // An email "read" is an SES Open event — the tracking pixel loading — not
+      // An email "read" is an SES Open event - the tracking pixel loading - not
       // a read receipt. See EMAIL_KIND_LABELS in messageStatus.ts.
       label: batch.service === "email" ? t("Opened") : t("Read"),
       value: batch.read_count ?? 0,
@@ -149,8 +176,8 @@ export default function BroadcastBatchDetail({
   ];
 
   // Appended rather than replacing the Failed tile: bounced and suppressed are
-  // a subset *of* failed but do not account for all of it — a rejection or a
-  // rendering failure is neither — so dropping Failed would hide those
+  // a subset *of* failed but do not account for all of it - a rejection or a
+  // rendering failure is neither - so dropping Failed would hide those
   // entirely.
   //
   // Each appears only once it has happened, except spam reports, which stay
@@ -199,7 +226,7 @@ export default function BroadcastBatchDetail({
     <div className="flex flex-col h-full overflow-hidden bg-muted">
       {/* The back button is mobile-only: the list panel and menu rail are
           hidden while a batch is open full-screen, so without it the detail is
-          a dead end. The hash is dropped on purpose — keeping it would re-open
+          a dead end. The hash is dropped on purpose - keeping it would re-open
           the active conversation's center panel instead of the list. */}
       <SectionHeader
         title={batch.template_name ?? t("Broadcast")}
@@ -221,6 +248,31 @@ export default function BroadcastBatchDetail({
           </span>{" "}
           · {t("Batch")} {(batch.batch_index ?? 0) + 1}/{batch.batches_total}
         </div>
+
+        {paused && (
+          <div className="flex items-center gap-[14px] rounded-xl border border-border bg-card px-[16px] py-[14px]">
+            <div className="flex items-center justify-center shrink-0 w-[36px] h-[36px] rounded-full bg-muted">
+              <Pause className="w-[16px] h-[16px] text-muted-foreground" />
+            </div>
+            <div className="min-w-0 grow">
+              <div className="text-[14px] font-semibold">
+                {t("This batch is paused")}
+              </div>
+              <div className="text-[13px] text-muted-foreground leading-snug">
+                {pausedCount}{" "}
+                {t("messages are waiting and won't go out until you resume.")}
+              </div>
+            </div>
+            <Button
+              className="primary shrink-0 flex items-center gap-[6px] rounded-full px-4 py-2 text-[14px]"
+              loading={resumeBatch.isPending}
+              onClick={() => resumeBatch.mutate({ createdAt, scheduledDate })}
+            >
+              <Play className="w-[14px] h-[14px]" />
+              {t("Resume")}
+            </Button>
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-[8px]">
           {tiles.map((tile) => (
@@ -323,13 +375,28 @@ export default function BroadcastBatchDetail({
         </div>
 
         {canCancel && (
-          <Button
-            className="self-start rounded-full border border-destructive/30 text-destructive px-4 py-2 text-[14px]"
-            loading={cancelBatch.isPending}
-            onClick={() => setConfirming(true)}
-          >
-            {t("Cancel this batch")}
-          </Button>
+          <div className="flex flex-wrap gap-[8px]">
+            {!paused && (
+              <Button
+                className="flex items-center gap-[6px] rounded-full border border-border bg-card px-4 py-2 text-[14px] hover:bg-accent"
+                loading={pauseBatch.isPending}
+                title={t(
+                  "Stops the messages that have not gone out yet. You can resume at any time.",
+                )}
+                onClick={() => pauseBatch.mutate({ createdAt, scheduledDate })}
+              >
+                <Pause className="w-[14px] h-[14px]" />
+                {t("Pause sending")}
+              </Button>
+            )}
+            <Button
+              className="rounded-full border border-destructive/30 text-destructive px-4 py-2 text-[14px]"
+              loading={cancelBatch.isPending}
+              onClick={() => setConfirming(true)}
+            >
+              {t("Cancel this batch")}
+            </Button>
+          </div>
         )}
       </div>
 

@@ -13,7 +13,7 @@ const time = (iso: string | null) =>
         hour: "2-digit",
         minute: "2-digit",
       })
-    : "—";
+    : "-";
 
 const date = (iso: string | null) =>
   iso
@@ -21,7 +21,7 @@ const date = (iso: string | null) =>
         day: "numeric",
         month: "short",
       })
-    : "—";
+    : "-";
 
 /** The raw account facts behind the hero, for when someone needs the details. */
 export default function AccountFacts({
@@ -39,7 +39,7 @@ export default function AccountFacts({
     status?: string | null;
     ltr?: boolean;
   }[] = [
-    { label: t("WABA id"), value: state.wabaId ?? "—", ltr: true },
+    { label: t("WABA id"), value: state.wabaId ?? "-", ltr: true },
     ...(state.displayName
       ? [{ label: t("Display name"), value: state.displayName }]
       : []),
@@ -88,7 +88,7 @@ export default function AccountFacts({
                   {humanizeEnum(row.status)}
                 </Chip>
               ) : (
-                <span className="text-[12.5px] text-muted-foreground">—</span>
+                <span className="text-[12.5px] text-muted-foreground">-</span>
               )
             ) : row.ltr ? (
               <Ltr className="text-[12.5px] tabular-nums truncate">

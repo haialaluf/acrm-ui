@@ -21,7 +21,7 @@ import {
 import type { CalendarWorkingHours } from "@/supabase/types/extra_types";
 
 // Shared calendar form. With no `calendar` it creates a new one; with a
-// `calendar` it edits that one — fields are seeded and the update mutation runs
+// `calendar` it edits that one - fields are seeded and the update mutation runs
 // on save. (Formerly the `AddCalendar` route component.)
 export default function CalendarForm({ calendar }: { calendar?: CalendarRow }) {
   const { translate: t } = useTranslation();

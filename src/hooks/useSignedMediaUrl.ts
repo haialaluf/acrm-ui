@@ -3,7 +3,7 @@ import { supabase } from "@/supabase/client";
 import { MEDIA_INTERNAL_URI_PREFIX } from "@/utils/uploadMediaToBucket";
 
 /** How long a re-signed preview URL stays valid. Not the send-time TTL (the
- *  API owns that, per channel, via getOrCreateSignedUrl) — this is purely
+ *  API owns that, per channel, via getOrCreateSignedUrl) - this is purely
  *  for rendering something on screen right now. */
 export const PREVIEW_SIGNED_URL_TTL_SECONDS = 60 * 60;
 
@@ -30,7 +30,7 @@ export function mediaBucketPath(url: string): string | null {
 /** A currently-valid URL for a file we uploaded to the `media` bucket.
  *
  *  Links stored inside a message (e.g. a template's header media) are signed
- *  with a finite TTL — long enough for Meta to fetch the file at delivery time,
+ *  with a finite TTL - long enough for Meta to fetch the file at delivery time,
  *  but not for the conversation history, which is read months later. Rather
  *  than serve a dead link, re-sign the same object on demand. URLs from outside
  *  our bucket are returned untouched, since there is nothing to re-sign.

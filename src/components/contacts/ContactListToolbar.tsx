@@ -30,7 +30,7 @@ export default function ContactListToolbar({
   children,
 }: {
   count: number;
-  /** Already-translated plural noun for a row — "contacts", "recipients". */
+  /** Already-translated plural noun for a row - "contacts", "recipients". */
   label: string;
   selectedCount?: number;
   /** Omitted once everything selectable is already selected. */

@@ -15,13 +15,13 @@ import { inputBase, selectBase, Segmented } from "./Fields";
  *
  * This is the one place the port deliberately diverges from the design. The
  * mock stored a rule as free text ("WhatsApp opt-in is true"), which reads well
- * in a static screenshot and cannot be evaluated by anything — a live
+ * in a static screenshot and cannot be evaluated by anything - a live
  * automation would have had to send every contact down the fallback path. The
  * shape here is what the engine's `_shared/predicate.ts` actually understands.
  *
  * Only one level of nesting is offered (a flat list of clauses joined by
  * all/any). The predicate format supports arbitrary nesting and `not`, and the
- * engine evaluates all of it — but a nested rule builder is a feature of its
+ * engine evaluates all of it - but a nested rule builder is a feature of its
  * own, and every rule the design's own recipes need is expressible flat.
  */
 
@@ -59,6 +59,11 @@ function fieldSpecs(t: (s: string) => string): FieldSpec[] {
       path: "conversation.hours_since_last_incoming",
       label: t("Hours since the contact last wrote"),
       kind: "hours",
+    },
+    {
+      path: "conversation.incoming_since_last_run",
+      label: t("Contact wrote since the last run"),
+      kind: "boolean",
     },
     {
       path: "appointment.starts_at",
@@ -176,7 +181,7 @@ export default function ConditionBuilder({
    * A stored rule may name a field this build no longer offers (the channel and
    * meeting-status filters were dropped as redundant). Falling back to the first
    * spec would relabel the clause as something it is not, so an unknown path
-   * keeps its own entry — compared as text — until the user picks another field.
+   * keeps its own entry - compared as text - until the user picks another field.
    */
   const specFor = (path: string): FieldSpec =>
     specs.find((s) => s.path === path) ?? { path, label: path, kind: "text" };

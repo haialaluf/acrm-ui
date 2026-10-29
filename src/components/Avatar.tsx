@@ -2,7 +2,7 @@ import { useState, type CSSProperties } from "react";
 
 /**
  * Six hues at one lightness and chroma, so a column of tinted avatars reads as
- * one family rather than as six unrelated colours — the same rule the
+ * one family rather than as six unrelated colours - the same rule the
  * `--step-*` tokens in `global.css` follow.
  */
 const AVATAR_HUES = [152, 75, 292, 248, 20, 195];

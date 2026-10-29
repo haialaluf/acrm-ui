@@ -28,7 +28,7 @@ function StatsLayout() {
   const showClinicUsage = isTherapy && (role === "owner" || role === "admin");
 
   // Bare `/stats` defaults to Quotas (matching StatsCenter), so treat it as the
-  // active Quotas tab for highlighting — there is no redirect to `/stats/quotas`.
+  // active Quotas tab for highlighting - there is no redirect to `/stats/quotas`.
   const activeTab =
     pathname === "/stats/usage"
       ? "usage"

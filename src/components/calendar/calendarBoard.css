@@ -5,7 +5,7 @@
   color: var(--foreground);
 }
 
-/* toolbar handled by our own header — hide the built-in one */
+/* toolbar handled by our own header - hide the built-in one */
 .rbc-toolbar {
   display: none;
 }

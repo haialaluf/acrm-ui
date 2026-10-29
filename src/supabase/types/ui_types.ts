@@ -1,8 +1,8 @@
 //===================================
-// UI-only types — NOT present in open-bsp-api's _shared/types/*.
+// UI-only types - NOT present in open-bsp-api's _shared/types/*.
 //
 // This file is never overwritten when re-syncing the mirrored API type files,
-// so put genuinely UI-exclusive additions here (not divergences — those are
+// so put genuinely UI-exclusive additions here (not divergences - those are
 // field-level edits that must stay inline in the mirrored file, tagged with
 // `// @ui-divergence`). See scripts/check-type-sync.sh.
 //===================================
@@ -10,7 +10,7 @@
 // Narrowed insert/update shapes for the human-agent `extra` column, used by the
 // members forms. The API has no insert/update variants of HumanAgentExtra.
 export type HumanAgentExtraInsert = {
-  role: "member" | "admin" | "owner";
+  role: "member" | "admin" | "owner" | "super_admin";
   invitation?: {
     organization_name: string;
     email: string;
@@ -19,7 +19,7 @@ export type HumanAgentExtraInsert = {
 };
 
 export type HumanAgentExtraUpdate = {
-  role?: "member" | "admin" | "owner";
+  role?: "member" | "admin" | "owner" | "super_admin";
   invitation?: {
     organization_name?: string;
     email?: string;
@@ -28,11 +28,11 @@ export type HumanAgentExtraUpdate = {
 };
 
 // ── Organization calendars (public.calendars) ──────────────────────────────
-// Weekday / WorkingHoursDay / CalendarWorkingHours moved to ./extra_types.ts —
+// Weekday / WorkingHoursDay / CalendarWorkingHours moved to ./extra_types.ts -
 // they are now mirrored from the API, which needs them for the public booking
 // page's free-slot computation.
 
-// public.calendars.extra — keeps the ISO 3166 country/region the calendar was
+// public.calendars.extra - keeps the ISO 3166 country/region the calendar was
 // created for. The column of record for scheduling is the IANA `timezone`
 // (derived from this region); `region` is stored so the form can round-trip
 // the human-facing country choice.
@@ -48,6 +48,6 @@ export type AppointmentStatus =
   | "cancelled"
   | "completed";
 
-// public.appointments.extra — free-form JSON for future scheduling metadata
+// public.appointments.extra - free-form JSON for future scheduling metadata
 // (e.g. notes, video-call links). Kept opaque and stable for the agent.
 export type AppointmentExtra = { notes?: string; paid?: boolean };

@@ -27,23 +27,23 @@ import {
 /**
  * Reachability is per-channel and per-ADDRESS; opt-out is neither.
  *
- * `contacts.status` is the single "remove me from everything" flag — the same
+ * `contacts.status` is the single "remove me from everything" flag - the same
  * field regardless of which channel the request came in on (WhatsApp `הסר` or
- * an email unsubscribe click) — so it applies to every address the contact
+ * an email unsubscribe click) - so it applies to every address the contact
  * has. Each address row's own `status` is a *narrower* signal: `'inactive'`
  * means this exact address is undeliverable (a bounced/complained mailbox, a
  * superseded WhatsApp number) and says nothing about the contact's other
- * addresses — which is exactly why it is read off the row being listed rather
+ * addresses - which is exactly why it is read off the row being listed rather
  * than off the contact.
  */
 
 /**
- * Step 2 — pick recipients with the unified filter (search + tags + source +
+ * Step 2 - pick recipients with the unified filter (search + tags + source +
  * date).
  *
  * One row per ADDRESS, not per contact: a contact with two phone numbers is
  * listed twice, once against each number, and each is selected (and sent to)
- * on its own. `selectedIds` therefore holds addresses — unique across the org,
+ * on its own. `selectedIds` therefore holds addresses - unique across the org,
  * since they are `contacts_addresses`' primary key.
  */
 export default function RecipientsStep({
@@ -70,7 +70,7 @@ export default function RecipientsStep({
   const [filter, setFilter] = useState<ContactFilterValue>(emptyContactFilter);
   const { match: activityMatch } = useContactActivityMatch(filter);
 
-  // useCallback so it is a stable dependency of the `rows` memo below — a
+  // useCallback so it is a stable dependency of the `rows` memo below - a
   // fresh closure each render would rebuild the list on every keystroke in the
   // search box.
   const disabledReason = useCallback(
@@ -99,7 +99,7 @@ export default function RecipientsStep({
 
   // The filter runs on contacts (a search hit on one of a contact's numbers is
   // a hit on the contact), then every surviving contact is expanded into its
-  // addresses — so both of someone's numbers stay listed together.
+  // addresses - so both of someone's numbers stay listed together.
   const rows = useMemo<ContactRow[]>(
     () =>
       filtered.flatMap((c) =>
@@ -163,7 +163,7 @@ export default function RecipientsStep({
         empty={
           <div className="py-[40px] text-center text-muted-foreground text-[14px]">
             {/* "No results" is only the right answer when a filter excluded
-                everyone. When the channel did, say so — otherwise an org whose
+                everyone. When the channel did, say so - otherwise an org whose
                 contacts have phones but no email addresses just sees an empty
                 list with no hint why. */}
             {withAddress.length === 0

@@ -5,7 +5,7 @@ import type { Tone } from "../primitives";
  * Why an address may no longer be emailed.
  *
  * Every row this reads has `status = 'inactive'`, which only an SES feedback
- * signal ever writes — a plain unsubscribe-link click sets `contacts.status`
+ * signal ever writes - a plain unsubscribe-link click sets `contacts.status`
  * instead (see `useSuppressedAddresses`), so it never reaches here. The
  * distinction that remains still matters to the person reading the list: a
  * hard bounce is a bad address, and a spam complaint is the one that
@@ -15,7 +15,7 @@ export type SuppressionKind = "hard_bounce" | "complaint" | "other";
 
 export type SuppressionReason = {
   kind: SuppressionKind;
-  /** Untranslated label — callers pass it through `t`. */
+  /** Untranslated label - callers pass it through `t`. */
   label: string;
   tone: Tone;
   /** The raw `reason` string, e.g. `hard_bounce:General`. */

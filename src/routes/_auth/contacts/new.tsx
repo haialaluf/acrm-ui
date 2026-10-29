@@ -43,7 +43,7 @@ type ContactFormValues = ContactWithAddressesInsert & {
 type NewContactSearch = {
   address?: string;
   service?: string;
-  /** Display name to seed the Name field with — an IG profile name, a push name. */
+  /** Display name to seed the Name field with - an IG profile name, a push name. */
   name?: string;
   /** Instagram @username, so the read-only row shows a handle and not an igsid. */
   username?: string;
@@ -94,7 +94,7 @@ function ContactNew() {
 
   // An address handed over from a conversation (see NewContactSearch): a phone
   // seeds the first phone field, an email the Email field, and anything else
-  // (Instagram, Facebook) rides along as a read-only row — those addresses are
+  // (Instagram, Facebook) rides along as a read-only row - those addresses are
   // platform ids there is nothing to type into.
   const prefill = Route.useSearch();
   const prefillService = prefill.service as Service | undefined;
@@ -425,7 +425,7 @@ function ConflictWarning({
   return (
     <div className="text-warning-strong text-[11.5px]">
       {t("Already belongs to")}{" "}
-      <span dir="ltr">{conflict.contact_name || t("another contact")}</span> —{" "}
+      <span dir="ltr">{conflict.contact_name || t("another contact")}</span> -{" "}
       {t("saving will offer to merge the two contacts")}
     </div>
   );

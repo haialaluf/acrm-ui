@@ -26,7 +26,7 @@ import {
  * actually used. Nothing is denormalised onto the step but the choice itself,
  * so renaming a template renames it here and on the canvas.
  *
- * The two messaging steps live in files of their own — they load their own
+ * The two messaging steps live in files of their own - they load their own
  * template and render the bulk-send wizard's variable cards and preview, which
  * is more than a case of a switch should carry.
  */
@@ -125,7 +125,7 @@ export default function StepPanel({
             <div className="mt-[6px] text-xs leading-relaxed text-muted-foreground">
               {step.rejoin
                 ? t(
-                    "Everyone continues to the steps below the split — that's how the holdout still gets an agent.",
+                    "Everyone continues to the steps below the split - that's how the holdout still gets an agent.",
                   )
                 : t("Each path finishes on its own.")}
             </div>
@@ -253,7 +253,7 @@ export default function StepPanel({
 
     case "assign": {
       // A back-office or personal-assistant agent can never answer a contact
-      // (agent-client never lets either into this fallback — see its AGENT
+      // (agent-client never lets either into this fallback - see its AGENT
       // SELECTION block), so offering one here would only produce a
       // conversation nothing answers. Back-office has its own step,
       // "analyze"; a personal assistant is reachable only through "Chat with
@@ -417,7 +417,7 @@ export default function StepPanel({
               <Sparkles className="h-4 w-4 shrink-0" />
               <span>
                 {t(
-                  'No back-office agents yet — create one (set its type to "Back office") before using this step.',
+                  'No back-office agents yet - create one (set its type to "Back office") before using this step.',
                 )}
               </span>
             </Callout>
@@ -426,7 +426,7 @@ export default function StepPanel({
           <Field
             label={t("What should it look for?")}
             hint={t(
-              "Runs once, with this contact's whole conversation history in context. It never replies — it can only update their CRM record.",
+              "Runs once, with this contact's whole conversation history in context. It never replies - it can only update their CRM record.",
             )}
           >
             <textarea
@@ -459,7 +459,7 @@ export default function StepPanel({
           <Field
             label={t("Tags")}
             hint={t(
-              "Only tags your contacts already use — no near-duplicates get invented.",
+              "Only tags your contacts already use - no near-duplicates get invented.",
             )}
           >
             <CheckList

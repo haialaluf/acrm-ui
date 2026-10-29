@@ -12,14 +12,14 @@ import type {
    WhatsApp Business API allows up to 10 buttons per template, with these
    per-type caps (Meta / Cloud API, late-2025 spec):
 
-     • Quick Reply         — up to 3, max 25 chars  (any category)
-     • Visit website (URL) — up to 2, max 25 chars  (any; one can be dynamic)
-     • Call phone number   — up to 1, max 25 chars  (any)
-     • Copy offer code     — up to 1                (MARKETING only)
+     • Quick Reply         - up to 3, max 25 chars  (any category)
+     • Visit website (URL) - up to 2, max 25 chars  (any; one can be dynamic)
+     • Call phone number   - up to 1, max 25 chars  (any)
+     • Copy offer code     - up to 1                (MARKETING only)
 
    BOOKING is ours, not Meta's: it is a dynamic URL button pinned to the
    booking site (see "Self-service booking links" below). Meta only ever sees a
-   URL button, so it shares the 2-URL cap and previews exactly like one — the
+   URL button, so it shares the 2-URL cap and previews exactly like one - the
    separate kind exists so the editor can hide the URL fields and fill them in.
 */
 
@@ -46,7 +46,7 @@ export const BTN_LIMITS: Record<
   COPY: { max: 1, textMax: 25, marketingOnly: true },
 };
 
-// Kinds that Meta stores as URL buttons — together they share BTN_LIMITS.URL.max.
+// Kinds that Meta stores as URL buttons - together they share BTN_LIMITS.URL.max.
 export const URL_LIKE_KINDS: ButtonKind[] = ["URL", "BOOKING"];
 
 // Spanish source strings (the codebase translates from Spanish via `t()`).
@@ -95,7 +95,7 @@ export function ButtonKindIcon({
 
    Detection is by base URL alone: a template either points at the booking
    domain or it doesn't. That keeps it out of the template metadata and out of
-   the send wizard — nothing to configure, nothing to keep in sync. */
+   the send wizard - nothing to configure, nothing to keep in sync. */
 export const BOOKING_ORIGIN: string = (
   (import.meta.env.VITE_BOOKING_BASE_URL as string | undefined) ||
   "https://calendar.delacrm.com"
@@ -105,7 +105,7 @@ export const BOOKING_ORIGIN: string = (
 // time (see buttonSendComponents / buildMessageRecord).
 export const BOOKING_URL = `${BOOKING_ORIGIN}/{{1}}`;
 
-// Placeholder token submitted as the button's example — Meta requires a sample
+// Placeholder token submitted as the button's example - Meta requires a sample
 // for every variable, and never resolves it.
 export const BOOKING_TOKEN_EXAMPLE = "tokenexample";
 
@@ -118,8 +118,8 @@ export function isBookingUrl(url: string): boolean {
  *
  *  WhatsApp builds a link card from the first URL in the text (the send sets
  *  `preview_url: true`), so the chat mirrors that and previews the first one
- *  only. Matched by plain scanning rather than a regex so the origin — which
- *  carries `.` and `:` — needs no escaping. */
+ *  only. Matched by plain scanning rather than a regex so the origin - which
+ *  carries `.` and `:` - needs no escaping. */
 export function bookingLinkIn(text: string): string | null {
   const at = text.indexOf(`${BOOKING_ORIGIN}/`);
   if (at < 0) return null;
@@ -129,7 +129,7 @@ export function bookingLinkIn(text: string): string | null {
   const url = end < 0 ? rest : rest.slice(0, end);
 
   // A mark closing the surrounding sentence is punctuation, not part of the
-  // token — "…/abc." links to "…/abc".
+  // token - "…/abc." links to "…/abc".
   return url.replace(/[.,;:!?)\]]+$/, "");
 }
 
@@ -151,7 +151,7 @@ export function newTemplateButton(kind: ButtonKind): FormTemplateButton {
   return {
     kind,
     text: "",
-    // A booking button's destination is ours, not the user's — it is filled in
+    // A booking button's destination is ours, not the user's - it is filled in
     // here and never shown as an editable field.
     url: kind === "BOOKING" ? BOOKING_URL : "",
     urlMode: kind === "BOOKING" ? "DYNAMIC" : "STATIC",
@@ -169,7 +169,7 @@ export function formButtonToComponent(
   switch (b.kind) {
     case "QR":
       return { type: "QUICK_REPLY", text: b.text };
-    // Meta has no booking button — it goes out as the dynamic URL it is, with
+    // Meta has no booking button - it goes out as the dynamic URL it is, with
     // our origin and sample token rather than anything the user typed.
     case "BOOKING":
       return {
@@ -255,7 +255,7 @@ export function componentToFormButton(
   }
 }
 
-/** Editor kind for a Meta button def — the only place BOOKING is told apart
+/** Editor kind for a Meta button def - the only place BOOKING is told apart
     from a plain URL. Everything downstream of the editor (preview, bubbles)
     wants `buttonDefKind` instead, so booking renders as the link it is. */
 export function formButtonKind(b: TemplateButtonDef): ButtonKind {
@@ -311,8 +311,8 @@ export function bookingButtonIndex(template: TemplateData): number | null {
    button's position in the template definition.
 
    `urlParams` overrides a dynamic URL button's value per message, keyed by
-   button index. Without it every recipient gets `example[0]` — the single
-   fixed suffix baked into the template — which is exactly wrong for a booking
+   button index. Without it every recipient gets `example[0]` - the single
+   fixed suffix baked into the template - which is exactly wrong for a booking
    link, where each recipient needs their own token. */
 export function buttonSendComponents(
   buttons: TemplateButtonDef[],

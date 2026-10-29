@@ -110,7 +110,7 @@ export default function SelectField<T extends FieldValues>(
           <div className="label">{label}</div>
           <button
             type="button"
-            className="text w-full flex justify-between items-center text-left"
+            className="text w-full flex justify-between items-center text-start"
             onClick={() => !disabled && setIsOpen(true)}
             disabled={disabled}
           >
@@ -121,7 +121,7 @@ export default function SelectField<T extends FieldValues>(
             >
               {getDisplayLabel()}
             </span>
-            <ChevronRight className="w-[20px] h-[20px] ml-[12px] text-muted-foreground shrink-0" />
+            <ChevronRight className="w-[20px] h-[20px] ms-[12px] text-muted-foreground shrink-0" />
           </button>
         </label>
 
@@ -153,7 +153,7 @@ export default function SelectField<T extends FieldValues>(
                   <button
                     key={option.value}
                     type="button"
-                    className="flex items-center gap-[12px] w-full py-[16px] text-left rounded-xl px-[10px]"
+                    className="flex items-center gap-[12px] w-full py-[16px] text-start rounded-xl px-[10px]"
                     onClick={() => {
                       if (multiple) {
                         const currentRef = Array.isArray(value) ? value : [];

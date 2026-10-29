@@ -56,7 +56,7 @@ type BodyComponent = {
   text: string;
   // @ui-divergence: `body_text` is optional and `body_text_named_params` is
   // modelled (API: `body_text` required). Templates authored with named
-  // variables (parameter_format NAMED — e.g. created in WhatsApp Manager) come
+  // variables (parameter_format NAMED - e.g. created in WhatsApp Manager) come
   // back from Meta with only the named shape, so reading `body_text[0]`
   // unguarded crashes the editor.
   example?: {

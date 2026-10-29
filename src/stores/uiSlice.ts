@@ -50,7 +50,7 @@ export type Language = "es" | "en" | "pt" | "fr" | "he";
 export const SUPPORTED_LANGUAGES: Language[] = ["es", "en", "pt", "fr", "he"];
 
 /**
- * Each language named in itself, never translated — a picker is read by
+ * Each language named in itself, never translated - a picker is read by
  * someone who does not yet have the interface in a language they know, so
  * "Español" is findable where "Spanish" is not.
  *
@@ -91,7 +91,7 @@ export type UIState = {
   templatePicker: boolean;
   templateDrafts: Map<string, TemplateDraft>;
   activeOrgId: string | null;
-  /** Thread key of the open conversation — see `threadKey`. */
+  /** Thread key of the open conversation - see `threadKey`. */
   activeThreadKey: string | null;
   user: User | null;
   sendAsContact: boolean;
@@ -107,7 +107,7 @@ export type UIState = {
   language: Language;
   /** Request that the resizable left panel snap to its maximum width. Set by
    *  screens that need the room (e.g. the template editor rendered inside the
-   *  panel), cleared when they close — the previous width is then restored. */
+   *  panel), cleared when they close - the previous width is then restored. */
   panelExpanded: boolean;
 };
 

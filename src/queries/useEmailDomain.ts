@@ -9,7 +9,7 @@ import type { OrganizationAddressRow } from "@/supabase/client";
  * whose message is the useless "Edge Function returned a non-2xx status code";
  * the real reason is in `context`, the raw `Response`. Our functions answer with
  * `{ message, cause }` (see `app.onError` in email-management), so read it out
- * and rethrow with something worth showing — "acme.com is already connected to
+ * and rethrow with something worth showing - "acme.com is already connected to
  * another account" instead of a status code.
  */
 async function toError(error: unknown): Promise<Error> {

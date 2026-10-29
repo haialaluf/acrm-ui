@@ -2,7 +2,7 @@ import { type MessageRow } from "@/supabase/client";
 import { whatsappMessageId } from "./wamid";
 
 /**
- * Resolving `content.re_message_id` — the pointer a reaction, a reply or a
+ * Resolving `content.re_message_id` - the pointer a reaction, a reply or a
  * forward carries.
  *
  * It always holds the *channel's* id (a WhatsApp WAMID, an Instagram `mid`),
@@ -18,7 +18,7 @@ import { whatsappMessageId } from "./wamid";
  * message it points at is stored under the bare id (see utils/wamid.ts). Left
  * unnormalized, a contact reacting or replying to a message we sent correlates
  * with nothing. `whatsappMessageId` is idempotent and passes through ids it
- * cannot parse, so running *both* sides through it is safe on every id form —
+ * cannot parse, so running *both* sides through it is safe on every id form -
  * Instagram `mid`s included.
  */
 export function channelKey(id: string): string {
@@ -26,14 +26,14 @@ export function channelKey(id: string): string {
 }
 
 /**
- * The id the channel expects when addressing a target message — Meta's
+ * The id the channel expects when addressing a target message - Meta's
  * `context.message_id` for a reply, the reaction endpoint's `message_id`.
  *
  * Not the same thing as `channelKey`: correlating our own rows can use either
  * form as long as both sides agree, but the endpoint accepts exactly one.
  *
  * Returns `undefined` when the id was never kept, which is final and
- * unbackfillable — callers must disable the affordance rather than send a
+ * unbackfillable - callers must disable the affordance rather than send a
  * pointer the channel will reject.
  */
 export function channelMessageId(target: MessageRow): string | undefined {
@@ -63,7 +63,7 @@ export function channelMessageId(target: MessageRow): string | undefined {
 
 /**
  * Every message in a thread, reachable by any channel id it might be addressed
- * by — which is how a `re_message_id` finds the row it points at.
+ * by - which is how a `re_message_id` finds the row it points at.
  *
  * A row is registered under each id form it carries, because the pointer's
  * shape depends on who wrote it: a contact quoting a message we sent names it

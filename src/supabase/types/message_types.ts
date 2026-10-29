@@ -166,7 +166,7 @@ type ButtonPart = DataPart<"button", ButtonMessage["button"]>;
  * `content->>'kind' = 'template'`, and keeping email inside that key is what
  * let the entire campaign layer cover a second channel with no new table.
  *
- * Narrow with `"email_template_id" in content.data` — `Template` (WhatsApp)
+ * Narrow with `"email_template_id" in content.data` - `Template` (WhatsApp)
  * never carries it, `EmailSendData` always does. The row's `service` says the
  * same thing, but only the `in` check narrows the type.
  */
@@ -187,8 +187,8 @@ type ReferralPart = DataPart<"referral", InstagramReferral | MessengerReferral>;
 
 // Shared Instagram post/reel (attachment types ig_post, ig_reel, reel). Unlike
 // real media, the attachment `payload.url` is a public instagram.com permalink
-// (an HTML page, not a downloadable CDN file), so these are modeled as data — a
-// link card — and skipped by media download. `data.type` keeps the original
+// (an HTML page, not a downloadable CDN file), so these are modeled as data - a
+// link card - and skipped by media download. `data.type` keeps the original
 // attachment type so consumers can label it (post vs reel); `url` is the
 // permalink and `title` the shared item's caption when provided.
 export type SharePart = DataPart<

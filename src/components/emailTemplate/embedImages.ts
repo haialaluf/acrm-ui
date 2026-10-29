@@ -1,10 +1,10 @@
 import { uploadMediaToBucket } from "@/utils/uploadMediaToBucket";
 
-/** Read a blob as a `data:` URI — usable as an `<img src>` with no network
+/** Read a blob as a `data:` URI - usable as an `<img src>` with no network
  *  round-trip, no signing, and no expiry. This is what the email builder's
  *  document (`project`) holds for every image: self-contained, so reopening
  *  an old template for editing always just renders and nothing needs
- *  re-signing on load. Storage only enters the picture once, at save time —
+ *  re-signing on load. Storage only enters the picture once, at save time -
  *  see `uploadEmbeddedImages`. */
 export function blobToDataUri(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -23,7 +23,7 @@ const DATA_URI_PATTERN = /data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/g;
  * storage-backed internal reference, uploading each distinct image once
  * (`Set` dedups a logo reused several times in the same design).
  *
- * Called only when actually persisting the template — `project` (the editing
+ * Called only when actually persisting the template - `project` (the editing
  * document) keeps its `data:` URIs forever, so the canvas never needs to
  * re-sign anything. Only the compiled `html` (the artifact that actually gets
  * sent) needs to reference storage, so email-dispatcher can resolve it to a

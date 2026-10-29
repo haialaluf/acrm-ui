@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import SectionBody from "@/components/SectionBody";
 import Button from "@/components/Button";
 import SelectField from "@/components/SelectField";
+import { isAdminRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/webhooks/new")({
   component: AddWebhook,
@@ -18,7 +19,7 @@ function AddWebhook() {
   const navigate = useNavigate();
   const createWebhook = useCreateWebhook();
   const { data: currentAgent } = useCurrentAgent();
-  const isAdmin = ["admin", "owner"].includes(currentAgent?.extra?.role || "");
+  const isAdmin = isAdminRole(currentAgent?.extra?.role);
 
   const {
     register,

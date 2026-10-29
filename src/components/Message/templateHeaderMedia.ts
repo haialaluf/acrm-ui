@@ -11,8 +11,8 @@ export type TemplateHeaderMedia = {
 /** The media file attached to a template's header, read back out of the stored
  *  Meta send payload (`content.data`).
  *
- *  A media header is not part of the flattened display text — it carries no
- *  text at all — so the chat bubble has to recover it from the payload it was
+ *  A media header is not part of the flattened display text - it carries no
+ *  text at all - so the chat bubble has to recover it from the payload it was
  *  sent with. Returns `null` when the header is textual (already rendered as
  *  part of `content.text`), absent, or carries a Meta media `id` instead of a
  *  `link`: an id is only resolvable through the Graph API, so there is nothing

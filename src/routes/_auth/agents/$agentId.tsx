@@ -26,6 +26,7 @@ import FaqSection from "@/components/FaqSection";
 import ResourcesSection from "@/components/ResourcesSection";
 import SwitchField from "@/components/SwitchField";
 import { MODEL_OPTIONS } from "@/models/catalog";
+import { isAdminRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/agents/$agentId")({
   component: AgentDetail,
@@ -37,7 +38,7 @@ function AgentDetail() {
   const { agentId } = Route.useParams();
   const { data: agent } = useAgent<AIAgentRow>(agentId);
   const { data: currentAgent } = useCurrentAgent();
-  const isAdmin = ["admin", "owner"].includes(currentAgent?.extra?.role || "");
+  const isAdmin = isAdminRole(currentAgent?.extra?.role);
   const deleteAgent = useDeleteAgent();
   const updateAgent = useUpdateAgent();
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
@@ -47,8 +48,8 @@ function AgentDetail() {
   );
 
   // Normalize agent data so the skills and FAQ field arrays always have an
-  // array, and so the scope guard reads as on for agents saved before it
-  // existed (the API treats undefined as on too). Normalizing here also keeps
+  // array, and so the scope guard and update_contact read as on for agents
+  // saved before they existed (the API treats undefined as on too). Normalizing here also keeps
   // it out of the dirty check: `values` is the baseline the form compares
   // against.
   const normalizedAgent = useMemo(() => {
@@ -61,6 +62,7 @@ function AgentDetail() {
         faq: agent.extra?.faq ?? [],
         resources: agent.extra?.resources ?? [],
         on_topic_only: agent.extra?.on_topic_only ?? true,
+        update_contact: agent.extra?.update_contact ?? true,
       },
     };
   }, [agent]);
@@ -90,7 +92,7 @@ function AgentDetail() {
     });
 
     // Agent chats have no contact address, so their thread key is built from
-    // the conversation id — see `threadKey`.
+    // the conversation id - see `threadKey`.
     navigate({ hash: threadKey(conv) });
   };
 
@@ -229,16 +231,18 @@ function AgentDetail() {
                   placeholder={t("Default")}
                 />
 
-                <DurationField
-                  name="extra.pause_after_human_reply_minutes"
-                  control={control}
-                  label={t("Pause after a human replies")}
-                  description={t(
-                    "How long this agent stays silent after someone from the business answers in the thread. Leave blank for 12 hours; 0 means it never pauses.",
-                  )}
-                  placeholder="12"
-                  disabled={!isAdmin}
-                />
+                {!isBackOffice && (
+                  <DurationField
+                    name="extra.pause_after_human_reply_minutes"
+                    control={control}
+                    label={t("Pause after a human replies")}
+                    description={t(
+                      "How long this agent stays silent after someone from the business answers in the thread. Leave blank for 12 hours; 0 means it never pauses.",
+                    )}
+                    placeholder="12"
+                    disabled={!isAdmin}
+                  />
+                )}
               </SectionField>
             </fieldset>
           </form>

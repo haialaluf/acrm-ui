@@ -22,7 +22,7 @@ export default function CalendarsList({ activeId }: { activeId?: string }) {
   const { data: calendars } = useCalendars();
   const deleteCalendar = useDeleteCalendar();
 
-  // Calendar pending deletion — drives the confirmation dialog.
+  // Calendar pending deletion - drives the confirmation dialog.
   const [confirm, setConfirm] = useState<CalendarRow | null>(null);
 
   function openEdit(id: string) {

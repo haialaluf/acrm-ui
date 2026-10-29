@@ -11,13 +11,15 @@ import {
   type BroadcastBatchRow,
   useBroadcastBatches,
   useCancelBroadcastBatch,
+  usePauseBroadcastBatch,
+  useResumeBroadcastBatch,
 } from "@/queries/useBroadcasts";
 import { batchStatus, isUpcomingBatch } from "./batchStatus";
 import { batchActivityValue, batchSortValue } from "./formatScheduledDate";
 import { encodeBatchKey } from "./batchKey";
 import BroadcastCard from "./BroadcastCard";
 
-// Master list of the org's broadcast batches — one card per day-batch, not per
+// Master list of the org's broadcast batches - one card per day-batch, not per
 // campaign (a 5-day split send shows as 5 cards). Rendered in the left panel
 // for both `/broadcasts` and `/broadcasts/$batchKey`; the detail fills the
 // center panel (see BroadcastCenter, the broadcasts analogue of
@@ -27,6 +29,8 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
   const navigate = useNavigate();
   const { data: batches, isLoading } = useBroadcastBatches();
   const cancelBatch = useCancelBroadcastBatch();
+  const pauseBatch = usePauseBroadcastBatch();
+  const resumeBatch = useResumeBroadcastBatch();
 
   // null until the user picks a tab, so the default can follow the data (and
   // the open batch) instead of being frozen at first render. Kept in the store
@@ -49,6 +53,7 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
           scheduled_at: b.scheduled_at,
           recipient_count: b.recipient_count ?? 0,
           pending_count: b.pending_count ?? 0,
+          paused_count: b.paused_count ?? 0,
           failed_count: b.failed_count ?? 0,
           cancelled_count: b.cancelled_count ?? 0,
         }),
@@ -57,7 +62,7 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
 
   // Two different clocks, because the two tabs answer two different questions.
   // Upcoming is "what goes out next", so it sorts by the send instant, soonest
-  // first — by the instant rather than the day, since two batches of the same
+  // first - by the instant rather than the day, since two batches of the same
   // campaign can share a date at different hours. History is a log of what
   // happened, so it sorts by when each batch actually resolved, most recent
   // first: a batch scheduled for next week and cancelled today belongs next to
@@ -81,6 +86,19 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
         : "history");
 
   const list = activeTab === "upcoming" ? upcoming : history;
+
+  function batchArgs(batch: BroadcastBatchRow) {
+    return { createdAt: batch.created_at, scheduledDate: batch.scheduled_date };
+  }
+
+  function isToggling(batch: BroadcastBatchRow) {
+    return [pauseBatch, resumeBatch].some(
+      (m) =>
+        m.isPending &&
+        m.variables?.createdAt === batch.created_at &&
+        m.variables?.scheduledDate === batch.scheduled_date,
+    );
+  }
 
   function confirmCancel() {
     if (!cancelTarget) return;
@@ -145,6 +163,9 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
               })
             }
             onCancel={() => setCancelTarget(row.batch)}
+            onPause={() => pauseBatch.mutate(batchArgs(row.batch))}
+            onResume={() => resumeBatch.mutate(batchArgs(row.batch))}
+            toggling={isToggling(row.batch)}
           />
         ))}
 
@@ -161,7 +182,7 @@ export default function BroadcastsList({ activeKey }: { activeKey?: string }) {
             <div className="text-[12px] text-muted-foreground max-w-[260px] leading-[18px]">
               {activeTab === "upcoming"
                 ? t(
-                    "Every broadcast you schedule shows up here — you can cancel it up until it goes out.",
+                    "Every broadcast you schedule shows up here - you can pause or cancel it up until it goes out.",
                   )
                 : t(
                     "Broadcasts that finished or were cancelled show up here with their delivery stats.",

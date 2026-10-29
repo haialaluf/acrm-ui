@@ -16,13 +16,13 @@ const INTERNAL_MEDIA_URI = new RegExp(
  * A saved email template's HTML with its storage references swapped for signed
  * URLs, so a preview renders the same images the recipient will get.
  *
- * A stored template holds unsigned `internal://media/...` references — a scheme
+ * A stored template holds unsigned `internal://media/...` references - a scheme
  * no browser can fetch, which is why an unresolved preview shows broken images.
  * The dispatcher signs them per send; this is the on-screen equivalent, and the
  * single-URL `useSignedMediaUrl` is the same idea for a template's header
  * media.
  *
- * Signs every distinct asset in one batch — an email is usually a logo plus a
+ * Signs every distinct asset in one batch - an email is usually a logo plus a
  * hero, and one round trip beats one per image. HTML with no references (an
  * older template, or one using externally hosted images) is passed straight
  * back without a query.
@@ -56,7 +56,7 @@ export function useSignedEmailHtml(html?: string): string {
       );
 
       // An object that failed to sign is simply absent, keeping its internal
-      // reference below — one dead image should not blank the whole preview.
+      // reference below - one dead image should not blank the whole preview.
       return new Map(
         uris.flatMap((uri, i) => {
           const signedUrl = signedByPath.get(paths[i]);

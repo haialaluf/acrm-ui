@@ -50,10 +50,10 @@ function Thumb({ preview }: { preview: Starter["preview"] }) {
 }
 
 /**
- * "Start a new email" — the first screen of the create flow.
+ * "Start a new email" - the first screen of the create flow.
  *
  * A blank 600px body is a bad place to start for most people. None of these
- * carry the compliance footer — it is appended at send time and is not part of
+ * carry the compliance footer - it is appended at send time and is not part of
  * the design, so nobody has to know it was required or keep it intact.
  */
 export default function StarterGallery({
@@ -100,7 +100,7 @@ export default function StarterGallery({
       <div className="flex items-center gap-[8px] mt-[20px] text-[12.5px] text-muted-foreground">
         <Sparkles size={15} />
         {t(
-          "You can also paste existing HTML once you are in the builder — it is parsed into editable blocks.",
+          "You can also paste existing HTML once you are in the builder - it is parsed into editable blocks.",
         )}
       </div>
     </div>

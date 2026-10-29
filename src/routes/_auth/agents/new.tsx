@@ -17,6 +17,7 @@ import FaqSection from "@/components/FaqSection";
 import ResourcesSection from "@/components/ResourcesSection";
 import SwitchField from "@/components/SwitchField";
 import { MODEL_OPTIONS } from "@/models/catalog";
+import { isAdminRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/agents/new")({
   component: AddAgent,
@@ -27,7 +28,7 @@ function AddAgent() {
   const navigate = useNavigate();
   const createAgent = useCreateAgent();
   const { data: currentAgent } = useCurrentAgent();
-  const isAdmin = ["admin", "owner"].includes(currentAgent?.extra?.role || "");
+  const isAdmin = isAdminRole(currentAgent?.extra?.role);
 
   const {
     register,
@@ -50,6 +51,7 @@ function AddAgent() {
         faq: [],
         resources: [],
         on_topic_only: true,
+        update_contact: true,
       },
     },
   });
@@ -191,16 +193,18 @@ function AddAgent() {
                 placeholder={t("Default")}
               />
 
-              <DurationField
-                name="extra.pause_after_human_reply_minutes"
-                control={control}
-                label={t("Pause after a human replies")}
-                description={t(
-                  "How long this agent stays silent after someone from the business answers in the thread. Leave blank for 12 hours; 0 means it never pauses.",
-                )}
-                placeholder="12"
-                disabled={!isAdmin}
-              />
+              {!isBackOffice && (
+                <DurationField
+                  name="extra.pause_after_human_reply_minutes"
+                  control={control}
+                  label={t("Pause after a human replies")}
+                  description={t(
+                    "How long this agent stays silent after someone from the business answers in the thread. Leave blank for 12 hours; 0 means it never pauses.",
+                  )}
+                  placeholder="12"
+                  disabled={!isAdmin}
+                />
+              )}
             </SectionField>
           </fieldset>
         </form>

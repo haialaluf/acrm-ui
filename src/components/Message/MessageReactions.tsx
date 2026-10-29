@@ -8,7 +8,7 @@ import type { Reaction } from "@/utils/reactions";
 const chipClasses =
   "flex items-center gap-[3px] rounded-full bg-background border border-border shadow-sm px-[6px] py-[1px] text-[12px] leading-[16px] select-none";
 
-/** One emoji and everyone who used it — WhatsApp shows "❤️ 2", not "❤️ ❤️". */
+/** One emoji and everyone who used it - WhatsApp shows "❤️ 2", not "❤️ ❤️". */
 type ReactionGroup = {
   emoji: string;
   reactors: Reaction[];
@@ -96,9 +96,9 @@ function Reactors({ group }: { group: ReactionGroup }) {
 /**
  * The reaction pills hanging off a bubble's bottom edge.
  *
- * At most one reaction per party — the channel keeps a single one per
+ * At most one reaction per party - the channel keeps a single one per
  * participant, and the organization is one participant however many agents sit
- * behind it (see `indexReactions`) — then identical emoji collapse into one
+ * behind it (see `indexReactions`) - then identical emoji collapse into one
  * chip with a count, the way WhatsApp draws them.
  */
 export default function MessageReactions({

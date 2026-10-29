@@ -8,7 +8,7 @@ import type { ConversationRow } from "@/supabase/client";
  * A thread groups every `conversations` row of one counterpart (see
  * `threadKey`). Components that used to read `chat.conversations.get(convId)`
  * want the row messages are written to and whose `extra` carries the draft,
- * pin and pause flags — the thread's primary row. `updateConvExtra` /
+ * pin and pause flags - the thread's primary row. `updateConvExtra` /
  * `saveDraft` write those flags to every row of the pair, so reading them off
  * the primary is always consistent.
  */

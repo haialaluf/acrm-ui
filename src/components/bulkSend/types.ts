@@ -19,8 +19,8 @@ import { formatPhoneNumber, ltrIsolate } from "@/utils/FormatUtils";
  * The order is not cosmetic since the wizard grew a second channel: an email
  * template can only go to contacts with an email address and a WhatsApp
  * template only to contacts with a phone, so the template is what decides who
- * is even selectable. Asking for recipients first — as this did while WhatsApp
- * was the only channel — would mean silently dropping a chunk of a chosen list
+ * is even selectable. Asking for recipients first - as this did while WhatsApp
+ * was the only channel - would mean silently dropping a chunk of a chosen list
  * the moment a template was picked.
  */
 export type Stage =
@@ -38,21 +38,21 @@ export type Channel = OutboundChannel;
 /**
  * One send target: a contact *and the single address this copy goes to*.
  *
- * The wizard used to treat a contact as the unit — `Set<contact.id>` for the
- * selection, `contactPhone`/`contactEmail` at send time — which quietly meant
+ * The wizard used to treat a contact as the unit - `Set<contact.id>` for the
+ * selection, `contactPhone`/`contactEmail` at send time - which quietly meant
  * "whichever address row `find` hit first". A contact with two phone numbers
  * had one of them unreachable through a broadcast, with nothing on screen
  * saying so. The unit is the address instead: each one is its own listed,
  * selectable, previewable row, so picking both numbers sends both copies.
  *
- * `address` is the selection key on its own — `contacts_addresses`' primary key
+ * `address` is the selection key on its own - `contacts_addresses`' primary key
  * is the address, so it is unique across the whole org, not just within the
  * contact.
  */
 export type Recipient = {
   contact: ContactWithAddressesRow;
   address: string;
-  /** The address row's own status — `'inactive'` is this exact address being
+  /** The address row's own status - `'inactive'` is this exact address being
    *  undeliverable, unrelated to the contact-wide opt-out in `contact.status`. */
   status?: string;
 };
@@ -86,7 +86,7 @@ export function recipientAddressLabel(
   return channel === "email" ? address : ltrIsolate(formatPhoneNumber(address));
 }
 
-/** The contact ids behind a recipient list, deduped — a contact selected on two
+/** The contact ids behind a recipient list, deduped - a contact selected on two
  *  addresses still needs only one booking / unsubscribe token minted. */
 export function recipientContactIds(recipients: Recipient[]): string[] {
   return Array.from(new Set(recipients.map((r) => r.contact.id)));
@@ -122,7 +122,7 @@ export function computeBatches<T>(
 /**
  * Resolve the effective schedule. When over the limit the default is to split
  * across days unless the user explicitly picked "send all now". Within the
- * limit, splitting never applies — behave as plain now/later.
+ * limit, splitting never applies - behave as plain now/later.
  */
 export function effectiveScheduling(
   scheduling: Scheduling,
@@ -137,7 +137,7 @@ export function effectiveScheduling(
    the rest at DEFAULT_SEND_TIME). The user can override any batch's date and
    time in the review step. Overrides live in a `BatchSchedule` keyed by
    absolute batch index; `resolveBatchSchedule` merges an override over the
-   default. `scheduleMode` only toggles the editing UI — overrides always
+   default. `scheduleMode` only toggles the editing UI - overrides always
    apply once set. */
 
 /** Whether the split schedule shows read-only rows or per-batch pickers. */
@@ -155,7 +155,7 @@ export const DEFAULT_SEND_TIME = "09:00";
 
 /**
  * WhatsApp's messaging tier is a *rolling* 24h window on the number of unique
- * customers you may start conversations with — not a per-calendar-day
+ * customers you may start conversations with - not a per-calendar-day
  * allowance. Batch N therefore has to clear a full 24h from the send, not
  * merely land on a later date.
  */
@@ -199,12 +199,12 @@ export function offsetToISO(offset: number): string {
 /**
  * Resolve one batch's send date/time, layering any override on top of the
  * default: batch 0 sends "now" (empty time), and batch N goes out on today + N
- * days at whichever is *later* — its nominal DEFAULT_SEND_TIME slot, or a full
+ * days at whichever is *later* - its nominal DEFAULT_SEND_TIME slot, or a full
  * rolling window per batch after the send plus a buffer.
  *
  * That second clause is what keeps a split broadcast inside the tier limit.
  * Anchoring every later batch to a fixed 09:00 meant any send after 09:00 left
- * under 24h between batch 0 and batch 1 — a 10:38 send put batch 1 just 22h22m
+ * under 24h between batch 0 and batch 1 - a 10:38 send put batch 1 just 22h22m
  * later, so Meta still counted batch 0's recipients against the window and
  * rejected batch 1. (Batches 1..N were spaced exactly 24h, with no margin at
  * all.) Taking the later of the two keeps the clean 09:00 slot for morning
@@ -212,7 +212,7 @@ export function offsetToISO(offset: number): string {
  * broadcast started, which also keeps them in business hours instead of
  * drifting into the middle of the night.
  *
- * An explicit override is the user's own choice and is returned verbatim — it
+ * An explicit override is the user's own choice and is returned verbatim - it
  * is not pushed out to satisfy the window.
  */
 export function resolveBatchSchedule(
@@ -232,7 +232,7 @@ export function resolveBatchSchedule(
 
   // Walk the batches in order: each one must clear a full window from the batch
   // before it, not just from the send. Measuring every batch against `now`
-  // alone would leave consecutive batches exactly 24h apart with no margin —
+  // alone would leave consecutive batches exactly 24h apart with no margin -
   // and since the dispatch cron drains only 100 messages per minute, a
   // 250-message batch takes ~3 minutes to go out, so its tail would still be
   // inside the window when the next batch started.
@@ -266,7 +266,7 @@ export function batchScheduledIso(
 }
 
 /**
- * Local `YYYY-MM-DDTHH:mm` for the next DEFAULT_SEND_TIME — today if that time
+ * Local `YYYY-MM-DDTHH:mm` for the next DEFAULT_SEND_TIME - today if that time
  * is still ahead, otherwise tomorrow. Used to pre-fill the "schedule for later"
  * picker so a sensible date/time (9am local) is set before the user opens it.
  */
@@ -284,7 +284,7 @@ export function defaultScheduledAt(): string {
  * batch before them, and so at risk of being rejected.
  *
  * The defaults from `resolveBatchSchedule` always clear the window, but a
- * per-batch override is honoured verbatim — a broadcast on 2026-07-23 was hand
+ * per-batch override is honoured verbatim - a broadcast on 2026-07-23 was hand
  * edited into 23.08h and 14.08h gaps, and those 334 messages would have been
  * rejected with no indication in the wizard. Batch 0 without a chosen time goes
  * out immediately, so it is measured from now.
@@ -320,7 +320,7 @@ export function immediateCount<T>(
   );
 }
 
-/* The variable model itself lives in components/templateFill — the automation
+/* The variable model itself lives in components/templateFill - the automation
    editor fills the same templates through the same cards, and a second copy of
    it here is exactly how the two screens drifted apart. What stays local is the
    broadcast's own vocabulary: a fixed contact-field enum, resolved against a
@@ -414,20 +414,20 @@ export function fillTemplate(
  * Email slots are bound at AUTHORING time, not send time.
  *
  * The WhatsApp model above asks, per broadcast, what each `{{n}}` should draw
- * from — because a Meta-approved template is a fixed string with numbered holes
+ * from - because a Meta-approved template is a fixed string with numbered holes
  * and nothing records an intent for them. An email template already stores
  * `[{ n, field, fallback }]` on the row: the builder is where you say "{{2}} is
  * the first name". Re-asking here would be a second, competing answer to a
  * question already settled.
  *
  * So the email arm of the Variables step confirms rather than collects, and the
- * only thing it can change is the FALLBACK — which is genuinely per-send ("Hi
+ * only thing it can change is the FALLBACK - which is genuinely per-send ("Hi
  * {{1}}" wants "there" on a newsletter and "valued customer" on an invoice) and
  * is the one field a `custom` slot depends on entirely.
  *
  * That editor and its helpers live with the shared card in
- * components/templateFill/EmailVarsEditor — an automation's send-email step asks
- * for the same overrides — and are re-exported here so the wizard's own modules
+ * components/templateFill/EmailVarsEditor - an automation's send-email step asks
+ * for the same overrides - and are re-exported here so the wizard's own modules
  * keep importing everything about a send from one place.
  */
 

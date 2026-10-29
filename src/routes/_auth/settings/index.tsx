@@ -3,7 +3,18 @@ import SectionHeader from "@/components/SectionHeader";
 import SectionItem from "@/components/SectionItem";
 import { useTranslation } from "@/hooks/useTranslation";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Building2, Users, Webhook, Key, Bot, FileText } from "lucide-react";
+import {
+  Building2,
+  Users,
+  Webhook,
+  Key,
+  Bot,
+  Unplug,
+  Workflow,
+  FileText,
+} from "lucide-react";
+import HideIfNotPermitted from "@/components/HideIfNotPermitted";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { useWorkspace } from "@/hooks/useWorkspace";
 
 export const Route = createFileRoute("/_auth/settings/")({
@@ -14,6 +25,7 @@ function SettingsIndex() {
   const { translate: t } = useTranslation();
   const { isTherapy } = useWorkspace();
   const navigate = useNavigate();
+  const { showsEverything } = useOnboarding();
 
   return (
     <>
@@ -63,6 +75,48 @@ function SettingsIndex() {
                 to: "/settings/members",
                 hash: (prevHash) => prevHash!,
               })
+            }
+          />
+          {showsEverything && (
+            <SectionItem
+              title={t("Agents")}
+              aside={
+                <div className="p-[8px]">
+                  <Bot className="w-[24px] h-[24px] text-muted-foreground" />
+                </div>
+              }
+              onClick={() =>
+                navigate({ to: "/agents", hash: (prevHash) => prevHash! })
+              }
+            />
+          )}
+          {showsEverything && (
+            <HideIfNotPermitted surface="/automations">
+              <SectionItem
+                title={t("Automations")}
+                aside={
+                  <div className="p-[8px]">
+                    <Workflow className="w-[24px] h-[24px] text-muted-foreground" />
+                  </div>
+                }
+                onClick={() =>
+                  navigate({
+                    to: "/automations",
+                    hash: (prevHash) => prevHash!,
+                  })
+                }
+              />
+            </HideIfNotPermitted>
+          )}
+          <SectionItem
+            title={t("Integrations")}
+            aside={
+              <div className="p-[8px]">
+                <Unplug className="w-[24px] h-[24px] text-muted-foreground" />
+              </div>
+            }
+            onClick={() =>
+              navigate({ to: "/integrations", hash: (prevHash) => prevHash! })
             }
           />
           <SectionItem

@@ -20,8 +20,8 @@ function isEmptyMessage(d: MessagePreviewData) {
 
 /**
  * Reusable, presentational WhatsApp message preview.
- * - `variant="phone"` (default): full device shell — used on the editor stage.
- * - `variant="bubble"`: just the chat surface + bubble — reuse in reviews.
+ * - `variant="phone"` (default): full device shell - used on the editor stage.
+ * - `variant="bubble"`: just the chat surface + bubble - reuse in reviews.
  * Pass `data` directly, or use `LiveMessagePreview` to source it from the
  * shared `useMessagePreview` cache.
  */
@@ -82,7 +82,7 @@ export default function WhatsAppPreview({
         </button>
 
         <div className="stage-cap">
-          {t("Live preview — this is how your message looks in WhatsApp")}
+          {t("Live preview - this is how your message looks in WhatsApp")}
         </div>
       </div>
     </div>

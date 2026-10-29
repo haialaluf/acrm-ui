@@ -5,7 +5,7 @@ import App from "./App";
 import { detectLanguage, initI18n, isRtl } from "./i18n";
 
 /**
- * Entry point for unsubscribe.delacrm.com — a third Vite build out of this repo
+ * Entry point for unsubscribe.delacrm.com - a third Vite build out of this repo
  * (vite.unsubscribe.config.ts) so the opt-out page shares the design tokens and
  * translations without sharing the app's dependencies: no router, no supabase
  * client, no zustand, no react-query.
@@ -23,7 +23,7 @@ initI18n();
 const lang = detectLanguage();
 
 // Set before the first paint, so an RTL locale doesn't flip after render. The
-// page keeps them in sync from here on — language is switchable in-page.
+// page keeps them in sync from here on - language is switchable in-page.
 document.documentElement.dir = isRtl(lang) ? "rtl" : "ltr";
 document.documentElement.lang = lang;
 

@@ -7,6 +7,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { useConnectEmailDomain } from "@/queries/useEmailDomain";
 import { useForm } from "react-hook-form";
+import { isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/integrations/email/new")({
   component: EmailNew,
@@ -21,14 +22,14 @@ function EmailNew() {
   const navigate = useNavigate();
   const connect = useConnectEmailDomain();
   const { data: currentAgent } = useCurrentAgent();
-  const isOwner = currentAgent?.extra?.role === "owner";
+  const isOwner = isOwnerRole(currentAgent?.extra?.role);
 
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: { domain: "" },
   });
 
   // The server normalizes and validates the domain and reports the real reason
-  // — already claimed, malformed, SES rejected it — so show its message rather
+  // - already claimed, malformed, SES rejected it - so show its message rather
   // than duplicating the rules here.
   const error = connect.error?.message;
 
@@ -92,7 +93,7 @@ function EmailNew() {
               </li>
               <li>
                 {t(
-                  "Enter the domain only, without www or an email address — for example acme.com.",
+                  "Enter the domain only, without www or an email address - for example acme.com.",
                 )}
               </li>
             </ul>

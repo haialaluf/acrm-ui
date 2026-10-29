@@ -7,6 +7,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import type { JSX } from "react";
+import { isAdminRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/agents/")({
   component: ListAgents,
@@ -17,7 +18,7 @@ function ListAgents() {
   const navigate = useNavigate();
   const { data: agents } = useCurrentAgents();
   const { data: currentAgent } = useCurrentAgent();
-  const isAdmin = ["admin", "owner"].includes(currentAgent?.extra?.role || "");
+  const isAdmin = isAdminRole(currentAgent?.extra?.role);
 
   const modeLabels: Record<string, string | JSX.Element> = {
     active: <span className="text-primary">{t("Active")}</span>,
@@ -27,7 +28,12 @@ function ListAgents() {
 
   return (
     <>
-      <SectionHeader title={t("Agents")} />
+      <SectionHeader
+        title={t("Agents")}
+        onBack={() =>
+          navigate({ to: "/settings", hash: (prevHash) => prevHash! })
+        }
+      />
 
       <SectionBody>
         <SectionItem

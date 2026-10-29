@@ -46,7 +46,7 @@ answer `{"valid":false}` with a 404 — that is the correct response, not an
 error:
 
 ```bash
-curl -i https://ndxlahgkhrabfnugrxtp.supabase.co/functions/v1/booking/nope
+curl -i https://fefdyzeqowcerpsqosrj.supabase.co/functions/v1/booking/nope
 ```
 
 ---
@@ -87,7 +87,7 @@ rather than through CI logs.
 ```bash
 cd acrm-ui
 
-VITE_BOOKING_API_URL=https://ndxlahgkhrabfnugrxtp.supabase.co/functions/v1 \
+VITE_BOOKING_API_URL=https://fefdyzeqowcerpsqosrj.supabase.co/functions/v1 \
 VITE_BOOKING_BASE_URL=https://calendar.delacrm.com \
 npm run build:booking
 
@@ -171,7 +171,7 @@ Then in GitHub → `acrm-ui` → **Settings** → **Secrets and variables** →
 | ----------------------- | ------------------------------------------------------- | ----------------- |
 | `CLOUDFLARE_API_TOKEN`  | the token you just created                              | you must add      |
 | `CLOUDFLARE_ACCOUNT_ID` | from `npx wrangler whoami` in Step 1                    | you must add      |
-| `VITE_BOOKING_API_URL`  | `https://ndxlahgkhrabfnugrxtp.supabase.co/functions/v1` | ✅ set 2026-07-23 |
+| `VITE_BOOKING_API_URL`  | `https://fefdyzeqowcerpsqosrj.supabase.co/functions/v1` | ✅ set 2026-07-23 |
 | `VITE_BOOKING_BASE_URL` | `https://calendar.delacrm.com`                          | ✅ set 2026-07-23 |
 
 The two `VITE_` values are plain configuration, not credentials, so they are

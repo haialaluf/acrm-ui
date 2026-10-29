@@ -37,7 +37,7 @@ function useDebounced<T>(value: T, delay: number) {
 /**
  * The sidebar's conversation list, paged newest-first.
  *
- * Filter, search and tags are applied by `conversations_page` server-side —
+ * Filter, search and tags are applied by `conversations_page` server-side -
  * with only a window of the conversations loaded, filtering client-side would
  * silently hide matches that live further down the list.
  *
@@ -55,7 +55,7 @@ export function useConversationsPage() {
   const pushThreadPage = useBoundStore((state) => state.chat.pushThreadPage);
 
   // Typing must not fire one RPC per keystroke. Trimmed because the pattern
-  // goes to the RPC as `%value%` — a pasted number with a trailing space would
+  // goes to the RPC as `%value%` - a pasted number with a trailing space would
   // otherwise match nothing.
   const search = useDebounced(searchPattern, SEARCH_DEBOUNCE_MS).trim();
 

@@ -47,14 +47,14 @@ export function useTemplates(organizationAddress?: string) {
       );
 
       // Without this the list can only fail as a TypeError on `data.data`,
-      // which reaches the UI as "Cannot read properties of null" — the
+      // which reaches the UI as "Cannot read properties of null" - the
       // mutations below already surface Meta's own words this way.
       if (error) await throwFunctionError(error);
 
       return (data.data as TemplateData[]) || [];
     },
     enabled: !!activeOrgId && !!organizationAddress,
-    // Live Graph fetch — expensive, and a number's template list changes on
+    // Live Graph fetch - expensive, and a number's template list changes on
     // Meta's side, not ours. The mutations below invalidate it on edit.
     staleTime: CONFIG_STALE_TIME,
   });

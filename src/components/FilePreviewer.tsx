@@ -44,7 +44,7 @@ const FilePreviewer = () => {
   const sendAsContact = useBoundStore((store) => store.ui.sendAsContact);
   const setMediaLoad = useBoundStore((store) => store.chat.setMediaLoad);
 
-  /* A reply started in the composer survives attaching a file — WhatsApp keeps
+  /* A reply started in the composer survives attaching a file - WhatsApp keeps
      the quote and hangs it on the first attachment of the batch. */
   const replyTargetId = useBoundStore((store) =>
     store.chat.replyDrafts.get(store.ui.activeThreadKey || ""),
@@ -168,7 +168,7 @@ const FilePreviewer = () => {
     // If the conv has the `updated_at` unset, it means it has not been pushed to the DB yet.
     !conv.updated_at && (await pushConversationToDb(conv));
 
-    // The endpoint's id, not our storage key — see channelMessageId.
+    // The endpoint's id, not our storage key - see channelMessageId.
     const re_message_id = replyTarget
       ? channelMessageId(replyTarget)
       : undefined;

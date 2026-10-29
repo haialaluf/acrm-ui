@@ -47,7 +47,7 @@ function NewEmailTemplateBody() {
   });
 
   // Set once the first save succeeds, after which this screen is editing a real
-  // row and switches from create to update — so a second autosave does not mint
+  // row and switches from create to update - so a second autosave does not mint
   // a second template.
   const [templateId, setTemplateId] = useState<string | null>(null);
 
@@ -88,7 +88,7 @@ function NewEmailTemplateBody() {
         const created = await create.mutateAsync({
           ...draft,
           ...(status ? { status } : {}),
-          // A template needs a name to be saved at all — it is the unique key.
+          // A template needs a name to be saved at all - it is the unique key.
           // The builder makes the Setup field required and refuses to write
           // without one, so this is only a backstop against an empty insert.
           name: draft.name.trim() || t("Untitled template"),

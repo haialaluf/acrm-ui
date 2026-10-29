@@ -7,8 +7,6 @@ import {
   LogOut,
   Settings,
   MessageSquareText,
-  Unplug,
-  Bot,
   BarChart3,
   Languages,
   Plus,
@@ -17,7 +15,7 @@ import {
   CalendarDays,
   ChevronRight,
   Megaphone,
-  Workflow,
+  Target,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { LinkButton } from "./LinkButton";
@@ -28,6 +26,16 @@ import { useOrganizations } from "@/queries/useOrganizations";
 import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 import ClinicAiIcon from "@/components/therapy/ClinicAiIcon";
 import { useWorkspace } from "@/hooks/useWorkspace";
+import { useOnboarding } from "@/hooks/useOnboarding";
+
+// Sections reached from the Settings page rather than their own menu button,
+// so the Settings button stays highlighted while inside any of them.
+const SETTINGS_SECTIONS = [
+  "/settings",
+  "/agents",
+  "/automations",
+  "/integrations",
+];
 
 export default function Menu() {
   const user = useBoundStore((state) => state.ui.user);
@@ -38,6 +46,7 @@ export default function Menu() {
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
 
   const { data: organizations } = useOrganizations();
+  const { shows, showsEverything } = useOnboarding();
 
   const {
     translate: t,
@@ -59,124 +68,115 @@ export default function Menu() {
     >
       {/* Upper section */}
       <div className="flex flex-col items-center">
-        {/* Messages, Agents, Integrations and Statistics are never hidden;
-            the rest name a surface, and why each one requires what it does is
+        {/* While onboarding only the sections `useOnboarding` names are
+            shown. Otherwise Messages and Statistics are never hidden; the rest name a surface, and why each one requires what it does is
             written once in the SURFACES table. The shell redirects on those
             same rows, so a button can never point at a route that would only
             bounce back. */}
-        <LinkButton
-          to="/conversations"
-          title={t("Messages")}
-          isActive={pathname.startsWith("/conversations")}
-          className="mt-[10px]"
-        >
-          <MessageSquareText className="w-[24px] h-[24px] stroke-[2]" />
-        </LinkButton>
-
-        <HideIfNotPermitted surface="/contacts">
+        {shows("/conversations") && (
           <LinkButton
-            to="/contacts"
-            title={terms.people}
-            isActive={pathname.startsWith("/contacts")}
+            to="/conversations"
+            title={t("Messages")}
+            isActive={pathname.startsWith("/conversations")}
             className="mt-[10px]"
           >
-            <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
-          </LinkButton>
-        </HideIfNotPermitted>
-
-        {isTherapy && (
-          <LinkButton
-            to="/ask"
-            title={t("Clinic AI")}
-            isActive={pathname.startsWith("/ask")}
-            className="mt-[10px]"
-          >
-            <ClinicAiIcon className="w-[24px] h-[24px] stroke-[2]" />
+            <MessageSquareText className="w-[24px] h-[24px] stroke-[2]" />
           </LinkButton>
         )}
 
-        <HideIfNotPermitted surface="/broadcasts">
-          <LinkButton
-            to="/broadcasts"
-            title={t("Broadcasts")}
-            isActive={pathname.startsWith("/broadcasts")}
-            className="mt-[10px]"
-          >
-            <Megaphone className="w-[24px] h-[24px] stroke-[2]" />
-          </LinkButton>
-        </HideIfNotPermitted>
+        {showsEverything && (
+          <>
+            <HideIfNotPermitted surface="/contacts">
+              <LinkButton
+                to="/contacts"
+                title={terms.people}
+                isActive={pathname.startsWith("/contacts")}
+                className="mt-[10px]"
+              >
+                <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
+              </LinkButton>
+            </HideIfNotPermitted>
 
-        <HideIfNotPermitted surface="/templates">
-          <LinkButton
-            to="/templates"
-            title={t("Templates")}
-            isActive={pathname.startsWith("/templates")}
-            className="mt-[10px]"
-          >
-            <LayoutTemplate className="w-[24px] h-[24px] stroke-[2]" />
-          </LinkButton>
-        </HideIfNotPermitted>
+            {isTherapy && (
+              <LinkButton
+                to="/ask"
+                title={t("Clinic AI")}
+                isActive={pathname.startsWith("/ask")}
+                className="mt-[10px]"
+              >
+                <ClinicAiIcon className="w-[24px] h-[24px] stroke-[2]" />
+              </LinkButton>
+            )}
 
-        <HideIfNotPermitted surface="/calendars">
-          <LinkButton
-            to="/calendars"
-            title={t("Calendars")}
-            isActive={pathname.startsWith("/calendars")}
-            className="mt-[10px]"
-          >
-            <CalendarDays className="w-[24px] h-[24px] stroke-[2]" />
-          </LinkButton>
-        </HideIfNotPermitted>
+            <HideIfNotPermitted surface="/leads">
+              <LinkButton
+                to="/leads"
+                title={t("Leads")}
+                isActive={pathname.startsWith("/leads")}
+                className="mt-[10px]"
+              >
+                <Target className="w-[24px] h-[24px] stroke-[2]" />
+              </LinkButton>
+            </HideIfNotPermitted>
 
-        <LinkButton
-          to="/agents"
-          title={t("Agents")}
-          isActive={pathname.startsWith("/agents")}
-          className="mt-[10px]"
-        >
-          <Bot className="w-[24px] h-[24px] stroke-[2]" />
-        </LinkButton>
+            <HideIfNotPermitted surface="/broadcasts">
+              <LinkButton
+                to="/broadcasts"
+                title={t("Broadcasts")}
+                isActive={pathname.startsWith("/broadcasts")}
+                className="mt-[10px]"
+              >
+                <Megaphone className="w-[24px] h-[24px] stroke-[2]" />
+              </LinkButton>
+            </HideIfNotPermitted>
 
-        <HideIfNotPermitted surface="/automations">
-          <LinkButton
-            to="/automations"
-            title={t("Automations")}
-            isActive={pathname.startsWith("/automations")}
-            className="mt-[10px]"
-          >
-            <Workflow className="w-[24px] h-[24px] stroke-[2]" />
-          </LinkButton>
-        </HideIfNotPermitted>
+            <HideIfNotPermitted surface="/templates">
+              <LinkButton
+                to="/templates"
+                title={t("Templates")}
+                isActive={pathname.startsWith("/templates")}
+                className="mt-[10px]"
+              >
+                <LayoutTemplate className="w-[24px] h-[24px] stroke-[2]" />
+              </LinkButton>
+            </HideIfNotPermitted>
 
-        <LinkButton
-          to="/stats"
-          title={t("Statistics")}
-          isActive={pathname.startsWith("/stats")}
-          className="mt-[10px]"
-        >
-          <BarChart3 className="w-[24px] h-[24px] stroke-[2]" />
-        </LinkButton>
+            <HideIfNotPermitted surface="/calendars">
+              <LinkButton
+                to="/calendars"
+                title={t("Calendars")}
+                isActive={pathname.startsWith("/calendars")}
+                className="mt-[10px]"
+              >
+                <CalendarDays className="w-[24px] h-[24px] stroke-[2]" />
+              </LinkButton>
+            </HideIfNotPermitted>
 
-        <LinkButton
-          to="/integrations"
-          title={t("Integrations")}
-          isActive={pathname.startsWith("/integrations")}
-          className="mt-[10px]"
-        >
-          <Unplug className="w-[24px] h-[24px] stroke-[2]" />
-        </LinkButton>
+            <LinkButton
+              to="/stats"
+              title={t("Statistics")}
+              isActive={pathname.startsWith("/stats")}
+              className="mt-[10px]"
+            >
+              <BarChart3 className="w-[24px] h-[24px] stroke-[2]" />
+            </LinkButton>
+          </>
+        )}
       </div>
       {/* Lower section */}
       <div className="flex flex-col items-center">
-        {/* Settings button */}
-        <LinkButton
-          to="/settings"
-          title={t("Settings")}
-          isActive={pathname.startsWith("/settings")}
-          className="mt-[10px]"
-        >
-          <Settings className="w-[20px] h-[20px] stroke-[2]" />
-        </LinkButton>
+        {shows("/settings") && (
+          <LinkButton
+            to="/settings"
+            title={t("Settings")}
+            isActive={SETTINGS_SECTIONS.some((section) =>
+              pathname.startsWith(section),
+            )}
+            className="mt-[10px]"
+          >
+            <Settings className="w-[20px] h-[20px] stroke-[2]" />
+          </LinkButton>
+        )}
 
         <Dropdown
           menu={{

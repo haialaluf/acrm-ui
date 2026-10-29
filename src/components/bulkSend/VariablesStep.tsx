@@ -26,9 +26,9 @@ import {
   type VarValue,
 } from "./types";
 
-/** Step 3 — for each `{{N}}`, choose a static value or a per-recipient field.
+/** Step 3 - for each `{{N}}`, choose a static value or a per-recipient field.
  *  The bubble underneath is the same preview the review step shows, with each
- *  binding highlighted in place of its `{{N}}` — there is no recipient to
+ *  binding highlighted in place of its `{{N}}` - there is no recipient to
  *  resolve against yet, so a field binding reads as its own name.
  *
  *  Both halves are the shared `templateFill` blocks: the automation editor's
@@ -102,7 +102,7 @@ export default function VariablesStep({
               name: headerMediaName,
               onChange: setHeaderMedia,
             }}
-            empty={t("This template has no variables — you can continue")}
+            empty={t("This template has no variables - you can continue")}
           />
 
           <div className="text-[12px] font-semibold mt-[20px] mb-[8px] text-muted-foreground">

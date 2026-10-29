@@ -20,7 +20,7 @@
  *   \x1c\x18\x13 IL.4429118904042507 \x15\x14\x00\x11\x18\x20 A51BCC…E198 \x00
  *
  * The trailing field is the message id and is identical in both forms. The API
- * keys outgoing rows on it, while incoming rows keep the raw WAMID — so the two
+ * keys outgoing rows on it, while incoming rows keep the raw WAMID - so the two
  * sides of a reaction correlation routinely hold different forms of one id, and
  * running both through this is what makes them meet.
  *

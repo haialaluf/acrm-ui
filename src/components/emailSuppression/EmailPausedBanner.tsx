@@ -16,7 +16,7 @@ import {
  * failure presents: a paused tenant does not reject the API call, it accepts
  * every message and delivers none of them. Without this, composing a broadcast
  * and watching it complete "successfully" is indistinguishable from a working
- * account — which is exactly what happened before anything read SendingStatus.
+ * account - which is exactly what happened before anything read SendingStatus.
  *
  * Renders nothing in the normal case, so it is safe to mount anywhere sending
  * is about to happen.

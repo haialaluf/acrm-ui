@@ -62,7 +62,7 @@ export default function QuotaBar({
     // its grant and top-up ledger entries. `cap` is a floor for a balance (the
     // minimum allowed balance, 0 = no debt), not a ceiling, and
     // plans_products.included is a catalogue allowance the org may never have
-    // been granted — a legacy-tier org holds the $1 free grant while its plan
+    // been granted - a legacy-tier org holds the $1 free grant while its plan
     // lists $10, which read $0.91 / $10.00 and implied $9.09 of spend that
     // never happened. Fall back to those only when no grant is on record.
     const entitlement = granted ?? (cap && cap > 0 ? cap : (included ?? 0));

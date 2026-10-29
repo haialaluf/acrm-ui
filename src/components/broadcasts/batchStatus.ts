@@ -1,11 +1,12 @@
 export type BatchStatus =
   | "scheduled"
   | "sending"
+  | "paused"
   | "sent"
   | "failed"
   | "cancelled";
 
-/** Derives a single display status from a list_broadcast_batches row — there
+/** Derives a single display status from a list_broadcast_batches row - there
  *  is no stored status column (see that RPC's comment), so this mirrors the
  *  same precedence the earlier design-mockup version used. Still-pending
  *  takes priority (the batch isn't resolved yet); once resolved, an
@@ -16,9 +17,11 @@ export function batchStatus(row: {
   scheduled_at?: string | null;
   recipient_count: number;
   pending_count: number;
+  paused_count: number;
   failed_count: number;
   cancelled_count: number;
 }): BatchStatus {
+  if (row.paused_count > 0) return "paused";
   if (row.pending_count > 0) {
     return slotReached(row) ? "sending" : "scheduled";
   }
@@ -36,7 +39,7 @@ export function batchStatus(row: {
  * instant the user picked, so a batch set for 18:00 today reads "Scheduled"
  * until 18:00 instead of claiming to be "Sending" from midnight.
  *
- * Without it (rows that predate the column) fall back to the day — but
+ * Without it (rows that predate the column) fall back to the day - but
  * compared in the viewer's own timezone: the previous `toISOString()` version
  * measured a UTC day against a local one and flipped a day early or late
  * around midnight.
@@ -56,7 +59,7 @@ function slotReached(row: {
 /** Splits the two list tabs: a batch is "upcoming" while it still has
  *  messages that can go out (or be cancelled), and history once it doesn't. */
 export function isUpcomingBatch(status: BatchStatus): boolean {
-  return status === "scheduled" || status === "sending";
+  return status === "scheduled" || status === "sending" || status === "paused";
 }
 
 export function batchStatusTone(
@@ -67,6 +70,8 @@ export function batchStatusTone(
       return "primary";
     case "sending":
       return "warning";
+    case "paused":
+      return "neutral";
     case "sent":
       return "success";
     case "failed":
@@ -79,6 +84,7 @@ export function batchStatusTone(
 const STATUS_LABELS: Record<BatchStatus, string> = {
   scheduled: "Scheduled",
   sending: "Sending",
+  paused: "Paused",
   sent: "Sent",
   failed: "Failed",
   cancelled: "Cancelled",

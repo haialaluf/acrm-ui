@@ -21,6 +21,7 @@ import { Route as AuthAskRouteImport } from './routes/_auth/ask'
 import { Route as AuthTemplatesIndexRouteImport } from './routes/_auth/templates/index'
 import { Route as AuthStatsIndexRouteImport } from './routes/_auth/stats/index'
 import { Route as AuthSettingsIndexRouteImport } from './routes/_auth/settings/index'
+import { Route as AuthLeadsIndexRouteImport } from './routes/_auth/leads/index'
 import { Route as AuthIntegrationsIndexRouteImport } from './routes/_auth/integrations/index'
 import { Route as AuthConversationsIndexRouteImport } from './routes/_auth/conversations/index'
 import { Route as AuthContactsIndexRouteImport } from './routes/_auth/contacts/index'
@@ -43,6 +44,7 @@ import { Route as AuthStatsClinicUsageRouteImport } from './routes/_auth/stats/c
 import { Route as AuthSettingsReportTemplatesRouteImport } from './routes/_auth/settings/report-templates'
 import { Route as AuthSettingsConnectClaudeRouteImport } from './routes/_auth/settings/connect-claude'
 import { Route as AuthSettingsConnectChatgptRouteImport } from './routes/_auth/settings/connect-chatgpt'
+import { Route as AuthLeadsSetupRouteImport } from './routes/_auth/leads/setup'
 import { Route as AuthConversationsBulkSendRouteImport } from './routes/_auth/conversations/bulk-send'
 import { Route as AuthContactsNewRouteImport } from './routes/_auth/contacts/new'
 import { Route as AuthContactsImportRouteImport } from './routes/_auth/contacts/import'
@@ -152,6 +154,11 @@ const AuthStatsIndexRoute = AuthStatsIndexRouteImport.update({
 const AuthSettingsIndexRoute = AuthSettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthLeadsIndexRoute = AuthLeadsIndexRouteImport.update({
+  id: '/leads/',
+  path: '/leads/',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthIntegrationsIndexRoute = AuthIntegrationsIndexRouteImport.update({
@@ -268,6 +275,11 @@ const AuthSettingsConnectChatgptRoute =
     path: '/settings/connect-chatgpt',
     getParentRoute: () => AuthRoute,
   } as any)
+const AuthLeadsSetupRoute = AuthLeadsSetupRouteImport.update({
+  id: '/leads/setup',
+  path: '/leads/setup',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthConversationsBulkSendRoute =
   AuthConversationsBulkSendRouteImport.update({
     id: '/conversations/bulk-send',
@@ -582,6 +594,7 @@ export interface FileRoutesByFullPath {
   '/contacts/import': typeof AuthContactsImportRoute
   '/contacts/new': typeof AuthContactsNewRoute
   '/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
+  '/leads/setup': typeof AuthLeadsSetupRoute
   '/settings/connect-chatgpt': typeof AuthSettingsConnectChatgptRoute
   '/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
   '/settings/report-templates': typeof AuthSettingsReportTemplatesRoute
@@ -604,6 +617,7 @@ export interface FileRoutesByFullPath {
   '/contacts': typeof AuthContactsIndexRoute
   '/conversations': typeof AuthConversationsIndexRoute
   '/integrations': typeof AuthIntegrationsIndexRoute
+  '/leads': typeof AuthLeadsIndexRoute
   '/settings': typeof AuthSettingsIndexRoute
   '/stats/': typeof AuthStatsIndexRoute
   '/templates': typeof AuthTemplatesIndexRoute
@@ -667,6 +681,7 @@ export interface FileRoutesByTo {
   '/contacts/import': typeof AuthContactsImportRoute
   '/contacts/new': typeof AuthContactsNewRoute
   '/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
+  '/leads/setup': typeof AuthLeadsSetupRoute
   '/settings/connect-chatgpt': typeof AuthSettingsConnectChatgptRoute
   '/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
   '/settings/report-templates': typeof AuthSettingsReportTemplatesRoute
@@ -689,6 +704,7 @@ export interface FileRoutesByTo {
   '/contacts': typeof AuthContactsIndexRoute
   '/conversations': typeof AuthConversationsIndexRoute
   '/integrations': typeof AuthIntegrationsIndexRoute
+  '/leads': typeof AuthLeadsIndexRoute
   '/settings': typeof AuthSettingsIndexRoute
   '/stats': typeof AuthStatsIndexRoute
   '/templates': typeof AuthTemplatesIndexRoute
@@ -755,6 +771,7 @@ export interface FileRoutesById {
   '/_auth/contacts/import': typeof AuthContactsImportRoute
   '/_auth/contacts/new': typeof AuthContactsNewRoute
   '/_auth/conversations/bulk-send': typeof AuthConversationsBulkSendRoute
+  '/_auth/leads/setup': typeof AuthLeadsSetupRoute
   '/_auth/settings/connect-chatgpt': typeof AuthSettingsConnectChatgptRoute
   '/_auth/settings/connect-claude': typeof AuthSettingsConnectClaudeRoute
   '/_auth/settings/report-templates': typeof AuthSettingsReportTemplatesRoute
@@ -777,6 +794,7 @@ export interface FileRoutesById {
   '/_auth/contacts/': typeof AuthContactsIndexRoute
   '/_auth/conversations/': typeof AuthConversationsIndexRoute
   '/_auth/integrations/': typeof AuthIntegrationsIndexRoute
+  '/_auth/leads/': typeof AuthLeadsIndexRoute
   '/_auth/settings/': typeof AuthSettingsIndexRoute
   '/_auth/stats/': typeof AuthStatsIndexRoute
   '/_auth/templates/': typeof AuthTemplatesIndexRoute
@@ -843,6 +861,7 @@ export interface FileRouteTypes {
     | '/contacts/import'
     | '/contacts/new'
     | '/conversations/bulk-send'
+    | '/leads/setup'
     | '/settings/connect-chatgpt'
     | '/settings/connect-claude'
     | '/settings/report-templates'
@@ -865,6 +884,7 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/conversations'
     | '/integrations'
+    | '/leads'
     | '/settings'
     | '/stats/'
     | '/templates'
@@ -928,6 +948,7 @@ export interface FileRouteTypes {
     | '/contacts/import'
     | '/contacts/new'
     | '/conversations/bulk-send'
+    | '/leads/setup'
     | '/settings/connect-chatgpt'
     | '/settings/connect-claude'
     | '/settings/report-templates'
@@ -950,6 +971,7 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/conversations'
     | '/integrations'
+    | '/leads'
     | '/settings'
     | '/stats'
     | '/templates'
@@ -1015,6 +1037,7 @@ export interface FileRouteTypes {
     | '/_auth/contacts/import'
     | '/_auth/contacts/new'
     | '/_auth/conversations/bulk-send'
+    | '/_auth/leads/setup'
     | '/_auth/settings/connect-chatgpt'
     | '/_auth/settings/connect-claude'
     | '/_auth/settings/report-templates'
@@ -1037,6 +1060,7 @@ export interface FileRouteTypes {
     | '/_auth/contacts/'
     | '/_auth/conversations/'
     | '/_auth/integrations/'
+    | '/_auth/leads/'
     | '/_auth/settings/'
     | '/_auth/stats/'
     | '/_auth/templates/'
@@ -1181,6 +1205,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthSettingsIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/leads/': {
+      id: '/_auth/leads/'
+      path: '/leads'
+      fullPath: '/leads'
+      preLoaderRoute: typeof AuthLeadsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/integrations/': {
@@ -1335,6 +1366,13 @@ declare module '@tanstack/react-router' {
       path: '/settings/connect-chatgpt'
       fullPath: '/settings/connect-chatgpt'
       preLoaderRoute: typeof AuthSettingsConnectChatgptRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/leads/setup': {
+      id: '/_auth/leads/setup'
+      path: '/leads/setup'
+      fullPath: '/leads/setup'
+      preLoaderRoute: typeof AuthLeadsSetupRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/conversations/bulk-send': {
@@ -1733,6 +1771,7 @@ interface AuthRouteChildren {
   AuthContactsImportRoute: typeof AuthContactsImportRoute
   AuthContactsNewRoute: typeof AuthContactsNewRoute
   AuthConversationsBulkSendRoute: typeof AuthConversationsBulkSendRoute
+  AuthLeadsSetupRoute: typeof AuthLeadsSetupRoute
   AuthSettingsConnectChatgptRoute: typeof AuthSettingsConnectChatgptRoute
   AuthSettingsConnectClaudeRoute: typeof AuthSettingsConnectClaudeRoute
   AuthSettingsReportTemplatesRoute: typeof AuthSettingsReportTemplatesRoute
@@ -1745,6 +1784,7 @@ interface AuthRouteChildren {
   AuthContactsIndexRoute: typeof AuthContactsIndexRoute
   AuthConversationsIndexRoute: typeof AuthConversationsIndexRoute
   AuthIntegrationsIndexRoute: typeof AuthIntegrationsIndexRoute
+  AuthLeadsIndexRoute: typeof AuthLeadsIndexRoute
   AuthSettingsIndexRoute: typeof AuthSettingsIndexRoute
   AuthTemplatesIndexRoute: typeof AuthTemplatesIndexRoute
   AuthCalendarsEditCalendarIdRoute: typeof AuthCalendarsEditCalendarIdRoute
@@ -1804,6 +1844,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthContactsImportRoute: AuthContactsImportRoute,
   AuthContactsNewRoute: AuthContactsNewRoute,
   AuthConversationsBulkSendRoute: AuthConversationsBulkSendRoute,
+  AuthLeadsSetupRoute: AuthLeadsSetupRoute,
   AuthSettingsConnectChatgptRoute: AuthSettingsConnectChatgptRoute,
   AuthSettingsConnectClaudeRoute: AuthSettingsConnectClaudeRoute,
   AuthSettingsReportTemplatesRoute: AuthSettingsReportTemplatesRoute,
@@ -1816,6 +1857,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthContactsIndexRoute: AuthContactsIndexRoute,
   AuthConversationsIndexRoute: AuthConversationsIndexRoute,
   AuthIntegrationsIndexRoute: AuthIntegrationsIndexRoute,
+  AuthLeadsIndexRoute: AuthLeadsIndexRoute,
   AuthSettingsIndexRoute: AuthSettingsIndexRoute,
   AuthTemplatesIndexRoute: AuthTemplatesIndexRoute,
   AuthCalendarsEditCalendarIdRoute: AuthCalendarsEditCalendarIdRoute,

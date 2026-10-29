@@ -17,7 +17,7 @@ import useBoundStore from "@/stores/useBoundStore";
  *  - RENDER: nothing shows until the integration is known connected, so a
  *    surface can never flash in and be pulled back out a frame later.
  *  - REDIRECT: nothing navigates until `isResolved`, so a hard refresh with no
- *    session yet — or a failed fetch — leaves you where you are rather than
+ *    session yet - or a failed fetch - leaves you where you are rather than
  *    bouncing you to `/integrations`.
  *
  * Not a `beforeLoad` redirect. The organization lives in Zustand and the
@@ -34,7 +34,7 @@ export default function IntegrationGate({
 }: {
   surface: Surface;
   /**
-   * Where a blocked visit lands. Defaults to `/integrations` — the section that
+   * Where a blocked visit lands. Defaults to `/integrations` - the section that
    * is never itself gated, because it is where you connect. The stats tabs
    * override it so a typed `/stats/email` lands on the stats list rather than
    * leaving the section.

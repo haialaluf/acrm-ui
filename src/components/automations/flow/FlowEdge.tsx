@@ -15,7 +15,7 @@ import type { FlowEdgeType } from "./layout";
  * opens a column.
  *
  * The `+` sits at the elbow of the step path and stays faintly visible instead
- * of appearing only on hover — with the whole diagram now inside a pannable
+ * of appearing only on hover - with the whole diagram now inside a pannable
  * viewport, a control you can only find by hovering the exact pixels it will
  * appear at is a control nobody finds.
  */
@@ -79,10 +79,10 @@ export default function FlowEdge({
             // own, so a `scale` composes with that offset and throws the
             // button off the edge instead of growing it in place.
             className={
-              "nodrag nopan pointer-events-auto absolute flex h-5 w-5 items-center justify-center rounded-full border bg-card p-0 transition-[opacity,color,background-color,border-color] hover:border-primary hover:bg-primary hover:text-white " +
+              "nodrag nopan pointer-events-auto absolute flex h-5 w-5 items-center justify-center rounded-full border bg-card p-0 transition-[opacity,color,background-color,border-color] hover:border-primary hover:bg-primary hover:text-white pointer-coarse:h-7 pointer-coarse:w-7 pointer-coarse:shadow-sm " +
               (insert.always
                 ? "border-primary text-primary"
-                : "border-border text-muted-foreground opacity-40 hover:opacity-100 focus-visible:opacity-100")
+                : "border-border text-muted-foreground opacity-40 hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100")
             }
             onClick={(e) => {
               e.stopPropagation();
@@ -93,7 +93,7 @@ export default function FlowEdge({
               );
             }}
           >
-            <Plus className="h-3 w-3" />
+            <Plus className="h-3 w-3 pointer-coarse:h-4 pointer-coarse:w-4" />
           </button>
         )}
       </EdgeLabelRenderer>

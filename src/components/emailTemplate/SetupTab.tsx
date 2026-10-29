@@ -18,7 +18,7 @@ const segmentedTheme = {
   },
 };
 
-/** Roughly where most inboxes truncate a subject line. Not a hard limit — the
+/** Roughly where most inboxes truncate a subject line. Not a hard limit - the
  *  counter turns amber rather than blocking, because a long subject is a
  *  judgement call, not an error. */
 const SUBJECT_BUDGET = 60;
@@ -48,7 +48,7 @@ export default function SetupTab({
   name: string;
   onName: (value: string) => void;
   /** Set once a save or publish was refused for want of a name. The field only
-   *  turns red after someone tried to save without one — an untouched form is
+   *  turns red after someone tried to save without one - an untouched form is
    *  incomplete, not wrong. */
   nameError: boolean;
   subject: string;
@@ -57,7 +57,7 @@ export default function SetupTab({
   onPreheader: (value: string) => void;
   extra: EmailTemplateExtra;
   onExtra: (patch: Partial<EmailTemplateExtra>) => void;
-  /** The direction actually in force, resolved by the builder — which falls
+  /** The direction actually in force, resolved by the builder - which falls
    *  back to the UI language, not to `ltr`. Passed in rather than re-derived
    *  here: while this control derived its own default, an untouched template in
    *  a Hebrew workspace composed right-to-left while this said left-to-right. */
@@ -90,7 +90,7 @@ export default function SetupTab({
             </div>
           ) : (
             <Hint>
-              {t("Only you see this — it names the template in your library.")}
+              {t("Only you see this - it names the template in your library.")}
             </Hint>
           )}
         </Field>
@@ -191,7 +191,7 @@ export default function SetupTab({
         </ConfigProvider>
         <Hint>
           {t(
-            "Sets the direction of the email body — independent of the language you use the app in.",
+            "Sets the direction of the email body - independent of the language you use the app in.",
           )}
         </Hint>
       </Section>
@@ -225,7 +225,7 @@ export default function SetupTab({
 
         {/* One colour, not two. There was a second picker for the surround
             behind the content, but the canvas is a card the width of the
-            content — so that colour was invisible while designing and only
+            content - so that colour was invisible while designing and only
             showed up as a frame around the design in the inbox. The email is
             one flat surface now. */}
         <ColorField
@@ -241,14 +241,14 @@ export default function SetupTab({
             icon={<Lock size={14} />}
             title={t("Every email ends with the same footer")}
             body={t(
-              "Your business name, address and an unsubscribe link are added at send time. It is not part of the design and cannot be edited — check Preview to see it.",
+              "Your business name, address and an unsubscribe link are added at send time. It is not part of the design and cannot be edited - check Preview to see it.",
             )}
           />
           <ComplianceRow
             icon={<LinkIcon size={14} />}
             title={t("One-click unsubscribe")}
             body={t(
-              "List-Unsubscribe headers are added at send time — nothing to place in the design.",
+              "List-Unsubscribe headers are added at send time - nothing to place in the design.",
             )}
           />
         </div>

@@ -13,7 +13,7 @@ import useBoundStore from "@/stores/useBoundStore";
  * Templates management (list / create / edit) rendered as an overlay ON TOP of
  * the bulk-send wizard, so the wizard is never unmounted. Closing the overlay
  * returns the user to exactly where they were (the "Choose a template" step)
- * with all wizard state intact — unlike navigating to the standalone
+ * with all wizard state intact - unlike navigating to the standalone
  * `/templates` or `/integrations/whatsapp/$id/templates` routes, which throw
  * the wizard away.
  */
@@ -35,7 +35,7 @@ export default function ManageTemplatesOverlay({
   // Which sub-view is showing. `undefined` template on "edit" never happens.
   // `root` marks a form that was opened as the overlay's entry point (i.e. the
   // wizard's "Create template" button jumped straight here) rather than reached
-  // from the list — so its back arrow closes the overlay instead of dropping to
+  // from the list - so its back arrow closes the overlay instead of dropping to
   // a list the user never saw.
   const [view, setView] = useState<
     | { mode: "list" }
@@ -82,7 +82,7 @@ export default function ManageTemplatesOverlay({
         <div className="text-[16px]">{title}</div>
         {view.mode === "edit" && (
           <button
-            className="p-[8px] rounded-full hover:bg-muted ml-auto disabled:opacity-30 disabled:hover:bg-transparent"
+            className="p-[8px] rounded-full hover:bg-muted ms-auto disabled:opacity-30 disabled:hover:bg-transparent"
             title={t("Delete")}
             onClick={() =>
               deleteTemplate.mutate(
@@ -120,7 +120,7 @@ export default function ManageTemplatesOverlay({
               onSaved={() => setView({ mode: "list" })}
             />
           </div>
-          {/* Desktop live preview — mirrors the standalone editor route, which
+          {/* Desktop live preview - mirrors the standalone editor route, which
               shows it in the app's center panel. TemplateEditor renders its own
               stacked preview on mobile, so this column is desktop-only. */}
           <div className="hidden md:flex items-center justify-center bg-muted w-[320px] shrink-0 overflow-auto">

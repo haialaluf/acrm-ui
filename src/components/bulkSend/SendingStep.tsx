@@ -1,7 +1,7 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import StatTile from "@/components/StatTile";
 
-/** Step 5 — in-flight stage. SVG ring with percentage + 3-up stat tiles. */
+/** Step 5 - in-flight stage. SVG ring with percentage + 3-up stat tiles. */
 export default function SendingStep({
   total,
   progress,
@@ -17,7 +17,7 @@ export default function SendingStep({
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   const isDone = done >= total;
 
-  // Circle geometry — r=56 ⇒ circumference ≈ 351.85
+  // Circle geometry - r=56 ⇒ circumference ≈ 351.85
   const radius = 56;
   const circumference = 2 * Math.PI * radius;
 
@@ -70,7 +70,7 @@ export default function SendingStep({
           {isDone
             ? t("Sending completed")
             : t(
-                "Sending messages… you can close — it will continue in the background.",
+                "Sending messages… you can close - it will continue in the background.",
               )}
         </div>
         {scheduled > 0 && (
