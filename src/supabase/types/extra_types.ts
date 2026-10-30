@@ -85,11 +85,15 @@ export type OrganizationExtra = {
   data_region?: DataRegion;
   // Where Ask AI answers are worked out; chosen by the owner. Absent = "eu".
   ask_ai_location?: AskAiLocation;
+  // How far Patient AI and session reports go into clinical judgment; only a
+  // super_admin can change it. Absent = "strict". See clinical_rules.ts.
+  clinical_suggestions?: ClinicalSuggestions;
   lead_flow?: LeadFlow;
 };
 
 export type DataRegion = "il" | "se";
 export type AskAiLocation = "stockholm" | "eu";
+export type ClinicalSuggestions = "strict" | "current" | "open";
 export type WorkspaceType = "company" | "therapy";
 export type PeopleTerm = "patients" | "clients";
 export type Currency = "ILS" | "SEK" | "EUR" | "USD";

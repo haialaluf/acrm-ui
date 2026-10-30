@@ -2081,5 +2081,13 @@
   "Stops the messages that have not gone out yet. You can resume at any time.": "עוצר את ההודעות שעדיין לא נשלחו. אפשר להמשיך בכל עת.",
   "Every broadcast you schedule shows up here - you can pause or cancel it up until it goes out.": "כל שליחה מתוזמנת מופיעה כאן - אפשר להשהות או לבטל אותה עד שהיא יוצאת.",
   "Update contact": "עדכון איש קשר",
-  "Lets the agent save notes, tags, and contact details the client gives, and move their lead to the next stage.": "מאפשר לסוכן לשמור הערות, תגיות ופרטי קשר שהלקוח מוסר, ולהעביר את הליד שלו לשלב הבא."
+  "Lets the agent save notes, tags, and contact details the client gives, and move their lead to the next stage.": "מאפשר לסוכן לשמור הערות, תגיות ופרטי קשר שהלקוח מוסר, ולהעביר את הליד שלו לשלב הבא.",
+  "Clinical suggestions": "הצעות קליניות",
+  "Strict": "מחמיר",
+  "Current": "נוכחי",
+  "Open": "פתוח",
+  "Patient AI may suggest diagnoses, treatment and risk when asked. Only for testing or a certified product.": "Patient AI רשאי להציע אבחנות, טיפול והערכת סיכון כשמבקשים. רק לבדיקות או למוצר מאושר.",
+  "Patient AI and session reports use the prompts from before this setting existed.": "Patient AI וסיכומי הפגישות משתמשים בהנחיות שהיו לפני שההגדרה הזו נוספה.",
+  "Documentation only: Patient AI and session reports never diagnose, recommend treatment or judge risk.": "תיעוד בלבד: Patient AI וסיכומי הפגישות אף פעם לא מאבחנים, ממליצים על טיפול או מעריכים סיכון.",
+  "Only super admins see and change this.": "רק סופר-אדמינים רואים ומשנים את זה."
 }
