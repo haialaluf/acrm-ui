@@ -12,6 +12,7 @@ import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 import { Activity, BarChart3, Gauge, MailWarning, Wallet } from "lucide-react";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { useCurrentAgent } from "@/queries/useAgents";
+import { isAdminRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/stats")({
   component: StatsLayout,
@@ -24,8 +25,7 @@ function StatsLayout() {
   const pathname = location.pathname;
   const { isTherapy } = useWorkspace();
   const { data: agent } = useCurrentAgent();
-  const role = agent?.extra?.role;
-  const showClinicUsage = isTherapy && (role === "owner" || role === "admin");
+  const showClinicUsage = isTherapy && isAdminRole(agent?.extra?.role);
 
   // Bare `/stats` defaults to Quotas (matching StatsCenter), so treat it as the
   // active Quotas tab for highlighting - there is no redirect to `/stats/quotas`.
