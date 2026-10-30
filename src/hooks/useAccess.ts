@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import type { StepType } from "@/components/automations/catalog";
 import type { ContactSource } from "@/supabase/client";
+import { useCurrentOrganization } from "@/queries/useOrganizations";
 import { useIntegrations, type Integration } from "./useIntegrations";
 
 /**
@@ -176,6 +177,12 @@ export const SURFACES = {
 
 export type Surface = keyof typeof SURFACES;
 
+/** A clinic keeps its patient records and calendar with no channel at all. */
+const THERAPY_ALWAYS: ReadonlySet<Surface> = new Set([
+  "/contacts",
+  "/calendars",
+]);
+
 /**
  * Section prefixes the shell matches a pathname against, in the order it tries
  * them. Every entry is a `Surface`, so the requirement itself lives in the
@@ -206,17 +213,28 @@ export type GatedSection = (typeof GATED_SECTIONS)[number];
  * bookmarked URL every time.
  */
 export function useAccess() {
-  const { connected, isResolved, isLoading } = useIntegrations();
+  const {
+    connected,
+    isResolved: integrationsResolved,
+    isLoading: integrationsLoading,
+  } = useIntegrations();
+  const { data: org, isLoading: orgLoading } = useCurrentOrganization();
+  const isTherapy = org?.extra?.workspace_type === "therapy";
 
   const allows = useCallback(
     (surface: Surface) => {
+      if (isTherapy && THERAPY_ALWAYS.has(surface)) return true;
       const required: Requirement = SURFACES[surface];
       return required === ALWAYS || required.some((key) => connected[key]);
     },
-    [connected],
+    [connected, isTherapy],
   );
 
-  return { allows, isResolved, isLoading };
+  return {
+    allows,
+    isResolved: integrationsResolved && !orgLoading,
+    isLoading: integrationsLoading || orgLoading,
+  };
 }
 
 /** A channel the organization can author and send on. */
