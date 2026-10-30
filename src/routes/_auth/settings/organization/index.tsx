@@ -34,7 +34,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { STATIC_STALE_TIME } from "@/queries/cacheConfig";
 import { CURRENCIES, CURRENCY_SYMBOLS } from "@/hooks/useWorkspace";
-import { isOwnerRole } from "@/utils/roles";
+import { isGhost, isOwnerRole } from "@/utils/roles";
 
 export const Route = createFileRoute("/_auth/settings/organization/")({
   beforeLoad: () => {
@@ -55,6 +55,7 @@ function EditOrganization() {
   const { data: agent } = useCurrentAgent();
   const { data: agents } = useCurrentAgents();
   const isOwner = isOwnerRole(agent?.extra?.role);
+  const isSuperAdmin = isGhost(agent?.extra?.role);
 
   // Back-office and personal-assistant agents are excluded: this picker is
   // who answers a contact by default, which neither kind can ever do
@@ -87,6 +88,7 @@ function EditOrganization() {
         currency: org.extra?.currency || "ILS",
         data_region: org.extra?.data_region,
         ask_ai_location: org.extra?.ask_ai_location || "eu",
+        clinical_suggestions: org.extra?.clinical_suggestions || "strict",
         transcription: {
           mode: "inactive" as const,
           ...org.extra?.transcription,
@@ -112,6 +114,10 @@ function EditOrganization() {
   const defaultAgentId = useWatch({ control, name: "extra.default_agent_id" });
   const workspaceType = useWatch({ control, name: "extra.workspace_type" });
   const askAiLocation = useWatch({ control, name: "extra.ask_ai_location" });
+  const clinicalSuggestions = useWatch({
+    control,
+    name: "extra.clinical_suggestions",
+  });
   const { data: readyRegions } = useQuery({
     queryKey: ["patient-data-regions"],
     queryFn: async () => {
@@ -326,6 +332,35 @@ function EditOrganization() {
                   : t(
                       "Answers may be worked out on Amazon's servers in any EU country, with more capable models. Nothing leaves the EU.",
                     )}
+              </p>
+            </div>
+          )}
+
+          {workspaceType === "therapy" && isSuperAdmin && (
+            <div className="flex flex-col gap-[8px]">
+              <SelectField
+                control={control}
+                name="extra.clinical_suggestions"
+                label={t("Clinical suggestions")}
+                options={[
+                  { value: "strict", label: t("Strict") },
+                  { value: "current", label: t("Current") },
+                  { value: "open", label: t("Open") },
+                ]}
+              />
+              <p className="text-[12px] text-muted-foreground">
+                {clinicalSuggestions === "open"
+                  ? t(
+                      "Patient AI may suggest diagnoses, treatment and risk when asked. Only for testing or a certified product.",
+                    )
+                  : clinicalSuggestions === "current"
+                    ? t(
+                        "Patient AI and session reports use the prompts from before this setting existed.",
+                      )
+                    : t(
+                        "Documentation only: Patient AI and session reports never diagnose, recommend treatment or judge risk.",
+                      )}{" "}
+                {t("Only super admins see and change this.")}
               </p>
             </div>
           )}
