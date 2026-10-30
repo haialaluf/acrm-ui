@@ -1,21 +1,39 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useWorkspace } from "@/hooks/useWorkspace";
+import { useAccess } from "@/hooks/useAccess";
+import { useCurrentAgent } from "@/queries/useAgents";
+import { isAdminRole } from "@/utils/roles";
 import StatsQuotas from "./StatsQuotas";
 import StatsUsage from "./StatsUsage";
 import ClinicUsage from "./ClinicUsage";
 import AccountHealth from "./health/AccountHealth";
 import EmailHealth from "./health/email/EmailHealth";
 
+/** Quotas and Usage count channel messages, conversation files and the
+ *  agents' AI credits, so a clinic with no channel sees only its own usage. */
+export function useStatsTabs() {
+  const { isTherapy } = useWorkspace();
+  const { allows } = useAccess();
+  const { data: agent } = useCurrentAgent();
+  const showClinicUsage = isTherapy && isAdminRole(agent?.extra?.role);
+  const showPlanStats = !showClinicUsage || allows("app.connected");
+  return { showClinicUsage, showPlanStats };
+}
+
 export default function StatsCenter() {
   const pathname = useLocation({ select: (l) => l.pathname });
   const navigate = useNavigate();
   const { translate: t } = useTranslation();
+  const { showPlanStats } = useStatsTabs();
 
   const isUsage = pathname === "/stats/usage";
   const isHealth = pathname === "/stats/health";
   const isEmailHealth = pathname === "/stats/email";
-  const isClinicUsage = pathname === "/stats/clinic-usage";
+  const isClinicUsage =
+    pathname === "/stats/clinic-usage" ||
+    (!showPlanStats && !isHealth && !isEmailHealth);
 
   return (
     <>

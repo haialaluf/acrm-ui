@@ -10,9 +10,7 @@ import SectionItem from "@/components/SectionItem";
 import { useTranslation } from "@/hooks/useTranslation";
 import HideIfNotPermitted from "@/components/HideIfNotPermitted";
 import { Activity, BarChart3, Gauge, MailWarning, Wallet } from "lucide-react";
-import { useWorkspace } from "@/hooks/useWorkspace";
-import { useCurrentAgent } from "@/queries/useAgents";
-import { isAdminRole } from "@/utils/roles";
+import { useStatsTabs } from "@/components/stats/StatsCenter";
 
 export const Route = createFileRoute("/_auth/stats")({
   component: StatsLayout,
@@ -23,13 +21,11 @@ function StatsLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const pathname = location.pathname;
-  const { isTherapy } = useWorkspace();
-  const { data: agent } = useCurrentAgent();
-  const showClinicUsage = isTherapy && isAdminRole(agent?.extra?.role);
+  const { showClinicUsage, showPlanStats } = useStatsTabs();
 
-  // Bare `/stats` defaults to Quotas (matching StatsCenter), so treat it as the
-  // active Quotas tab for highlighting - there is no redirect to `/stats/quotas`.
-  const activeTab =
+  // Bare `/stats` defaults to Quotas, or Clinic usage when Quotas is hidden
+  // (matching StatsCenter) - there is no redirect.
+  const pathTab =
     pathname === "/stats/usage"
       ? "usage"
       : pathname === "/stats/health"
@@ -39,43 +35,51 @@ function StatsLayout() {
           : pathname === "/stats/clinic-usage"
             ? "clinic-usage"
             : "quotas";
+  const activeTab =
+    !showPlanStats && (pathTab === "quotas" || pathTab === "usage")
+      ? "clinic-usage"
+      : pathTab;
 
   return (
     <>
       <SectionHeader title={t("Statistics")} hideBackButton />
       <SectionBody>
-        <SectionItem
-          title={t("Quotas")}
-          aside={
-            <div
-              className={`p-[8px] rounded-full ${activeTab === "quotas" ? "bg-primary/10" : ""}`}
-            >
-              <Gauge
-                className={`w-[24px] h-[24px] ${activeTab === "quotas" ? "text-primary" : "text-muted-foreground"}`}
-              />
-            </div>
-          }
-          onClick={() =>
-            navigate({ to: "/stats/quotas", hash: (prev) => prev! })
-          }
-          className={activeTab === "quotas" ? "bg-accent" : ""}
-        />
-        <SectionItem
-          title={t("Usage")}
-          aside={
-            <div
-              className={`p-[8px] rounded-full ${activeTab === "usage" ? "bg-primary/10" : ""}`}
-            >
-              <BarChart3
-                className={`w-[24px] h-[24px] ${activeTab === "usage" ? "text-primary" : "text-muted-foreground"}`}
-              />
-            </div>
-          }
-          onClick={() =>
-            navigate({ to: "/stats/usage", hash: (prev) => prev! })
-          }
-          className={activeTab === "usage" ? "bg-accent" : ""}
-        />
+        {showPlanStats && (
+          <>
+            <SectionItem
+              title={t("Quotas")}
+              aside={
+                <div
+                  className={`p-[8px] rounded-full ${activeTab === "quotas" ? "bg-primary/10" : ""}`}
+                >
+                  <Gauge
+                    className={`w-[24px] h-[24px] ${activeTab === "quotas" ? "text-primary" : "text-muted-foreground"}`}
+                  />
+                </div>
+              }
+              onClick={() =>
+                navigate({ to: "/stats/quotas", hash: (prev) => prev! })
+              }
+              className={activeTab === "quotas" ? "bg-accent" : ""}
+            />
+            <SectionItem
+              title={t("Usage")}
+              aside={
+                <div
+                  className={`p-[8px] rounded-full ${activeTab === "usage" ? "bg-primary/10" : ""}`}
+                >
+                  <BarChart3
+                    className={`w-[24px] h-[24px] ${activeTab === "usage" ? "text-primary" : "text-muted-foreground"}`}
+                  />
+                </div>
+              }
+              onClick={() =>
+                navigate({ to: "/stats/usage", hash: (prev) => prev! })
+              }
+              className={activeTab === "usage" ? "bg-accent" : ""}
+            />
+          </>
+        )}
         <HideIfNotPermitted surface="/stats/health">
           <SectionItem
             title={t("WhatsApp account health")}

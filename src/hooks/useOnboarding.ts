@@ -20,6 +20,9 @@ export function useOnboarding() {
   const { data: organizations, isPending: isOrganizationsPending } =
     useOrganizations();
   const { allows, isResolved: isAccessResolved } = useAccess();
+  const isTherapy =
+    organizations?.find((org) => org.id === activeOrgId)?.extra
+      ?.workspace_type === "therapy";
 
   // Keyed on `activeOrgId` too: right after creating an organization it is set
   // before the organizations list refetches, and that window must not bounce
@@ -27,7 +30,10 @@ export function useOnboarding() {
   const step: OnboardingStep | null =
     !activeOrgId && organizations?.length === 0
       ? "organization"
-      : activeOrgId && isAccessResolved && !allows("app.connected")
+      : activeOrgId &&
+          isAccessResolved &&
+          !allows("app.connected") &&
+          !isTherapy
         ? "integration"
         : null;
 
