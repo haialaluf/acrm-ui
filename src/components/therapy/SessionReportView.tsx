@@ -305,6 +305,12 @@ export default function SessionReportView({
                       />
                     )}
                   </div>
+                ) : fieldRows(s.value) ? (
+                  <FieldRows
+                    rows={fieldRows(s.value)!}
+                    placeholder={t("Not discussed")}
+                    onChange={(value) => update(i, { value })}
+                  />
                 ) : (
                   <textarea
                     className="resize-none bg-transparent outline-none text-[14px] leading-[1.5] text-foreground placeholder:italic"
@@ -435,6 +441,57 @@ function PlayButton({
     >
       <Icon className="w-[11px] h-[11px] fill-current" />
     </button>
+  );
+}
+
+type FieldRow = { label: string; text: string };
+
+/** A sub-fields section is stored as "Field: value" lines. */
+function fieldRows(value: string): FieldRow[] | null {
+  const lines = value.split("\n");
+  if (lines.length < 2) return null;
+  const rows = lines.map((line) => /^([^:]{1,60}):[ \t]?(.*)$/.exec(line));
+  return rows.every(Boolean)
+    ? rows.map((m) => ({ label: m![1], text: m![2] }))
+    : null;
+}
+
+function FieldRows({
+  rows,
+  placeholder,
+  onChange,
+}: {
+  rows: FieldRow[];
+  placeholder: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-[8px]">
+      {rows.map((row, j) => (
+        <div key={j} className="flex flex-col">
+          <div className="text-[12px] text-muted-foreground" dir="auto">
+            {row.label}
+          </div>
+          <textarea
+            className="resize-none bg-transparent outline-none text-[14px] leading-[1.5] text-foreground placeholder:italic"
+            rows={Math.max(1, Math.ceil(row.text.length / 48))}
+            placeholder={placeholder}
+            dir="auto"
+            value={row.text}
+            onChange={(e) =>
+              onChange(
+                rows
+                  .map(
+                    (r, k) =>
+                      `${r.label}: ${k === j ? e.target.value.replace(/\n/g, " ") : r.text}`,
+                  )
+                  .join("\n"),
+              )
+            }
+          />
+        </div>
+      ))}
+    </div>
   );
 }
 
