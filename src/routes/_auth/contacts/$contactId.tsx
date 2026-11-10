@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useScrollEdgeFade } from "@/hooks/useScrollEdgeFade";
 import {
   useContact,
   useDeleteContact,
@@ -169,6 +170,7 @@ function ContactDetail() {
   const search = Route.useSearch();
   const location = useLocation();
   const [tab, setTab] = useState<Tab>(search.tab ?? "details");
+  const tabsFade = useScrollEdgeFade<HTMLDivElement>();
   useEffect(() => {
     if (search.tab) setTab(search.tab);
   }, [search.tab]);
@@ -348,6 +350,7 @@ function ContactDetail() {
       params: { contactId },
       search: (prev) => ({ ...prev, ai: true }),
       hash: "",
+      replace: true,
     });
   }
 
@@ -472,6 +475,9 @@ function ContactDetail() {
           </div>
 
           <div
+            ref={tabsFade.ref}
+            onScroll={tabsFade.onScroll}
+            style={tabsFade.style}
             className={
               "flex overflow-x-auto " +
               (isTherapy ? "gap-[16px]" : "gap-[22px]")
@@ -487,7 +493,15 @@ function ContactDetail() {
                     ? "text-primary border-primary"
                     : "text-muted-foreground border-transparent")
                 }
-                onClick={() => setTab(key)}
+                onClick={() => {
+                  setTab(key);
+                  void navigate({
+                    to: ".",
+                    search: (prev) => ({ ...prev, tab: key }),
+                    hash: (prevHash) => prevHash!,
+                    replace: true,
+                  });
+                }}
               >
                 {t(TAB_LABELS[key])}
               </button>

@@ -91,14 +91,14 @@ function PracticeAsk() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="h-[60px] shrink-0 px-[20px] flex items-center gap-[10px] border-b border-border">
-        <span className="w-[30px] h-[30px] rounded-[10px] bg-accent text-primary flex items-center justify-center">
+      <div className="h-[60px] shrink-0 px-[12px] md:px-[20px] flex items-center gap-[8px] md:gap-[10px] border-b border-border">
+        <span className="w-[30px] h-[30px] shrink-0 rounded-[10px] bg-accent text-primary flex items-center justify-center">
           <ClinicAiIcon className="w-[16px] h-[16px]" />
         </span>
-        <div className="text-[18px] font-semibold text-card-foreground">
+        <div className="text-[18px] font-semibold text-card-foreground whitespace-nowrap">
           {t("Clinic AI")}
         </div>
-        <span className="text-[12px] px-[9px] py-[2px] rounded-full bg-muted text-muted-foreground">
+        <span className="text-[12px] px-[9px] py-[2px] rounded-full bg-muted text-muted-foreground whitespace-nowrap truncate min-w-0">
           {t("Your whole clinic")}
         </span>
         {isTherapy && <ClinicAiPrivacyButton scope="clinic" />}

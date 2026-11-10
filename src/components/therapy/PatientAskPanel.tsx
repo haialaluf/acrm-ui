@@ -45,15 +45,15 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
 
   return (
     <>
-      <div className="h-[60px] shrink-0 px-[20px] flex items-center gap-[10px] border-b border-border bg-background">
-        <span className="w-[30px] h-[30px] rounded-[10px] bg-accent text-primary flex items-center justify-center">
+      <div className="h-[60px] shrink-0 px-[12px] md:px-[20px] flex items-center gap-[8px] md:gap-[10px] border-b border-border bg-background">
+        <span className="w-[30px] h-[30px] shrink-0 rounded-[10px] bg-accent text-primary flex items-center justify-center">
           {reportId ? (
             <SessionAiIcon className="w-[16px] h-[16px]" />
           ) : (
             <Sparkles className="w-[16px] h-[16px]" />
           )}
         </span>
-        <div className="text-[16px] font-semibold text-card-foreground">
+        <div className="text-[16px] font-semibold text-card-foreground whitespace-nowrap">
           {reportId ? t("Session AI") : t("Patient AI")}
         </div>
         <span className="flex items-center gap-[6px] text-[13px] text-muted-foreground min-w-0">
@@ -74,12 +74,13 @@ function PatientAsk({ contact }: { contact: ContactWithAddressesRow }) {
         <button
           type="button"
           title={t("Close")}
-          className="w-[34px] h-[34px] rounded-full flex items-center justify-center hover:bg-accent"
+          className="w-[34px] h-[34px] shrink-0 rounded-full flex items-center justify-center hover:bg-accent"
           onClick={() =>
             void navigate({
-              to: "/contacts/$contactId",
-              params: { contactId: contact.id },
+              to: ".",
               search: (prev) => ({ ...prev, ai: undefined }),
+              hash: (prevHash) => prevHash!,
+              replace: true,
             })
           }
         >
