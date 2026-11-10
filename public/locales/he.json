@@ -2096,5 +2096,7 @@
   "The AI is not set up on this deployment.": "ה-AI לא מוגדר בסביבה הזו.",
   "The AI couldn't answer right now.": "ה-AI לא הצליח לענות כרגע.",
   "That question is too long.": "השאלה ארוכה מדי.",
-  "Patient not found.": "המטופל לא נמצא."
+  "Patient not found.": "המטופל לא נמצא.",
+  "Less than a minute recorded": "הוקלטה פחות מדקה",
+  "Recording stopped early · less than a minute saved": "ההקלטה נעצרה מוקדם · נשמרה פחות מדקה"
 }

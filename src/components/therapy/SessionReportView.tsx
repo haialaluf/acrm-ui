@@ -113,7 +113,7 @@ export default function SessionReportView({
   }
 
   const flagged = report.sections.filter((s) => s.flagged).length;
-  const minutes = Math.max(1, Math.round(report.durationSeconds / 60));
+  const minutes = Math.round(report.durationSeconds / 60);
 
   return (
     <div className="flex flex-col grow min-h-0 relative">
@@ -126,7 +126,10 @@ export default function SessionReportView({
             {dayjs(report.createdAt)
               .locale(currentLanguage)
               .format("ddd D MMM, HH:mm")}{" "}
-            · {minutes} {t("min recorded")}
+            ·{" "}
+            {minutes < 1
+              ? t("Less than a minute recorded")
+              : `${minutes} ${t("min recorded")}`}
           </div>
         </div>
         <span

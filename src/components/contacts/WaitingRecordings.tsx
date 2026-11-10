@@ -102,11 +102,8 @@ export default function WaitingRecordings({
     <div className="flex flex-col">
       <div className="label">{t("In progress")}</div>
       {waiting.map((r) => {
-        const minutes = Math.max(
-          1,
-          Math.round(
-            (r.duration_seconds ?? r.chunk_count * CHUNK_SECONDS) / 60,
-          ),
+        const minutes = Math.round(
+          (r.duration_seconds ?? r.chunk_count * CHUNK_SECONDS) / 60,
         );
         const busy = busyId === r.id;
         return (
@@ -128,17 +125,21 @@ export default function WaitingRecordings({
                   : r.state === "failed"
                     ? t("The report couldn't be written")
                     : r.state === "stopped"
-                      ? t("Recording stopped early · {{1}} min saved").replace(
-                          "{{1}}",
-                          String(minutes),
-                        )
+                      ? minutes < 1
+                        ? t(
+                            "Recording stopped early · less than a minute saved",
+                          )
+                        : t(
+                            "Recording stopped early · {{1}} min saved",
+                          ).replace("{{1}}", String(minutes))
                       : t("Recording saved, no report yet")}
               </div>
               <div className="text-[12px] text-muted-foreground">
                 {dayjs(r.created_at)
                   .locale(currentLanguage)
                   .format("D MMM, HH:mm")}
-                {r.state !== "stopped" && ` · ${minutes} ${t("min recorded")}`}
+                {r.state !== "stopped" &&
+                  ` · ${minutes < 1 ? t("Less than a minute recorded") : `${minutes} ${t("min recorded")}`}`}
               </div>
               {r.state !== "writing" && (
                 <div className="flex flex-wrap gap-[8px]">
