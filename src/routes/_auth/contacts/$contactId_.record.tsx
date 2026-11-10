@@ -1,4 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useRouter,
+} from "@tanstack/react-router";
 import SectionHeader from "@/components/SectionHeader";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useContact } from "@/queries/useContacts";
@@ -11,15 +15,20 @@ export const Route = createFileRoute("/_auth/contacts/$contactId_/record")({
 function RecordSessionPage() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
+  const router = useRouter();
   const { contactId } = Route.useParams();
   const { data: contact } = useContact(contactId);
 
-  const back = () =>
+  const back = () => {
+    if (router.history.canGoBack()) return router.history.back();
     void navigate({
       to: "/contacts/$contactId",
       params: { contactId },
+      search: { tab: "sessions" },
       hash: (prevHash) => prevHash!,
+      replace: true,
     });
+  };
 
   return (
     <>

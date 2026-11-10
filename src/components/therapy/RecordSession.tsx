@@ -27,6 +27,7 @@ import {
   useSaveSessionReport,
 } from "@/queries/useSessionReports";
 import {
+  canRecordOnlineSession,
   RecorderStartError,
   type RecorderState,
   type RecordingMode,
@@ -86,6 +87,7 @@ export default function RecordSession({
   const [chosenTemplateId, setTemplateId] = useState("");
   const templateId = chosenTemplateId || templates[0]?.id || "";
   const [mode, setMode] = useState<RecordingMode>("room");
+  const [onlineSupported] = useState(canRecordOnlineSession);
   const [language, setLanguage] = useState("auto");
   const [consent, setConsent] = useState(false);
   const [startError, setStartError] = useState("");
@@ -149,15 +151,17 @@ export default function RecordSession({
       setStartError(
         reason === "microphone"
           ? t("Allow microphone access in the browser to record.")
-          : reason === "no-tab-audio"
-            ? t(
-                'The call\'s sound was not shared. Start again and turn on "Also share tab audio".',
-              )
-            : (err as Error).message.startsWith("Choose where")
+          : reason === "online-unsupported"
+            ? t("Online sessions need Chrome or Edge on a computer.")
+            : reason === "no-tab-audio"
               ? t(
-                  "Choose where this clinic's patient data is stored (Settings → Organization) first.",
+                  'The call\'s sound was not shared. Start again and turn on "Also share tab audio".',
                 )
-              : t("Could not start the recording. Please try again."),
+              : (err as Error).message.startsWith("Choose where")
+                ? t(
+                    "Choose where this clinic's patient data is stored (Settings → Organization) first.",
+                  )
+                : t("Could not start the recording. Please try again."),
       );
     }
   }
@@ -431,6 +435,7 @@ export default function RecordSession({
 
   const modes: {
     id: RecordingMode;
+    disabled?: boolean;
     icon: typeof Users;
     title: string;
     description: string;
@@ -446,6 +451,7 @@ export default function RecordSession({
       icon: Monitor,
       title: t("Online session"),
       description: t("A call in a browser tab: Google Meet, Zoom, Teams…"),
+      disabled: !onlineSupported,
     },
   ];
 
@@ -469,15 +475,18 @@ export default function RecordSession({
 
       <div className="label mb-0">{t("Session")}</div>
       <div className="grid grid-cols-2 gap-[8px]">
-        {modes.map(({ id, icon: Icon, title, description }) => (
+        {modes.map(({ id, icon: Icon, title, description, disabled }) => (
           <button
             key={id}
             type="button"
+            disabled={disabled}
             className={
               "flex flex-col gap-[4px] px-[12px] py-[11px] rounded-[12px] border text-start " +
               (id === mode
                 ? "border-primary bg-primary/6"
-                : "border-border bg-popover hover:bg-accent")
+                : disabled
+                  ? "border-border bg-popover opacity-50 cursor-not-allowed"
+                  : "border-border bg-popover hover:bg-accent")
             }
             onClick={() => setMode(id)}
           >
@@ -494,6 +503,11 @@ export default function RecordSession({
           </button>
         ))}
       </div>
+      {!onlineSupported && (
+        <div className="text-[13px] text-muted-foreground -mt-[6px]">
+          {t("Online sessions need Chrome or Edge on a computer.")}
+        </div>
+      )}
       {mode === "online" && (
         <div className="text-[13px] text-muted-foreground bg-accent rounded-[12px] px-[12px] py-[10px]">
           {t(

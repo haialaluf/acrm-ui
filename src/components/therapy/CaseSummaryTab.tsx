@@ -96,9 +96,9 @@ export default function CaseSummaryTab({
 
   return (
     <div className="flex flex-col gap-[18px] px-[20px] pt-[20px] pb-[24px]">
-      <div className="flex items-center gap-[8px] text-[12px] text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-[8px] text-[12px] text-muted-foreground">
         <Sparkles className="w-[14px] h-[14px] text-primary shrink-0" />
-        <span className="grow">
+        <span className="grow basis-[220px]">
           {t("Kept up to date by Patient AI")} · {t("Updated")}{" "}
           {day(summary.updated_at, "D MMM, HH:mm")}
           {summary.edited_at &&

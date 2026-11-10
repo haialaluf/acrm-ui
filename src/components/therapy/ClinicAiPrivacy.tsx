@@ -177,17 +177,18 @@ export function ClinicAiPrivacyButton({ scope }: { scope: AskAiScope }) {
   const { translate: t } = useTranslation();
   const { open, toggle, ref } = usePopover();
   return (
-    <div ref={ref} className="relative ms-auto">
+    <div ref={ref} className="relative ms-auto shrink-0">
       <button
         type="button"
+        title={t("What it can see")}
         className={
-          "h-[32px] px-[12px] rounded-full border border-border text-[13px] flex items-center gap-[6px] text-card-foreground " +
+          "h-[32px] px-[8px] md:px-[12px] rounded-full border border-border text-[13px] flex items-center gap-[6px] text-card-foreground whitespace-nowrap " +
           (open ? "bg-accent" : "hover:bg-accent")
         }
         onClick={toggle}
       >
         <ShieldCheck className="w-[15px] h-[15px] text-primary" />
-        {t("What it can see")}
+        <span className="hidden md:inline">{t("What it can see")}</span>
       </button>
       {open && (
         <div className={`${PANEL} top-[calc(100%+6px)] end-0`}>
@@ -204,12 +205,12 @@ export function ClinicAiLocationChip({ scope }: { scope: AskAiScope }) {
   const inSweden = useAskAiInSweden();
   const { open, toggle, ref } = usePopover();
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative shrink-0">
       <button
         type="button"
         title={t("What it can see")}
         className={
-          "inline-flex items-center gap-[5px] h-[24px] px-[9px] rounded-full text-[12px] text-accent-foreground " +
+          "inline-flex items-center gap-[5px] h-[24px] px-[9px] rounded-full text-[12px] text-accent-foreground whitespace-nowrap " +
           (open ? "bg-accent" : "bg-muted hover:bg-accent")
         }
         onClick={toggle}
@@ -232,7 +233,7 @@ export function AskAiSwedenModel() {
   return (
     <span
       title={t("The only Claude model that runs in Stockholm itself")}
-      className="inline-flex items-center h-[24px] px-[9px] rounded-full bg-muted text-[12px] text-muted-foreground"
+      className="inline-flex items-center h-[24px] px-[9px] rounded-full bg-muted text-[12px] text-muted-foreground whitespace-nowrap shrink-0"
     >
       Haiku 4.5
     </span>
@@ -270,7 +271,7 @@ export function AskAiSpeedToggle({
     },
   ];
   return (
-    <div className="inline-flex h-[24px] rounded-full bg-muted p-[2px] text-[12px]">
+    <div className="inline-flex shrink-0 h-[24px] rounded-full bg-muted p-[2px] text-[12px] whitespace-nowrap">
       {options.map((option) => (
         <button
           key={option.value}

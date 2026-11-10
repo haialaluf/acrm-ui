@@ -2089,5 +2089,12 @@
   "Patient AI may suggest diagnoses, treatment and risk when asked. Only for testing or a certified product.": "Patient AI רשאי להציע אבחנות, טיפול והערכת סיכון כשמבקשים. רק לבדיקות או למוצר מאושר.",
   "Patient AI and session reports use the prompts from before this setting existed.": "Patient AI וסיכומי הפגישות משתמשים בהנחיות שהיו לפני שההגדרה הזו נוספה.",
   "Documentation only: Patient AI and session reports never diagnose, recommend treatment or judge risk.": "תיעוד בלבד: Patient AI וסיכומי הפגישות אף פעם לא מאבחנים, ממליצים על טיפול או מעריכים סיכון.",
-  "Only super admins see and change this.": "רק סופר-אדמינים רואים ומשנים את זה."
+  "Only super admins see and change this.": "רק סופר-אדמינים רואים ומשנים את זה.",
+  "Online sessions need Chrome or Edge on a computer.": "פגישות אונליין עובדות רק ב-Chrome או ב-Edge במחשב.",
+  "Couldn't get an answer. Try again.": "לא התקבלה תשובה. נסו שוב.",
+  "The AI is busy. Try again in a minute.": "ה-AI עמוס כרגע. נסו שוב בעוד דקה.",
+  "The AI is not set up on this deployment.": "ה-AI לא מוגדר בסביבה הזו.",
+  "The AI couldn't answer right now.": "ה-AI לא הצליח לענות כרגע.",
+  "That question is too long.": "השאלה ארוכה מדי.",
+  "Patient not found.": "המטופל לא נמצא."
 }

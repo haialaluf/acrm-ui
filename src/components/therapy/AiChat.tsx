@@ -24,6 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   type ChatMessage,
   type ChatThread,
@@ -327,9 +328,7 @@ function AssistantMessage({
         <div className="rounded-[12px] border border-border overflow-hidden bg-background">
           <div
             className="grid gap-[10px] px-[12px] py-[8px] bg-muted text-[12px] text-muted-foreground"
-            style={{
-              gridTemplateColumns: `1.6fr repeat(${message.table.head.length - 1}, 1fr)`,
-            }}
+            style={{ gridTemplateColumns: tableColumns(message.table) }}
           >
             {message.table.head.map((h) => (
               <span key={h}>{h}</span>
@@ -339,16 +338,14 @@ function AssistantMessage({
             <div
               key={i}
               className="grid gap-[10px] px-[12px] py-[9px] text-[13px] border-t border-border items-center"
-              style={{
-                gridTemplateColumns: `1.6fr repeat(${message.table!.head.length - 1}, 1fr)`,
-              }}
+              style={{ gridTemplateColumns: tableColumns(message.table!) }}
             >
               {row.cells.map((cell, j) =>
                 j === 0 && row.contactId ? (
                   <button
                     key={j}
                     type="button"
-                    className="text-start text-primary font-medium truncate"
+                    className="text-start text-primary font-medium min-w-0 [overflow-wrap:anywhere]"
                     onClick={() =>
                       onCitation?.({
                         kind: "patient",
@@ -360,7 +357,7 @@ function AssistantMessage({
                     {cell}
                   </button>
                 ) : (
-                  <span key={j} className="truncate">
+                  <span key={j} className="min-w-0 [overflow-wrap:anywhere]">
                     {cell}
                   </span>
                 ),
@@ -412,6 +409,30 @@ function AssistantMessage({
   );
 }
 
+/** Short columns (times, prices) always fit their text; long ones (names)
+ *  get the rest and wrap, so nothing is cut off on a phone. */
+function tableColumns(table: { head: string[]; rows: { cells: string[] }[] }) {
+  return table.head
+    .map((head, i) => {
+      const longest = Math.max(
+        head.length,
+        ...table.rows.map((row) => (row.cells[i] ?? "").length),
+      );
+      return longest <= 8 ? "minmax(max-content, 1fr)" : "minmax(0, 2fr)";
+    })
+    .join(" ");
+}
+
+// practice-ask's user-facing errors; anything else is technical and stays in
+// the console.
+const READABLE_SERVER_ERRORS = new Set([
+  "The AI is busy. Try again in a minute.",
+  "The AI is not set up on this deployment.",
+  "The AI couldn't answer right now.",
+  "That question is too long.",
+  "Patient not found.",
+]);
+
 export default function AiChat({
   scope,
   contextLabel,
@@ -431,6 +452,7 @@ export default function AiChat({
   store: remote,
 }: Props) {
   const { translate: t, currentLanguage } = useTranslation();
+  const isMobile = useIsMobile();
   const local = useTherapyStore();
   const store: ChatStore = remote ?? local;
   const threads = store.chats
@@ -533,10 +555,16 @@ export default function AiChat({
       question,
       attachments,
       withQuestion,
-    ).catch((err: unknown) => ({
-      text: `${t("Couldn't get an answer.")} ${err instanceof Error ? err.message : ""}`.trim(),
-      failed: true,
-    }));
+    ).catch((err: unknown) => {
+      console.error("AI answer failed", err);
+      const message = err instanceof Error ? err.message : "";
+      return {
+        text: READABLE_SERVER_ERRORS.has(message)
+          ? t(message)
+          : t("Couldn't get an answer. Try again."),
+        failed: true,
+      };
+    });
     store.saveChat({
       ...withQuestion,
       updatedAt: new Date().toISOString(),
@@ -638,29 +666,34 @@ export default function AiChat({
           }}
         />
         <div className="flex items-center gap-[6px]">
-          {canAttach && (
-            <button
-              type="button"
-              title={t("Attach")}
-              className={
-                "w-[32px] h-[32px] rounded-full flex items-center justify-center " +
-                (menuOpen ? "bg-accent" : "hover:bg-accent")
-              }
-              onClick={() => setMenuOpen((o) => !o)}
+          <div className="flex flex-wrap items-center gap-[6px] grow min-w-0">
+            {canAttach && (
+              <button
+                type="button"
+                title={t("Attach")}
+                className={
+                  "w-[32px] h-[32px] rounded-full flex items-center justify-center " +
+                  (menuOpen ? "bg-accent" : "hover:bg-accent")
+                }
+                onClick={() => setMenuOpen((o) => !o)}
+              >
+                <Plus className="w-[18px] h-[18px]" />
+              </button>
+            )}
+            <span
+              title={contextLabel}
+              className="inline-flex items-center gap-[5px] h-[24px] px-[9px] rounded-full bg-muted text-accent-foreground text-[12px] max-w-full"
             >
-              <Plus className="w-[18px] h-[18px]" />
-            </button>
-          )}
-          <span className="inline-flex items-center gap-[5px] h-[24px] px-[9px] rounded-full bg-muted text-accent-foreground text-[12px]">
-            <UserRound className="w-[12px] h-[12px]" />
-            {contextLabel}
-          </span>
-          {composerExtra}
+              <UserRound className="w-[12px] h-[12px] shrink-0" />
+              <span className="truncate">{contextLabel}</span>
+            </span>
+            {composerExtra}
+          </div>
           <button
             type="button"
             title={t("Send")}
             disabled={!draft.trim() || thinking}
-            className="ms-auto w-[34px] h-[34px] rounded-full flex items-center justify-center bg-primary text-primary-foreground disabled:bg-muted disabled:text-muted-foreground"
+            className="ms-auto w-[34px] h-[34px] shrink-0 rounded-full flex items-center justify-center bg-primary text-primary-foreground disabled:bg-muted disabled:text-muted-foreground"
             onClick={() => void send(draft)}
           >
             <ArrowUp className="w-[17px] h-[17px]" />
@@ -781,10 +814,10 @@ export default function AiChat({
     </div>
   );
 
-  if (layout === "split") {
+  if (layout === "split" && !isMobile) {
     return (
       <div className="flex min-h-0 grow">
-        <div className="w-[250px] shrink-0 border-e border-border bg-sidebar p-[12px] overflow-y-auto hidden md:block">
+        <div className="w-[250px] shrink-0 border-e border-border bg-sidebar p-[12px] overflow-y-auto">
           <ThreadList
             threads={threads}
             store={store}
@@ -807,7 +840,7 @@ export default function AiChat({
 
   if (!inChat) {
     return (
-      <div className="flex flex-col gap-[14px] px-[20px] pt-[16px] pb-[20px]">
+      <div className="flex flex-col gap-[14px] px-[20px] pt-[16px] pb-[20px] min-h-0 overflow-y-auto">
         <ThreadList
           threads={threads}
           store={store}

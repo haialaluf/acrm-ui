@@ -13,7 +13,29 @@ export type RecorderState = {
   callAudioLost: boolean;
 };
 
-type StartFailure = "microphone" | "no-tab-audio" | "cancelled" | "server";
+type StartFailure =
+  | "microphone"
+  | "no-tab-audio"
+  | "online-unsupported"
+  | "cancelled"
+  | "server";
+
+/** Only desktop Chromium (Chrome, Edge, Opera) shares a tab's audio; phones
+ *  and desktop Safari/Firefox either lack getDisplayMedia or return no audio.
+ *  `userAgentData` exists only in Chromium. */
+export function canRecordOnlineSession(): boolean {
+  const uaData = (
+    navigator as Navigator & {
+      userAgentData?: { mobile: boolean; brands: { brand: string }[] };
+    }
+  ).userAgentData;
+  return (
+    typeof navigator.mediaDevices?.getDisplayMedia === "function" &&
+    !!uaData &&
+    !uaData.mobile &&
+    uaData.brands.some((b) => b.brand === "Chromium")
+  );
+}
 
 export class RecorderStartError extends Error {
   readonly reason: StartFailure;
@@ -95,6 +117,10 @@ export class SessionRecorder {
 
     let tab: MediaStream | null = null;
     if (options.mode === "online") {
+      if (typeof navigator.mediaDevices.getDisplayMedia !== "function") {
+        mic.getTracks().forEach((t) => t.stop());
+        throw new RecorderStartError("online-unsupported");
+      }
       const controller =
         "CaptureController" in window
           ? new (

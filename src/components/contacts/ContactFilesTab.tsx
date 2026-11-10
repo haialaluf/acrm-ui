@@ -238,7 +238,7 @@ export default function ContactFilesTab({
                   >
                     {item.name}
                   </div>
-                  <div className="text-[12px] text-muted-foreground flex items-center gap-[4px]">
+                  <div className="text-[12px] text-muted-foreground flex items-center gap-[4px] whitespace-nowrap">
                     {item.source === "chat" && (
                       <MessageCircle className="w-[12px] h-[12px]" />
                     )}

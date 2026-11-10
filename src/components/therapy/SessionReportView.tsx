@@ -131,7 +131,7 @@ export default function SessionReportView({
         </div>
         <span
           className={
-            "text-[12px] font-semibold px-[9px] py-[2px] rounded-full " +
+            "text-[12px] font-semibold px-[9px] py-[2px] rounded-full whitespace-nowrap shrink-0 " +
             (report.status === "approved"
               ? "bg-success/20 text-success"
               : "bg-muted text-muted-foreground")
@@ -142,7 +142,7 @@ export default function SessionReportView({
         <button
           type="button"
           className={
-            "h-[32px] px-[12px] rounded-full text-[13px] flex items-center gap-[6px] " +
+            "h-[32px] px-[12px] rounded-full text-[13px] flex items-center gap-[6px] whitespace-nowrap shrink-0 " +
             (aiOpen
               ? "bg-primary text-primary-foreground"
               : "bg-accent text-accent-foreground")

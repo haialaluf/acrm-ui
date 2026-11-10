@@ -68,7 +68,9 @@ function AppLayout() {
   const isStatsDetail =
     pathname === "/stats/quotas" ||
     pathname === "/stats/usage" ||
-    pathname === "/stats/health";
+    pathname === "/stats/health" ||
+    pathname === "/stats/email" ||
+    pathname === "/stats/clinic-usage";
   // An open calendar (`/calendars/<id>`, but not `/calendars/new`) shows its
   // react-big-calendar board in the wide center panel, master-detail style.
   const isCalendarBoardRoute = /^\/calendars\/(?!new$)[^/]+$/.test(pathname);
